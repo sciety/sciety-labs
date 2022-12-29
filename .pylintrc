@@ -1,0 +1,10 @@
+[MESSAGES CONTROL]
+disable=
+    missing-docstring,
+    too-few-public-methods
+
+[SIMILARITIES]
+min-similarity-lines=5
+ignore-comments=yes
+ignore-docstrings=yes
+ignore-imports=yes
