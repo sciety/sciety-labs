@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  sciety-discovery:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ${SCIETY_DISCOVERY_IMAGE_REPO}:${SCIETY_DISCOVERY_IMAGE_TAG}
