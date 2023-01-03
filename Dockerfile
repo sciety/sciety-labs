@@ -15,6 +15,7 @@ RUN pip install --disable-pip-version-check -r requirements.dev.txt
 
 COPY sciety_discovery ./sciety_discovery
 COPY static ./static
+COPY www_root ./www_root
 
 COPY tests ./tests
 COPY .pylintrc .flake8 mypy.ini ./

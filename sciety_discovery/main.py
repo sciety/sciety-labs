@@ -9,5 +9,6 @@ LOGGER = logging.getLogger(__name__)
 
 def create_app():
     app = FastAPI()
-    app.mount("/", StaticFiles(directory="static", html=True), name="static")
+    app.mount("/static", StaticFiles(directory="static", html=False), name="static")
+    app.mount("/", StaticFiles(directory="www_root", html=True), name="www_root")
     return app
