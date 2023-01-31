@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import Protocol, Sequence
 
 
 STATIC_USER_LISTS = [{
@@ -28,6 +28,11 @@ STATIC_USER_LISTS = [{
 }]
 
 
-class ListsModel:
+class ListsModel(Protocol):
+    def get_most_active_user_lists(self) -> Sequence[dict]:
+        pass
+
+
+class StaticListsModel(ListsModel):
     def get_most_active_user_lists(self) -> Sequence[dict]:
         return STATIC_USER_LISTS

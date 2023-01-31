@@ -5,14 +5,14 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
-from sciety_discovery.models.lists import ListsModel
+from sciety_discovery.models.lists import StaticListsModel
 
 
 LOGGER = logging.getLogger(__name__)
 
 
 def create_app():
-    lists_model = ListsModel()
+    lists_model = StaticListsModel()
 
     templates = Jinja2Templates(directory="templates")
 
