@@ -48,7 +48,8 @@ class ScietyEventListsModel(ListsModel):
     def get_most_active_user_lists(self) -> Sequence[dict]:
         return [
             {
-                'list_id': sciety_list_meta['list_id']
+                'list_id': sciety_list_meta['list_id'],
+                'list_title': sciety_list_meta['list_name']
             }
             for sciety_list_meta in self._sciety_list_meta_by_id.values()
         ]
