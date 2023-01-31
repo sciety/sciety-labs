@@ -1,4 +1,4 @@
-from typing import Protocol, Sequence
+from typing import Dict, Protocol, Sequence
 
 
 STATIC_USER_LISTS = [{
@@ -36,3 +36,19 @@ class ListsModel(Protocol):
 class StaticListsModel(ListsModel):
     def get_most_active_user_lists(self) -> Sequence[dict]:
         return STATIC_USER_LISTS
+
+
+class ScietyEventListsModel(ListsModel):
+    def __init__(self, sciety_events: Sequence[dict]):
+        self._sciety_list_meta_by_id: Dict[str, dict] = {}
+        for event in sciety_events:
+            sciety_list = event['sciety_list']
+            self._sciety_list_meta_by_id[sciety_list['list_id']] = sciety_list
+
+    def get_most_active_user_lists(self) -> Sequence[dict]:
+        return [
+            {
+                'list_id': sciety_list_meta['list_id']
+            }
+            for sciety_list_meta in self._sciety_list_meta_by_id.values()
+        ]
