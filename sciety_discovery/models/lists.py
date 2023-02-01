@@ -8,6 +8,14 @@ class ListMetaData(NamedTuple):
     list_title: str
     list_description: str
 
+    @staticmethod
+    def from_sciety_event_list_meta(sciety_event_list_meta: dict) -> 'ListMetaData':
+        return ListMetaData(
+            list_id=sciety_event_list_meta['list_id'],
+            list_title=sciety_event_list_meta['list_name'],
+            list_description=sciety_event_list_meta['list_description']
+        )
+
 
 class OwnerMetaData(NamedTuple):
     avatar_url: str
@@ -40,7 +48,7 @@ class ListsModel(Protocol):
 
 class ScietyEventListsModel(ListsModel):
     def __init__(self, sciety_events: Sequence[dict]):
-        self._sciety_list_meta_by_list_id: Dict[str, dict] = {}
+        self._sciety_list_meta_by_list_id: Dict[str, ListMetaData] = {}
         self._sciety_user_meta_by_list_id: Dict[str, dict] = {}
         self._article_ids_by_list_id: Dict[str, Set[str]] = defaultdict(set)
         self._last_updated_by_list_id: Dict[str, datetime] = {}
@@ -51,8 +59,11 @@ class ScietyEventListsModel(ListsModel):
             sciety_user = event.get('sciety_user')
             list_id = sciety_list['list_id']
             article_id = event.get('article_id')
-            if list_id and sciety_list:
-                self._sciety_list_meta_by_list_id[list_id] = sciety_list
+            if not sciety_list:
+                continue
+            list_meta = ListMetaData.from_sciety_event_list_meta(sciety_list)
+            list_id = list_meta.list_id
+            self._sciety_list_meta_by_list_id[list_id] = list_meta
             if list_id and sciety_user:
                 self._sciety_user_meta_by_list_id[list_id] = sciety_user
             if list_id and article_id:
@@ -68,22 +79,18 @@ class ScietyEventListsModel(ListsModel):
     def get_most_active_user_lists(self) -> Sequence[ListSummaryData]:
         return [
             ListSummaryData(
-                list_meta=ListMetaData(
-                    list_id=sciety_list_meta['list_id'],
-                    list_title=sciety_list_meta['list_name'],
-                    list_description=sciety_list_meta['list_description'],
-                ),
+                list_meta=list_meta,
                 owner=OwnerMetaData(
                     avatar_url=self._sciety_user_meta_by_list_id[
-                        sciety_list_meta['list_id']
+                        list_meta.list_id
                     ]['avatar_url']
                 ),
                 article_count=len(self._article_ids_by_list_id[
-                    sciety_list_meta['list_id']
+                    list_meta.list_id
                 ]),
                 last_updated_datetime=self._last_updated_by_list_id[
-                    sciety_list_meta['list_id']
+                    list_meta.list_id
                 ]
             )
-            for sciety_list_meta in self._sciety_list_meta_by_list_id.values()
+            for list_meta in self._sciety_list_meta_by_list_id.values()
         ]
