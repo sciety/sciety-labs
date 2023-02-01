@@ -1,6 +1,7 @@
 from collections import defaultdict
+from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Dict, NamedTuple, Protocol, Sequence, Set
+from typing import Dict, NamedTuple, Protocol, Sequence, Sized
 
 
 class ListMetaData(NamedTuple):
@@ -25,6 +26,25 @@ class OwnerMetaData(NamedTuple):
         return OwnerMetaData(
             avatar_url=sciety_event_user_meta['avatar_url']
         )
+
+
+class ArticleListItem(NamedTuple):
+    article_id: str
+    added_datetime: datetime
+
+
+@dataclass
+class ArticleList(Sized):
+    _article_list_item_by_article_id: Dict[str, ArticleListItem] = field(default_factory=dict)
+
+    def __len__(self) -> int:
+        return len(self._article_list_item_by_article_id)
+
+    def add(self, item: ArticleListItem):
+        self._article_list_item_by_article_id[item.article_id] = item
+
+    def remove_by_article_id(self, article_id: str):
+        del self._article_list_item_by_article_id[article_id]
 
 
 class ListSummaryData(NamedTuple):
@@ -56,7 +76,7 @@ class ScietyEventListsModel(ListsModel):
     def __init__(self, sciety_events: Sequence[dict]):
         self._list_meta_by_list_id: Dict[str, ListMetaData] = {}
         self._owner_meta_by_list_id: Dict[str, OwnerMetaData] = {}
-        self._article_ids_by_list_id: Dict[str, Set[str]] = defaultdict(set)
+        self._article_list_by_list_id: Dict[str, ArticleList] = defaultdict(ArticleList)
         self._last_updated_by_list_id: Dict[str, datetime] = {}
         for event in sciety_events:
             event_timestamp = event['event_timestamp']
@@ -77,10 +97,12 @@ class ScietyEventListsModel(ListsModel):
             if list_id and article_id:
                 self._last_updated_by_list_id[list_id] = event_timestamp
                 if event_name == ScietyEventNames.ARTICLE_ADDED_TO_LIST:
-                    self._article_ids_by_list_id[list_id].add(article_id)
+                    self._article_list_by_list_id[list_id].add(
+                        ArticleListItem(article_id=article_id, added_datetime=event_timestamp)
+                    )
                 if event_name == ScietyEventNames.ARTICLE_REMOVED_FROM_LIST:
                     try:
-                        self._article_ids_by_list_id[list_id].remove(article_id)
+                        self._article_list_by_list_id[list_id].remove_by_article_id(article_id)
                     except KeyError:
                         pass
 
@@ -89,7 +111,7 @@ class ScietyEventListsModel(ListsModel):
             ListSummaryData(
                 list_meta=list_meta,
                 owner=self._owner_meta_by_list_id[list_meta.list_id],
-                article_count=len(self._article_ids_by_list_id[
+                article_count=len(self._article_list_by_list_id[
                     list_meta.list_id
                 ]),
                 last_updated_datetime=self._last_updated_by_list_id[
