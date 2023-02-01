@@ -49,7 +49,8 @@ class ScietyEventListsModel(ListsModel):
         return [
             {
                 'list_id': sciety_list_meta['list_id'],
-                'list_title': sciety_list_meta['list_name']
+                'list_title': sciety_list_meta['list_name'],
+                'list_description': sciety_list_meta['list_description']
             }
             for sciety_list_meta in self._sciety_list_meta_by_id.values()
         ]
