@@ -60,7 +60,13 @@ dev-test: dev-lint dev-unittest
 
 
 dev-start:
-	$(PYTHON) -m uvicorn sciety_discovery.main:create_app --reload --factory --host 127.0.0.1 --port 8000
+	$(PYTHON) -m uvicorn \
+		sciety_discovery.main:create_app \
+		--reload \
+		--factory \
+		--host 127.0.0.1 \
+		--port 8000 \
+		--log-config=config/logging.yaml
 
 
 build:
