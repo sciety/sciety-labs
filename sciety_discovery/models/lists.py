@@ -9,8 +9,15 @@ class ListSummaryData(NamedTuple):
     list_description: str
     avatar_url: str
     article_count: int
-    last_updated_date_isoformat: str
-    last_updated_date_display_format: str
+    last_updated_datetime: datetime
+
+    @property
+    def last_updated_date_isoformat(self) -> str:
+        return self.last_updated_datetime.strftime(r'%Y-%m-%d')
+
+    @property
+    def last_updated_date_display_format(self) -> str:
+        return self.last_updated_datetime.strftime(r'%b %-d, %Y')
 
 
 class ScietyEventNames:
@@ -62,12 +69,9 @@ class ScietyEventListsModel(ListsModel):
                 article_count=len(self._article_ids_by_list_id[
                     sciety_list_meta['list_id']
                 ]),
-                last_updated_date_isoformat=self._last_updated_by_list_id[
+                last_updated_datetime=self._last_updated_by_list_id[
                     sciety_list_meta['list_id']
-                ].strftime(r'%Y-%m-%d'),
-                last_updated_date_display_format=self._last_updated_by_list_id[
-                    sciety_list_meta['list_id']
-                ].strftime(r'%b %-d, %Y')
+                ]
             )
             for sciety_list_meta in self._sciety_list_meta_by_list_id.values()
         ]
