@@ -7,13 +7,18 @@ from fastapi.staticfiles import StaticFiles
 
 from sciety_discovery.models.lists import ScietyEventListsModel
 from sciety_discovery.providers.sciety_event import ScietyEventProvider
+from sciety_discovery.utils.cache import InMemorySingleObjectCache
 
 
 LOGGER = logging.getLogger(__name__)
 
 
 def create_app():
-    sciety_event_provider = ScietyEventProvider()
+    max_age_in_seconds = 60 * 60  # 1 hour
+
+    sciety_event_provider = ScietyEventProvider(
+        query_results_cache=InMemorySingleObjectCache(max_age_in_seconds=max_age_in_seconds)
+    )
 
     templates = Jinja2Templates(directory="templates")
 
