@@ -108,6 +108,17 @@ class TestScietyEventListsModel:
         result = model.get_most_active_user_lists()
         assert [item['article_count'] for item in result] == [1]
 
+    def test_should_ignore_remove_event_for_not_added_article(self):
+        model = ScietyEventListsModel([{
+            **ARTICLE_REMOVED_FROM_LIST_EVENT_1,
+            'article_id': ARTICLE_ID_1
+        }, {
+            **ARTICLE_ADDED_TO_LIST_EVENT_1,
+            'article_id': ARTICLE_ID_2
+        }])
+        result = model.get_most_active_user_lists()
+        assert [item['article_count'] for item in result] == [1]
+
     def test_should_calculate_last_updated_date(self):
         model = ScietyEventListsModel([{
             **ARTICLE_ADDED_TO_LIST_EVENT_1,

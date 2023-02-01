@@ -67,7 +67,10 @@ class ScietyEventListsModel(ListsModel):
                 if event_name == ScietyEventNames.ARTICLE_ADDED_TO_LIST:
                     self._article_ids_by_list_id[list_id].add(article_id)
                 if event_name == ScietyEventNames.ARTICLE_REMOVED_FROM_LIST:
-                    self._article_ids_by_list_id[list_id].remove(article_id)
+                    try:
+                        self._article_ids_by_list_id[list_id].remove(article_id)
+                    except KeyError:
+                        pass
 
     def get_most_active_user_lists(self) -> Sequence[dict]:
         return [
