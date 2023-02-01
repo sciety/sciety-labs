@@ -4,3 +4,5 @@ services:
   sciety-discovery:
     ports:
       - "${SCIETY_DISCOVERY_PORT}:8000"
+    volumes:
+      - ~/.config/gcloud:/root/.config/gcloud
