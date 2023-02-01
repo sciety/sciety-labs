@@ -84,18 +84,18 @@
     <ul class="home-page-cards__cards">
     {% for item in user_lists %}
       <li>
-        <a href="https://sciety.org/lists/{{ item.list_id }}?utm_source=sciety-discovery" class="user-list-card__link">
+        <a href="https://sciety.org/lists/{{ item.list_meta.list_id }}?utm_source=sciety-discovery" class="user-list-card__link">
         <article class="user-list-card">
         <div class="user-list-card__body">
           <div>
-            <h3 class="user-list-card__title">{{ item.list_title }}</h3>
-            <p>{{ item.list_description }}</p>
+            <h3 class="user-list-card__title">{{ item.list_meta.list_name }}</h3>
+            <p>{{ item.list_meta.list_description }}</p>
           </div>
           <div class="user-list-card__meta">
             <span class="visually-hidden">This list contains </span><span>{{ item.article_count }} articles</span><span>Last updated <time datetime="{{ item.last_updated_date_isoformat }}">{{ item.last_updated_date_display_format }}</time></span>
           </div>
         </div>
-        <img class="user-list-card__avatar" src="{{ item.avatar_url }}" alt="" />
+        <img class="user-list-card__avatar" src="{{ item.owner.avatar_url }}" alt="" />
         </article>
         </a>
       </li>

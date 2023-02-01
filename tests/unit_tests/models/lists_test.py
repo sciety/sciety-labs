@@ -1,6 +1,10 @@
 from datetime import datetime
 from sciety_discovery.models.lists import (
-    ScietyEventListsModel
+    ListMetaData,
+    ListSummaryData,
+    OwnerMetaData,
+    ScietyEventListsModel,
+    get_sorted_list_summary_list_by_most_active
 )
 
 
@@ -44,6 +48,42 @@ ARTICLE_REMOVED_FROM_LIST_EVENT_1 = {
 }
 
 
+LIST_META_DATA_1 = ListMetaData(
+    list_id=LIST_ID_1,
+    list_name='List Title 1',
+    list_description='List Description 1'
+)
+
+OWNER_META_DATA_1 = OwnerMetaData(
+    avatar_url=SCIETY_USER_1['avatar_url']
+)
+
+LIST_SUMMARY_DATA_1 = ListSummaryData(
+    list_meta=LIST_META_DATA_1,
+    owner=OWNER_META_DATA_1,
+    article_count=10,
+    last_updated_datetime=TIMESTAMP_1
+)
+
+
+class TestGetSortedListSummaryListByMostActive:
+    def test_should_sort_by_article_count_descending(self):
+        expected_list_summary_data = [
+            LIST_SUMMARY_DATA_1._replace(article_count=100),
+            LIST_SUMMARY_DATA_1._replace(article_count=10),
+            LIST_SUMMARY_DATA_1._replace(article_count=1)
+        ]
+        unsorted_list_summary_data = [
+            expected_list_summary_data[1],
+            expected_list_summary_data[0],
+            expected_list_summary_data[2]
+        ]
+        result = get_sorted_list_summary_list_by_most_active(
+            unsorted_list_summary_data
+        )
+        assert result == expected_list_summary_data
+
+
 class TestScietyEventListsModel:
     def test_should_return_empty_list_for_no_events(self):
         model = ScietyEventListsModel([])
@@ -57,9 +97,9 @@ class TestScietyEventListsModel:
         result = model.get_most_active_user_lists()
         assert [
             {
-                'list_id': item['list_id'],
-                'list_title': item['list_title'],
-                'list_description': item['list_description']
+                'list_id': item.list_meta.list_id,
+                'list_title': item.list_meta.list_name,
+                'list_description': item.list_meta.list_description
             }
             for item in result
         ] == [{
@@ -74,14 +114,7 @@ class TestScietyEventListsModel:
             ARTICLE_ADDED_TO_LIST_EVENT_1
         ])
         result = model.get_most_active_user_lists()
-        assert [
-            {
-                'avatar_url': item['avatar_url'],
-            }
-            for item in result
-        ] == [{
-            'avatar_url': SCIETY_USER_1['avatar_url']
-        }]
+        assert [item.owner.avatar_url for item in result] == [SCIETY_USER_1['avatar_url']]
 
     def test_should_calculate_article_count_for_added_only_events(self):
         model = ScietyEventListsModel([{
@@ -92,7 +125,7 @@ class TestScietyEventListsModel:
             'article_id': ARTICLE_ID_2
         }])
         result = model.get_most_active_user_lists()
-        assert [item['article_count'] for item in result] == [2]
+        assert [item.article_count for item in result] == [2]
 
     def test_should_calculate_article_count_for_added_and_removed_events(self):
         model = ScietyEventListsModel([{
@@ -106,7 +139,7 @@ class TestScietyEventListsModel:
             'article_id': ARTICLE_ID_2
         }])
         result = model.get_most_active_user_lists()
-        assert [item['article_count'] for item in result] == [1]
+        assert [item.article_count for item in result] == [1]
 
     def test_should_ignore_remove_event_for_not_added_article(self):
         model = ScietyEventListsModel([{
@@ -117,7 +150,7 @@ class TestScietyEventListsModel:
             'article_id': ARTICLE_ID_2
         }])
         result = model.get_most_active_user_lists()
-        assert [item['article_count'] for item in result] == [1]
+        assert [item.article_count for item in result] == [1]
 
     def test_should_calculate_last_updated_date(self):
         model = ScietyEventListsModel([{
@@ -130,9 +163,9 @@ class TestScietyEventListsModel:
             'article_id': ARTICLE_ID_2
         }])
         result = model.get_most_active_user_lists()
-        assert [item['last_updated_date_isoformat'] for item in result] == [
+        assert [item.last_updated_date_isoformat for item in result] == [
             '2001-01-02'
         ]
-        assert [item['last_updated_date_display_format'] for item in result] == [
+        assert [item.last_updated_date_display_format for item in result] == [
             'Jan 2, 2001'
         ]
