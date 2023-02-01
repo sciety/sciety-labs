@@ -103,3 +103,6 @@ class TestScietyEventListsModel:
         assert [item['last_updated_date_isoformat'] for item in result] == [
             '2001-01-02'
         ]
+        assert [item['last_updated_date_display_format'] for item in result] == [
+            'Jan 2, 2001'
+        ]

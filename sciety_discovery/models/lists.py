@@ -74,7 +74,10 @@ class ScietyEventListsModel(ListsModel):
                 ]),
                 'last_updated_date_isoformat': self._last_updated_by_list_id[
                     sciety_list_meta['list_id']
-                ].strftime(r'%Y-%m-%d')
+                ].strftime(r'%Y-%m-%d'),
+                'last_updated_date_display_format': self._last_updated_by_list_id[
+                    sciety_list_meta['list_id']
+                ].strftime(r'%b %-d, %Y')
             }
             for sciety_list_meta in self._sciety_list_meta_by_list_id.values()
         ]
