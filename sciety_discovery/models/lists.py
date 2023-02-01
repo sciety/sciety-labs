@@ -9,9 +9,13 @@ class ListMetaData(NamedTuple):
     list_description: str
 
 
+class OwnerMetaData(NamedTuple):
+    avatar_url: str
+
+
 class ListSummaryData(NamedTuple):
     list_meta: ListMetaData
-    avatar_url: str
+    owner: OwnerMetaData
     article_count: int
     last_updated_datetime: datetime
 
@@ -69,9 +73,11 @@ class ScietyEventListsModel(ListsModel):
                     list_title=sciety_list_meta['list_name'],
                     list_description=sciety_list_meta['list_description'],
                 ),
-                avatar_url=self._sciety_user_meta_by_list_id[
-                    sciety_list_meta['list_id']
-                ]['avatar_url'],
+                owner=OwnerMetaData(
+                    avatar_url=self._sciety_user_meta_by_list_id[
+                        sciety_list_meta['list_id']
+                    ]['avatar_url']
+                ),
                 article_count=len(self._article_ids_by_list_id[
                     sciety_list_meta['list_id']
                 ]),

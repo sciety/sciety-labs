@@ -74,7 +74,7 @@ class TestScietyEventListsModel:
             ARTICLE_ADDED_TO_LIST_EVENT_1
         ])
         result = model.get_most_active_user_lists()
-        assert [item.avatar_url for item in result] == [SCIETY_USER_1['avatar_url']]
+        assert [item.owner.avatar_url for item in result] == [SCIETY_USER_1['avatar_url']]
 
     def test_should_calculate_article_count_for_added_only_events(self):
         model = ScietyEventListsModel([{

@@ -95,7 +95,7 @@
             <span class="visually-hidden">This list contains </span><span>{{ item.article_count }} articles</span><span>Last updated <time datetime="{{ item.last_updated_date_isoformat }}">{{ item.last_updated_date_display_format }}</time></span>
           </div>
         </div>
-        <img class="user-list-card__avatar" src="{{ item.avatar_url }}" alt="" />
+        <img class="user-list-card__avatar" src="{{ item.owner.avatar_url }}" alt="" />
         </article>
         </a>
       </li>
