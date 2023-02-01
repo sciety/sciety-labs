@@ -3,6 +3,12 @@ from sciety_discovery.models.lists import (
 )
 
 
+DOI_1 = '10.12345/doi_1'
+DOI_2 = '10.12345/doi_2'
+
+ARTICLE_ID_1 = f'doi:{DOI_1}'
+ARTICLE_ID_2 = f'doi:{DOI_2}'
+
 LIST_ID_1 = 'list_1'
 LIST_ID_2 = 'list_2'
 
@@ -23,7 +29,8 @@ SCIETY_USER_1 = {
 ARTICLE_ADDED_TO_LIST_EVENT_1 = {
     'event_name': 'ArticleAddedToList',
     'sciety_list': SCIETY_LIST_1,
-    'sciety_user': SCIETY_USER_1
+    'sciety_user': SCIETY_USER_1,
+    'article_id': ARTICLE_ID_1
 }
 
 
@@ -65,3 +72,14 @@ class TestScietyEventListsModel:
         ] == [{
             'avatar_url': SCIETY_USER_1['avatar_url']
         }]
+
+    def test_should_calculate_article_count_for_added_only_events(self):
+        model = ScietyEventListsModel([{
+            **ARTICLE_ADDED_TO_LIST_EVENT_1,
+            'article_id': ARTICLE_ID_1
+        }, {
+            **ARTICLE_ADDED_TO_LIST_EVENT_1,
+            'article_id': ARTICLE_ID_2
+        }])
+        result = model.get_most_active_user_lists()
+        assert [item['article_count'] for item in result] == [2]

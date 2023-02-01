@@ -1,4 +1,5 @@
-from typing import Dict, Protocol, Sequence
+from collections import defaultdict
+from typing import Dict, Protocol, Sequence, Set
 
 
 STATIC_USER_LISTS = [{
@@ -42,14 +43,18 @@ class ScietyEventListsModel(ListsModel):
     def __init__(self, sciety_events: Sequence[dict]):
         self._sciety_list_meta_by_list_id: Dict[str, dict] = {}
         self._sciety_user_meta_by_list_id: Dict[str, dict] = {}
+        self._article_ids_by_list_id: Dict[str, Set[str]] = defaultdict(set)
         for event in sciety_events:
             sciety_list = event['sciety_list']
             sciety_user = event.get('sciety_user')
             list_id = sciety_list['list_id']
+            article_id = event.get('article_id')
             if list_id and sciety_list:
                 self._sciety_list_meta_by_list_id[list_id] = sciety_list
             if list_id and sciety_user:
                 self._sciety_user_meta_by_list_id[list_id] = sciety_user
+            if list_id and article_id:
+                self._article_ids_by_list_id[list_id].add(article_id)
 
     def get_most_active_user_lists(self) -> Sequence[dict]:
         return [
@@ -59,7 +64,10 @@ class ScietyEventListsModel(ListsModel):
                 'list_description': sciety_list_meta['list_description'],
                 'avatar_url': self._sciety_user_meta_by_list_id[
                     sciety_list_meta['list_id']
-                ]['avatar_url']
+                ]['avatar_url'],
+                'article_count': len(self._article_ids_by_list_id[
+                    sciety_list_meta['list_id']
+                ])
             }
             for sciety_list_meta in self._sciety_list_meta_by_list_id.values()
         ]
