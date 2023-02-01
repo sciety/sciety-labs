@@ -1,7 +1,7 @@
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Dict, NamedTuple, Optional, Protocol, Sequence, Sized
+from typing import Dict, Iterable, NamedTuple, Optional, Protocol, Sequence, Sized
 
 
 class ListMetaData(NamedTuple):
@@ -68,6 +68,9 @@ class ListSummaryData(NamedTuple):
             return ''
         return self.last_updated_datetime.strftime(r'%b %-d, %Y')
 
+    def get_activity_sort_key(self) -> int:
+        return -self.article_count
+
 
 class ScietyEventNames:
     ARTICLE_ADDED_TO_LIST = 'ArticleAddedToList'
@@ -77,6 +80,15 @@ class ScietyEventNames:
 class ListsModel(Protocol):
     def get_most_active_user_lists(self) -> Sequence[ListSummaryData]:
         pass
+
+
+def get_sorted_list_summary_list_by_most_active(
+    list_summary_iterable: Iterable[ListSummaryData],
+) -> Sequence[ListSummaryData]:
+    return sorted(
+        list_summary_iterable,
+        key=ListSummaryData.get_activity_sort_key
+    )
 
 
 class ScietyEventListsModel(ListsModel):
@@ -115,7 +127,7 @@ class ScietyEventListsModel(ListsModel):
                         pass
 
     def get_most_active_user_lists(self) -> Sequence[ListSummaryData]:
-        return [
+        return get_sorted_list_summary_list_by_most_active([
             ListSummaryData(
                 list_meta=list_meta,
                 owner=self._owner_meta_by_list_id[list_meta.list_id],
@@ -127,4 +139,4 @@ class ScietyEventListsModel(ListsModel):
                 ].last_updated_datetime
             )
             for list_meta in self._list_meta_by_list_id.values()
-        ]
+        ])
