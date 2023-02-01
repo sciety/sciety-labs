@@ -20,6 +20,12 @@ SCIETY_USER_1 = {
     'avatar_url': 'https://user-avatar/1'
 }
 
+ARTICLE_ADDED_TO_LIST_EVENT_1 = {
+    'event_name': 'ArticleAddedToList',
+    'sciety_list': SCIETY_LIST_1,
+    'sciety_user': SCIETY_USER_1
+}
+
 
 class TestScietyEventListsModel:
     def test_should_return_empty_list_for_no_events(self):
@@ -27,15 +33,10 @@ class TestScietyEventListsModel:
         assert not model.get_most_active_user_lists()
 
     def test_should_populate_list_id_and_list_meta_fields(self):
-        model = ScietyEventListsModel([{
-            'event_name': 'ArticleAddedToList',
-            'sciety_list': SCIETY_LIST_1,
-            'sciety_user': SCIETY_USER_1
-        }, {
-            'event_name': 'ArticleAddedToList',
-            'sciety_list': SCIETY_LIST_1,
-            'sciety_user': SCIETY_USER_1
-        }])
+        model = ScietyEventListsModel([
+            ARTICLE_ADDED_TO_LIST_EVENT_1,
+            ARTICLE_ADDED_TO_LIST_EVENT_1
+        ])
         result = model.get_most_active_user_lists()
         assert [
             {
@@ -51,15 +52,10 @@ class TestScietyEventListsModel:
         }]
 
     def test_should_populate_avatar_url(self):
-        model = ScietyEventListsModel([{
-            'event_name': 'ArticleAddedToList',
-            'sciety_list': SCIETY_LIST_1,
-            'sciety_user': SCIETY_USER_1
-        }, {
-            'event_name': 'ArticleAddedToList',
-            'sciety_list': SCIETY_LIST_1,
-            'sciety_user': SCIETY_USER_1
-        }])
+        model = ScietyEventListsModel([
+            ARTICLE_ADDED_TO_LIST_EVENT_1,
+            ARTICLE_ADDED_TO_LIST_EVENT_1
+        ])
         result = model.get_most_active_user_lists()
         assert [
             {
