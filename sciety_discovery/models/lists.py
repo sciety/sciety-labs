@@ -6,14 +6,14 @@ from typing import Dict, Iterable, NamedTuple, Optional, Protocol, Sequence, Siz
 
 class ListMetaData(NamedTuple):
     list_id: str
-    list_title: str
+    list_name: str
     list_description: str
 
     @staticmethod
     def from_sciety_event_list_meta(sciety_event_list_meta: dict) -> 'ListMetaData':
         return ListMetaData(
             list_id=sciety_event_list_meta['list_id'],
-            list_title=sciety_event_list_meta['list_name'],
+            list_name=sciety_event_list_meta['list_name'],
             list_description=sciety_event_list_meta['list_description']
         )
 

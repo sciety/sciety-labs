@@ -50,7 +50,7 @@ ARTICLE_REMOVED_FROM_LIST_EVENT_1 = {
 
 LIST_META_DATA_1 = ListMetaData(
     list_id=LIST_ID_1,
-    list_title='List Title 1',
+    list_name='List Title 1',
     list_description='List Description 1'
 )
 
@@ -98,7 +98,7 @@ class TestScietyEventListsModel:
         assert [
             {
                 'list_id': item.list_meta.list_id,
-                'list_title': item.list_meta.list_title,
+                'list_title': item.list_meta.list_name,
                 'list_description': item.list_meta.list_description
             }
             for item in result
