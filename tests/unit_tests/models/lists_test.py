@@ -57,9 +57,9 @@ class TestScietyEventListsModel:
         result = model.get_most_active_user_lists()
         assert [
             {
-                'list_id': item.list_id,
-                'list_title': item.list_title,
-                'list_description': item.list_description
+                'list_id': item.list_meta.list_id,
+                'list_title': item.list_meta.list_title,
+                'list_description': item.list_meta.list_description
             }
             for item in result
         ] == [{

@@ -3,10 +3,14 @@ from datetime import datetime
 from typing import Dict, NamedTuple, Protocol, Sequence, Set
 
 
-class ListSummaryData(NamedTuple):
+class ListMetaData(NamedTuple):
     list_id: str
     list_title: str
     list_description: str
+
+
+class ListSummaryData(NamedTuple):
+    list_meta: ListMetaData
     avatar_url: str
     article_count: int
     last_updated_datetime: datetime
@@ -60,9 +64,11 @@ class ScietyEventListsModel(ListsModel):
     def get_most_active_user_lists(self) -> Sequence[ListSummaryData]:
         return [
             ListSummaryData(
-                list_id=sciety_list_meta['list_id'],
-                list_title=sciety_list_meta['list_name'],
-                list_description=sciety_list_meta['list_description'],
+                list_meta=ListMetaData(
+                    list_id=sciety_list_meta['list_id'],
+                    list_title=sciety_list_meta['list_name'],
+                    list_description=sciety_list_meta['list_description'],
+                ),
                 avatar_url=self._sciety_user_meta_by_list_id[
                     sciety_list_meta['list_id']
                 ]['avatar_url'],
