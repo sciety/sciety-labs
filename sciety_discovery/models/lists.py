@@ -1,4 +1,5 @@
 from collections import defaultdict
+from datetime import datetime
 from typing import Dict, Protocol, Sequence, Set
 
 
@@ -44,7 +45,9 @@ class ScietyEventListsModel(ListsModel):
         self._sciety_list_meta_by_list_id: Dict[str, dict] = {}
         self._sciety_user_meta_by_list_id: Dict[str, dict] = {}
         self._article_ids_by_list_id: Dict[str, Set[str]] = defaultdict(set)
+        self._last_updated_by_list_id: Dict[str, datetime] = {}
         for event in sciety_events:
+            event_timestamp = event['event_timestamp']
             sciety_list = event['sciety_list']
             sciety_user = event.get('sciety_user')
             list_id = sciety_list['list_id']
@@ -55,6 +58,7 @@ class ScietyEventListsModel(ListsModel):
                 self._sciety_user_meta_by_list_id[list_id] = sciety_user
             if list_id and article_id:
                 self._article_ids_by_list_id[list_id].add(article_id)
+                self._last_updated_by_list_id[list_id] = event_timestamp
 
     def get_most_active_user_lists(self) -> Sequence[dict]:
         return [
@@ -67,7 +71,10 @@ class ScietyEventListsModel(ListsModel):
                 ]['avatar_url'],
                 'article_count': len(self._article_ids_by_list_id[
                     sciety_list_meta['list_id']
-                ])
+                ]),
+                'last_updated_date_isoformat': self._last_updated_by_list_id[
+                    sciety_list_meta['list_id']
+                ].strftime(r'%Y-%m-%d')
             }
             for sciety_list_meta in self._sciety_list_meta_by_list_id.values()
         ]

@@ -1,3 +1,4 @@
+from datetime import datetime
 from sciety_discovery.models.lists import (
     ScietyEventListsModel
 )
@@ -26,7 +27,11 @@ SCIETY_USER_1 = {
     'avatar_url': 'https://user-avatar/1'
 }
 
+TIMESTAMP_1 = datetime.fromisoformat('2001-01-01+00:00')
+TIMESTAMP_2 = datetime.fromisoformat('2001-01-02+00:00')
+
 ARTICLE_ADDED_TO_LIST_EVENT_1 = {
+    'event_timestamp': TIMESTAMP_1,
     'event_name': 'ArticleAddedToList',
     'sciety_list': SCIETY_LIST_1,
     'sciety_user': SCIETY_USER_1,
@@ -83,3 +88,18 @@ class TestScietyEventListsModel:
         }])
         result = model.get_most_active_user_lists()
         assert [item['article_count'] for item in result] == [2]
+
+    def test_should_calculate_last_updated_date(self):
+        model = ScietyEventListsModel([{
+            **ARTICLE_ADDED_TO_LIST_EVENT_1,
+            'event_timestamp': datetime.fromisoformat('2001-01-01+00:00'),
+            'article_id': ARTICLE_ID_1
+        }, {
+            **ARTICLE_ADDED_TO_LIST_EVENT_1,
+            'event_timestamp': datetime.fromisoformat('2001-01-02+00:00'),
+            'article_id': ARTICLE_ID_2
+        }])
+        result = model.get_most_active_user_lists()
+        assert [item['last_updated_date_isoformat'] for item in result] == [
+            '2001-01-02'
+        ]
