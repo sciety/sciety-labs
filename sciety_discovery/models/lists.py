@@ -54,7 +54,7 @@ class ListsModel(Protocol):
 
 class ScietyEventListsModel(ListsModel):
     def __init__(self, sciety_events: Sequence[dict]):
-        self._sciety_list_meta_by_list_id: Dict[str, ListMetaData] = {}
+        self._list_meta_by_list_id: Dict[str, ListMetaData] = {}
         self._owner_meta_by_list_id: Dict[str, OwnerMetaData] = {}
         self._article_ids_by_list_id: Dict[str, Set[str]] = defaultdict(set)
         self._last_updated_by_list_id: Dict[str, datetime] = {}
@@ -69,7 +69,7 @@ class ScietyEventListsModel(ListsModel):
                 continue
             list_meta = ListMetaData.from_sciety_event_list_meta(sciety_list)
             list_id = list_meta.list_id
-            self._sciety_list_meta_by_list_id[list_id] = list_meta
+            self._list_meta_by_list_id[list_id] = list_meta
             if list_id and sciety_user:
                 self._owner_meta_by_list_id[list_id] = (
                     OwnerMetaData.from_sciety_event_user_meta(sciety_user)
@@ -96,5 +96,5 @@ class ScietyEventListsModel(ListsModel):
                     list_meta.list_id
                 ]
             )
-            for list_meta in self._sciety_list_meta_by_list_id.values()
+            for list_meta in self._list_meta_by_list_id.values()
         ]
