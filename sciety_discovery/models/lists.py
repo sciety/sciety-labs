@@ -40,17 +40,26 @@ class StaticListsModel(ListsModel):
 
 class ScietyEventListsModel(ListsModel):
     def __init__(self, sciety_events: Sequence[dict]):
-        self._sciety_list_meta_by_id: Dict[str, dict] = {}
+        self._sciety_list_meta_by_list_id: Dict[str, dict] = {}
+        self._sciety_user_meta_by_list_id: Dict[str, dict] = {}
         for event in sciety_events:
             sciety_list = event['sciety_list']
-            self._sciety_list_meta_by_id[sciety_list['list_id']] = sciety_list
+            sciety_user = event.get('sciety_user')
+            list_id = sciety_list['list_id']
+            if list_id and sciety_list:
+                self._sciety_list_meta_by_list_id[list_id] = sciety_list
+            if list_id and sciety_user:
+                self._sciety_user_meta_by_list_id[list_id] = sciety_user
 
     def get_most_active_user_lists(self) -> Sequence[dict]:
         return [
             {
                 'list_id': sciety_list_meta['list_id'],
                 'list_title': sciety_list_meta['list_name'],
-                'list_description': sciety_list_meta['list_description']
+                'list_description': sciety_list_meta['list_description'],
+                'avatar_url': self._sciety_user_meta_by_list_id[
+                    sciety_list_meta['list_id']
+                ]['avatar_url']
             }
-            for sciety_list_meta in self._sciety_list_meta_by_id.values()
+            for sciety_list_meta in self._sciety_list_meta_by_list_id.values()
         ]
