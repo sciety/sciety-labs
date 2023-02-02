@@ -1,3 +1,4 @@
+from datetime import datetime
 import logging
 from typing import Any, Iterable, Optional, Sequence
 
@@ -37,3 +38,12 @@ def iter_dict_from_bq_query(
     for row in bq_result:
         LOGGER.debug('row: %r', row)
         yield dict(row.items())
+
+
+def get_bq_table_modified_datetime(
+    project_name: str,
+    table_id: str
+) -> datetime:
+    bq_client = get_bq_client(project_name=project_name)
+    bq_table = bq_client.get_table(table_id)
+    return bq_table.modified
