@@ -135,8 +135,11 @@ class ScietyEventListsModel(ListsModel):
         with self._lock:
             self._do_apply_events(sciety_events)
 
-    def get_most_active_user_lists(self) -> Sequence[ListSummaryData]:
-        return get_sorted_list_summary_list_by_most_active([
+    def get_most_active_user_lists(
+        self,
+        top_n: Optional[int] = None
+    ) -> Sequence[ListSummaryData]:
+        result = get_sorted_list_summary_list_by_most_active([
             ListSummaryData(
                 list_meta=list_meta,
                 owner=self._owner_meta_by_list_id[list_meta.list_id],
@@ -149,3 +152,6 @@ class ScietyEventListsModel(ListsModel):
             )
             for list_meta in self._list_meta_by_list_id.values()
         ])
+        if top_n:
+            result = result[:top_n]
+        return result

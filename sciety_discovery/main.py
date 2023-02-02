@@ -50,7 +50,9 @@ def create_app():
         return templates.TemplateResponse(
             "index.html", {
                 "request": request,
-                "user_lists": lists_model.get_most_active_user_lists()
+                "user_lists": lists_model.get_most_active_user_lists(
+                    top_n=3
+                )
             }
         )
 
