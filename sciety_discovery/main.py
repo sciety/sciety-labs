@@ -32,6 +32,10 @@ def create_app():
         query_results_cache=query_results_cache
     )
 
+    lists_model = ScietyEventListsModel(
+        sciety_event_provider.get_sciety_event_dict_list()
+    )
+
     templates = Jinja2Templates(directory="templates")
 
     app = FastAPI()
@@ -39,7 +43,7 @@ def create_app():
 
     @app.get("/", response_class=HTMLResponse)
     async def index(request: Request):
-        lists_model = ScietyEventListsModel(
+        lists_model.apply_events(
             sciety_event_provider.get_sciety_event_dict_list()
         )
         return templates.TemplateResponse(
