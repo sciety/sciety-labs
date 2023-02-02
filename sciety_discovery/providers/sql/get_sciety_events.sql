@@ -1,14 +1,14 @@
 SELECT
-  event_timestamp,
-  event_name,
-  sciety_list,
-  sciety_user,
-  article_id
+  event.event_timestamp,
+  event.normalized_event_name AS event_name,
+  event.sciety_list,
+  event.sciety_user,
+  event.article_id
 FROM `elife-data-pipeline.de_proto.v_sciety_event` AS event
 WHERE
-  event_name IN ('ArticleAddedToList', 'ArticleRemovedFromList')
-  AND sciety_user.user_id IS NOT NULL
-  AND sciety_list.list_id NOT IN (
+  event.normalized_event_name IN ('ArticleAddedToList', 'ArticleRemovedFromList')
+  AND event.sciety_user.user_id IS NOT NULL
+  AND event.sciety_list.list_id NOT IN (
     -- exclude some lists of users who's avatar no longer resolves
     'c145fb46-9487-4910-ae25-aa3e9f3fa5e8',
     'b8b1abc5-9b8e-42b7-bc10-e01572d1d5d4',
@@ -22,4 +22,5 @@ WHERE
     '55b5810b-d255-46d1-8372-7cf4f16595b9',
     '0e634779-68fa-4209-87f7-8cb5046a3c94'
   )
+  AND NOT event.is_duplicate_event
 ORDER BY event_timestamp
