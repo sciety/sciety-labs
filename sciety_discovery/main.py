@@ -8,6 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from sciety_discovery.models.lists import ScietyEventListsModel
 from sciety_discovery.providers.sciety_event import ScietyEventProvider
 from sciety_discovery.utils.bq_cache import BigQueryTableModifiedInMemorySingleObjectCache
+from sciety_discovery.utils.cache import ChainedObjectCache, InMemorySingleObjectCache
 
 
 LOGGER = logging.getLogger(__name__)
@@ -16,11 +17,15 @@ LOGGER = logging.getLogger(__name__)
 def create_app():
     gcp_project_name = 'elife-data-pipeline'
     sciety_event_table_id = f'{gcp_project_name}.de_proto.sciety_event_v1'
+    max_age_in_seconds = 60 * 60  # 1 hour
 
-    query_results_cache = BigQueryTableModifiedInMemorySingleObjectCache(
-        gcp_project_name=gcp_project_name,
-        table_id=sciety_event_table_id
-    )
+    query_results_cache = ChainedObjectCache([
+        BigQueryTableModifiedInMemorySingleObjectCache(
+            gcp_project_name=gcp_project_name,
+            table_id=sciety_event_table_id
+        ),
+        InMemorySingleObjectCache(max_age_in_seconds=max_age_in_seconds)
+    ])
 
     sciety_event_provider = ScietyEventProvider(
         gcp_project_name=gcp_project_name,

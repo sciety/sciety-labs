@@ -1,6 +1,7 @@
+import functools
 from time import monotonic
 from threading import Lock
-from typing import Callable, Optional,  Protocol, TypeVar
+from typing import Callable, Optional,  Protocol, Sequence, TypeVar
 
 
 T = TypeVar('T')
@@ -9,6 +10,23 @@ T = TypeVar('T')
 class SingleObjectCache(Protocol[T]):
     def get_or_load(self, load_fn: Callable[[], T]) -> T:
         pass
+
+
+class ChainedObjectCache(SingleObjectCache[T]):
+    def __init__(self, cache_list: Sequence[SingleObjectCache[T]]):
+        assert len(cache_list) >= 1
+        self.cache_list = cache_list
+
+    def get_or_load(self, load_fn: Callable[[], T]) -> T:
+        wrapped_load_fn = load_fn
+        previous_cache_list = self.cache_list[:-1]
+        last_cache = self.cache_list[-1]
+        for previous_cache in previous_cache_list:
+            wrapped_load_fn = functools.partial(
+                previous_cache.get_or_load,
+                load_fn=wrapped_load_fn
+            )
+        return last_cache.get_or_load(load_fn=wrapped_load_fn)
 
 
 class DummySingleObjectCache(SingleObjectCache[T]):
