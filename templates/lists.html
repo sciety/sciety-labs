@@ -1,0 +1,34 @@
+{% include 'page-header.html' with context %}
+
+  <main class="page-content" id="mainContent">
+      
+  <div class="sciety-grid-two-columns">
+
+  <div class="main-content">
+
+  <ul class="tab-list" role="tablist">
+    <li class="tab tab--active" role="presentation">
+      <span role="tab" id="active-tab" aria-selected="true">Most active lists (1)</span>
+    </li>
+  </ul>
+
+  <section class="tab-panel" role="tabpanel" aria-labelledby="active-tab">
+    
+    {% for item in user_lists %}
+    <article class="list-card">
+        <img class="list-card__avatar" src="{{ item.owner.avatar_url }}" alt="" />
+        <h3 class="list-card__title"><a href="https://sciety.org/lists/{{ item.list_meta.list_id }}?utm_source=sciety-discovery" class="list-card__link">{{ item.list_meta.list_name }}</a></h3>
+        <p>{{ item.list_meta.list_description }}</p>
+        <div class="list-card__meta">
+          <span class="visually-hidden">This list contains </span><span>{{ item.article_count }} articles</span><span>Last updated <time datetime="{{ item.last_updated_date_isoformat }}">{{ item.last_updated_date_display_format }}</time></span>
+        </div>
+    </article>
+    {% endfor %}
+  </section>
+
+    </div>
+    </div>
+
+  </main>
+
+{% include 'page-footer.html' with context %}

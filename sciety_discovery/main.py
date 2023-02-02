@@ -50,6 +50,17 @@ def create_app():
         return templates.TemplateResponse(
             "index.html", {
                 "request": request,
+                "user_lists": lists_model.get_most_active_user_lists(
+                    top_n=3
+                )
+            }
+        )
+
+    @app.get("/lists", response_class=HTMLResponse)
+    async def lists(request: Request):
+        return templates.TemplateResponse(
+            "lists.html", {
+                "request": request,
                 "user_lists": lists_model.get_most_active_user_lists()
             }
         )
