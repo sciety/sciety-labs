@@ -18,6 +18,7 @@ def create_app():
     gcp_project_name = 'elife-data-pipeline'
     sciety_event_table_id = f'{gcp_project_name}.de_proto.sciety_event_v1'
     update_interval_in_secs = 60 * 60  # 1 hour
+    min_article_count = 2
 
     query_results_cache = BigQueryTableModifiedInMemorySingleObjectCache(
         gcp_project_name=gcp_project_name,
@@ -51,7 +52,8 @@ def create_app():
             "index.html", {
                 "request": request,
                 "user_lists": lists_model.get_most_active_user_lists(
-                    top_n=3
+                    top_n=3,
+                    min_article_count=min_article_count
                 )
             }
         )
@@ -61,7 +63,9 @@ def create_app():
         return templates.TemplateResponse(
             "lists.html", {
                 "request": request,
-                "user_lists": lists_model.get_most_active_user_lists()
+                "user_lists": lists_model.get_most_active_user_lists(
+                    min_article_count=min_article_count
+                )
             }
         )
 
