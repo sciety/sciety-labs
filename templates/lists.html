@@ -78,6 +78,7 @@
     
     {% for item in user_lists %}
     <article class="list-card">
+        <img class="list-card__avatar" src="{{ item.owner.avatar_url }}" alt="" />
         <h3 class="list-card__title"><a href="https://sciety.org/lists/{{ item.list_meta.list_id }}?utm_source=sciety-discovery" class="list-card__link">{{ item.list_meta.list_name }}</a></h3>
         <p>{{ item.list_meta.list_description }}</p>
         <div class="list-card__meta">
