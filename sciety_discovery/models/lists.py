@@ -1,6 +1,7 @@
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime
+from threading import Lock
 from typing import Dict, Iterable, NamedTuple, Optional, Protocol, Sequence, Sized
 
 
@@ -96,6 +97,10 @@ class ScietyEventListsModel(ListsModel):
         self._list_meta_by_list_id: Dict[str, ListMetaData] = {}
         self._owner_meta_by_list_id: Dict[str, OwnerMetaData] = {}
         self._article_list_by_list_id: Dict[str, ArticleList] = defaultdict(ArticleList)
+        self._lock = Lock()
+        self.apply_events(sciety_events)
+
+    def _do_apply_events(self, sciety_events: Sequence[dict]):
         for event in sciety_events:
             event_timestamp = event['event_timestamp']
             event_name = event['event_name']
@@ -125,6 +130,10 @@ class ScietyEventListsModel(ListsModel):
                         )
                     except KeyError:
                         pass
+
+    def apply_events(self, sciety_events: Sequence[dict]):
+        with self._lock:
+            self._do_apply_events(sciety_events)
 
     def get_most_active_user_lists(self) -> Sequence[ListSummaryData]:
         return get_sorted_list_summary_list_by_most_active([
