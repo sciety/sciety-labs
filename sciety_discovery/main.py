@@ -74,7 +74,11 @@ def create_app():
         return templates.TemplateResponse(
             "list-by-twitter-handle.html", {
                 "request": request,
-                "twitter_handle": twitter_handle
+                "twitter_handle": twitter_handle,
+                "article_list_content": [{
+                    "article_doi": "10.1101/2022.07.06.22277306",
+                    "article_title": "10.1101/2022.07.06.22277306",
+                }]
             }
         )
 
