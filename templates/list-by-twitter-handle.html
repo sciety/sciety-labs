@@ -4,9 +4,12 @@
       
   <div class="sciety-grid-two-columns">
 
-  <div class="main-content">
+  <header class="page-header page-header--list">
 
-    <p>Twitter Handle: {{ twitter_handle }}</p>
+    <p class="page-header__subheading">
+      <span>A list by <a href="https://twitter.com/{{ twitter_handle }}">{{ twitter_handle }}</a></span>
+    </p>
+  </header>
 
     <ul class="articles-list" role="list">{% for item in article_list_content %}
     <li class="articles-list__item">
@@ -33,7 +36,6 @@
     {% endfor %}
   </section>
 
-  </div>
   </div>
 
   </main>
