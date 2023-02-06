@@ -69,4 +69,13 @@ def create_app():
             }
         )
 
+    @app.get("/lists/by-twitter-handle/{twitter_handle}", response_class=HTMLResponse)
+    async def list_by_twitter_handle(request: Request, twitter_handle: str):
+        return templates.TemplateResponse(
+            "list-by-twitter-handle.html", {
+                "request": request,
+                "twitter_handle": twitter_handle
+            }
+        )
+
     return app
