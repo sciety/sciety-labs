@@ -6,6 +6,9 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
 from sciety_discovery.models.lists import ScietyEventListsModel
+from sciety_discovery.providers.crossref import (
+    CrossrefMetaDataProvider
+)
 from sciety_discovery.providers.sciety_event import ScietyEventProvider
 from sciety_discovery.providers.twitter import TwitterUserArticleListProvider
 from sciety_discovery.utils.bq_cache import BigQueryTableModifiedInMemorySingleObjectCache
@@ -38,6 +41,7 @@ def create_app():
     twitter_user_article_list_provider = TwitterUserArticleListProvider(
         '.secrets/twitter_api_authorization.txt'
     )
+    crossref_metadata_provider = CrossrefMetaDataProvider()
 
     UpdateThread(
         update_interval_in_secs=update_interval_in_secs,
@@ -76,15 +80,27 @@ def create_app():
 
     @app.get("/lists/by-twitter-handle/{twitter_handle}", response_class=HTMLResponse)
     async def list_by_twitter_handle(request: Request, twitter_handle: str):
+        twitter_article_items = (
+            twitter_user_article_list_provider.iter_article_mentions_by_screen_name(
+                twitter_handle
+            )
+        )
+        twitter_article_items_with_title = (
+            item._replace(
+                article_title=(
+                    crossref_metadata_provider.get_article_metadata_by_doi(
+                        item.article_doi
+                    ).article_title
+                )
+            )
+            for item in twitter_article_items
+        )
+
         return templates.TemplateResponse(
             "list-by-twitter-handle.html", {
                 "request": request,
                 "twitter_handle": twitter_handle,
-                "article_list_content": list(
-                    twitter_user_article_list_provider.iter_article_mentions_by_screen_name(
-                        twitter_handle
-                    )
-                )
+                "article_list_content": list(twitter_article_items_with_title)
             }
         )
 
