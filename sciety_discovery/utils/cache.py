@@ -1,7 +1,15 @@
 import functools
+import logging
+import os
+import pickle
+import time
+from pathlib import Path
 from time import monotonic
 from threading import Lock
-from typing import Callable, Optional,  Protocol, Sequence, TypeVar
+from typing import IO, Callable, Optional,  Protocol, Sequence, TypeVar
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 T = TypeVar('T')
@@ -60,4 +68,38 @@ class InMemorySingleObjectCache(SingleObjectCache[T]):
             assert result is not None
             self._value = result
             self._last_updated_time = now
+            return result
+
+
+class DiskSingleObjectCache(SingleObjectCache[T]):
+    def __init__(
+        self,
+        file_path: Path,
+        max_age_in_seconds: float,
+        serialize_fn: Callable[[T, IO], None] = pickle.dump,
+        deserialize_fn: Callable[[IO], T] = pickle.load
+    ) -> None:
+        self.file_path = file_path
+        self.max_age_in_seconds = max_age_in_seconds
+        self.serialize_fn = serialize_fn
+        self.deserialize_fn = deserialize_fn
+        self._lock = Lock()
+        self._value: Optional[T] = None
+        self._last_updated_time: Optional[float] = None
+
+    def _is_max_age_reached(self) -> bool:
+        modified_time = os.path.getmtime(self.file_path)
+        age = time.time() - modified_time
+        LOGGER.debug('age: %r', age)
+        return age >= self.max_age_in_seconds
+
+    def get_or_load(self, load_fn: Callable[[], T]) -> T:
+        with self._lock:
+            if self.file_path.exists() and not self._is_max_age_reached():
+                with self.file_path.open('rb') as file_fp:
+                    return self.deserialize_fn(file_fp)
+            result = load_fn()
+            assert result is not None
+            with self.file_path.open('wb') as file_fp:
+                self.serialize_fn(result, file_fp)
             return result

@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
@@ -12,6 +13,7 @@ from sciety_discovery.providers.crossref import (
 from sciety_discovery.providers.sciety_event import ScietyEventProvider
 from sciety_discovery.providers.twitter import TwitterUserArticleListProvider
 from sciety_discovery.utils.bq_cache import BigQueryTableModifiedInMemorySingleObjectCache
+from sciety_discovery.utils.cache import ChainedObjectCache, DiskSingleObjectCache
 from sciety_discovery.utils.threading import UpdateThread
 
 
@@ -22,12 +24,22 @@ def create_app():
     gcp_project_name = 'elife-data-pipeline'
     sciety_event_table_id = f'{gcp_project_name}.de_proto.sciety_event_v1'
     update_interval_in_secs = 60 * 60  # 1 hour
+    max_age_in_seconds = 60 * 60  # 1 hour
     min_article_count = 2
 
-    query_results_cache = BigQueryTableModifiedInMemorySingleObjectCache(
-        gcp_project_name=gcp_project_name,
-        table_id=sciety_event_table_id
-    )
+    cache_dir = Path('.cache')
+    cache_dir.mkdir(parents=True, exist_ok=True)
+
+    query_results_cache = ChainedObjectCache([
+        BigQueryTableModifiedInMemorySingleObjectCache(
+            gcp_project_name=gcp_project_name,
+            table_id=sciety_event_table_id
+        ),
+        DiskSingleObjectCache(
+            file_path=cache_dir / 'query_results_cache.pickle',
+            max_age_in_seconds=max_age_in_seconds
+        )
+    ])
 
     sciety_event_provider = ScietyEventProvider(
         gcp_project_name=gcp_project_name,
