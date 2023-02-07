@@ -9,6 +9,9 @@ import requests
 LOGGER = logging.getLogger(__name__)
 
 
+BIORXIV_DOI_PREFIX = '10.1101'
+
+
 class TwitterArticleListItem(NamedTuple):
     article_doi: str
     article_title: str
@@ -27,6 +30,8 @@ def get_doi_from_url_or_none(url: str) -> Optional[str]:
     if not m:
         return None
     doi = m.group(1)
+    if not doi.startswith(BIORXIV_DOI_PREFIX + '/'):
+        return None
     if 'biorxiv' in url:
         doi = get_doi_without_version(doi)
     return doi

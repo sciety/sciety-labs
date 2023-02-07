@@ -4,14 +4,18 @@ from sciety_discovery.providers.twitter import (
 )
 
 
-DOI_1 = '10.1234/doi1'
+DOI_1 = '10.1101/doi1'
 
-DOI_ORG_URL_1 = f'https://doi.org/{DOI_1}'
+DOI_ORG_URL_PREFIX = 'https://doi.org/'
+DOI_ORG_URL_1 = DOI_ORG_URL_PREFIX + DOI_1
 
 
 class TestGetDoiFromUrlOrNone:
     def test_should_return_none_if_not_url_containing_doi(self):
         assert get_doi_from_url_or_none('https://example.org') is None
+
+    def test_should_ignore_doi_not_starting_with_10_1101(self):
+        assert get_doi_from_url_or_none(DOI_ORG_URL_PREFIX + '10.9999/doi1') is None
 
     def test_should_return_doi_from_doi_org_url(self):
         assert get_doi_from_url_or_none(DOI_ORG_URL_1) == DOI_1
