@@ -87,6 +87,35 @@ def get_user_id_from_user_lookup_response(
     raise RuntimeError(f'user id not found for: {repr(username)}')
 
 
+def iter_api_page_responses(
+    url: str,
+    params: dict,
+    timeout: float = 5 * 60,
+    **kwargs
+) -> Iterable[dict]:
+    next_token: Optional[str] = None
+    while True:
+        _params = (
+            {**params, 'pagination_token': next_token}
+            if next_token
+            else params
+        )
+        LOGGER.info('requesting, url=%r, params=%r', url, _params)
+        response = requests.get(
+            url,
+            params=_params,
+            timeout=timeout,
+            **kwargs
+        )
+        response.raise_for_status()
+        response_json = response.json()
+        LOGGER.debug('response_json: %s', response_json)
+        yield response_json
+        next_token = response_json['meta'].get('next_token')
+        if not next_token:
+            break
+
+
 class TwitterUserArticleListProvider:
     def __init__(
         self,
@@ -122,7 +151,7 @@ class TwitterUserArticleListProvider:
         twitter_user_id: str
     ) -> Iterable[TwitterArticleListItem]:
         LOGGER.info('Making Twitter API request for %r', twitter_user_id)
-        response = requests.get(
+        response_json_iterable = iter_api_page_responses(
             f'https://api.twitter.com/2/users/{twitter_user_id}/tweets',
             params={
                 'tweet.fields': 'created_at,text,entities'
@@ -130,12 +159,10 @@ class TwitterUserArticleListProvider:
             headers=self.headers,
             timeout=5 * 60
         )
-        response.raise_for_status()
-        response_text = response.text
-        LOGGER.info('response_text: %s', response_text)
-        yield from iter_twitter_article_list_item_for_user_tweets_response(
-            response.json()
-        )
+        for response_json in response_json_iterable:
+            yield from iter_twitter_article_list_item_for_user_tweets_response(
+                response_json
+            )
 
     def iter_article_mentions_by_screen_name(
         self,
