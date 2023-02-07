@@ -154,7 +154,8 @@ class TwitterUserArticleListProvider:
         response_json_iterable = iter_api_page_responses(
             f'https://api.twitter.com/2/users/{twitter_user_id}/tweets',
             params={
-                'tweet.fields': 'created_at,text,entities'
+                'tweet.fields': 'created_at,text,entities',
+                'max_results': '100'
             },
             headers=self.headers,
             timeout=5 * 60
