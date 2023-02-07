@@ -20,7 +20,7 @@ from sciety_discovery.utils.threading import UpdateThread
 LOGGER = logging.getLogger(__name__)
 
 
-def create_app():
+def create_app():  # pylint: disable=too-many-locals
     gcp_project_name = 'elife-data-pipeline'
     sciety_event_table_id = f'{gcp_project_name}.de_proto.sciety_event_v1'
     update_interval_in_secs = 60 * 60  # 1 hour
@@ -92,27 +92,22 @@ def create_app():
 
     @app.get("/lists/by-twitter-handle/{twitter_handle}", response_class=HTMLResponse)
     async def list_by_twitter_handle(request: Request, twitter_handle: str):
-        twitter_article_items = (
+        article_mention_iterable = (
             twitter_user_article_list_provider.iter_article_mentions_by_screen_name(
                 twitter_handle
             )
         )
-        twitter_article_items_with_title = (
-            item._replace(
-                article_title=(
-                    crossref_metadata_provider.get_article_metadata_by_doi(
-                        item.article_doi
-                    ).article_title
-                )
+        article_mention_with_article_meta = (
+            crossref_metadata_provider.iter_article_mention_with_article_meta(
+                article_mention_iterable
             )
-            for item in twitter_article_items
         )
 
         return templates.TemplateResponse(
             "list-by-twitter-handle.html", {
                 "request": request,
                 "twitter_handle": twitter_handle,
-                "article_list_content": list(twitter_article_items_with_title)
+                "article_list_content": list(article_mention_with_article_meta)
             }
         )
 

@@ -1,6 +1,7 @@
+from typing import Iterable
 import requests
 
-from sciety_discovery.models.article import ArticleMetaData
+from sciety_discovery.models.article import ArticleMention, ArticleMetaData
 
 
 def get_article_metadata_from_crossref_metadata(
@@ -28,4 +29,17 @@ class CrossrefMetaDataProvider:
         return get_article_metadata_from_crossref_metadata(
             doi,
             self.get_crossref_metadata_dict_by_doi(doi)
+        )
+
+    def iter_article_mention_with_article_meta(
+        self,
+        article_mention_iterable: Iterable[ArticleMention]
+    ) -> Iterable[ArticleMention]:
+        return (
+            item._replace(
+                article_meta=self.get_article_metadata_by_doi(
+                    item.article_doi
+                )
+            )
+            for item in article_mention_iterable
         )

@@ -1,20 +1,17 @@
 import logging
 import re
 from pathlib import Path
-from typing import Iterable, NamedTuple, Optional
+from typing import Iterable, Optional
 
 import requests
+
+from sciety_discovery.models.article import ArticleMention
 
 
 LOGGER = logging.getLogger(__name__)
 
 
 BIORXIV_DOI_PREFIX = '10.1101'
-
-
-class TwitterArticleListItem(NamedTuple):
-    article_doi: str
-    article_title: str
 
 
 def get_doi_without_version(doi: str) -> str:
@@ -65,7 +62,7 @@ def iter_dois_from_user_tweet_response_item(
 
 def iter_twitter_article_list_item_for_user_tweets_response(
     user_tweets_response: dict
-) -> Iterable[TwitterArticleListItem]:
+) -> Iterable[ArticleMention]:
     for item in user_tweets_response['data']:
         LOGGER.debug('item: %r', item)
         dois = list(iter_dois_from_user_tweet_response_item(
@@ -75,9 +72,8 @@ def iter_twitter_article_list_item_for_user_tweets_response(
         if len(dois) != 1:
             continue
         doi = dois[0]
-        yield TwitterArticleListItem(
-            article_doi=doi,
-            article_title=doi
+        yield ArticleMention(
+            article_doi=doi
         )
 
 
@@ -154,7 +150,7 @@ class TwitterUserArticleListProvider:
     def iter_article_mentions_by_user_id(
         self,
         twitter_user_id: str
-    ) -> Iterable[TwitterArticleListItem]:
+    ) -> Iterable[ArticleMention]:
         LOGGER.info('Making Twitter API request for %r', twitter_user_id)
         response_json_iterable = iter_api_page_responses(
             f'https://api.twitter.com/2/users/{twitter_user_id}/tweets',
@@ -173,6 +169,6 @@ class TwitterUserArticleListProvider:
     def iter_article_mentions_by_screen_name(
         self,
         screen_name: str
-    ) -> Iterable[TwitterArticleListItem]:
+    ) -> Iterable[ArticleMention]:
         twitter_user_id = self.get_twitter_user_id_by_screen_name(screen_name)
         yield from self.iter_article_mentions_by_user_id(twitter_user_id)
