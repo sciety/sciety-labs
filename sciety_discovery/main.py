@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 
 from sciety_discovery.models.lists import ScietyEventListsModel
 from sciety_discovery.providers.sciety_event import ScietyEventProvider
+from sciety_discovery.providers.twitter import TwitterUserArticleListProvider
 from sciety_discovery.utils.bq_cache import BigQueryTableModifiedInMemorySingleObjectCache
 from sciety_discovery.utils.threading import UpdateThread
 
@@ -32,6 +33,10 @@ def create_app():
 
     lists_model = ScietyEventListsModel(
         sciety_event_provider.get_sciety_event_dict_list()
+    )
+
+    twitter_user_article_list_provider = TwitterUserArticleListProvider(
+        '.secrets/twitter_api_authorization.txt'
     )
 
     UpdateThread(
@@ -75,10 +80,11 @@ def create_app():
             "list-by-twitter-handle.html", {
                 "request": request,
                 "twitter_handle": twitter_handle,
-                "article_list_content": [{
-                    "article_doi": "10.1101/2022.07.06.22277306",
-                    "article_title": "10.1101/2022.07.06.22277306",
-                }]
+                "article_list_content": list(
+                    twitter_user_article_list_provider.iter_article_mentions_by_screen_name(
+                        twitter_handle
+                    )
+                )
             }
         )
 
