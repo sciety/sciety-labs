@@ -64,7 +64,9 @@ def create_app():  # pylint: disable=too-many-locals
         requests_session=cached_requests_session
     )
 
-    crossref_metadata_provider = CrossrefMetaDataProvider()
+    crossref_metadata_provider = CrossrefMetaDataProvider(
+        requests_session=cached_requests_session
+    )
 
     UpdateThread(
         update_interval_in_secs=update_interval_in_secs,
