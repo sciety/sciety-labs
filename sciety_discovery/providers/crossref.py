@@ -1,7 +1,14 @@
-from typing import Iterable, Optional
+import logging
+import concurrent.futures
+from itertools import tee
+from typing import Dict, Iterable, Optional
+
 import requests
 
 from sciety_discovery.models.article import ArticleMention, ArticleMetaData
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 def get_article_metadata_from_crossref_metadata(
@@ -38,11 +45,33 @@ class CrossrefMetaDataProvider:
         self,
         article_mention_iterable: Iterable[ArticleMention]
     ) -> Iterable[ArticleMention]:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+            article_mention_iterable, temp_article_mention_iterable = (
+                tee(article_mention_iterable, 2)
+            )
+            article_dois = {
+                item.article_doi
+                for item in temp_article_mention_iterable
+            }
+            LOGGER.info('Looking up article dois: %r', article_dois)
+            doi_by_future_map = {
+                executor.submit(
+                    self.get_article_metadata_by_doi,
+                    article_doi
+                ): article_doi
+                for article_doi in article_dois
+            }
+            article_meta_by_doi_map: Dict[str, ArticleMetaData] = {}
+            for future in concurrent.futures.as_completed(doi_by_future_map):
+                article_doi = doi_by_future_map[future]
+                try:
+                    article_meta = future.result()
+                    article_meta_by_doi_map[article_doi] = article_meta
+                except Exception as exc:  # pylint: disable=broad-except
+                    LOGGER.warning('Failed to lookup DOI: %r due to %r', article_doi, exc)
         return (
             item._replace(
-                article_meta=self.get_article_metadata_by_doi(
-                    item.article_doi
-                )
+                article_meta=article_meta_by_doi_map.get(item.article_doi)
             )
             for item in article_mention_iterable
         )
