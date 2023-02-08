@@ -1,3 +1,4 @@
+from http.client import HTTPException
 import logging
 from pathlib import Path
 
@@ -65,6 +66,18 @@ def create_app():  # pylint: disable=too-many-locals
 
     app = FastAPI()
     app.mount("/static", StaticFiles(directory="static", html=False), name="static")
+
+    @app.exception_handler(404)
+    async def not_found_exception_handler(request: Request, exception: HTTPException):
+        return templates.TemplateResponse(
+            "errors/404.html", {"request": request, "exception": exception}
+        )
+
+    @app.exception_handler(500)
+    async def server_error_exception_handler(request: Request, exception: HTTPException):
+        return templates.TemplateResponse(
+            "errors/500.html", {"request": request, "exception": exception}
+        )
 
     @app.get("/", response_class=HTMLResponse)
     async def index(request: Request):
