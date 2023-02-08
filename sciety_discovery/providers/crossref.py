@@ -11,13 +11,26 @@ from sciety_discovery.models.article import ArticleMention, ArticleMetaData
 LOGGER = logging.getLogger(__name__)
 
 
+def get_author_name_from_crossref_metadata_author_dict(
+    author_dict: dict
+) -> str:
+    return ' '.join([
+        author_dict['given'],
+        author_dict['family']
+    ])
+
+
 def get_article_metadata_from_crossref_metadata(
     doi: str,
     crossref_metadata: dict
 ) -> ArticleMetaData:
     return ArticleMetaData(
         article_doi=doi,
-        article_title='\n'.join(crossref_metadata['title'])
+        article_title='\n'.join(crossref_metadata['title']),
+        author_name_list=[
+            get_author_name_from_crossref_metadata_author_dict(author_dict)
+            for author_dict in crossref_metadata.get('author', [])
+        ]
     )
 
 
