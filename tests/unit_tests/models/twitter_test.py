@@ -55,6 +55,20 @@ class TestIterTwitterArticleListItemForUserTweetsResponse:
         }))
         assert [item.article_doi for item in result] == [DOI_1]
 
+    def test_return_article_list_item_for_expanded_doi_org_url_with_comment(self):
+        result = list(iter_twitter_article_list_item_for_user_tweets_response({
+            'data': [{
+                'text': 'Comment 1',
+                'entities': {
+                    'urls': [{
+                        'expanded_url': DOI_ORG_URL_1
+                    }]
+                }
+            }]
+        }))
+        assert [item.article_doi for item in result] == [DOI_1]
+        assert [item.comment for item in result] == ['Comment 1']
+
 
 class TestGetTwitterUserArticleListProviderOrNone:
     def test_should_return_none_if_env_var_is_not_defined(self, env_mock: dict):
