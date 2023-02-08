@@ -1,10 +1,10 @@
+from datetime import timedelta
 import logging
 import os
 import re
 from pathlib import Path
 from typing import Iterable, Optional
 
-import diskcache
 import requests
 import requests_cache
 
@@ -134,20 +134,18 @@ class TwitterUserArticleListProvider:
         self.headers = {
             'Authorization': self.twitter_authorization
         }
-        self.user_id_cache = diskcache.Cache('.cache')
-        self.get_twitter_user_id_by_screen_name = self.user_id_cache.memoize(
-            tag='user_id'
-        )(
-            self._do_get_twitter_user_id_by_screen_name
+        self.cached_requests_session = requests_cache.CachedSession(
+            '.cache/requests_cache',
+            xpire_after=timedelta(days=1),
+            match_headers=False
         )
-        self.cached_requests_session = requests_cache.CachedSession('.cache/requests_cache')
 
-    def _do_get_twitter_user_id_by_screen_name(
+    def get_twitter_user_id_by_screen_name(
         self,
         screen_name: str
     ) -> str:
         LOGGER.info('Looking up user %r', screen_name)
-        response = requests.get(
+        response = self.cached_requests_session.get(
             'https://api.twitter.com/2/users/by',
             params={
                 'usernames': screen_name,
