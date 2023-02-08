@@ -60,6 +60,7 @@ dev-test: dev-lint dev-unittest
 
 
 dev-start:
+	TWITTER_API_AUTHORIZATION_FILE_PATH=.secrets/twitter_api_authorization.txt \
 	$(PYTHON) -m uvicorn \
 		sciety_discovery.main:create_app \
 		--reload \

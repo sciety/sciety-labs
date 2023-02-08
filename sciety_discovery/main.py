@@ -11,7 +11,7 @@ from sciety_discovery.providers.crossref import (
     CrossrefMetaDataProvider
 )
 from sciety_discovery.providers.sciety_event import ScietyEventProvider
-from sciety_discovery.providers.twitter import TwitterUserArticleListProvider
+from sciety_discovery.providers.twitter import get_twitter_user_article_list_provider_or_none
 from sciety_discovery.utils.bq_cache import BigQueryTableModifiedInMemorySingleObjectCache
 from sciety_discovery.utils.cache import ChainedObjectCache, DiskSingleObjectCache
 from sciety_discovery.utils.threading import UpdateThread
@@ -50,9 +50,8 @@ def create_app():  # pylint: disable=too-many-locals
         sciety_event_provider.get_sciety_event_dict_list()
     )
 
-    twitter_user_article_list_provider = TwitterUserArticleListProvider(
-        '.secrets/twitter_api_authorization.txt'
-    )
+    twitter_user_article_list_provider = get_twitter_user_article_list_provider_or_none()
+
     crossref_metadata_provider = CrossrefMetaDataProvider()
 
     UpdateThread(
@@ -92,6 +91,7 @@ def create_app():  # pylint: disable=too-many-locals
 
     @app.get("/lists/by-twitter-handle/{twitter_handle}", response_class=HTMLResponse)
     async def list_by_twitter_handle(request: Request, twitter_handle: str):
+        assert twitter_user_article_list_provider
         article_mention_iterable = (
             twitter_user_article_list_provider.iter_article_mentions_by_screen_name(
                 twitter_handle

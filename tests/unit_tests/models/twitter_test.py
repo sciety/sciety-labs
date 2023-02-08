@@ -1,5 +1,9 @@
+from pathlib import Path
+
 from sciety_discovery.providers.twitter import (
+    TWITTER_API_AUTHORIZATION_FILE_PATH_ENV_VAR,
     get_doi_from_url_or_none,
+    get_twitter_user_article_list_provider_or_none,
     iter_twitter_article_list_item_for_user_tweets_response
 )
 
@@ -50,3 +54,25 @@ class TestIterTwitterArticleListItemForUserTweetsResponse:
             }]
         }))
         assert [item.article_doi for item in result] == [DOI_1]
+
+
+class TestGetTwitterUserArticleListProviderOrNone:
+    def test_should_return_none_if_env_var_is_not_defined(self, env_mock: dict):
+        env_mock.clear()
+        assert get_twitter_user_article_list_provider_or_none() is None
+
+    def test_should_return_none_if_file_does_not_exist(self, env_mock: dict, tmp_path: Path):
+        env_mock[TWITTER_API_AUTHORIZATION_FILE_PATH_ENV_VAR] = str(tmp_path / 'not-found')
+        assert get_twitter_user_article_list_provider_or_none() is None
+
+    def test_should_initialize_provider_with_authorization_file(
+        self,
+        env_mock: dict,
+        tmp_path: Path
+    ):
+        authorization_file = tmp_path / 'authorization.txt'
+        authorization_file.write_text('authorization1')
+        env_mock[TWITTER_API_AUTHORIZATION_FILE_PATH_ENV_VAR] = str(authorization_file)
+        provider = get_twitter_user_article_list_provider_or_none()
+        assert provider is not None
+        assert provider.twitter_authorization == authorization_file.read_text()

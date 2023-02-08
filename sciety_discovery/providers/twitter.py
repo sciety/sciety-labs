@@ -1,4 +1,5 @@
 import logging
+import os
 import re
 from pathlib import Path
 from typing import Iterable, Optional
@@ -9,6 +10,9 @@ from sciety_discovery.models.article import ArticleMention
 
 
 LOGGER = logging.getLogger(__name__)
+
+
+TWITTER_API_AUTHORIZATION_FILE_PATH_ENV_VAR = 'TWITTER_API_AUTHORIZATION_FILE_PATH'
 
 
 BIORXIV_DOI_PREFIX = '10.1101'
@@ -172,3 +176,22 @@ class TwitterUserArticleListProvider:
     ) -> Iterable[ArticleMention]:
         twitter_user_id = self.get_twitter_user_id_by_screen_name(screen_name)
         yield from self.iter_article_mentions_by_user_id(twitter_user_id)
+
+
+def get_twitter_api_authorization_file_path() -> Optional[str]:
+    return os.getenv(TWITTER_API_AUTHORIZATION_FILE_PATH_ENV_VAR)
+
+
+def get_twitter_user_article_list_provider_or_none() -> Optional[TwitterUserArticleListProvider]:
+    twitter_api_authorization_file_path = get_twitter_api_authorization_file_path()
+    if not twitter_api_authorization_file_path:
+        LOGGER.info('Twitter API authorization not configured, not using twitter api')
+        return None
+    if not os.path.exists(twitter_api_authorization_file_path):
+        LOGGER.info(
+            'Twitter API authorization file does not exist, not using twitter api: %r',
+            twitter_api_authorization_file_path
+        )
+        return None
+    LOGGER.info('Using Twitter API authorization: %r', twitter_api_authorization_file_path)
+    return TwitterUserArticleListProvider(twitter_api_authorization_file_path)
