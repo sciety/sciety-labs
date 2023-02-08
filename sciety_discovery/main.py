@@ -112,17 +112,18 @@ def create_app():  # pylint: disable=too-many-locals
                 twitter_handle
             )
         )
-        article_mention_with_article_meta = (
+        article_mention_with_article_meta = list(
             crossref_metadata_provider.iter_article_mention_with_article_meta(
                 article_mention_iterable
             )
         )
+        LOGGER.info('article_mention_with_article_meta: %r', article_mention_with_article_meta)
 
         return templates.TemplateResponse(
             "list-by-twitter-handle.html", {
                 "request": request,
                 "twitter_handle": twitter_handle,
-                "article_list_content": list(article_mention_with_article_meta)
+                "article_list_content": article_mention_with_article_meta
             }
         )
 
