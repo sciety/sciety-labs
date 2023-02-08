@@ -70,13 +70,15 @@ def create_app():  # pylint: disable=too-many-locals
     @app.exception_handler(404)
     async def not_found_exception_handler(request: Request, exception: HTTPException):
         return templates.TemplateResponse(
-            "errors/404.html", {"request": request, "exception": exception}
+            "errors/404.html", {"request": request, "exception": exception},
+            status_code=404
         )
 
     @app.exception_handler(500)
     async def server_error_exception_handler(request: Request, exception: HTTPException):
         return templates.TemplateResponse(
-            "errors/500.html", {"request": request, "exception": exception}
+            "errors/500.html", {"request": request, "exception": exception},
+            status_code=500
         )
 
     @app.get("/", response_class=HTMLResponse)
