@@ -1,4 +1,4 @@
-from typing import Iterable
+from typing import Iterable, Optional
 import requests
 
 from sciety_discovery.models.article import ArticleMention, ArticleMetaData
@@ -15,13 +15,16 @@ def get_article_metadata_from_crossref_metadata(
 
 
 class CrossrefMetaDataProvider:
-    def __init__(self) -> None:
+    def __init__(self, requests_session: Optional[requests.Session] = None) -> None:
         self.headers = {'accept': 'application/json'}
         self.timeout: float = 5 * 60
+        if requests_session is None:
+            requests_session = requests.Session()
+        self.requests_session = requests_session
 
     def get_crossref_metadata_dict_by_doi(self, doi: str) -> dict:
         url = f'https://api.crossref.org/works/{doi}'
-        response = requests.get(url, headers=self.headers, timeout=self.timeout)
+        response = self.requests_session.get(url, headers=self.headers, timeout=self.timeout)
         response.raise_for_status()
         return response.json()['message']
 
