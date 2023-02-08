@@ -1,5 +1,6 @@
 from datetime import timedelta
 from http.client import HTTPException
+from itertools import islice
 import logging
 from pathlib import Path
 
@@ -118,13 +119,19 @@ def create_app():  # pylint: disable=too-many-locals
         )
 
     @app.get("/lists/by-twitter-handle/{twitter_handle}", response_class=HTMLResponse)
-    async def list_by_twitter_handle(request: Request, twitter_handle: str):
+    async def list_by_twitter_handle(
+        request: Request,
+        twitter_handle: str,
+        max_rows: int = 10
+    ):
         assert twitter_user_article_list_provider
         article_mention_iterable = (
             twitter_user_article_list_provider.iter_article_mentions_by_screen_name(
                 twitter_handle
             )
         )
+        if max_rows:
+            article_mention_iterable = islice(article_mention_iterable, max_rows)
         article_mention_with_article_meta = list(
             crossref_metadata_provider.iter_article_mention_with_article_meta(
                 article_mention_iterable
