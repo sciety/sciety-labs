@@ -6,6 +6,7 @@ from typing import Iterable, Optional
 
 import diskcache
 import requests
+import requests_cache
 
 from sciety_discovery.models.article import ArticleMention
 
@@ -97,6 +98,7 @@ def get_user_id_from_user_lookup_response(
 def iter_api_page_responses(
     url: str,
     params: dict,
+    session: requests.Session,
     timeout: float = 5 * 60,
     **kwargs
 ) -> Iterable[dict]:
@@ -108,7 +110,7 @@ def iter_api_page_responses(
             else params
         )
         LOGGER.info('requesting, url=%r, params=%r', url, _params)
-        response = requests.get(
+        response = session.get(
             url,
             params=_params,
             timeout=timeout,
@@ -138,6 +140,7 @@ class TwitterUserArticleListProvider:
         )(
             self._do_get_twitter_user_id_by_screen_name
         )
+        self.cached_requests_session = requests_cache.CachedSession('.cache/requests_cache')
 
     def _do_get_twitter_user_id_by_screen_name(
         self,
@@ -170,6 +173,7 @@ class TwitterUserArticleListProvider:
                 'tweet.fields': 'created_at,text,entities',
                 'max_results': '100'
             },
+            session=self.cached_requests_session,
             headers=self.headers,
             timeout=5 * 60
         )
