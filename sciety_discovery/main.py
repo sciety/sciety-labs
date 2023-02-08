@@ -7,7 +7,11 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
 from sciety_discovery.models.lists import ScietyEventListsModel
+from sciety_discovery.providers.crossref import (
+    CrossrefMetaDataProvider
+)
 from sciety_discovery.providers.sciety_event import ScietyEventProvider
+from sciety_discovery.providers.twitter import get_twitter_user_article_list_provider_or_none
 from sciety_discovery.utils.bq_cache import BigQueryTableModifiedInMemorySingleObjectCache
 from sciety_discovery.utils.cache import ChainedObjectCache, DiskSingleObjectCache
 from sciety_discovery.utils.threading import UpdateThread
@@ -16,7 +20,7 @@ from sciety_discovery.utils.threading import UpdateThread
 LOGGER = logging.getLogger(__name__)
 
 
-def create_app():
+def create_app():  # pylint: disable=too-many-locals
     gcp_project_name = 'elife-data-pipeline'
     sciety_event_table_id = f'{gcp_project_name}.de_proto.sciety_event_v1'
     update_interval_in_secs = 60 * 60  # 1 hour
@@ -45,6 +49,10 @@ def create_app():
     lists_model = ScietyEventListsModel(
         sciety_event_provider.get_sciety_event_dict_list()
     )
+
+    twitter_user_article_list_provider = get_twitter_user_article_list_provider_or_none()
+
+    crossref_metadata_provider = CrossrefMetaDataProvider()
 
     UpdateThread(
         update_interval_in_secs=update_interval_in_secs,
@@ -78,6 +86,28 @@ def create_app():
                 "user_lists": lists_model.get_most_active_user_lists(
                     min_article_count=min_article_count
                 )
+            }
+        )
+
+    @app.get("/lists/by-twitter-handle/{twitter_handle}", response_class=HTMLResponse)
+    async def list_by_twitter_handle(request: Request, twitter_handle: str):
+        assert twitter_user_article_list_provider
+        article_mention_iterable = (
+            twitter_user_article_list_provider.iter_article_mentions_by_screen_name(
+                twitter_handle
+            )
+        )
+        article_mention_with_article_meta = (
+            crossref_metadata_provider.iter_article_mention_with_article_meta(
+                article_mention_iterable
+            )
+        )
+
+        return templates.TemplateResponse(
+            "list-by-twitter-handle.html", {
+                "request": request,
+                "twitter_handle": twitter_handle,
+                "article_list_content": list(article_mention_with_article_meta)
             }
         )
 

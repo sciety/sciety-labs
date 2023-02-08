@@ -1,6 +1,8 @@
 venv
 .mypy_cache
 .pytest_cache
+.secrets
 .cache
 
+*.local
 *.pyc
