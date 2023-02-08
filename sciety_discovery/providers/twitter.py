@@ -1,4 +1,3 @@
-from datetime import timedelta
 import logging
 import os
 import re
@@ -6,7 +5,6 @@ from pathlib import Path
 from typing import Iterable, Optional
 
 import requests
-import requests_cache
 
 from sciety_discovery.models.article import ArticleMention
 
@@ -128,24 +126,23 @@ def iter_api_page_responses(
 class TwitterUserArticleListProvider:
     def __init__(
         self,
-        authorization_file: str
+        authorization_file: str,
+        requests_session: Optional[requests.Session] = None
     ):
         self.twitter_authorization = Path(authorization_file).read_text(encoding='utf-8')
         self.headers = {
             'Authorization': self.twitter_authorization
         }
-        self.cached_requests_session = requests_cache.CachedSession(
-            '.cache/requests_cache',
-            xpire_after=timedelta(days=1),
-            match_headers=False
-        )
+        if requests_session is None:
+            requests_session = requests.Session()
+        self.requests_session = requests_session
 
     def get_twitter_user_id_by_screen_name(
         self,
         screen_name: str
     ) -> str:
         LOGGER.info('Looking up user %r', screen_name)
-        response = self.cached_requests_session.get(
+        response = self.requests_session.get(
             'https://api.twitter.com/2/users/by',
             params={
                 'usernames': screen_name,
@@ -171,7 +168,7 @@ class TwitterUserArticleListProvider:
                 'tweet.fields': 'created_at,text,entities',
                 'max_results': '100'
             },
-            session=self.cached_requests_session,
+            session=self.requests_session,
             headers=self.headers,
             timeout=5 * 60
         )
@@ -192,7 +189,9 @@ def get_twitter_api_authorization_file_path() -> Optional[str]:
     return os.getenv(TWITTER_API_AUTHORIZATION_FILE_PATH_ENV_VAR)
 
 
-def get_twitter_user_article_list_provider_or_none() -> Optional[TwitterUserArticleListProvider]:
+def get_twitter_user_article_list_provider_or_none(
+    **kwargs
+) -> Optional[TwitterUserArticleListProvider]:
     twitter_api_authorization_file_path = get_twitter_api_authorization_file_path()
     if not twitter_api_authorization_file_path:
         LOGGER.info('Twitter API authorization not configured, not using twitter api')
@@ -204,4 +203,4 @@ def get_twitter_user_article_list_provider_or_none() -> Optional[TwitterUserArti
         )
         return None
     LOGGER.info('Using Twitter API authorization: %r', twitter_api_authorization_file_path)
-    return TwitterUserArticleListProvider(twitter_api_authorization_file_path)
+    return TwitterUserArticleListProvider(twitter_api_authorization_file_path, **kwargs)

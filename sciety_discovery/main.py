@@ -1,3 +1,4 @@
+from datetime import timedelta
 from http.client import HTTPException
 import logging
 from pathlib import Path
@@ -6,6 +7,8 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+
+import requests_cache
 
 from sciety_discovery.models.lists import ScietyEventListsModel
 from sciety_discovery.providers.crossref import (
@@ -42,6 +45,12 @@ def create_app():  # pylint: disable=too-many-locals
         )
     ])
 
+    cached_requests_session = requests_cache.CachedSession(
+        '.cache/requests_cache',
+        xpire_after=timedelta(days=1),
+        match_headers=False
+    )
+
     sciety_event_provider = ScietyEventProvider(
         gcp_project_name=gcp_project_name,
         query_results_cache=query_results_cache
@@ -51,7 +60,9 @@ def create_app():  # pylint: disable=too-many-locals
         sciety_event_provider.get_sciety_event_dict_list()
     )
 
-    twitter_user_article_list_provider = get_twitter_user_article_list_provider_or_none()
+    twitter_user_article_list_provider = get_twitter_user_article_list_provider_or_none(
+        requests_session=cached_requests_session
+    )
 
     crossref_metadata_provider = CrossrefMetaDataProvider()
 
