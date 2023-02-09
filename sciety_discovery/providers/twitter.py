@@ -25,6 +25,10 @@ class TwitterUser(NamedTuple):
     name: str
 
 
+class TwitterUserNotFound(RuntimeError):
+    pass
+
+
 def get_doi_without_version(doi: str) -> str:
     m = re.match(r'(.*)v\d+', doi)  # pylint: disable=invalid-name
     if not m:
@@ -119,7 +123,7 @@ def get_twitter_user_from_user_lookup_response(
         LOGGER.debug('item: %r', item)
         if item['username'] == username:
             return get_twitter_user_from_dict(item)
-    raise RuntimeError(f'user id not found for: {repr(username)}')
+    raise TwitterUserNotFound(f'user id not found for: {repr(username)}')
 
 
 def get_user_id_from_user_lookup_response(

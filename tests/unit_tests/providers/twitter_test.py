@@ -4,6 +4,7 @@ import pytest
 
 from sciety_discovery.providers.twitter import (
     TWITTER_API_AUTHORIZATION_FILE_PATH_ENV_VAR,
+    TwitterUserNotFound,
     get_doi_from_url_or_none,
     get_twitter_user_article_list_provider_or_none,
     get_twitter_user_from_user_lookup_response,
@@ -72,7 +73,7 @@ class TestGetTwitterUserFromUserLookupResponse:
         assert twitter_user.name == 'Name 1'
 
     def test_should_raise_exception_if_username_was_not_found(self):
-        with pytest.raises(RuntimeError):
+        with pytest.raises(TwitterUserNotFound):
             get_twitter_user_from_user_lookup_response({
                 'data': []
             }, username='username_1')
