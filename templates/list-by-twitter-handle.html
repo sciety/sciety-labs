@@ -9,6 +9,8 @@
     <p class="page-header__subheading">
       <span>A list by <a href="https://twitter.com/{{ twitter_handle }}">{{ twitter_handle }}</a></span>
     </p>
+    <p class="page-header__description">{{ twitter_user.description }}</p>
+
   </header>
 
     <ul class="articles-list" role="list">{% for item in article_list_content %}

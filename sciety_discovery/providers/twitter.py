@@ -2,7 +2,7 @@ import logging
 import os
 import re
 from pathlib import Path
-from typing import Iterable, Optional
+from typing import Iterable, NamedTuple, Optional
 
 import requests
 
@@ -16,6 +16,13 @@ TWITTER_API_AUTHORIZATION_FILE_PATH_ENV_VAR = 'TWITTER_API_AUTHORIZATION_FILE_PA
 
 
 BIORXIV_DOI_PREFIX = '10.1101'
+
+
+class TwitterUser(NamedTuple):
+    user_id: str
+    username: str
+    description: str
+    name: str
 
 
 def get_doi_without_version(doi: str) -> str:
@@ -95,6 +102,26 @@ def iter_twitter_article_list_item_for_user_tweets_response(
         )
 
 
+def get_twitter_user_from_dict(user_dict: dict) -> TwitterUser:
+    return TwitterUser(
+        user_id=user_dict['id'],
+        username=user_dict['username'],
+        description=user_dict['description'],
+        name=user_dict['name']
+    )
+
+
+def get_twitter_user_from_user_lookup_response(
+    user_lookup_response: dict,
+    username: str
+) -> TwitterUser:
+    for item in user_lookup_response['data']:
+        LOGGER.debug('item: %r', item)
+        if item['username'] == username:
+            return get_twitter_user_from_dict(item)
+    raise RuntimeError(f'user id not found for: {repr(username)}')
+
+
 def get_user_id_from_user_lookup_response(
     user_lookup_response: dict,
     username: str
@@ -149,6 +176,23 @@ class TwitterUserArticleListProvider:
         if requests_session is None:
             requests_session = requests.Session()
         self.requests_session = requests_session
+
+    def get_twitter_user_by_screen_name(self, screen_name: str) -> TwitterUser:
+        LOGGER.info('Looking up user %r', screen_name)
+        response = self.requests_session.get(
+            'https://api.twitter.com/2/users/by',
+            params={
+                'usernames': screen_name,
+                'user.fields': 'description'
+            },
+            headers=self.headers,
+            timeout=5 * 60
+        )
+        response.raise_for_status()
+        return get_twitter_user_from_user_lookup_response(
+            response.json(),
+            username=screen_name
+        )
 
     def get_twitter_user_id_by_screen_name(
         self,

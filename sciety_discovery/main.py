@@ -125,6 +125,9 @@ def create_app():  # pylint: disable=too-many-locals
         max_rows: int = 10
     ):
         assert twitter_user_article_list_provider
+        twitter_user = twitter_user_article_list_provider.get_twitter_user_by_screen_name(
+            twitter_handle
+        )
         article_mention_iterable = (
             twitter_user_article_list_provider.iter_article_mentions_by_screen_name(
                 twitter_handle
@@ -143,6 +146,7 @@ def create_app():  # pylint: disable=too-many-locals
             "list-by-twitter-handle.html", {
                 "request": request,
                 "twitter_handle": twitter_handle,
+                "twitter_user": twitter_user,
                 "article_list_content": article_mention_with_article_meta
             }
         )
