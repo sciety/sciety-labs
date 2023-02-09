@@ -37,8 +37,11 @@
             <section class="article-card-annotation">
                 <h4 class="visually-hidden">Annotation by {{ twitter_handle }}</h4>
                 <p>{{ item.comment }}</p>
-                <a href="https://twitter.com/{{ twitter_handle }}/status/{{ item.external_reference_by_name.tweet_id }}">Original Tweet</a>
-                <span> at <time datetime="{{ item.created_at_isoformat }}">{{ item.created_at_display_format }}</time></span>
+                <footer class="article-card__footer">
+                    <div class="article-card__meta">
+                    <span class="visually-hidden">This annotation was created via the </span><span><a href="https://twitter.com/{{ twitter_handle }}/status/{{ item.external_reference_by_name.tweet_id }}">Original Tweet</a> at <time datetime="{{ item.created_at_isoformat }}">{{ item.created_at_display_format }}</time></span>
+                    </div>
+                </footer>
             </section>
 
         </article>
