@@ -64,6 +64,15 @@ def iter_dois_from_user_tweet_response_item(
     yield from iter_dois_from_urls(expanded_urls)
 
 
+def get_text_with_expanded_urls(text: str, url_entities: Iterable[dict]) -> str:
+    result = text
+    for url_entity in url_entities:
+        url = url_entity['url']
+        expanded_url = url_entity['expanded_url']
+        result = re.sub(r'\b' + re.escape(url) + r'\b', expanded_url, result)
+    return result
+
+
 def iter_twitter_article_list_item_for_user_tweets_response(
     user_tweets_response: dict
 ) -> Iterable[ArticleMention]:
@@ -76,10 +85,13 @@ def iter_twitter_article_list_item_for_user_tweets_response(
         if len(dois) != 1:
             continue
         doi = dois[0]
+        text = item.get('text')
+        if text:
+            text = get_text_with_expanded_urls(text, item.get('entities', {}).get('urls', []))
         yield ArticleMention(
             article_doi=doi,
             external_reference_by_name={'tweet_id': item['id']},
-            comment=item.get('text')
+            comment=text
         )
 
 
