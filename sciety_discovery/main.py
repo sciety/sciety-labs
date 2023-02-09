@@ -78,49 +78,49 @@ def create_app():  # pylint: disable=too-many-locals
         )
     ).start()
 
-    templates = Jinja2Templates(directory="templates")
+    templates = Jinja2Templates(directory='templates')
 
     app = FastAPI()
-    app.mount("/static", StaticFiles(directory="static", html=False), name="static")
+    app.mount('/static', StaticFiles(directory='static', html=False), name='static')
 
     @app.exception_handler(404)
     async def not_found_exception_handler(request: Request, exception: HTTPException):
         return templates.TemplateResponse(
-            "errors/404.html", {"request": request, "exception": exception},
+            'errors/404.html', {'request': request, 'exception': exception},
             status_code=404
         )
 
     @app.exception_handler(500)
     async def server_error_exception_handler(request: Request, exception: HTTPException):
         return templates.TemplateResponse(
-            "errors/500.html", {"request": request, "exception": exception},
+            'errors/500.html', {'request': request, 'exception': exception},
             status_code=500
         )
 
-    @app.get("/", response_class=HTMLResponse)
+    @app.get('/', response_class=HTMLResponse)
     async def index(request: Request):
         return templates.TemplateResponse(
-            "index.html", {
-                "request": request,
-                "user_lists": lists_model.get_most_active_user_lists(
+            'index.html', {
+                'request': request,
+                'user_lists': lists_model.get_most_active_user_lists(
                     top_n=3,
                     min_article_count=min_article_count
                 )
             }
         )
 
-    @app.get("/lists", response_class=HTMLResponse)
+    @app.get('/lists', response_class=HTMLResponse)
     async def lists(request: Request):
         return templates.TemplateResponse(
-            "lists.html", {
-                "request": request,
-                "user_lists": lists_model.get_most_active_user_lists(
+            'lists.html', {
+                'request': request,
+                'user_lists': lists_model.get_most_active_user_lists(
                     min_article_count=min_article_count
                 )
             }
         )
 
-    @app.get("/lists/by-twitter-handle/{twitter_handle}", response_class=HTMLResponse)
+    @app.get('/lists/by-twitter-handle/{twitter_handle}', response_class=HTMLResponse)
     async def list_by_twitter_handle(
         request: Request,
         twitter_handle: str,
@@ -177,16 +177,16 @@ def create_app():  # pylint: disable=too-many-locals
                 page_count = page
 
         return templates.TemplateResponse(
-            "list-by-twitter-handle.html", {
-                "request": request,
-                "twitter_handle": twitter_handle,
-                "twitter_user": twitter_user,
-                "article_list_content": article_mention_with_article_meta,
-                "pagination": {
-                    "page": page,
-                    "page_count": page_count,
-                    "previous_page_url": previous_page_url,
-                    "next_page_url": next_page_url
+            'list-by-twitter-handle.html', {
+                'request': request,
+                'twitter_handle': twitter_handle,
+                'twitter_user': twitter_user,
+                'article_list_content': article_mention_with_article_meta,
+                'pagination': {
+                    'page': page,
+                    'page_count': page_count,
+                    'previous_page_url': previous_page_url,
+                    'next_page_url': next_page_url
                 }
             }
         )
