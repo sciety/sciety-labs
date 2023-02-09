@@ -126,17 +126,6 @@ def get_twitter_user_from_user_lookup_response(
     raise TwitterUserNotFound(f'user id not found for: {repr(username)}')
 
 
-def get_user_id_from_user_lookup_response(
-    user_lookup_response: dict,
-    username: str
-) -> str:
-    for item in user_lookup_response['data']:
-        LOGGER.debug('item: %r', item)
-        if item['username'] == username:
-            return item['id']
-    raise RuntimeError(f'user id not found for: {repr(username)}')
-
-
 def iter_api_page_responses(
     url: str,
     params: dict,
@@ -198,26 +187,6 @@ class TwitterUserArticleListProvider:
             username=screen_name
         )
 
-    def get_twitter_user_id_by_screen_name(
-        self,
-        screen_name: str
-    ) -> str:
-        LOGGER.info('Looking up user %r', screen_name)
-        response = self.requests_session.get(
-            'https://api.twitter.com/2/users/by',
-            params={
-                'usernames': screen_name,
-                'user.fields': 'description'
-            },
-            headers=self.headers,
-            timeout=5 * 60
-        )
-        response.raise_for_status()
-        return get_user_id_from_user_lookup_response(
-            response.json(),
-            username=screen_name
-        )
-
     def iter_article_mentions_by_user_id(
         self,
         twitter_user_id: str
@@ -237,13 +206,6 @@ class TwitterUserArticleListProvider:
             yield from iter_twitter_article_list_item_for_user_tweets_response(
                 response_json
             )
-
-    def iter_article_mentions_by_screen_name(
-        self,
-        screen_name: str
-    ) -> Iterable[ArticleMention]:
-        twitter_user_id = self.get_twitter_user_id_by_screen_name(screen_name)
-        yield from self.iter_article_mentions_by_user_id(twitter_user_id)
 
 
 def get_twitter_api_authorization_file_path() -> Optional[str]:

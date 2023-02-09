@@ -129,8 +129,8 @@ def create_app():  # pylint: disable=too-many-locals
             twitter_handle
         )
         article_mention_iterable = (
-            twitter_user_article_list_provider.iter_article_mentions_by_screen_name(
-                twitter_handle
+            twitter_user_article_list_provider.iter_article_mentions_by_user_id(
+                twitter_user.user_id
             )
         )
         if max_rows:
