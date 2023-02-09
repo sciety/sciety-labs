@@ -142,7 +142,6 @@ def create_app():  # pylint: disable=too-many-locals
                 article_mention_iterable
             )
         )
-        next_page_url: Optional[str] = None
         if items_per_page:
             assert page >= 1
             paged_article_mention_iterable = islice(
@@ -161,7 +160,13 @@ def create_app():  # pylint: disable=too-many-locals
 
         # we don't know the page count unless this is the last page
         page_count: Optional[int] = None
+        previous_page_url: Optional[str] = None
+        next_page_url: Optional[str] = None
         if enable_pagination:
+            if page > 1:
+                previous_page_url = str(request.url.include_query_params(
+                    page=page - 1
+                ))
             if next(article_mention_iterable, None) is not None:
                 next_page_url = str(request.url.include_query_params(
                     page=page + 1
@@ -180,6 +185,7 @@ def create_app():  # pylint: disable=too-many-locals
                 "pagination": {
                     "page": page,
                     "page_count": page_count,
+                    "previous_page_url": previous_page_url,
                     "next_page_url": next_page_url
                 }
             }
