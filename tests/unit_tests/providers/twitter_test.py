@@ -43,6 +43,11 @@ class TestGetDoiFromUrlOrNone:
             f'https://www.biorxiv.org/content/{DOI_1}v1'
         ) == DOI_1
 
+    def test_should_strip_version_from_medrxiv_url(self):
+        assert get_doi_from_url_or_none(
+            f'https://www.medrxiv.org/content/{DOI_1}v1'
+        ) == DOI_1
+
 
 class TestIterTwitterArticleListItemForUserTweetsResponse:
     def test_return_empty_response_for_empty_timeline(self):
