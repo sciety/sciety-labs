@@ -10,6 +10,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
 import requests_cache
+from sciety_discovery.models.evaluation import ScietyEventEvaluationStatsModel
 
 from sciety_discovery.models.lists import ScietyEventListsModel
 from sciety_discovery.providers.crossref import (
@@ -57,9 +58,9 @@ def create_app():  # pylint: disable=too-many-locals
         query_results_cache=query_results_cache
     )
 
-    lists_model = ScietyEventListsModel(
-        sciety_event_provider.get_sciety_event_dict_list()
-    )
+    _sciety_event_dict_list = sciety_event_provider.get_sciety_event_dict_list()
+    lists_model = ScietyEventListsModel(_sciety_event_dict_list)
+    evaluation_stats_model = ScietyEventEvaluationStatsModel(_sciety_event_dict_list)
 
     twitter_user_article_list_provider = get_twitter_user_article_list_provider_or_none(
         requests_session=cached_requests_session
@@ -131,6 +132,11 @@ def create_app():  # pylint: disable=too-many-locals
         article_mention_iterable = (
             twitter_user_article_list_provider.iter_article_mentions_by_user_id(
                 twitter_user.user_id
+            )
+        )
+        article_mention_iterable = (
+            evaluation_stats_model.iter_article_mention_with_article_stats(
+                article_mention_iterable
             )
         )
         if max_rows:
