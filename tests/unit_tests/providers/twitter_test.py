@@ -13,12 +13,15 @@ DOI_1 = '10.1101/doi1'
 DOI_ORG_URL_PREFIX = 'https://doi.org/'
 DOI_ORG_URL_1 = DOI_ORG_URL_PREFIX + DOI_1
 
+SHORT_URL_1 = 'https://example.org/short1'
+
 TWEET_ID_1 = 'tweet1'
 
 ARTICLE_TWEET_RESPONSE_1 = {
     'id': TWEET_ID_1,
     'entities': {
         'urls': [{
+            'url': SHORT_URL_1,
             'expanded_url': DOI_ORG_URL_1
         }]
     }
@@ -60,6 +63,7 @@ class TestIterTwitterArticleListItemForUserTweetsResponse:
                 **ARTICLE_TWEET_RESPONSE_1,
                 'entities': {
                     'urls': [{
+                        'url': SHORT_URL_1,
                         'expanded_url': DOI_ORG_URL_1
                     }]
                 }
@@ -85,6 +89,23 @@ class TestIterTwitterArticleListItemForUserTweetsResponse:
             }]
         }))
         assert [item.external_reference_by_name for item in result] == [{'tweet_id': TWEET_ID_1}]
+
+    def test_expand_urls_in_text(self):
+        result = list(iter_twitter_article_list_item_for_user_tweets_response({
+            'data': [{
+                **ARTICLE_TWEET_RESPONSE_1,
+                'text': f'Link to: {SHORT_URL_1}',
+                'entities': {
+                    'urls': [{
+                        'url': SHORT_URL_1,
+                        'expanded_url': DOI_ORG_URL_1
+                    }]
+                }
+            }]
+        }))
+        assert [item.comment for item in result] == [
+            f'Link to: {DOI_ORG_URL_1}'
+        ]
 
 
 class TestGetTwitterUserArticleListProviderOrNone:
