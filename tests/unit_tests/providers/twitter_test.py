@@ -10,6 +10,7 @@ from sciety_discovery.providers.twitter import (
     get_twitter_user_from_user_lookup_response,
     iter_twitter_article_list_item_for_user_tweets_response
 )
+from sciety_discovery.utils.datetime import parse_timestamp
 
 
 DOI_1 = '10.1101/doi1'
@@ -21,8 +22,11 @@ SHORT_URL_1 = 'https://example.org/short1'
 
 TWEET_ID_1 = 'tweet1'
 
+TIMESTAMP_STR_1 = '2001-02-03T04:05:06.000Z'
+
 ARTICLE_TWEET_RESPONSE_1 = {
     'id': TWEET_ID_1,
+    'created_at': TIMESTAMP_STR_1,
     'entities': {
         'urls': [{
             'url': SHORT_URL_1,
@@ -124,6 +128,17 @@ class TestIterTwitterArticleListItemForUserTweetsResponse:
             }]
         }))
         assert [item.external_reference_by_name for item in result] == [{'tweet_id': TWEET_ID_1}]
+
+    def test_extract_created_timestamp(self):
+        result = list(iter_twitter_article_list_item_for_user_tweets_response({
+            'data': [{
+                **ARTICLE_TWEET_RESPONSE_1,
+                'created_at': TIMESTAMP_STR_1
+            }]
+        }))
+        assert [item.created_at_timestamp for item in result] == [
+            parse_timestamp(TIMESTAMP_STR_1)
+        ]
 
     def test_expand_urls_in_text(self):
         result = list(iter_twitter_article_list_item_for_user_tweets_response({

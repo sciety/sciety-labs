@@ -7,6 +7,7 @@ from typing import Iterable, NamedTuple, Optional
 import requests
 
 from sciety_discovery.models.article import ArticleMention
+from sciety_discovery.utils.datetime import parse_timestamp
 
 
 LOGGER = logging.getLogger(__name__)
@@ -100,6 +101,7 @@ def iter_twitter_article_list_item_for_user_tweets_response(
         if text:
             text = get_text_with_expanded_urls(text, item.get('entities', {}).get('urls', []))
         yield ArticleMention(
+            created_at_timestamp=parse_timestamp(item['created_at']),
             article_doi=doi,
             external_reference_by_name={'tweet_id': item['id']},
             comment=text
