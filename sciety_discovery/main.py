@@ -123,7 +123,8 @@ def create_app():  # pylint: disable=too-many-locals
     async def list_by_twitter_handle(
         request: Request,
         twitter_handle: str,
-        max_rows: int = 10
+        max_rows: int = 10,
+        page: int = 1
     ):
         assert twitter_user_article_list_provider
         twitter_user = twitter_user_article_list_provider.get_twitter_user_by_screen_name(
@@ -140,7 +141,12 @@ def create_app():  # pylint: disable=too-many-locals
             )
         )
         if max_rows:
-            article_mention_iterable = islice(article_mention_iterable, max_rows)
+            assert page >= 1
+            article_mention_iterable = islice(
+                article_mention_iterable,
+                (page - 1) * max_rows,  # start
+                page * max_rows  # stop
+            )
         article_mention_with_article_meta = list(
             crossref_metadata_provider.iter_article_mention_with_article_meta(
                 article_mention_iterable
