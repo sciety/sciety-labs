@@ -14,7 +14,12 @@
   </header>
   <section>
     <p class="articles-page-count">
-        Showing page <b>{{ pagination.page }}</b><span class="visually-hidden"> of list content</span>
+        Showing page <b>{{ pagination.page }}</b>
+        {% if pagination.page_count %}
+            of <b>{{ pagination.page_count }}</b>
+            <span class="visually-hidden"> pages</span>
+        {% endif %}
+        <span class="visually-hidden"> of list content</span>
     </p>
     <ul class="articles-list" role="list">{% for item in article_list_content %}
     <li class="articles-list__item">
@@ -50,6 +55,12 @@
         </article>
     </li>
     {% endfor %}
+    </ul>
+    {% if pagination.next_page_url %}
+    <div class="pagination-controls">
+      <a href="{{ pagination.next_page_url }}" class="pagination-controls__next_link">Next</a>
+    </div>
+    {% endif %}
   </section>
 
   </div>

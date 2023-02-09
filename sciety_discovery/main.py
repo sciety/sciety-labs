@@ -3,6 +3,7 @@ from http.client import HTTPException
 from itertools import islice
 import logging
 from pathlib import Path
+from typing import Optional
 
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
@@ -124,7 +125,8 @@ def create_app():  # pylint: disable=too-many-locals
         request: Request,
         twitter_handle: str,
         max_rows: int = 10,
-        page: int = 1
+        page: int = 1,
+        enable_pagination: bool = True
     ):
         assert twitter_user_article_list_provider
         twitter_user = twitter_user_article_list_provider.get_twitter_user_by_screen_name(
@@ -140,19 +142,34 @@ def create_app():  # pylint: disable=too-many-locals
                 article_mention_iterable
             )
         )
+        next_page_url: Optional[str] = None
         if max_rows:
             assert page >= 1
-            article_mention_iterable = islice(
+            paged_article_mention_iterable = islice(
                 article_mention_iterable,
                 (page - 1) * max_rows,  # start
                 page * max_rows  # stop
             )
+        else:
+            paged_article_mention_iterable = article_mention_iterable
         article_mention_with_article_meta = list(
             crossref_metadata_provider.iter_article_mention_with_article_meta(
-                article_mention_iterable
+                paged_article_mention_iterable
             )
         )
         LOGGER.info('article_mention_with_article_meta: %r', article_mention_with_article_meta)
+
+        # we don't know the page count unless this is the last page
+        page_count: Optional[int] = None
+        if enable_pagination:
+            if next(article_mention_iterable, None) is not None:
+                next_page_url = str(request.url.include_query_params(
+                    page=page + 1
+                ))
+                LOGGER.info('next_page_url: %r', next_page_url)
+            else:
+                LOGGER.info('no more items past this page')
+                page_count = page
 
         return templates.TemplateResponse(
             "list-by-twitter-handle.html", {
@@ -161,7 +178,9 @@ def create_app():  # pylint: disable=too-many-locals
                 "twitter_user": twitter_user,
                 "article_list_content": article_mention_with_article_meta,
                 "pagination": {
-                    "page": page
+                    "page": page,
+                    "page_count": page_count,
+                    "next_page_url": next_page_url
                 }
             }
         )
