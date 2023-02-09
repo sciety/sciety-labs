@@ -124,7 +124,7 @@ def create_app():  # pylint: disable=too-many-locals
     async def list_by_twitter_handle(
         request: Request,
         twitter_handle: str,
-        max_rows: int = 10,
+        items_per_page: int = 10,
         page: int = 1,
         enable_pagination: bool = True
     ):
@@ -143,12 +143,12 @@ def create_app():  # pylint: disable=too-many-locals
             )
         )
         next_page_url: Optional[str] = None
-        if max_rows:
+        if items_per_page:
             assert page >= 1
             paged_article_mention_iterable = islice(
                 article_mention_iterable,
-                (page - 1) * max_rows,  # start
-                page * max_rows  # stop
+                (page - 1) * items_per_page,  # start
+                page * items_per_page  # stop
             )
         else:
             paged_article_mention_iterable = article_mention_iterable
