@@ -20,7 +20,7 @@ class TestGetArticleMetadataFromCrossrefMetadata:
         )
         assert result.article_title == 'Title 1'
 
-    def test_should_extract_author_names(self):
+    def test_should_extract_author_names_from_given_and_family_name(self):
         result = get_article_metadata_from_crossref_metadata(
             DOI_1,
             {
@@ -33,4 +33,18 @@ class TestGetArticleMetadataFromCrossrefMetadata:
         )
         assert result.author_name_list == [
             'John Smith'
+        ]
+
+    def test_should_extract_author_names_from_name_field(self):
+        result = get_article_metadata_from_crossref_metadata(
+            DOI_1,
+            {
+                **CROSSREF_RESPONSE_MESSAGE_1,
+                'author': [{
+                    'name': 'John Smith Group'
+                }]
+            }
+        )
+        assert result.author_name_list == [
+            'John Smith Group'
         ]

@@ -14,6 +14,8 @@ LOGGER = logging.getLogger(__name__)
 def get_author_name_from_crossref_metadata_author_dict(
     author_dict: dict
 ) -> str:
+    if author_dict.get('name'):
+        return author_dict['name']
     return ' '.join([
         author_dict['given'],
         author_dict['family']
