@@ -1,9 +1,13 @@
 from pathlib import Path
 
+import pytest
+
 from sciety_discovery.providers.twitter import (
     TWITTER_API_AUTHORIZATION_FILE_PATH_ENV_VAR,
+    TwitterUserNotFound,
     get_doi_from_url_or_none,
     get_twitter_user_article_list_provider_or_none,
+    get_twitter_user_from_user_lookup_response,
     iter_twitter_article_list_item_for_user_tweets_response
 )
 
@@ -47,6 +51,32 @@ class TestGetDoiFromUrlOrNone:
         assert get_doi_from_url_or_none(
             f'https://www.medrxiv.org/content/{DOI_1}v1'
         ) == DOI_1
+
+
+class TestGetTwitterUserFromUserLookupResponse:
+    def test_should_match_username_and_return_fields(self):
+        twitter_user = get_twitter_user_from_user_lookup_response({
+            'data': [{
+                'username': 'other_username_1',
+            }, {
+                'id': 'user_id_1',
+                'username': 'username_1',
+                'description': 'Description 1',
+                'name': 'Name 1'
+            }, {
+                'username': 'other_username_2',
+            }]
+        }, username='username_1')
+        assert twitter_user.user_id == 'user_id_1'
+        assert twitter_user.username == 'username_1'
+        assert twitter_user.description == 'Description 1'
+        assert twitter_user.name == 'Name 1'
+
+    def test_should_raise_exception_if_username_was_not_found(self):
+        with pytest.raises(TwitterUserNotFound):
+            get_twitter_user_from_user_lookup_response({
+                'data': []
+            }, username='username_1')
 
 
 class TestIterTwitterArticleListItemForUserTweetsResponse:
