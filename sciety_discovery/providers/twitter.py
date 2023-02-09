@@ -33,7 +33,7 @@ def get_doi_from_url_or_none(url: str) -> Optional[str]:
     doi = m.group(1)
     if not doi.startswith(BIORXIV_DOI_PREFIX + '/'):
         return None
-    if 'biorxiv' in url:
+    if doi.startswith(BIORXIV_DOI_PREFIX):
         doi = get_doi_without_version(doi)
     return doi
 
