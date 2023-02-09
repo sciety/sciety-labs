@@ -12,7 +12,15 @@
     <p class="page-header__description">{{ twitter_user.description }}</p>
 
   </header>
-
+  <section>
+    <p class="articles-page-count">
+        Showing page <b>{{ pagination.page }}</b>
+        {% if pagination.page_count %}
+            of <b>{{ pagination.page_count }}</b>
+            <span class="visually-hidden"> pages</span>
+        {% endif %}
+        <span class="visually-hidden"> of list content</span>
+    </p>
     <ul class="articles-list" role="list">{% for item in article_list_content %}
     <li class="articles-list__item">
         <article>
@@ -47,6 +55,17 @@
         </article>
     </li>
     {% endfor %}
+    </ul>
+    {% if pagination.previous_page_url or pagination.next_page_url %}
+    <div class="pagination-controls">
+        {% if pagination.previous_page_url %}
+            <a href="{{ pagination.previous_page_url }}" class="pagination-controls__next_link">Previous</a>
+        {% endif %}
+        {% if pagination.next_page_url %}
+            <a href="{{ pagination.next_page_url }}" class="pagination-controls__next_link">Next</a>
+        {% endif %}
+    </div>
+    {% endif %}
   </section>
 
   </div>
