@@ -13,6 +13,17 @@ DOI_1 = '10.1101/doi1'
 DOI_ORG_URL_PREFIX = 'https://doi.org/'
 DOI_ORG_URL_1 = DOI_ORG_URL_PREFIX + DOI_1
 
+TWEET_ID_1 = 'tweet1'
+
+ARTICLE_TWEET_RESPONSE_1 = {
+    'id': TWEET_ID_1,
+    'entities': {
+        'urls': [{
+            'expanded_url': DOI_ORG_URL_1
+        }]
+    }
+}
+
 
 class TestGetDoiFromUrlOrNone:
     def test_should_return_none_if_not_url_containing_doi(self):
@@ -46,6 +57,7 @@ class TestIterTwitterArticleListItemForUserTweetsResponse:
     def test_return_article_list_item_for_expanded_doi_org_url(self):
         result = list(iter_twitter_article_list_item_for_user_tweets_response({
             'data': [{
+                **ARTICLE_TWEET_RESPONSE_1,
                 'entities': {
                     'urls': [{
                         'expanded_url': DOI_ORG_URL_1
@@ -58,16 +70,21 @@ class TestIterTwitterArticleListItemForUserTweetsResponse:
     def test_return_article_list_item_for_expanded_doi_org_url_with_comment(self):
         result = list(iter_twitter_article_list_item_for_user_tweets_response({
             'data': [{
-                'text': 'Comment 1',
-                'entities': {
-                    'urls': [{
-                        'expanded_url': DOI_ORG_URL_1
-                    }]
-                }
+                **ARTICLE_TWEET_RESPONSE_1,
+                'text': 'Comment 1'
             }]
         }))
         assert [item.article_doi for item in result] == [DOI_1]
         assert [item.comment for item in result] == ['Comment 1']
+
+    def test_extract_tweet_id(self):
+        result = list(iter_twitter_article_list_item_for_user_tweets_response({
+            'data': [{
+                **ARTICLE_TWEET_RESPONSE_1,
+                'id': TWEET_ID_1
+            }]
+        }))
+        assert [item.external_source_ids_by_name for item in result] == [{'tweet_id': TWEET_ID_1}]
 
 
 class TestGetTwitterUserArticleListProviderOrNone:
