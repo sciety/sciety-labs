@@ -38,6 +38,7 @@
                 <h4 class="visually-hidden">Annotation by {{ twitter_handle }}</h4>
                 <p>{{ item.comment }}</p>
                 <a href="https://twitter.com/{{ twitter_handle }}/status/{{ item.external_reference_by_name.tweet_id }}">Original Tweet</a>
+                <span> at <time datetime="{{ item.created_at_isoformat }}">{{ item.created_at_display_format }}</time></span>
             </section>
 
         </article>
