@@ -78,7 +78,7 @@ def iter_twitter_article_list_item_for_user_tweets_response(
         doi = dois[0]
         yield ArticleMention(
             article_doi=doi,
-            external_source_ids_by_name={'tweet_id': item['id']},
+            external_reference_by_name={'tweet_id': item['id']},
             comment=item.get('text')
         )
 

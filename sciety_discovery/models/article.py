@@ -12,7 +12,7 @@ class ArticleMetaData(NamedTuple):
 class ArticleMention:
     article_doi: str
     comment: Optional[str] = None
-    external_source_ids_by_name: Mapping[str, str] = dataclasses.field(default_factory=dict)
+    external_reference_by_name: Mapping[str, str] = dataclasses.field(default_factory=dict)
     article_meta: Optional[ArticleMetaData] = None
 
     def _replace(self, **changes) -> 'ArticleMention':

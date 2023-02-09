@@ -84,7 +84,7 @@ class TestIterTwitterArticleListItemForUserTweetsResponse:
                 'id': TWEET_ID_1
             }]
         }))
-        assert [item.external_source_ids_by_name for item in result] == [{'tweet_id': TWEET_ID_1}]
+        assert [item.external_reference_by_name for item in result] == [{'tweet_id': TWEET_ID_1}]
 
 
 class TestGetTwitterUserArticleListProviderOrNone:
