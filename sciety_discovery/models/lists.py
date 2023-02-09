@@ -104,15 +104,16 @@ class ScietyEventListsModel(ListsModel):
         for event in sciety_events:
             event_timestamp = event['event_timestamp']
             event_name = event['event_name']
-            sciety_list = event['sciety_list']
-            sciety_user = event.get('sciety_user')
-            list_id = sciety_list['list_id']
-            article_id = event.get('article_id')
+            sciety_list = event.get('sciety_list')
             if not sciety_list:
                 continue
+            sciety_user = event.get('sciety_user')
+            article_id = event.get('article_id')
+            list_id = sciety_list['list_id']
             list_meta = ListMetaData.from_sciety_event_list_meta(sciety_list)
             list_id = list_meta.list_id
-            self._list_meta_by_list_id[list_id] = list_meta
+            if list_id:
+                self._list_meta_by_list_id[list_id] = list_meta
             if list_id and sciety_user:
                 self._owner_meta_by_list_id[list_id] = (
                     OwnerMetaData.from_sciety_event_user_meta(sciety_user)

@@ -169,3 +169,14 @@ class TestScietyEventListsModel:
         assert [item.last_updated_date_display_format for item in result] == [
             'Jan 2, 2001'
         ]
+
+    def test_should_ignore_other_events(self):
+        model = ScietyEventListsModel([{
+            **ARTICLE_ADDED_TO_LIST_EVENT_1,
+            'article_id': ARTICLE_ID_1
+        }, {
+            'event_timestamp': TIMESTAMP_1,
+            'event_name': 'other'
+        }])
+        result = model.get_most_active_user_lists()
+        assert [item.article_count for item in result] == [1]
