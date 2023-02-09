@@ -1,4 +1,5 @@
-from typing import NamedTuple, Optional, Sequence
+import dataclasses
+from typing import Mapping, NamedTuple, Optional, Sequence
 
 
 class ArticleMetaData(NamedTuple):
@@ -7,7 +8,12 @@ class ArticleMetaData(NamedTuple):
     author_name_list: Optional[Sequence[str]] = None
 
 
-class ArticleMention(NamedTuple):
+@dataclasses.dataclass(frozen=True)
+class ArticleMention:
     article_doi: str
     comment: Optional[str] = None
+    external_reference_by_name: Mapping[str, str] = dataclasses.field(default_factory=dict)
     article_meta: Optional[ArticleMetaData] = None
+
+    def _replace(self, **changes) -> 'ArticleMention':
+        return dataclasses.replace(self, **changes)

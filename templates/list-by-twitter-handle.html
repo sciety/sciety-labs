@@ -37,6 +37,7 @@
             <section class="article-card-annotation">
                 <h4 class="visually-hidden">Annotation by {{ twitter_handle }}</h4>
                 <p>{{ item.comment }}</p>
+                <a href="https://twitter.com/{{ twitter_handle }}/status/{{ item.external_reference_by_name.tweet_id }}">Original Tweet</a>
             </section>
 
         </article>
