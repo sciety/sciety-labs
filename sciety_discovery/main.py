@@ -159,7 +159,10 @@ def create_app():  # pylint: disable=too-many-locals
                 "request": request,
                 "twitter_handle": twitter_handle,
                 "twitter_user": twitter_user,
-                "article_list_content": article_mention_with_article_meta
+                "article_list_content": article_mention_with_article_meta,
+                "pagination": {
+                    "page": page
+                }
             }
         )
 

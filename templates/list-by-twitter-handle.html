@@ -12,7 +12,10 @@
     <p class="page-header__description">{{ twitter_user.description }}</p>
 
   </header>
-
+  <section>
+    <p class="articles-page-count">
+        Showing page <b>{{ pagination.page }}</b><span class="visually-hidden"> of list content</span>
+    </p>
     <ul class="articles-list" role="list">{% for item in article_list_content %}
     <li class="articles-list__item">
         <article>
