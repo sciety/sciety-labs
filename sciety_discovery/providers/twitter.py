@@ -39,7 +39,7 @@ def get_doi_without_version(doi: str) -> str:
 
 def get_doi_from_url_or_none(url: str) -> Optional[str]:
     m = re.match(r'.*/(10.\d{4,}/[^/]+)', url)  # pylint: disable=invalid-name
-    LOGGER.info('m: %r', m)
+    LOGGER.debug('m: %r', m)
     if not m:
         return None
     doi = m.group(1)
@@ -70,9 +70,9 @@ def iter_dois_from_user_tweet_response_item(
     expanded_urls = list(iter_expanded_urls_from_tweet_response_item(
         user_timeline_response_item
     ))
-    LOGGER.info('expanded_urls: %r', expanded_urls)
+    LOGGER.debug('expanded_urls: %r', expanded_urls)
     if not expanded_urls:
-        LOGGER.info('user_timeline_response_item.keys: %r', user_timeline_response_item.keys())
+        LOGGER.debug('user_timeline_response_item.keys: %r', user_timeline_response_item.keys())
     yield from iter_dois_from_urls(expanded_urls)
 
 
