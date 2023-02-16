@@ -120,6 +120,18 @@ def create_app():  # pylint: disable=too-many-locals
             }
         )
 
+    @app.get('/lists/by-sciety-list-id/{sciety_list_id}', response_class=HTMLResponse)
+    async def lists_by_sciety_list_id(
+        request: Request,
+        sciety_list_id: str
+    ):
+        return templates.TemplateResponse(
+            'list-by-sciety-list-id.html', {
+                'request': request,
+                'sciety_list_id': sciety_list_id
+            }
+        )
+
     @app.get('/lists/by-twitter-handle/{twitter_handle}', response_class=HTMLResponse)
     async def list_by_twitter_handle(
         request: Request,
