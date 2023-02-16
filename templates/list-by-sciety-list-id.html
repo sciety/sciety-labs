@@ -21,6 +21,49 @@
 
     <p class="page-header__meta"><span class="visually-hidden">This list contains </span><span>{{ list_summary_data.article_count }} articles</span><span>Last updated <time datetime="{{ list_summary_data.last_updated_date_isoformat }}">{{ list_summary_data.last_updated_date_display_format }}</time></p>
 
+  <section>
+    <p class="articles-page-count">
+        Showing page <b>{{ pagination.page }}</b>
+        {% if pagination.page_count %}
+            of <b>{{ pagination.page_count }}</b>
+            <span class="visually-hidden"> pages</span>
+        {% endif %}
+        <span class="visually-hidden"> of list content</span>
+    </p>
+    <ul class="articles-list" role="list">{% for item in article_list_content %}
+    <li class="articles-list__item">
+        <article>
+            <section class="article-card">
+                <h3 class="article-card__title"><a class="article-card__link" href="https://sciety.org/articles/activity/{{ item.article_doi }}">{{ item.article_meta.article_title }}</a></h3>
+
+                <div class="hidden" id="article-card-author-list-{{ item.article_doi }}">This article's authors</div>
+                <ol class="card-authors" role="list" aria-describedby="article-card-author-list-{{ item.article_doi }}">
+                    {% for author_name in item.article_meta.author_name_list %}
+                    <li class="card-authors__author">{{ author_name }}</li>
+                    {% endfor %}
+                </ol>
+                
+                <footer class="article-card__footer">
+                    <div class="article-card__meta">
+                    <span class="visually-hidden">This article has </span><span>{{ item.article_stats.evaluation_count }} evaluations</span>
+                    </div>
+                </footer>
+
+            </section>
+        </article>
+    </li>
+    {% endfor %}
+    </ul>
+    {% if pagination.previous_page_url or pagination.next_page_url %}
+    <div class="pagination-controls">
+        {% if pagination.previous_page_url %}
+            <a href="{{ pagination.previous_page_url }}" class="pagination-controls__next_link">Previous</a>
+        {% endif %}
+        {% if pagination.next_page_url %}
+            <a href="{{ pagination.next_page_url }}" class="pagination-controls__next_link">Next</a>
+        {% endif %}
+    </div>
+    {% endif %}
   </header>
 
   </div>

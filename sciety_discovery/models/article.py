@@ -3,6 +3,19 @@ from datetime import datetime
 from typing import Mapping, NamedTuple, Optional, Sequence
 
 
+DOI_ARTICLE_ID_PREFIX = 'doi:'
+
+
+def is_doi_article_id(article_id: str) -> bool:
+    return article_id.startswith(DOI_ARTICLE_ID_PREFIX)
+
+
+def get_doi_from_article_id_or_none(article_id: str) -> Optional[str]:
+    if not is_doi_article_id(article_id):
+        return None
+    return article_id[len(DOI_ARTICLE_ID_PREFIX):]
+
+
 class ArticleMetaData(NamedTuple):
     article_doi: str
     article_title: str

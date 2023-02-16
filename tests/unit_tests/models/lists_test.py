@@ -196,3 +196,8 @@ class TestScietyEventListsModel:
         model = ScietyEventListsModel([ARTICLE_ADDED_TO_LIST_EVENT_1])
         list_summary_data = model.get_list_summary_data_by_list_id(LIST_ID_1)
         assert isinstance(list_summary_data, ListSummaryData)
+
+    def test_should_find_article_mention_without_comment(self):
+        model = ScietyEventListsModel([ARTICLE_ADDED_TO_LIST_EVENT_1])
+        article_mentions = list(model.iter_article_mentions_by_list_id(LIST_ID_1))
+        assert article_mentions

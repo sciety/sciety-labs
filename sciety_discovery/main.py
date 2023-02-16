@@ -27,7 +27,7 @@ from sciety_discovery.utils.threading import UpdateThread
 LOGGER = logging.getLogger(__name__)
 
 
-def create_app():  # pylint: disable=too-many-locals
+def create_app():  # pylint: disable=too-many-locals, too-many-statements
     gcp_project_name = 'elife-data-pipeline'
     sciety_event_table_id = f'{gcp_project_name}.de_proto.sciety_event_v1'
     update_interval_in_secs = 60 * 60  # 1 hour
@@ -123,13 +123,65 @@ def create_app():  # pylint: disable=too-many-locals
     @app.get('/lists/by-sciety-list-id/{sciety_list_id}', response_class=HTMLResponse)
     async def lists_by_sciety_list_id(
         request: Request,
-        sciety_list_id: str
+        sciety_list_id: str,
+        items_per_page: int = 10,
+        page: int = 1,
+        enable_pagination: bool = True
     ):
         list_summary_data = lists_model.get_list_summary_data_by_list_id(sciety_list_id)
+        article_mention_iterable = (
+            lists_model.iter_article_mentions_by_list_id(sciety_list_id)
+        )
+        article_mention_iterable = (
+            evaluation_stats_model.iter_article_mention_with_article_stats(
+                article_mention_iterable
+            )
+        )
+        if items_per_page:
+            assert page >= 1
+            paged_article_mention_iterable = islice(
+                article_mention_iterable,
+                (page - 1) * items_per_page,  # start
+                page * items_per_page  # stop
+            )
+        else:
+            paged_article_mention_iterable = article_mention_iterable
+        article_mention_with_article_meta = list(
+            crossref_metadata_provider.iter_article_mention_with_article_meta(
+                paged_article_mention_iterable
+            )
+        )
+        LOGGER.info('article_mention_with_article_meta: %r', article_mention_with_article_meta)
+
+        # we don't know the page count unless this is the last page
+        page_count: Optional[int] = None
+        previous_page_url: Optional[str] = None
+        next_page_url: Optional[str] = None
+        if enable_pagination:
+            if page > 1:
+                previous_page_url = str(request.url.include_query_params(
+                    page=page - 1
+                ))
+            if next(article_mention_iterable, None) is not None:
+                next_page_url = str(request.url.include_query_params(
+                    page=page + 1
+                ))
+                LOGGER.info('next_page_url: %r', next_page_url)
+            else:
+                LOGGER.info('no more items past this page')
+                page_count = page
+
         return templates.TemplateResponse(
             'list-by-sciety-list-id.html', {
                 'request': request,
-                'list_summary_data': list_summary_data
+                'list_summary_data': list_summary_data,
+                'article_list_content': article_mention_with_article_meta,
+                'pagination': {
+                    'page': page,
+                    'page_count': page_count,
+                    'previous_page_url': previous_page_url,
+                    'next_page_url': next_page_url
+                }
             }
         )
 

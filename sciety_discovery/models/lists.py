@@ -4,6 +4,8 @@ from datetime import datetime
 from threading import Lock
 from typing import Dict, Iterable, NamedTuple, Optional, Protocol, Sequence, Sized
 
+from sciety_discovery.models.article import ArticleMention, get_doi_from_article_id_or_none
+
 
 class ListMetaData(NamedTuple):
     list_id: str
@@ -45,6 +47,9 @@ class ArticleList(Sized):
 
     def __len__(self) -> int:
         return len(self._article_list_item_by_article_id)
+
+    def iter_article_list_item(self) -> Iterable[ArticleListItem]:
+        return self._article_list_item_by_article_id.values()
 
     def add(self, item: ArticleListItem):
         self._article_list_item_by_article_id[item.article_id] = item
@@ -183,3 +188,17 @@ class ScietyEventListsModel(ListsModel):
         return self.get_list_summary_data_for_list_meta(
             self.get_list_meta_data_by_list_id(list_id)
         )
+
+    def iter_article_mentions_by_list_id(
+        self,
+        list_id: str
+    ) -> Iterable[ArticleMention]:
+        article_list = self._article_list_by_list_id[list_id]
+        for article_list_item in article_list.iter_article_list_item():
+            article_doi = get_doi_from_article_id_or_none(article_list_item.article_id)
+            if not article_doi:
+                continue
+            yield ArticleMention(
+                article_doi=article_doi,
+                created_at_timestamp=article_list_item.added_datetime
+            )
