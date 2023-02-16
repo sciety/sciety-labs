@@ -8,7 +8,11 @@
 
     <p class="page-header__subheading">
         <img src="{{ list_summary_data.owner.avatar_url }}" alt="" class="page-header__avatar">
+        {% if list_summary_data.owner.twitter_handle %}
+        <span>A list by <a href="https://sciety.org/users/{{ list_summary_data.owner.twitter_handle }}">{{ list_summary_data.owner.display_name }}</a></span>
+        {% else %}
         <span>A list by {{ list_summary_data.owner.display_name }}</span>
+        {% endif %}
     </p>
 
   </header>

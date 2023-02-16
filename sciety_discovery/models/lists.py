@@ -22,12 +22,14 @@ class ListMetaData(NamedTuple):
 class OwnerMetaData(NamedTuple):
     display_name: str
     avatar_url: str
+    twitter_handle: Optional[str] = None
 
     @staticmethod
     def from_sciety_event_user_meta(sciety_event_user_meta: dict) -> 'OwnerMetaData':
         return OwnerMetaData(
             display_name=sciety_event_user_meta['user_display_name'],
-            avatar_url=sciety_event_user_meta['avatar_url']
+            avatar_url=sciety_event_user_meta['avatar_url'],
+            twitter_handle=sciety_event_user_meta.get('twitter_handle')
         )
 
 
