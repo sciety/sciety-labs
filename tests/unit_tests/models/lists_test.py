@@ -25,10 +25,13 @@ SCIETY_LIST_1 = {
 }
 
 USER_ID_1 = 'user_1'
+USER_DISPLAY_NAME_1 = 'User 1'
 
 SCIETY_USER_1 = {
     'user_id': USER_ID_1,
-    'avatar_url': 'https://user-avatar/1'
+    'user_display_name': USER_DISPLAY_NAME_1,
+    'avatar_url': 'https://user-avatar/1',
+    'twitter_handle': 'handle_1'
 }
 
 TIMESTAMP_1 = datetime.fromisoformat('2001-01-01+00:00')
@@ -55,6 +58,7 @@ LIST_META_DATA_1 = ListMetaData(
 )
 
 OWNER_META_DATA_1 = OwnerMetaData(
+    display_name=SCIETY_USER_1['user_display_name'],
     avatar_url=SCIETY_USER_1['avatar_url']
 )
 
@@ -108,13 +112,15 @@ class TestScietyEventListsModel:
             'list_description': SCIETY_LIST_1['list_description']
         }]
 
-    def test_should_populate_avatar_url(self):
+    def test_should_populate_display_name_avatar_url_and_twitter_handle(self):
         model = ScietyEventListsModel([
             ARTICLE_ADDED_TO_LIST_EVENT_1,
             ARTICLE_ADDED_TO_LIST_EVENT_1
         ])
         result = model.get_most_active_user_lists()
         assert [item.owner.avatar_url for item in result] == [SCIETY_USER_1['avatar_url']]
+        assert [item.owner.display_name for item in result] == [SCIETY_USER_1['user_display_name']]
+        assert [item.owner.twitter_handle for item in result] == [SCIETY_USER_1['twitter_handle']]
 
     def test_should_calculate_article_count_for_added_only_events(self):
         model = ScietyEventListsModel([{
@@ -180,3 +186,18 @@ class TestScietyEventListsModel:
         }])
         result = model.get_most_active_user_lists()
         assert [item.article_count for item in result] == [1]
+
+    def test_should_find_list_meta_data_by_id(self):
+        model = ScietyEventListsModel([ARTICLE_ADDED_TO_LIST_EVENT_1])
+        list_summary_data = model.get_list_meta_data_by_list_id(LIST_ID_1)
+        assert isinstance(list_summary_data, ListMetaData)
+
+    def test_should_find_list_summary_data_by_id(self):
+        model = ScietyEventListsModel([ARTICLE_ADDED_TO_LIST_EVENT_1])
+        list_summary_data = model.get_list_summary_data_by_list_id(LIST_ID_1)
+        assert isinstance(list_summary_data, ListSummaryData)
+
+    def test_should_find_article_mention_without_comment(self):
+        model = ScietyEventListsModel([ARTICLE_ADDED_TO_LIST_EVENT_1])
+        article_mentions = list(model.iter_article_mentions_by_list_id(LIST_ID_1))
+        assert article_mentions

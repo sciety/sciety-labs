@@ -4,6 +4,8 @@ from datetime import datetime
 from threading import Lock
 from typing import Dict, Iterable, NamedTuple, Optional, Protocol, Sequence, Sized
 
+from sciety_discovery.models.article import ArticleMention, get_doi_from_article_id_or_none
+
 
 class ListMetaData(NamedTuple):
     list_id: str
@@ -20,12 +22,16 @@ class ListMetaData(NamedTuple):
 
 
 class OwnerMetaData(NamedTuple):
+    display_name: str
     avatar_url: str
+    twitter_handle: Optional[str] = None
 
     @staticmethod
     def from_sciety_event_user_meta(sciety_event_user_meta: dict) -> 'OwnerMetaData':
         return OwnerMetaData(
-            avatar_url=sciety_event_user_meta['avatar_url']
+            display_name=sciety_event_user_meta['user_display_name'],
+            avatar_url=sciety_event_user_meta['avatar_url'],
+            twitter_handle=sciety_event_user_meta.get('twitter_handle')
         )
 
 
@@ -41,6 +47,9 @@ class ArticleList(Sized):
 
     def __len__(self) -> int:
         return len(self._article_list_item_by_article_id)
+
+    def iter_article_list_item(self) -> Iterable[ArticleListItem]:
+        return self._article_list_item_by_article_id.values()
 
     def add(self, item: ArticleListItem):
         self._article_list_item_by_article_id[item.article_id] = item
@@ -136,18 +145,21 @@ class ScietyEventListsModel(ListsModel):
         with self._lock:
             self._do_apply_events(sciety_events)
 
+    def get_list_summary_data_for_list_meta(self, list_meta) -> ListSummaryData:
+        return ListSummaryData(
+            list_meta=list_meta,
+            owner=self._owner_meta_by_list_id[list_meta.list_id],
+            article_count=len(self._article_list_by_list_id[
+                list_meta.list_id
+            ]),
+            last_updated_datetime=self._article_list_by_list_id[
+                list_meta.list_id
+            ].last_updated_datetime
+        )
+
     def iter_list_summary_data(self) -> Iterable[ListSummaryData]:
         for list_meta in self._list_meta_by_list_id.values():
-            yield ListSummaryData(
-                list_meta=list_meta,
-                owner=self._owner_meta_by_list_id[list_meta.list_id],
-                article_count=len(self._article_list_by_list_id[
-                    list_meta.list_id
-                ]),
-                last_updated_datetime=self._article_list_by_list_id[
-                    list_meta.list_id
-                ].last_updated_datetime
-            )
+            yield self.get_list_summary_data_for_list_meta(list_meta)
 
     def get_most_active_user_lists(
         self,
@@ -162,3 +174,31 @@ class ScietyEventListsModel(ListsModel):
         if top_n:
             result = result[:top_n]
         return result
+
+    def get_list_meta_data_by_list_id(
+        self,
+        list_id: str
+    ) -> ListMetaData:
+        return self._list_meta_by_list_id[list_id]
+
+    def get_list_summary_data_by_list_id(
+        self,
+        list_id: str
+    ) -> ListSummaryData:
+        return self.get_list_summary_data_for_list_meta(
+            self.get_list_meta_data_by_list_id(list_id)
+        )
+
+    def iter_article_mentions_by_list_id(
+        self,
+        list_id: str
+    ) -> Iterable[ArticleMention]:
+        article_list = self._article_list_by_list_id[list_id]
+        for article_list_item in article_list.iter_article_list_item():
+            article_doi = get_doi_from_article_id_or_none(article_list_item.article_id)
+            if not article_doi:
+                continue
+            yield ArticleMention(
+                article_doi=article_doi,
+                created_at_timestamp=article_list_item.added_datetime
+            )
