@@ -25,9 +25,11 @@ SCIETY_LIST_1 = {
 }
 
 USER_ID_1 = 'user_1'
+USER_DISPLAY_NAME_1 = 'User 1'
 
 SCIETY_USER_1 = {
     'user_id': USER_ID_1,
+    'user_display_name': USER_DISPLAY_NAME_1,
     'avatar_url': 'https://user-avatar/1'
 }
 
@@ -55,6 +57,7 @@ LIST_META_DATA_1 = ListMetaData(
 )
 
 OWNER_META_DATA_1 = OwnerMetaData(
+    display_name=SCIETY_USER_1['user_display_name'],
     avatar_url=SCIETY_USER_1['avatar_url']
 )
 
@@ -107,6 +110,13 @@ class TestScietyEventListsModel:
             'list_title': SCIETY_LIST_1['list_name'],
             'list_description': SCIETY_LIST_1['list_description']
         }]
+
+    def test_should_populate_display_name(self):
+        model = ScietyEventListsModel([
+            ARTICLE_ADDED_TO_LIST_EVENT_1
+        ])
+        result = model.get_most_active_user_lists()
+        assert [item.owner.display_name for item in result] == [SCIETY_USER_1['user_display_name']]
 
     def test_should_populate_avatar_url(self):
         model = ScietyEventListsModel([

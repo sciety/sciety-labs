@@ -129,7 +129,6 @@ def create_app():  # pylint: disable=too-many-locals
         return templates.TemplateResponse(
             'list-by-sciety-list-id.html', {
                 'request': request,
-                'sciety_list_id': sciety_list_id,
                 'list_summary_data': list_summary_data
             }
         )
