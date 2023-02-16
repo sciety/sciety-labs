@@ -21,6 +21,7 @@ from sciety_discovery.providers.sciety_event import ScietyEventProvider
 from sciety_discovery.providers.twitter import get_twitter_user_article_list_provider_or_none
 from sciety_discovery.utils.bq_cache import BigQueryTableModifiedInMemorySingleObjectCache
 from sciety_discovery.utils.cache import ChainedObjectCache, DiskSingleObjectCache
+from sciety_discovery.utils.pagination import get_page_count_for_item_count_and_items_per_page
 from sciety_discovery.utils.threading import UpdateThread
 
 
@@ -129,6 +130,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         enable_pagination: bool = True
     ):
         list_summary_data = lists_model.get_list_summary_data_by_list_id(sciety_list_id)
+        item_count = list_summary_data.article_count
         article_mention_iterable = (
             lists_model.iter_article_mentions_by_list_id(sciety_list_id)
         )
@@ -153,16 +155,18 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         )
         LOGGER.info('article_mention_with_article_meta: %r', article_mention_with_article_meta)
 
-        # we don't know the page count unless this is the last page
         page_count: Optional[int] = None
         previous_page_url: Optional[str] = None
         next_page_url: Optional[str] = None
         if enable_pagination:
+            page_count = get_page_count_for_item_count_and_items_per_page(
+                item_count=item_count, items_per_page=items_per_page
+            )
             if page > 1:
                 previous_page_url = str(request.url.include_query_params(
                     page=page - 1
                 ))
-            if next(article_mention_iterable, None) is not None:
+            if page < page_count:
                 next_page_url = str(request.url.include_query_params(
                     page=page + 1
                 ))
