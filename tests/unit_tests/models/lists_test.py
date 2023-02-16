@@ -180,3 +180,13 @@ class TestScietyEventListsModel:
         }])
         result = model.get_most_active_user_lists()
         assert [item.article_count for item in result] == [1]
+
+    def test_should_find_list_meta_data_by_id(self):
+        model = ScietyEventListsModel([ARTICLE_ADDED_TO_LIST_EVENT_1])
+        list_summary_data = model.get_list_meta_data_by_list_id(LIST_ID_1)
+        assert isinstance(list_summary_data, ListMetaData)
+
+    def test_should_find_list_summary_data_by_id(self):
+        model = ScietyEventListsModel([ARTICLE_ADDED_TO_LIST_EVENT_1])
+        list_summary_data = model.get_list_summary_data_by_list_id(LIST_ID_1)
+        assert isinstance(list_summary_data, ListSummaryData)

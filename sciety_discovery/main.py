@@ -125,10 +125,12 @@ def create_app():  # pylint: disable=too-many-locals
         request: Request,
         sciety_list_id: str
     ):
+        list_summary_data = lists_model.get_list_summary_data_by_list_id(sciety_list_id)
         return templates.TemplateResponse(
             'list-by-sciety-list-id.html', {
                 'request': request,
-                'sciety_list_id': sciety_list_id
+                'sciety_list_id': sciety_list_id,
+                'list_summary_data': list_summary_data
             }
         )
 

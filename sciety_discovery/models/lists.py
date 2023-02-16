@@ -136,18 +136,21 @@ class ScietyEventListsModel(ListsModel):
         with self._lock:
             self._do_apply_events(sciety_events)
 
+    def get_list_summary_data_for_list_meta(self, list_meta) -> ListSummaryData:
+        return ListSummaryData(
+            list_meta=list_meta,
+            owner=self._owner_meta_by_list_id[list_meta.list_id],
+            article_count=len(self._article_list_by_list_id[
+                list_meta.list_id
+            ]),
+            last_updated_datetime=self._article_list_by_list_id[
+                list_meta.list_id
+            ].last_updated_datetime
+        )
+
     def iter_list_summary_data(self) -> Iterable[ListSummaryData]:
         for list_meta in self._list_meta_by_list_id.values():
-            yield ListSummaryData(
-                list_meta=list_meta,
-                owner=self._owner_meta_by_list_id[list_meta.list_id],
-                article_count=len(self._article_list_by_list_id[
-                    list_meta.list_id
-                ]),
-                last_updated_datetime=self._article_list_by_list_id[
-                    list_meta.list_id
-                ].last_updated_datetime
-            )
+            yield self.get_list_summary_data_for_list_meta(list_meta)
 
     def get_most_active_user_lists(
         self,
@@ -162,3 +165,17 @@ class ScietyEventListsModel(ListsModel):
         if top_n:
             result = result[:top_n]
         return result
+
+    def get_list_meta_data_by_list_id(
+        self,
+        list_id: str
+    ) -> ListMetaData:
+        return self._list_meta_by_list_id[list_id]
+
+    def get_list_summary_data_by_list_id(
+        self,
+        list_id: str
+    ) -> ListSummaryData:
+        return self.get_list_summary_data_for_list_meta(
+            self.get_list_meta_data_by_list_id(list_id)
+        )
