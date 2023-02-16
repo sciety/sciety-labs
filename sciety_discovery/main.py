@@ -23,7 +23,7 @@ from sciety_discovery.utils.bq_cache import BigQueryTableModifiedInMemorySingleO
 from sciety_discovery.utils.cache import ChainedObjectCache, DiskSingleObjectCache
 from sciety_discovery.utils.pagination import (
     UrlPaginationState,
-    get_page_count_for_item_count_and_items_per_page
+    get_url_pagination_state_for_url
 )
 from sciety_discovery.utils.threading import UpdateThread
 
@@ -158,37 +158,19 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         )
         LOGGER.info('article_mention_with_article_meta: %r', article_mention_with_article_meta)
 
-        page_count: Optional[int] = None
-        previous_page_url: Optional[str] = None
-        next_page_url: Optional[str] = None
-        if enable_pagination:
-            page_count = get_page_count_for_item_count_and_items_per_page(
-                item_count=item_count, items_per_page=items_per_page
-            )
-            if page > 1:
-                previous_page_url = str(request.url.include_query_params(
-                    page=page - 1
-                ))
-            if page < page_count:
-                next_page_url = str(request.url.include_query_params(
-                    page=page + 1
-                ))
-                LOGGER.info('next_page_url: %r', next_page_url)
-            else:
-                LOGGER.info('no more items past this page')
-                page_count = page
-
+        url_pagination_state = get_url_pagination_state_for_url(
+            url=request.url,
+            page=page,
+            items_per_page=items_per_page,
+            item_count=item_count,
+            enable_pagination=enable_pagination
+        )
         return templates.TemplateResponse(
             'list-by-sciety-list-id.html', {
                 'request': request,
                 'list_summary_data': list_summary_data,
                 'article_list_content': article_mention_with_article_meta,
-                'pagination': UrlPaginationState(
-                    page=page,
-                    page_count=page_count,
-                    previous_page_url=previous_page_url,
-                    next_page_url=next_page_url
-                )
+                'pagination': url_pagination_state
             }
         )
 
