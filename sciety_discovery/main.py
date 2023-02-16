@@ -3,7 +3,6 @@ from http.client import HTTPException
 from itertools import islice
 import logging
 from pathlib import Path
-from typing import Optional
 
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
@@ -22,7 +21,6 @@ from sciety_discovery.providers.twitter import get_twitter_user_article_list_pro
 from sciety_discovery.utils.bq_cache import BigQueryTableModifiedInMemorySingleObjectCache
 from sciety_discovery.utils.cache import ChainedObjectCache, DiskSingleObjectCache
 from sciety_discovery.utils.pagination import (
-    UrlPaginationState,
     get_url_pagination_state_for_url
 )
 from sciety_discovery.utils.threading import UpdateThread
@@ -212,36 +210,21 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         )
         LOGGER.info('article_mention_with_article_meta: %r', article_mention_with_article_meta)
 
-        # we don't know the page count unless this is the last page
-        page_count: Optional[int] = None
-        previous_page_url: Optional[str] = None
-        next_page_url: Optional[str] = None
-        if enable_pagination:
-            if page > 1:
-                previous_page_url = str(request.url.include_query_params(
-                    page=page - 1
-                ))
-            if next(article_mention_iterable, None) is not None:
-                next_page_url = str(request.url.include_query_params(
-                    page=page + 1
-                ))
-                LOGGER.info('next_page_url: %r', next_page_url)
-            else:
-                LOGGER.info('no more items past this page')
-                page_count = page
-
+        # Note: we don't know the page count unless this is the last page
+        url_pagination_state = get_url_pagination_state_for_url(
+            url=request.url,
+            page=page,
+            items_per_page=items_per_page,
+            remaining_item_iterable=article_mention_iterable,
+            enable_pagination=enable_pagination
+        )
         return templates.TemplateResponse(
             'list-by-twitter-handle.html', {
                 'request': request,
                 'twitter_handle': twitter_handle,
                 'twitter_user': twitter_user,
                 'article_list_content': article_mention_with_article_meta,
-                'pagination': UrlPaginationState(
-                    page=page,
-                    page_count=page_count,
-                    previous_page_url=previous_page_url,
-                    next_page_url=next_page_url
-                )
+                'pagination': url_pagination_state
             }
         )
 

@@ -111,3 +111,33 @@ class TestGetUrlPaginationStateForUrl:
             _parse_query_parameters_from_url(url_pagination_state.previous_page_url).get('page')
             == '2'
         )
+
+    def test_should_calculate_previous_and_next_page_url_with_remaining_item_iterable(self):
+        url_pagination_state = get_url_pagination_state_for_url(
+            url=URL_WITHOUT_PAGE_PARAMETER,
+            page=2,
+            items_per_page=10,
+            item_count=None,
+            remaining_item_iterable=iter(['something'])
+        )
+        assert url_pagination_state.previous_page_url is not None
+        assert url_pagination_state.next_page_url is not None
+        assert (
+            _parse_query_parameters_from_url(url_pagination_state.previous_page_url).get('page')
+            == '1'
+        )
+        assert (
+            _parse_query_parameters_from_url(url_pagination_state.next_page_url).get('page')
+            == '3'
+        )
+        assert url_pagination_state.page_count is None
+
+    def test_should_calculate_page_count_on_last_page_of_iterable(self):
+        url_pagination_state = get_url_pagination_state_for_url(
+            url=URL_WITHOUT_PAGE_PARAMETER,
+            page=2,
+            items_per_page=10,
+            item_count=None,
+            remaining_item_iterable=iter([])
+        )
+        assert url_pagination_state.page_count == 2
