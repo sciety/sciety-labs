@@ -1,5 +1,6 @@
 import logging
-from typing import Any, NamedTuple, Optional
+import itertools
+from typing import Any, Iterable, NamedTuple, Optional, TypeVar
 
 import starlette.datastructures
 
@@ -7,6 +8,9 @@ from sciety_discovery.utils.typing import SupportsNext
 
 
 LOGGER = logging.getLogger(__name__)
+
+
+T = TypeVar('T')
 
 
 class UrlPaginationState(NamedTuple):
@@ -21,6 +25,21 @@ def get_page_count_for_item_count_and_items_per_page(
     items_per_page: int
 ) -> int:
     return max(1, (item_count + items_per_page - 1) // items_per_page)
+
+
+def get_page_iterable(
+    iterable: Iterable[T],
+    page: int,
+    items_per_page: Optional[int] = None
+) -> Iterable[T]:
+    if not items_per_page:
+        return iterable
+    assert page >= 1
+    return itertools.islice(
+        iterable,
+        (page - 1) * items_per_page,  # start
+        page * items_per_page  # stop
+    )
 
 
 def get_url_pagination_state_for_url(  # pylint: disable=too-many-arguments

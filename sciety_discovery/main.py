@@ -1,6 +1,5 @@
 from datetime import timedelta
 from http.client import HTTPException
-from itertools import islice
 import logging
 from pathlib import Path
 
@@ -21,6 +20,7 @@ from sciety_discovery.providers.twitter import get_twitter_user_article_list_pro
 from sciety_discovery.utils.bq_cache import BigQueryTableModifiedInMemorySingleObjectCache
 from sciety_discovery.utils.cache import ChainedObjectCache, DiskSingleObjectCache
 from sciety_discovery.utils.pagination import (
+    get_page_iterable,
     get_url_pagination_state_for_url
 )
 from sciety_discovery.utils.threading import UpdateThread
@@ -140,18 +140,11 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 article_mention_iterable
             )
         )
-        if items_per_page:
-            assert page >= 1
-            paged_article_mention_iterable = islice(
-                article_mention_iterable,
-                (page - 1) * items_per_page,  # start
-                page * items_per_page  # stop
-            )
-        else:
-            paged_article_mention_iterable = article_mention_iterable
         article_mention_with_article_meta = list(
             crossref_metadata_provider.iter_article_mention_with_article_meta(
-                paged_article_mention_iterable
+                get_page_iterable(
+                    article_mention_iterable, page=page, items_per_page=items_per_page
+                )
             )
         )
         LOGGER.info('article_mention_with_article_meta: %r', article_mention_with_article_meta)
@@ -194,18 +187,11 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 article_mention_iterable
             )
         )
-        if items_per_page:
-            assert page >= 1
-            paged_article_mention_iterable = islice(
-                article_mention_iterable,
-                (page - 1) * items_per_page,  # start
-                page * items_per_page  # stop
-            )
-        else:
-            paged_article_mention_iterable = article_mention_iterable
         article_mention_with_article_meta = list(
             crossref_metadata_provider.iter_article_mention_with_article_meta(
-                paged_article_mention_iterable
+                get_page_iterable(
+                    article_mention_iterable, page=page, items_per_page=items_per_page
+                )
             )
         )
         LOGGER.info('article_mention_with_article_meta: %r', article_mention_with_article_meta)

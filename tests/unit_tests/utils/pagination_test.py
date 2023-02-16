@@ -4,6 +4,7 @@ import starlette.datastructures
 
 from sciety_discovery.utils.pagination import (
     get_page_count_for_item_count_and_items_per_page,
+    get_page_iterable,
     get_url_pagination_state_for_url
 )
 
@@ -33,6 +34,24 @@ class TestGetPageCountForItemCountAndItemsPerPage:
         assert get_page_count_for_item_count_and_items_per_page(
             item_count=11, items_per_page=10
         ) == 2
+
+
+class TestGetPageIterable:
+    def test_should_return_passed_in_iterable_without_items_per_page(self):
+        iterable = iter(['1', '2', '3'])
+        assert get_page_iterable(iterable, page=1) == iterable
+
+    def test_should_return_first_page_of_iterable(self):
+        iterable = iter(['1', '2', '3'])
+        result = get_page_iterable(iterable, page=1, items_per_page=2)
+        assert not isinstance(result, list)
+        assert list(result) == ['1', '2']
+
+    def test_should_return_last_page_of_iterable(self):
+        iterable = iter(['1', '2', '3'])
+        result = get_page_iterable(iterable, page=2, items_per_page=2)
+        assert not isinstance(result, list)
+        assert list(result) == ['3']
 
 
 class TestGetUrlPaginationStateForUrl:
