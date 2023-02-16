@@ -2,6 +2,7 @@ from datetime import timedelta
 from http.client import HTTPException
 import logging
 from pathlib import Path
+from typing import Iterable, Optional
 
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
@@ -9,6 +10,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
 import requests_cache
+from sciety_discovery.models.article import ArticleMention
 from sciety_discovery.models.evaluation import ScietyEventEvaluationStatsModel
 
 from sciety_discovery.models.lists import ScietyEventListsModel
@@ -122,19 +124,11 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             }
         )
 
-    @app.get('/lists/by-id/{list_id}', response_class=HTMLResponse)
-    async def lists_by_sciety_list_id(
-        request: Request,
-        list_id: str,
-        items_per_page: int = 10,
-        page: int = 1,
-        enable_pagination: bool = True
-    ):
-        list_summary_data = lists_model.get_list_summary_data_by_list_id(list_id)
-        item_count = list_summary_data.article_count
-        article_mention_iterable = (
-            lists_model.iter_article_mentions_by_list_id(list_id)
-        )
+    def _get_page_article_mention_with_article_meta_for_article_mention_iterable(
+        article_mention_iterable: Iterable[ArticleMention],
+        page: int,
+        items_per_page: Optional[int]
+    ) -> Iterable[ArticleMention]:
         article_mention_iterable = (
             evaluation_stats_model.iter_article_mention_with_article_stats(
                 article_mention_iterable
@@ -148,6 +142,25 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             )
         )
         LOGGER.info('article_mention_with_article_meta: %r', article_mention_with_article_meta)
+        return article_mention_with_article_meta
+
+    @app.get('/lists/by-id/{list_id}', response_class=HTMLResponse)
+    async def lists_by_sciety_list_id(
+        request: Request,
+        list_id: str,
+        items_per_page: int = 10,
+        page: int = 1,
+        enable_pagination: bool = True
+    ):
+        list_summary_data = lists_model.get_list_summary_data_by_list_id(list_id)
+        item_count = list_summary_data.article_count
+        article_mention_with_article_meta = (
+            _get_page_article_mention_with_article_meta_for_article_mention_iterable(
+                lists_model.iter_article_mentions_by_list_id(list_id),
+                page=page,
+                items_per_page=items_per_page
+            )
+        )
 
         url_pagination_state = get_url_pagination_state_for_url(
             url=request.url,
@@ -182,16 +195,9 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 twitter_user.user_id
             )
         )
-        article_mention_iterable = (
-            evaluation_stats_model.iter_article_mention_with_article_stats(
-                article_mention_iterable
-            )
-        )
         article_mention_with_article_meta = list(
-            crossref_metadata_provider.iter_article_mention_with_article_meta(
-                get_page_iterable(
-                    article_mention_iterable, page=page, items_per_page=items_per_page
-                )
+            _get_page_article_mention_with_article_meta_for_article_mention_iterable(
+                article_mention_iterable, page=page, items_per_page=items_per_page
             )
         )
         LOGGER.info('article_mention_with_article_meta: %r', article_mention_with_article_meta)
