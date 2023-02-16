@@ -6,6 +6,8 @@
 
   <header class="page-header page-header--list">
 
+    <h1>{{ list_summary_data.list_meta.list_name }}</h1>
+
     <p class="page-header__subheading">
         <img src="{{ list_summary_data.owner.avatar_url }}" alt="" class="page-header__avatar">
         {% if list_summary_data.owner.twitter_handle %}
