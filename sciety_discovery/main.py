@@ -121,18 +121,18 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             }
         )
 
-    @app.get('/lists/by-sciety-list-id/{sciety_list_id}', response_class=HTMLResponse)
+    @app.get('/lists/by-id/{list_id}', response_class=HTMLResponse)
     async def lists_by_sciety_list_id(
         request: Request,
-        sciety_list_id: str,
+        list_id: str,
         items_per_page: int = 10,
         page: int = 1,
         enable_pagination: bool = True
     ):
-        list_summary_data = lists_model.get_list_summary_data_by_list_id(sciety_list_id)
+        list_summary_data = lists_model.get_list_summary_data_by_list_id(list_id)
         item_count = list_summary_data.article_count
         article_mention_iterable = (
-            lists_model.iter_article_mentions_by_list_id(sciety_list_id)
+            lists_model.iter_article_mentions_by_list_id(list_id)
         )
         article_mention_iterable = (
             evaluation_stats_model.iter_article_mention_with_article_stats(
