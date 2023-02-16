@@ -21,7 +21,10 @@ from sciety_discovery.providers.sciety_event import ScietyEventProvider
 from sciety_discovery.providers.twitter import get_twitter_user_article_list_provider_or_none
 from sciety_discovery.utils.bq_cache import BigQueryTableModifiedInMemorySingleObjectCache
 from sciety_discovery.utils.cache import ChainedObjectCache, DiskSingleObjectCache
-from sciety_discovery.utils.pagination import get_page_count_for_item_count_and_items_per_page
+from sciety_discovery.utils.pagination import (
+    UrlPaginationState,
+    get_page_count_for_item_count_and_items_per_page
+)
 from sciety_discovery.utils.threading import UpdateThread
 
 
@@ -180,12 +183,12 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 'request': request,
                 'list_summary_data': list_summary_data,
                 'article_list_content': article_mention_with_article_meta,
-                'pagination': {
-                    'page': page,
-                    'page_count': page_count,
-                    'previous_page_url': previous_page_url,
-                    'next_page_url': next_page_url
-                }
+                'pagination': UrlPaginationState(
+                    page=page,
+                    page_count=page_count,
+                    previous_page_url=previous_page_url,
+                    next_page_url=next_page_url
+                )
             }
         )
 
@@ -251,12 +254,12 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 'twitter_handle': twitter_handle,
                 'twitter_user': twitter_user,
                 'article_list_content': article_mention_with_article_meta,
-                'pagination': {
-                    'page': page,
-                    'page_count': page_count,
-                    'previous_page_url': previous_page_url,
-                    'next_page_url': next_page_url
-                }
+                'pagination': UrlPaginationState(
+                    page=page,
+                    page_count=page_count,
+                    previous_page_url=previous_page_url,
+                    next_page_url=next_page_url
+                )
             }
         )
 
