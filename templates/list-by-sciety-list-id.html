@@ -19,6 +19,8 @@
 
     <p class="page-header__description">{{ list_summary_data.list_meta.list_description }}</p>
 
+    <p class="page-header__meta"><span class="visually-hidden">This list contains </span><span>{{ list_summary_data.article_count }} articles</span><span>Last updated <time datetime="{{ list_summary_data.last_updated_date_isoformat }}">{{ list_summary_data.last_updated_date_display_format }}</time></p>
+
   </header>
 
   </div>
