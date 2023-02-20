@@ -211,7 +211,7 @@ class ScietyEventListsModel(ListsModel):
             self.get_list_meta_data_by_list_id(list_id)
         )
 
-    def iter_article_mentions_by_list_id(
+    def iter_unsorted_article_mentions_by_list_id(
         self,
         list_id: str
     ) -> Iterable[ArticleMention]:
@@ -230,3 +230,13 @@ class ScietyEventListsModel(ListsModel):
                 comment=comment_text,
                 created_at_timestamp=article_list_item.added_datetime
             )
+
+    def iter_article_mentions_by_list_id(
+        self,
+        list_id: str
+    ) -> Iterable[ArticleMention]:
+        yield from sorted(
+            self.iter_unsorted_article_mentions_by_list_id(list_id),
+            key=ArticleMention.get_created_at_sort_key,
+            reverse=True
+        )
