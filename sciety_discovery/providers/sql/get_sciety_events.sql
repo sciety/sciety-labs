@@ -4,11 +4,12 @@ SELECT
   event.sciety_list,
   event.sciety_user,
   event.article_id,
-  event.evaluation_locator
+  event.evaluation_locator,
+  event.content
 FROM `elife-data-pipeline.de_proto.v_sciety_event` AS event
 WHERE
   (
-    event.normalized_event_name IN ('ArticleAddedToList', 'ArticleRemovedFromList')
+    event.normalized_event_name IN ('ArticleAddedToList', 'ArticleRemovedFromList', 'AnnotationCreated')
     AND event.sciety_user.user_id IS NOT NULL
     AND event.sciety_list.list_id NOT IN (
       -- exclude some lists of users who's avatar no longer resolves

@@ -50,6 +50,12 @@ ARTICLE_REMOVED_FROM_LIST_EVENT_1 = {
     'event_name': 'ArticleRemovedFromList'
 }
 
+ANNOTATION_CREATED_EVENT_1 = {
+    **ARTICLE_ADDED_TO_LIST_EVENT_1,
+    'content': 'Comment 1',
+    'event_name': 'AnnotationCreated'
+}
+
 
 LIST_META_DATA_1 = ListMetaData(
     list_id=LIST_ID_1,
@@ -201,3 +207,12 @@ class TestScietyEventListsModel:
         model = ScietyEventListsModel([ARTICLE_ADDED_TO_LIST_EVENT_1])
         article_mentions = list(model.iter_article_mentions_by_list_id(LIST_ID_1))
         assert article_mentions
+
+    def test_should_find_article_mention_with_comment(self):
+        model = ScietyEventListsModel([
+            ARTICLE_ADDED_TO_LIST_EVENT_1,
+            ANNOTATION_CREATED_EVENT_1
+        ])
+        article_mentions = list(model.iter_article_mentions_by_list_id(LIST_ID_1))
+        assert article_mentions
+        assert article_mentions[0].comment == ANNOTATION_CREATED_EVENT_1['content']

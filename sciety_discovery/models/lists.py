@@ -40,9 +40,16 @@ class ArticleListItem(NamedTuple):
     added_datetime: datetime
 
 
+class ArticleCommentItem(NamedTuple):
+    article_id: str
+    comment: str
+    added_datetime: datetime
+
+
 @dataclass
 class ArticleList(Sized):
     _article_list_item_by_article_id: Dict[str, ArticleListItem] = field(default_factory=dict)
+    _article_comment_by_article_id: Dict[str, ArticleCommentItem] = field(default_factory=dict)
     last_updated_datetime: Optional[datetime] = None
 
     def __len__(self) -> int:
@@ -58,6 +65,12 @@ class ArticleList(Sized):
     def remove_by_article_id(self, article_id: str, when: datetime):
         del self._article_list_item_by_article_id[article_id]
         self.last_updated_datetime = when
+
+    def add_comment(self, comment: ArticleCommentItem):
+        self._article_comment_by_article_id[comment.article_id] = comment
+
+    def get_comment_by_article_id(self, article_id: str) -> Optional[ArticleCommentItem]:
+        return self._article_comment_by_article_id.get(article_id)
 
 
 class ListSummaryData(NamedTuple):
@@ -85,6 +98,7 @@ class ListSummaryData(NamedTuple):
 class ScietyEventNames:
     ARTICLE_ADDED_TO_LIST = 'ArticleAddedToList'
     ARTICLE_REMOVED_FROM_LIST = 'ArticleRemovedFromList'
+    ANNOTATION_CREATED = 'AnnotationCreated'
 
 
 class ListsModel(Protocol):
@@ -131,6 +145,14 @@ class ScietyEventListsModel(ListsModel):
                 if event_name == ScietyEventNames.ARTICLE_ADDED_TO_LIST:
                     self._article_list_by_list_id[list_id].add(
                         ArticleListItem(article_id=article_id, added_datetime=event_timestamp)
+                    )
+                if event_name == ScietyEventNames.ANNOTATION_CREATED:
+                    self._article_list_by_list_id[list_id].add_comment(
+                        ArticleCommentItem(
+                            article_id=article_id,
+                            comment=event['content'],
+                            added_datetime=event_timestamp
+                        )
                     )
                 if event_name == ScietyEventNames.ARTICLE_REMOVED_FROM_LIST:
                     try:
@@ -198,7 +220,13 @@ class ScietyEventListsModel(ListsModel):
             article_doi = get_doi_from_article_id_or_none(article_list_item.article_id)
             if not article_doi:
                 continue
+            comment_item = article_list.get_comment_by_article_id(article_list_item.article_id)
+            comment_text = (
+                comment_item.comment if comment_item
+                else None
+            )
             yield ArticleMention(
                 article_doi=article_doi,
+                comment=comment_text,
                 created_at_timestamp=article_list_item.added_datetime
             )
