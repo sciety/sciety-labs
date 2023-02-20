@@ -48,8 +48,14 @@
                     <span class="visually-hidden">This article has </span><span>{{ item.article_stats.evaluation_count }} evaluations</span>
                     </div>
                 </footer>
-
             </section>
+
+            {% if item.comment %}
+            <section class="article-card-annotation">
+                <h4 class="visually-hidden">Annotation by {{ list_summary_data.owner.display_name }}</h4>
+                <p>{{ item.comment }}</p>
+            </section>
+            {% endif %}
         </article>
     </li>
     {% endfor %}
