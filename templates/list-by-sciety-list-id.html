@@ -46,6 +46,7 @@
                 <footer class="article-card__footer">
                     <div class="article-card__meta">
                     <span class="visually-hidden">This article has </span><span>{{ item.article_stats.evaluation_count }} evaluations</span>
+                    <span>Added on <time datetime="{{ item.created_at_isoformat }}">{{ item.created_at_display_format }}</time></span>
                     </div>
                 </footer>
             </section>
