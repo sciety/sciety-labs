@@ -38,6 +38,9 @@ class ArticleMention:
     def _replace(self, **changes) -> 'ArticleMention':
         return dataclasses.replace(self, **changes)
 
+    def get_created_at_sort_key(self) -> datetime:
+        return self.created_at_timestamp
+
     @property
     def created_at_isoformat(self) -> str:
         return self.created_at_timestamp.strftime(r'%Y-%m-%d')

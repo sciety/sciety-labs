@@ -216,3 +216,22 @@ class TestScietyEventListsModel:
         article_mentions = list(model.iter_article_mentions_by_list_id(LIST_ID_1))
         assert article_mentions
         assert article_mentions[0].comment == ANNOTATION_CREATED_EVENT_1['content']
+
+    def test_should_reverse_sort_article_list(self):
+        model = ScietyEventListsModel([
+            {
+                **ARTICLE_ADDED_TO_LIST_EVENT_1,
+                'article_id': ARTICLE_ID_1,
+                'event_timestamp': TIMESTAMP_1
+            }, {
+                **ARTICLE_ADDED_TO_LIST_EVENT_1,
+                'article_id': ARTICLE_ID_2,
+                'event_timestamp': TIMESTAMP_2
+            }
+        ])
+        article_mentions = list(model.iter_article_mentions_by_list_id(LIST_ID_1))
+        assert article_mentions
+        assert [
+            article_mention.article_doi
+            for article_mention in article_mentions
+        ] == [DOI_2, DOI_1]
