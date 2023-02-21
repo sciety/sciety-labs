@@ -12,22 +12,22 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
 import requests_cache
-from sciety_discovery.models.article import ArticleMention
-from sciety_discovery.models.evaluation import ScietyEventEvaluationStatsModel
+from sciety_labs.models.article import ArticleMention
+from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
 
-from sciety_discovery.models.lists import ScietyEventListsModel
-from sciety_discovery.providers.crossref import (
+from sciety_labs.models.lists import ScietyEventListsModel
+from sciety_labs.providers.crossref import (
     CrossrefMetaDataProvider
 )
-from sciety_discovery.providers.sciety_event import ScietyEventProvider
-from sciety_discovery.providers.twitter import get_twitter_user_article_list_provider_or_none
-from sciety_discovery.utils.bq_cache import BigQueryTableModifiedInMemorySingleObjectCache
-from sciety_discovery.utils.cache import ChainedObjectCache, DiskSingleObjectCache
-from sciety_discovery.utils.pagination import (
+from sciety_labs.providers.sciety_event import ScietyEventProvider
+from sciety_labs.providers.twitter import get_twitter_user_article_list_provider_or_none
+from sciety_labs.utils.bq_cache import BigQueryTableModifiedInMemorySingleObjectCache
+from sciety_labs.utils.cache import ChainedObjectCache, DiskSingleObjectCache
+from sciety_labs.utils.pagination import (
     get_page_iterable,
     get_url_pagination_state_for_url
 )
-from sciety_discovery.utils.threading import UpdateThread
+from sciety_labs.utils.threading import UpdateThread
 
 
 LOGGER = logging.getLogger(__name__)

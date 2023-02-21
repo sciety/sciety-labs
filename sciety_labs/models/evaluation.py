@@ -1,7 +1,7 @@
 from threading import Lock
 from typing import Dict, Iterable, List, NamedTuple, Sequence
 
-from sciety_discovery.models.article import ArticleMention, ArticleStats
+from sciety_labs.models.article import ArticleMention, ArticleStats
 
 
 DOI_ARTICLE_ID_PREFIX = 'doi:'

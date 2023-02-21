@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from sciety_discovery.utils.datetime import parse_timestamp
+from sciety_labs.utils.datetime import parse_timestamp
 
 
 class TestParseTimestamp:

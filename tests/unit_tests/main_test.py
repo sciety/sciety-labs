@@ -5,8 +5,8 @@ import pytest
 
 from fastapi.testclient import TestClient
 
-from sciety_discovery import main as main_module
-from sciety_discovery.main import create_app
+from sciety_labs import main as main_module
+from sciety_labs.main import create_app
 
 
 @pytest.fixture(name='sciety_event_provider_class_mock', autouse=True)

@@ -1,4 +1,4 @@
-from sciety_discovery.models.article import get_doi_from_article_id_or_none, is_doi_article_id
+from sciety_labs.models.article import get_doi_from_article_id_or_none, is_doi_article_id
 
 
 class TestIsDoiArticleId:

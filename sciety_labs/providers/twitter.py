@@ -6,8 +6,8 @@ from typing import Iterable, NamedTuple, Optional
 
 import requests
 
-from sciety_discovery.models.article import ArticleMention
-from sciety_discovery.utils.datetime import parse_timestamp
+from sciety_labs.models.article import ArticleMention
+from sciety_labs.utils.datetime import parse_timestamp
 
 
 LOGGER = logging.getLogger(__name__)

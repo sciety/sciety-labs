@@ -1,5 +1,5 @@
 from datetime import datetime
-from sciety_discovery.models.lists import (
+from sciety_labs.models.lists import (
     ListMetaData,
     ListSummaryData,
     OwnerMetaData,
