@@ -21,6 +21,9 @@
 
     <p class="page-header__meta"><span class="visually-hidden">This list contains </span><span>{{ list_summary_data.article_count }} articles</span><span>Last updated <time datetime="{{ list_summary_data.last_updated_date_isoformat }}">{{ list_summary_data.last_updated_date_display_format }}</time></p>
 
+    <p class="page-header__links"><span class="visually-hidden">This list can be subscribed to via the </span><span><a
+        href="{{ rss_url }}">RSS</a></p>
+
   <section>
     <p class="articles-page-count">
         Showing page <b>{{ pagination.page }}</b>
