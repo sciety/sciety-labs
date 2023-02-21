@@ -1,7 +1,7 @@
 version: '3.4'
 
 services:
-  sciety-discovery:
+  sciety-labs:
     ports:
       - "${SCIETY_DISCOVERY_PORT}:8000"
     environment:

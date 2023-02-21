@@ -6,7 +6,7 @@ VENV = venv
 PIP = $(VENV)/bin/pip
 PYTHON = $(VENV)/bin/python
 
-DOCKER_RUN = $(DOCKER_COMPOSE) run --rm sciety-discovery
+DOCKER_RUN = $(DOCKER_COMPOSE) run --rm sciety-labs
 DOCKER_PYTHON = $(DOCKER_RUN) python
 
 ARGS =
@@ -71,7 +71,7 @@ dev-start:
 
 
 build:
-	$(DOCKER_COMPOSE) build sciety-discovery
+	$(DOCKER_COMPOSE) build sciety-labs
 
 flake8:
 	$(DOCKER_PYTHON) -m flake8 sciety_labs tests
@@ -107,7 +107,7 @@ logs:
 	$(DOCKER_COMPOSE) logs -f
 
 docker-push:
-	$(DOCKER_COMPOSE) push sciety-discovery
+	$(DOCKER_COMPOSE) push sciety-labs
 
 
 ci-build-and-test:
