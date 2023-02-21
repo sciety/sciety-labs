@@ -151,7 +151,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         return article_mention_with_article_meta
 
     @app.get('/lists/by-id/{list_id}', response_class=HTMLResponse)
-    async def lists_by_sciety_list_id(
+    async def list_by_sciety_list_id(
         request: Request,
         list_id: str,
         items_per_page: int = 10,
