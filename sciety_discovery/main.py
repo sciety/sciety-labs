@@ -178,7 +178,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         rss_url = (
             request
             .url
-            .remove_query_params(['page', 'enable_pagination'])
+            .remove_query_params(['page', 'items_per_page', 'enable_pagination'])
             .replace(
                 path=request.url.path + '/atom.xml'
             )
@@ -197,7 +197,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     async def list_atom_by_sciety_list_id(
         request: Request,
         list_id: str,
-        items_per_page: int = 10,
+        items_per_page: Optional[int] = 10,
         page: int = 1
     ):
         list_summary_data = lists_model.get_list_summary_data_by_list_id(list_id)
