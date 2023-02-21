@@ -2,7 +2,7 @@ FROM python:3.8 AS base
 
 USER root
 
-WORKDIR /app/sciety-discovery
+WORKDIR /app/sciety-labs
 
 COPY requirements.build.txt ./
 RUN pip install --disable-pip-version-check -r requirements.build.txt

@@ -1,9 +1,9 @@
 version: '3.4'
 
 services:
-  sciety-discovery:
+  sciety-labs:
     ports:
-      - "${SCIETY_DISCOVERY_PORT}:8000"
+      - "${SCIETY_LABS_PORT}:8000"
     environment:
       - TWITTER_API_AUTHORIZATION_FILE_PATH=/root/.secrets/twitter_api_authorization.txt
     volumes:

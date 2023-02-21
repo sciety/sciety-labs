@@ -1,8 +1,8 @@
 version: '3.4'
 
 services:
-  sciety-discovery:
+  sciety-labs:
     build:
       context: .
       dockerfile: Dockerfile
-    image: ${SCIETY_DISCOVERY_IMAGE_REPO}:${SCIETY_DISCOVERY_IMAGE_TAG}
+    image: ${SCIETY_LABS_IMAGE_REPO}:${SCIETY_LABS_IMAGE_TAG}
