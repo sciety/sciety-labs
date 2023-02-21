@@ -4,8 +4,8 @@ from typing import Iterable
 
 import pytest
 
-import sciety_discovery.utils.cache as cache_module
-from sciety_discovery.utils.cache import (
+import sciety_labs.utils.cache as cache_module
+from sciety_labs.utils.cache import (
     DiskSingleObjectCache,
     InMemorySingleObjectCache
 )

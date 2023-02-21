@@ -1,4 +1,4 @@
-from sciety_discovery.models.evaluation import ScietyEventEvaluationStatsModel
+from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
 
 
 ARTICLE_ID_1 = 'doi:10.1234/doi_1'

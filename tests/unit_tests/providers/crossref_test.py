@@ -1,4 +1,4 @@
-from sciety_discovery.providers.crossref import (
+from sciety_labs.providers.crossref import (
     get_article_metadata_from_crossref_metadata
 )
 

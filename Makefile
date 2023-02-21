@@ -38,13 +38,13 @@ dev-venv: venv-create dev-install
 
 
 dev-flake8:
-	$(PYTHON) -m flake8 sciety_discovery tests
+	$(PYTHON) -m flake8 sciety_labs tests
 
 dev-pylint:
-	$(PYTHON) -m pylint sciety_discovery tests
+	$(PYTHON) -m pylint sciety_labs tests
 
 dev-mypy:
-	$(PYTHON) -m mypy sciety_discovery tests
+	$(PYTHON) -m mypy sciety_labs tests
 
 
 dev-lint: dev-flake8 dev-pylint dev-mypy
@@ -62,7 +62,7 @@ dev-test: dev-lint dev-unittest
 dev-start:
 	TWITTER_API_AUTHORIZATION_FILE_PATH=.secrets/twitter_api_authorization.txt \
 	$(PYTHON) -m uvicorn \
-		sciety_discovery.main:create_app \
+		sciety_labs.main:create_app \
 		--reload \
 		--factory \
 		--host 127.0.0.1 \
@@ -74,13 +74,13 @@ build:
 	$(DOCKER_COMPOSE) build sciety-discovery
 
 flake8:
-	$(DOCKER_PYTHON) -m flake8 sciety_discovery tests
+	$(DOCKER_PYTHON) -m flake8 sciety_labs tests
 
 pylint:
-	$(DOCKER_PYTHON) -m pylint sciety_discovery tests
+	$(DOCKER_PYTHON) -m pylint sciety_labs tests
 
 mypy:
-	$(DOCKER_PYTHON) -m mypy sciety_discovery tests
+	$(DOCKER_PYTHON) -m mypy sciety_labs tests
 
 
 lint: flake8 pylint mypy

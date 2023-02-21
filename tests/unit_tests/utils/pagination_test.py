@@ -2,7 +2,7 @@ from typing import Mapping
 from urllib.parse import parse_qsl, urlparse
 import starlette.datastructures
 
-from sciety_discovery.utils.pagination import (
+from sciety_labs.utils.pagination import (
     get_page_count_for_item_count_and_items_per_page,
     get_page_iterable,
     get_url_pagination_state_for_url

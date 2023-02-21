@@ -4,7 +4,7 @@ from datetime import datetime
 from threading import Lock
 from typing import Dict, Iterable, NamedTuple, Optional, Protocol, Sequence, Sized
 
-from sciety_discovery.models.article import ArticleMention, get_doi_from_article_id_or_none
+from sciety_labs.models.article import ArticleMention, get_doi_from_article_id_or_none
 
 
 class ListMetaData(NamedTuple):

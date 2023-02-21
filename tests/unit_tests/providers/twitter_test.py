@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from sciety_discovery.providers.twitter import (
+from sciety_labs.providers.twitter import (
     TWITTER_API_AUTHORIZATION_FILE_PATH_ENV_VAR,
     TwitterUserNotFound,
     get_doi_from_url_or_none,
@@ -10,7 +10,7 @@ from sciety_discovery.providers.twitter import (
     get_twitter_user_from_user_lookup_response,
     iter_twitter_article_list_item_for_user_tweets_response
 )
-from sciety_discovery.utils.datetime import parse_timestamp
+from sciety_labs.utils.datetime import parse_timestamp
 
 
 DOI_1 = '10.1101/doi1'

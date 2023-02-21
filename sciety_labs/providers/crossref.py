@@ -5,7 +5,7 @@ from typing import Dict, Iterable, Optional
 
 import requests
 
-from sciety_discovery.models.article import ArticleMention, ArticleMetaData
+from sciety_labs.models.article import ArticleMention, ArticleMetaData
 
 
 LOGGER = logging.getLogger(__name__)

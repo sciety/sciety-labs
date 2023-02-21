@@ -3,9 +3,9 @@ from pathlib import Path
 from time import monotonic
 from typing import Optional, Sequence
 
-from sciety_discovery.utils.bigquery import iter_dict_from_bq_query
-from sciety_discovery.providers.sql import get_sql_path
-from sciety_discovery.utils.cache import DummySingleObjectCache, SingleObjectCache
+from sciety_labs.utils.bigquery import iter_dict_from_bq_query
+from sciety_labs.providers.sql import get_sql_path
+from sciety_labs.utils.cache import DummySingleObjectCache, SingleObjectCache
 
 
 LOGGER = logging.getLogger(__name__)

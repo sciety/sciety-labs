@@ -5,8 +5,8 @@ import pytest
 
 from google.cloud.bigquery.table import Row
 
-from sciety_discovery.utils import bigquery as bigquery_module
-from sciety_discovery.utils.bigquery import iter_dict_from_bq_query
+from sciety_labs.utils import bigquery as bigquery_module
+from sciety_labs.utils.bigquery import iter_dict_from_bq_query
 
 
 @pytest.fixture(name='bigquery_mock')

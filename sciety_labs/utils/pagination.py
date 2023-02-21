@@ -4,7 +4,7 @@ from typing import Any, Iterable, NamedTuple, Optional, TypeVar
 
 import starlette.datastructures
 
-from sciety_discovery.utils.typing import SupportsNext
+from sciety_labs.utils.typing import SupportsNext
 
 
 LOGGER = logging.getLogger(__name__)

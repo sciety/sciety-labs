@@ -2,9 +2,9 @@ import logging
 from datetime import datetime
 from threading import Lock
 from typing import Callable, Optional, TypeVar
-from sciety_discovery.utils.bigquery import get_bq_table_modified_datetime
+from sciety_labs.utils.bigquery import get_bq_table_modified_datetime
 
-from sciety_discovery.utils.cache import (
+from sciety_labs.utils.cache import (
     SingleObjectCache
 )
 
