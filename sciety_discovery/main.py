@@ -4,6 +4,8 @@ import logging
 from pathlib import Path
 from typing import Iterable, Optional
 
+import starlette.responses
+
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -29,6 +31,10 @@ from sciety_discovery.utils.threading import UpdateThread
 
 
 LOGGER = logging.getLogger(__name__)
+
+
+class AtomResponse(starlette.responses.Response):
+    media_type = "application/atom+xml"
 
 
 def create_app():  # pylint: disable=too-many-locals, too-many-statements
@@ -145,7 +151,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         return article_mention_with_article_meta
 
     @app.get('/lists/by-id/{list_id}', response_class=HTMLResponse)
-    async def lists_by_sciety_list_id(
+    async def list_by_sciety_list_id(
         request: Request,
         list_id: str,
         items_per_page: int = 10,
@@ -169,13 +175,46 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             item_count=item_count,
             enable_pagination=enable_pagination
         )
+        rss_url = (
+            request
+            .url
+            .remove_query_params(['page', 'items_per_page', 'enable_pagination'])
+            .replace(
+                path=request.url.path + '/atom.xml'
+            )
+        )
         return templates.TemplateResponse(
             'list-by-sciety-list-id.html', {
                 'request': request,
+                'rss_url': rss_url,
                 'list_summary_data': list_summary_data,
                 'article_list_content': article_mention_with_article_meta,
                 'pagination': url_pagination_state
             }
+        )
+
+    @app.get('/lists/by-id/{list_id}/atom.xml', response_class=AtomResponse)
+    async def list_atom_by_sciety_list_id(
+        request: Request,
+        list_id: str,
+        items_per_page: Optional[int] = 10,
+        page: int = 1
+    ):
+        list_summary_data = lists_model.get_list_summary_data_by_list_id(list_id)
+        article_mention_with_article_meta = (
+            _get_page_article_mention_with_article_meta_for_article_mention_iterable(
+                lists_model.iter_article_mentions_by_list_id(list_id),
+                page=page,
+                items_per_page=items_per_page
+            )
+        )
+        return templates.TemplateResponse(
+            'list-by-sciety-list-id.atom.xml', {
+                'request': request,
+                'list_summary_data': list_summary_data,
+                'article_list_content': article_mention_with_article_meta
+            },
+            media_type=AtomResponse.media_type
         )
 
     @app.get('/lists/by-twitter-handle/{twitter_handle}', response_class=HTMLResponse)
