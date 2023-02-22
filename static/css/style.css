@@ -20,3 +20,17 @@
     margin-left: 0.5rem;
     float: right;
 }
+
+.page-header__links ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.page-header__links li {
+    display: inline;
+}
+
+.page-header__links ul > :nth-child(n+2)::before {
+    content: "•";
+    margin-right: 0.25rem;
+}
