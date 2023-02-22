@@ -62,6 +62,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     cached_requests_session = requests_cache.CachedSession(
         '.cache/requests_cache',
         xpire_after=timedelta(days=1),
+        allowable_methods=('GET', 'HEAD', 'POST'),  # include POST for Semantic Scholar
         match_headers=False
     )
 
