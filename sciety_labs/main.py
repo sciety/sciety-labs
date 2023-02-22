@@ -20,6 +20,7 @@ from sciety_labs.providers.crossref import (
     CrossrefMetaDataProvider
 )
 from sciety_labs.providers.sciety_event import ScietyEventProvider
+from sciety_labs.providers.semantic_scholar import SemanticScholarProvider
 from sciety_labs.providers.twitter import get_twitter_user_article_list_provider_or_none
 from sciety_labs.utils.bq_cache import BigQueryTableModifiedInMemorySingleObjectCache
 from sciety_labs.utils.cache import ChainedObjectCache, DiskSingleObjectCache
@@ -78,6 +79,10 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     )
 
     crossref_metadata_provider = CrossrefMetaDataProvider(
+        requests_session=cached_requests_session
+    )
+
+    semantic_scholar_provider = SemanticScholarProvider(
         requests_session=cached_requests_session
     )
 
@@ -215,6 +220,56 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 'article_list_content': article_mention_with_article_meta
             },
             media_type=AtomResponse.media_type
+        )
+
+    @app.get('/lists/by-id/{list_id}/article-recommendations', response_class=HTMLResponse)
+    async def article_recommendations_by_sciety_list_id(
+        request: Request,
+        list_id: str,
+        items_per_page: int = 10,
+        page: int = 1,
+        enable_pagination: bool = True
+    ):
+        list_summary_data = lists_model.get_list_summary_data_by_list_id(list_id)
+        item_count = list_summary_data.article_count
+        article_recommendation_with_article_meta = list(
+            get_page_iterable(
+                semantic_scholar_provider.iter_article_recommendation_for_article_dois(
+                    (
+                        article_mention.article_doi
+                        for article_mention in lists_model.iter_article_mentions_by_list_id(
+                            list_id
+                        )
+                    )
+                ),
+                page=page,
+                items_per_page=items_per_page
+            )
+        )
+
+        url_pagination_state = get_url_pagination_state_for_url(
+            url=request.url,
+            page=page,
+            items_per_page=items_per_page,
+            item_count=item_count,
+            enable_pagination=enable_pagination
+        )
+        rss_url = (
+            request
+            .url
+            .remove_query_params(['page', 'items_per_page', 'enable_pagination'])
+            .replace(
+                path=request.url.path + '/atom.xml'
+            )
+        )
+        return templates.TemplateResponse(
+            'article-recommendations-by-sciety-list-id.html', {
+                'request': request,
+                'rss_url': rss_url,
+                'list_summary_data': list_summary_data,
+                'article_list_content': article_recommendation_with_article_meta,
+                'pagination': url_pagination_state
+            }
         )
 
     @app.get('/lists/by-twitter-handle/{twitter_handle}', response_class=HTMLResponse)
