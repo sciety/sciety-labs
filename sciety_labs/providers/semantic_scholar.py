@@ -1,7 +1,7 @@
 import dataclasses
 import itertools
 import logging
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Sequence
 
 import requests
 
@@ -35,6 +35,21 @@ def _get_recommendation_request_payload_for_article_dois(
     }
 
 
+def _get_author_names_from_author_list_json(
+    author_list_json: Sequence[dict]
+) -> Sequence[str]:
+    return [author['name'] for author in author_list_json]
+
+
+def _get_author_names_from_recommended_paper_json(
+    recommended_paper_json: dict
+) -> Optional[Sequence[str]]:
+    author_list_json = recommended_paper_json.get('authors')
+    if not author_list_json:
+        return None
+    return _get_author_names_from_author_list_json(author_list_json)
+
+
 def _iter_article_recommendation_from_recommendation_response_json(
     recommendation_response_json: dict
 ) -> Iterable[ArticleRecommendation]:
@@ -46,7 +61,10 @@ def _iter_article_recommendation_from_recommendation_response_json(
             article_doi=article_doi,
             article_meta=ArticleMetaData(
                 article_doi=article_doi,
-                article_title=recommended_paper_json['title']
+                article_title=recommended_paper_json['title'],
+                author_name_list=_get_author_names_from_recommended_paper_json(
+                    recommended_paper_json
+                )
             )
         )
 

@@ -8,6 +8,9 @@ DOI_1 = '10.1101/doi1'
 
 TITLE_1 = 'Title 1'
 
+AUTHOR_NAME_1 = 'Author 1'
+AUTHOR_NAME_2 = 'Author 2'
+
 
 class TestGetRecommendationRequestPayloadForArticleDois:
     def test_should_return_request_with_prefixed_article_ids(self):
@@ -45,6 +48,27 @@ class TestIterArticleRecommendationFromRecommendationResponseJson:
             article_recommendation.article_meta.article_title
             for article_recommendation in article_recommendation_list
         ] == [TITLE_1]
+
+    def test_should_extract_authors(self):
+        article_recommendation_list = list(
+            _iter_article_recommendation_from_recommendation_response_json({
+                'recommendedPapers': [{
+                    'externalIds': {
+                        'DOI': DOI_1
+                    },
+                    'title': TITLE_1,
+                    'authors': [{
+                        'name': AUTHOR_NAME_1
+                    }, {
+                        'name': AUTHOR_NAME_2
+                    }]
+                }]
+            })
+        )
+        assert [
+            article_recommendation.article_meta.author_name_list
+            for article_recommendation in article_recommendation_list
+        ] == [[AUTHOR_NAME_1, AUTHOR_NAME_2]]
 
     def test_should_ignore_recommendation_without_doi(self):
         article_recommendation_list = list(
