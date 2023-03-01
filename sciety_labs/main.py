@@ -259,18 +259,9 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             item_count=item_count,
             enable_pagination=enable_pagination
         )
-        rss_url = (
-            request
-            .url
-            .remove_query_params(['page', 'items_per_page', 'enable_pagination'])
-            .replace(
-                path=request.url.path + '/atom.xml'
-            )
-        )
         return templates.TemplateResponse(
             'article-recommendations-by-sciety-list-id.html', {
                 'request': request,
-                'rss_url': rss_url,
                 'list_summary_data': list_summary_data,
                 'article_list_content': article_recommendation_with_article_meta,
                 'pagination': url_pagination_state
