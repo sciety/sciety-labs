@@ -8,24 +8,9 @@
 
     <h1>Article Recommendations for <a href="/lists/by-id/{{ list_summary_data.list_meta.list_id }}">{{ list_summary_data.list_meta.list_name }}</a></h1>
 
-    <p class="page-header__subheading">
-        <img src="{{ list_summary_data.owner.avatar_url }}" alt="" class="page-header__avatar">
-        {% if list_summary_data.owner.twitter_handle %}
-        <span>A list by <a href="https://sciety.org/users/{{ list_summary_data.owner.twitter_handle }}">{{ list_summary_data.owner.display_name }}</a></span>
-        {% else %}
-        <span>A list by {{ list_summary_data.owner.display_name }}</span>
-        {% endif %}
+    <p class="page-header__description">
+        <span>The following articles have been recommended by <a href="https://www.semanticscholar.org">Semantic Scholar</a>'s <a href="https://api.semanticscholar.org/api-docs/recommendations">Paper Recommendations API</a> as related content to <a href="/lists/by-id/{{ list_summary_data.list_meta.list_id }}">{{ list_summary_data.list_meta.list_name }}</a></span>
     </p>
-
-    <p class="page-header__description">{{ list_summary_data.list_meta.list_description }}</p>
-
-    <p class="page-header__meta"><span class="visually-hidden">This list contains </span><span>{{ list_summary_data.article_count }} articles</span><span>Last updated <time datetime="{{ list_summary_data.last_updated_date_isoformat }}">{{ list_summary_data.last_updated_date_display_format }}</time></p>
-
-    <div class="page-header__links">
-        <ul>
-            <li><a href="https://sciety.org/lists/{{ list_summary_data.list_meta.list_id }}?utm_source=sciety_labs">This list on Sciety</a></span></li>
-        </ul>
-    </div>
 
   <section>
     <p class="articles-page-count">
