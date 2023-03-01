@@ -247,6 +247,10 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 items_per_page=items_per_page
             )
         )
+        LOGGER.info(
+            'article_recommendation_with_article_meta=%r',
+            article_recommendation_with_article_meta
+        )
 
         url_pagination_state = get_url_pagination_state_for_url(
             url=request.url,

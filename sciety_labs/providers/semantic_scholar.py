@@ -1,7 +1,7 @@
 import dataclasses
 import itertools
 import logging
-from typing import Iterable, Optional, Sequence
+from typing import Iterable, Mapping, Optional, Sequence
 
 import requests
 
@@ -14,10 +14,14 @@ LOGGER = logging.getLogger(__name__)
 MAX_SEMANTIC_SCHOLAR_RECOMMENDATION_REQUEST_PAPER_IDS = 100
 
 
+SEMANTIC_SCHOLAR_PAPER_ID_EXT_REF_ID = 'semantic_scholar_paper_id'
+
+
 @dataclasses.dataclass(frozen=True)
 class ArticleRecommendation:
     article_doi: str
     article_meta: ArticleMetaData
+    external_reference_by_name: Mapping[str, str] = dataclasses.field(default_factory=dict)
 
 
 def _get_recommendation_request_payload_for_article_dois(
@@ -65,7 +69,10 @@ def _iter_article_recommendation_from_recommendation_response_json(
                 author_name_list=_get_author_names_from_recommended_paper_json(
                     recommended_paper_json
                 )
-            )
+            ),
+            external_reference_by_name={
+                SEMANTIC_SCHOLAR_PAPER_ID_EXT_REF_ID: recommended_paper_json.get('paperId')
+            }
         )
 
 

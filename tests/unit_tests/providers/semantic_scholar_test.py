@@ -1,4 +1,5 @@
 from sciety_labs.providers.semantic_scholar import (
+    SEMANTIC_SCHOLAR_PAPER_ID_EXT_REF_ID,
     _get_recommendation_request_payload_for_article_dois,
     _iter_article_recommendation_from_recommendation_response_json
 )
@@ -10,6 +11,8 @@ TITLE_1 = 'Title 1'
 
 AUTHOR_NAME_1 = 'Author 1'
 AUTHOR_NAME_2 = 'Author 2'
+
+PAPER_ID_1 = 'paper1'
 
 
 class TestGetRecommendationRequestPayloadForArticleDois:
@@ -92,3 +95,18 @@ class TestIterArticleRecommendationFromRecommendationResponseJson:
             })
         )
         assert not article_recommendation_list
+
+    def test_should_extract_paper_id(self):
+        article_recommendation_list = list(
+            _iter_article_recommendation_from_recommendation_response_json({
+                'recommendedPapers': [{
+                    'externalIds': {'DOI': DOI_1},
+                    'title': TITLE_1,
+                    'paperId': PAPER_ID_1
+                }]
+            })
+        )
+        assert [
+            article_recommendation.external_reference_by_name
+            for article_recommendation in article_recommendation_list
+        ] == [{SEMANTIC_SCHOLAR_PAPER_ID_EXT_REF_ID: PAPER_ID_1}]

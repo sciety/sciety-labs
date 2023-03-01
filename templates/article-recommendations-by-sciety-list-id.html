@@ -61,6 +61,9 @@
                     {% if item.created_at_isoformat %}
                     <span>Added on <time datetime="{{ item.created_at_isoformat }}">{{ item.created_at_display_format }}</time></span>
                     {% endif %}
+                    {% if item.external_reference_by_name.semantic_scholar_paper_id %}
+                    <span class="visually-hidden">Read this paper on </span><span><a href="https://www.semanticscholar.org/paper/{{ item.external_reference_by_name.semantic_scholar_paper_id }}">Semantic Scholar</a></span>
+                    {% endif %}
                     </div>
                 </footer>
             </section>
