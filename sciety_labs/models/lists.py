@@ -21,7 +21,13 @@ class ListMetaData(NamedTuple):
         )
 
 
+class OwnerTypes:
+    USER = 'user'
+    GROUP = 'group'
+
+
 class OwnerMetaData(NamedTuple):
+    owner_type: str
     display_name: str
     avatar_url: Optional[str] = None
     twitter_handle: Optional[str] = None
@@ -29,6 +35,7 @@ class OwnerMetaData(NamedTuple):
     @staticmethod
     def from_sciety_event_user_meta(sciety_event_user_meta: dict) -> 'OwnerMetaData':
         return OwnerMetaData(
+            owner_type=OwnerTypes.USER,
             display_name=sciety_event_user_meta['user_display_name'],
             avatar_url=sciety_event_user_meta['avatar_url'],
             twitter_handle=sciety_event_user_meta.get('twitter_handle')
@@ -37,6 +44,7 @@ class OwnerMetaData(NamedTuple):
     @staticmethod
     def from_sciety_event_group_meta(sciety_event_group_meta: dict) -> 'OwnerMetaData':
         return OwnerMetaData(
+            owner_type=OwnerTypes.GROUP,
             display_name=sciety_event_group_meta['group_name'],
         )
 
@@ -207,6 +215,7 @@ class ScietyEventListsModel(ListsModel):
             list_summary_data
             for list_summary_data in self.iter_list_summary_data()
             if list_summary_data.article_count >= min_article_count
+            and list_summary_data.owner.owner_type == OwnerTypes.USER
         ])
         if top_n:
             result = result[:top_n]

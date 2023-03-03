@@ -3,6 +3,7 @@ from sciety_labs.models.lists import (
     ListMetaData,
     ListSummaryData,
     OwnerMetaData,
+    OwnerTypes,
     ScietyEventListsModel,
     get_sorted_list_summary_list_by_most_active
 )
@@ -83,6 +84,7 @@ LIST_META_DATA_1 = ListMetaData(
 )
 
 OWNER_META_DATA_1 = OwnerMetaData(
+    owner_type=OwnerTypes.USER,
     display_name=SCIETY_USER_1['user_display_name'],
     avatar_url=SCIETY_USER_1['avatar_url']
 )
@@ -151,8 +153,15 @@ class TestScietyEventListsModel:
         model = ScietyEventListsModel([
             GROUP_ARTICLE_ADDED_TO_LIST_EVENT_1
         ])
+        result = model.get_list_summary_data_by_list_id(SCIETY_LIST_1['list_id'])
+        assert result.owner.display_name == SCIETY_GROUP_1['group_name']
+
+    def test_should_not_include_group_lists_in_user_lists(self):
+        model = ScietyEventListsModel([
+            GROUP_ARTICLE_ADDED_TO_LIST_EVENT_1
+        ])
         result = model.get_most_active_user_lists()
-        assert [item.owner.display_name for item in result] == [SCIETY_GROUP_1['group_name']]
+        assert not result
 
     def test_should_calculate_article_count_for_added_only_events(self):
         model = ScietyEventListsModel([{
