@@ -88,7 +88,8 @@ class SemanticScholarProvider:
 
     def iter_article_recommendation_for_article_dois(
         self,
-        article_dois: Iterable[str]
+        article_dois: Iterable[str],
+        max_recommendations: int = 500
     ) -> Iterable[ArticleRecommendation]:
         request_json = _get_recommendation_request_payload_for_article_dois(
             article_dois=article_dois
@@ -105,7 +106,7 @@ class SemanticScholarProvider:
                     'abstract',
                     'authors'
                 ]),
-                'limit': '10'
+                'limit': str(max_recommendations)
             },
             headers=self.headers,
             timeout=5 * 60

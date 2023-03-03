@@ -224,21 +224,25 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         )
 
     @app.get('/lists/by-id/{list_id}/article-recommendations', response_class=HTMLResponse)
-    async def article_recommendations_by_sciety_list_id(
+    async def article_recommendations_by_sciety_list_id(  # pylint: disable=too-many-arguments
         request: Request,
         list_id: str,
         items_per_page: int = 10,
         page: int = 1,
+        max_recommendations: int = 500,
         enable_pagination: bool = True
     ):
         list_summary_data = lists_model.get_list_summary_data_by_list_id(list_id)
         all_article_recommendations = list(
-            semantic_scholar_provider.iter_article_recommendation_for_article_dois((
-                article_mention.article_doi
-                for article_mention in lists_model.iter_article_mentions_by_list_id(
-                    list_id
-                )
-            ))
+            semantic_scholar_provider.iter_article_recommendation_for_article_dois(
+                (
+                    article_mention.article_doi
+                    for article_mention in lists_model.iter_article_mentions_by_list_id(
+                        list_id
+                    )
+                ),
+                max_recommendations=max_recommendations
+            )
         )
         item_count = len(all_article_recommendations)
         article_recommendation_with_article_meta = list(
