@@ -156,6 +156,28 @@ class TestScietyEventListsModel:
         result = model.get_list_summary_data_by_list_id(SCIETY_LIST_1['list_id'])
         assert result.owner.display_name == SCIETY_GROUP_1['group_name']
 
+    def test_should_set_group_avatar_url_to_none_if_not_available(self):
+        model = ScietyEventListsModel([{
+            **GROUP_ARTICLE_ADDED_TO_LIST_EVENT_1,
+            'sciety_group': {
+                **SCIETY_GROUP_1,
+                'avatar_path': None
+            }
+        }])
+        result = model.get_list_summary_data_by_list_id(SCIETY_LIST_1['list_id'])
+        assert result.owner.avatar_url is None
+
+    def test_should_resolve_group_avatar_url_from_path(self):
+        model = ScietyEventListsModel([{
+            **GROUP_ARTICLE_ADDED_TO_LIST_EVENT_1,
+            'sciety_group': {
+                **SCIETY_GROUP_1,
+                'avatar_path': '/static/group/avatar.png'
+            }
+        }])
+        result = model.get_list_summary_data_by_list_id(SCIETY_LIST_1['list_id'])
+        assert result.owner.avatar_url == 'https://sciety.org/static/group/avatar.png'
+
     def test_should_not_include_group_lists_in_user_lists(self):
         model = ScietyEventListsModel([
             GROUP_ARTICLE_ADDED_TO_LIST_EVENT_1
