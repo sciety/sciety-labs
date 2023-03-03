@@ -34,10 +34,20 @@ SCIETY_USER_1 = {
     'twitter_handle': 'handle_1'
 }
 
+GROUP_ID_1 = 'group_id_1'
+GROUP_SLUG_1 = 'group_slug_1'
+GROUP_DISPLAY_NAME_1 = 'Group 1'
+
+SCIETY_GROUP_1 = {
+    'group_id': GROUP_ID_1,
+    'slug': GROUP_SLUG_1,
+    'group_name': GROUP_DISPLAY_NAME_1
+}
+
 TIMESTAMP_1 = datetime.fromisoformat('2001-01-01+00:00')
 TIMESTAMP_2 = datetime.fromisoformat('2001-01-02+00:00')
 
-ARTICLE_ADDED_TO_LIST_EVENT_1: dict = {
+USER_ARTICLE_ADDED_TO_LIST_EVENT_1: dict = {
     'event_timestamp': TIMESTAMP_1,
     'event_name': 'ArticleAddedToList',
     'sciety_list': SCIETY_LIST_1,
@@ -45,13 +55,22 @@ ARTICLE_ADDED_TO_LIST_EVENT_1: dict = {
     'article_id': ARTICLE_ID_1
 }
 
-ARTICLE_REMOVED_FROM_LIST_EVENT_1 = {
-    **ARTICLE_ADDED_TO_LIST_EVENT_1,
+USER_ARTICLE_REMOVED_FROM_LIST_EVENT_1 = {
+    **USER_ARTICLE_ADDED_TO_LIST_EVENT_1,
     'event_name': 'ArticleRemovedFromList'
 }
 
+GROUP_ARTICLE_ADDED_TO_LIST_EVENT_1: dict = {
+    'event_timestamp': TIMESTAMP_1,
+    'event_name': 'ArticleAddedToList',
+    'sciety_list': SCIETY_LIST_1,
+    'sciety_group': SCIETY_GROUP_1,
+    'article_id': ARTICLE_ID_1
+}
+
+
 ANNOTATION_CREATED_EVENT_1 = {
-    **ARTICLE_ADDED_TO_LIST_EVENT_1,
+    **USER_ARTICLE_ADDED_TO_LIST_EVENT_1,
     'content': 'Comment 1',
     'event_name': 'AnnotationCreated'
 }
@@ -101,8 +120,8 @@ class TestScietyEventListsModel:
 
     def test_should_populate_list_id_and_list_meta_fields(self):
         model = ScietyEventListsModel([
-            ARTICLE_ADDED_TO_LIST_EVENT_1,
-            ARTICLE_ADDED_TO_LIST_EVENT_1
+            USER_ARTICLE_ADDED_TO_LIST_EVENT_1,
+            USER_ARTICLE_ADDED_TO_LIST_EVENT_1
         ])
         result = model.get_most_active_user_lists()
         assert [
@@ -118,22 +137,29 @@ class TestScietyEventListsModel:
             'list_description': SCIETY_LIST_1['list_description']
         }]
 
-    def test_should_populate_display_name_avatar_url_and_twitter_handle(self):
+    def test_should_populate_user_display_name_avatar_url_and_twitter_handle(self):
         model = ScietyEventListsModel([
-            ARTICLE_ADDED_TO_LIST_EVENT_1,
-            ARTICLE_ADDED_TO_LIST_EVENT_1
+            USER_ARTICLE_ADDED_TO_LIST_EVENT_1,
+            USER_ARTICLE_ADDED_TO_LIST_EVENT_1
         ])
         result = model.get_most_active_user_lists()
         assert [item.owner.avatar_url for item in result] == [SCIETY_USER_1['avatar_url']]
         assert [item.owner.display_name for item in result] == [SCIETY_USER_1['user_display_name']]
         assert [item.owner.twitter_handle for item in result] == [SCIETY_USER_1['twitter_handle']]
 
+    def test_should_populate_group_display_name(self):
+        model = ScietyEventListsModel([
+            GROUP_ARTICLE_ADDED_TO_LIST_EVENT_1
+        ])
+        result = model.get_most_active_user_lists()
+        assert [item.owner.display_name for item in result] == [SCIETY_GROUP_1['group_name']]
+
     def test_should_calculate_article_count_for_added_only_events(self):
         model = ScietyEventListsModel([{
-            **ARTICLE_ADDED_TO_LIST_EVENT_1,
+            **USER_ARTICLE_ADDED_TO_LIST_EVENT_1,
             'article_id': ARTICLE_ID_1
         }, {
-            **ARTICLE_ADDED_TO_LIST_EVENT_1,
+            **USER_ARTICLE_ADDED_TO_LIST_EVENT_1,
             'article_id': ARTICLE_ID_2
         }])
         result = model.get_most_active_user_lists()
@@ -141,13 +167,13 @@ class TestScietyEventListsModel:
 
     def test_should_calculate_article_count_for_added_and_removed_events(self):
         model = ScietyEventListsModel([{
-            **ARTICLE_ADDED_TO_LIST_EVENT_1,
+            **USER_ARTICLE_ADDED_TO_LIST_EVENT_1,
             'article_id': ARTICLE_ID_1
         }, {
-            **ARTICLE_REMOVED_FROM_LIST_EVENT_1,
+            **USER_ARTICLE_REMOVED_FROM_LIST_EVENT_1,
             'article_id': ARTICLE_ID_1
         }, {
-            **ARTICLE_ADDED_TO_LIST_EVENT_1,
+            **USER_ARTICLE_ADDED_TO_LIST_EVENT_1,
             'article_id': ARTICLE_ID_2
         }])
         result = model.get_most_active_user_lists()
@@ -155,10 +181,10 @@ class TestScietyEventListsModel:
 
     def test_should_ignore_remove_event_for_not_added_article(self):
         model = ScietyEventListsModel([{
-            **ARTICLE_REMOVED_FROM_LIST_EVENT_1,
+            **USER_ARTICLE_REMOVED_FROM_LIST_EVENT_1,
             'article_id': ARTICLE_ID_1
         }, {
-            **ARTICLE_ADDED_TO_LIST_EVENT_1,
+            **USER_ARTICLE_ADDED_TO_LIST_EVENT_1,
             'article_id': ARTICLE_ID_2
         }])
         result = model.get_most_active_user_lists()
@@ -166,11 +192,11 @@ class TestScietyEventListsModel:
 
     def test_should_calculate_last_updated_date(self):
         model = ScietyEventListsModel([{
-            **ARTICLE_ADDED_TO_LIST_EVENT_1,
+            **USER_ARTICLE_ADDED_TO_LIST_EVENT_1,
             'event_timestamp': datetime.fromisoformat('2001-01-01+00:00'),
             'article_id': ARTICLE_ID_1
         }, {
-            **ARTICLE_ADDED_TO_LIST_EVENT_1,
+            **USER_ARTICLE_ADDED_TO_LIST_EVENT_1,
             'event_timestamp': datetime.fromisoformat('2001-01-02+00:00'),
             'article_id': ARTICLE_ID_2
         }])
@@ -184,7 +210,7 @@ class TestScietyEventListsModel:
 
     def test_should_ignore_other_events(self):
         model = ScietyEventListsModel([{
-            **ARTICLE_ADDED_TO_LIST_EVENT_1,
+            **USER_ARTICLE_ADDED_TO_LIST_EVENT_1,
             'article_id': ARTICLE_ID_1
         }, {
             'event_timestamp': TIMESTAMP_1,
@@ -194,23 +220,23 @@ class TestScietyEventListsModel:
         assert [item.article_count for item in result] == [1]
 
     def test_should_find_list_meta_data_by_id(self):
-        model = ScietyEventListsModel([ARTICLE_ADDED_TO_LIST_EVENT_1])
+        model = ScietyEventListsModel([USER_ARTICLE_ADDED_TO_LIST_EVENT_1])
         list_summary_data = model.get_list_meta_data_by_list_id(LIST_ID_1)
         assert isinstance(list_summary_data, ListMetaData)
 
     def test_should_find_list_summary_data_by_id(self):
-        model = ScietyEventListsModel([ARTICLE_ADDED_TO_LIST_EVENT_1])
+        model = ScietyEventListsModel([USER_ARTICLE_ADDED_TO_LIST_EVENT_1])
         list_summary_data = model.get_list_summary_data_by_list_id(LIST_ID_1)
         assert isinstance(list_summary_data, ListSummaryData)
 
     def test_should_find_article_mention_without_comment(self):
-        model = ScietyEventListsModel([ARTICLE_ADDED_TO_LIST_EVENT_1])
+        model = ScietyEventListsModel([USER_ARTICLE_ADDED_TO_LIST_EVENT_1])
         article_mentions = list(model.iter_article_mentions_by_list_id(LIST_ID_1))
         assert article_mentions
 
     def test_should_find_article_mention_with_comment(self):
         model = ScietyEventListsModel([
-            ARTICLE_ADDED_TO_LIST_EVENT_1,
+            USER_ARTICLE_ADDED_TO_LIST_EVENT_1,
             ANNOTATION_CREATED_EVENT_1
         ])
         article_mentions = list(model.iter_article_mentions_by_list_id(LIST_ID_1))
@@ -220,11 +246,11 @@ class TestScietyEventListsModel:
     def test_should_reverse_sort_article_list(self):
         model = ScietyEventListsModel([
             {
-                **ARTICLE_ADDED_TO_LIST_EVENT_1,
+                **USER_ARTICLE_ADDED_TO_LIST_EVENT_1,
                 'article_id': ARTICLE_ID_1,
                 'event_timestamp': TIMESTAMP_1
             }, {
-                **ARTICLE_ADDED_TO_LIST_EVENT_1,
+                **USER_ARTICLE_ADDED_TO_LIST_EVENT_1,
                 'article_id': ARTICLE_ID_2,
                 'event_timestamp': TIMESTAMP_2
             }
