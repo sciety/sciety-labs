@@ -232,17 +232,18 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         enable_pagination: bool = True
     ):
         list_summary_data = lists_model.get_list_summary_data_by_list_id(list_id)
-        item_count = list_summary_data.article_count
+        all_article_recommendations = list(
+            semantic_scholar_provider.iter_article_recommendation_for_article_dois((
+                article_mention.article_doi
+                for article_mention in lists_model.iter_article_mentions_by_list_id(
+                    list_id
+                )
+            ))
+        )
+        item_count = len(all_article_recommendations)
         article_recommendation_with_article_meta = list(
             get_page_iterable(
-                semantic_scholar_provider.iter_article_recommendation_for_article_dois(
-                    (
-                        article_mention.article_doi
-                        for article_mention in lists_model.iter_article_mentions_by_list_id(
-                            list_id
-                        )
-                    )
-                ),
+                all_article_recommendations,
                 page=page,
                 items_per_page=items_per_page
             )
