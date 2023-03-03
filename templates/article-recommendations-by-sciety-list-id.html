@@ -38,10 +38,10 @@
                 
                 <footer class="article-card__footer">
                     <div class="article-card__meta">
-                    {% if article_stats %}
+                    {% if item.article_stats %}
                     <span class="visually-hidden">This article has </span><span>{{ item.article_stats.evaluation_count }} evaluations</span>
                     {% endif %}
-                    {% if item.created_at_isoformat %}
+                    {% if item.created_at_timestamp %}
                     <span>Added on <time datetime="{{ item.created_at_isoformat }}">{{ item.created_at_display_format }}</time></span>
                     {% endif %}
                     {% if item.external_reference_by_name.semantic_scholar_paper_id %}

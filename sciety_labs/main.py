@@ -246,10 +246,12 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         )
         item_count = len(all_article_recommendations)
         article_recommendation_with_article_meta = list(
-            get_page_iterable(
-                all_article_recommendations,
-                page=page,
-                items_per_page=items_per_page
+            evaluation_stats_model.iter_article_mention_with_article_stats(
+                get_page_iterable(
+                    all_article_recommendations,
+                    page=page,
+                    items_per_page=items_per_page
+                )
             )
         )
         LOGGER.info(

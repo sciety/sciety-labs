@@ -1,11 +1,11 @@
 import dataclasses
 import itertools
 import logging
-from typing import Iterable, Mapping, Optional, Sequence
+from typing import Iterable, Optional, Sequence
 
 import requests
 
-from sciety_labs.models.article import ArticleMetaData
+from sciety_labs.models.article import ArticleMention, ArticleMetaData
 
 
 LOGGER = logging.getLogger(__name__)
@@ -18,10 +18,8 @@ SEMANTIC_SCHOLAR_PAPER_ID_EXT_REF_ID = 'semantic_scholar_paper_id'
 
 
 @dataclasses.dataclass(frozen=True)
-class ArticleRecommendation:
-    article_doi: str
-    article_meta: ArticleMetaData
-    external_reference_by_name: Mapping[str, str] = dataclasses.field(default_factory=dict)
+class ArticleRecommendation(ArticleMention):
+    pass
 
 
 def _get_recommendation_request_payload_for_article_dois(
