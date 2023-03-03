@@ -9,7 +9,9 @@
     <h1>{{ list_summary_data.list_meta.list_name }}</h1>
 
     <p class="page-header__subheading">
+        {% if list_summary_data.owner.avatar_url %}
         <img src="{{ list_summary_data.owner.avatar_url }}" alt="" class="page-header__avatar">
+        {% endif %}
         {% if list_summary_data.owner.twitter_handle %}
         <span>A list by <a href="https://sciety.org/users/{{ list_summary_data.owner.twitter_handle }}">{{ list_summary_data.owner.display_name }}</a></span>
         {% else %}
