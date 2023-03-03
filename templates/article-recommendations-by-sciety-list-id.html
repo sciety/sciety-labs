@@ -6,30 +6,11 @@
 
   <header class="page-header page-header--list">
 
-    <h1>{{ list_summary_data.list_meta.list_name }}</h1>
+    <h1>Article Recommendations for <a href="/lists/by-id/{{ list_summary_data.list_meta.list_id }}">{{ list_summary_data.list_meta.list_name }}</a> by <a href="https://sciety.org/users/{{ list_summary_data.owner.twitter_handle }}">{{ list_summary_data.owner.display_name }}</a></h1>
 
-    <p class="page-header__subheading">
-        <img src="{{ list_summary_data.owner.avatar_url }}" alt="" class="page-header__avatar">
-        {% if list_summary_data.owner.twitter_handle %}
-        <span>A list by <a href="https://sciety.org/users/{{ list_summary_data.owner.twitter_handle }}">{{ list_summary_data.owner.display_name }}</a></span>
-        {% else %}
-        <span>A list by {{ list_summary_data.owner.display_name }}</span>
-        {% endif %}
+    <p class="page-header__description">
+        <span>The following articles have been recommended by <a href="https://www.semanticscholar.org">Semantic Scholar</a>'s <a href="https://api.semanticscholar.org/api-docs/recommendations">Paper Recommendations API</a> as related content to <a href="/lists/by-id/{{ list_summary_data.list_meta.list_id }}">{{ list_summary_data.list_meta.list_name }}</a> by <a href="https://sciety.org/users/{{ list_summary_data.owner.twitter_handle }}">{{ list_summary_data.owner.display_name }}</a></span>
     </p>
-
-    <p class="page-header__description">{{ list_summary_data.list_meta.list_description }}</p>
-
-    <p class="page-header__meta"><span class="visually-hidden">This list contains </span><span>{{ list_summary_data.article_count }} articles</span><span>Last updated <time datetime="{{ list_summary_data.last_updated_date_isoformat }}">{{ list_summary_data.last_updated_date_display_format }}</time></p>
-
-    <div class="page-header__links">
-        <ul>
-            <li><span class="visually-hidden">This list can be subscribed to via the </span><span><a
-        href="{{ rss_url }}">RSS</a><span></li>
-            <li><span class="visually-hidden">Find related articles using our </span><span><a
-        href="/lists/by-id/{{ list_summary_data.list_meta.list_id }}/article-recommendations">Article recommendations</a><span></li>
-            <li><a href="https://sciety.org/lists/{{ list_summary_data.list_meta.list_id }}?utm_source=sciety_labs">This list on Sciety</a></span></li>
-        </ul>
-    </div>
 
   <section>
     <p class="articles-page-count">
@@ -47,16 +28,25 @@
                 <h3 class="article-card__title"><a class="article-card__link" href="https://sciety.org/articles/activity/{{ item.article_doi }}">{{ item.article_meta.article_title }}</a></h3>
 
                 <div class="hidden" id="article-card-author-list-{{ item.article_doi }}">This article's authors</div>
+                {% if item.article_meta.author_name_list %}
                 <ol class="card-authors" role="list" aria-describedby="article-card-author-list-{{ item.article_doi }}">
                     {% for author_name in item.article_meta.author_name_list %}
                     <li class="card-authors__author">{{ author_name }}</li>
                     {% endfor %}
                 </ol>
+                {% endif %}
                 
                 <footer class="article-card__footer">
                     <div class="article-card__meta">
+                    {% if item.article_stats %}
                     <span class="visually-hidden">This article has </span><span>{{ item.article_stats.evaluation_count }} evaluations</span>
+                    {% endif %}
+                    {% if item.created_at_timestamp %}
                     <span>Added on <time datetime="{{ item.created_at_isoformat }}">{{ item.created_at_display_format }}</time></span>
+                    {% endif %}
+                    {% if item.external_reference_by_name.semantic_scholar_paper_id %}
+                    <span class="visually-hidden">Read this paper on </span><span><a href="https://www.semanticscholar.org/paper/{{ item.external_reference_by_name.semantic_scholar_paper_id }}">Semantic Scholar</a></span>
+                    {% endif %}
                     </div>
                 </footer>
             </section>

@@ -1,4 +1,17 @@
-from sciety_labs.models.article import get_doi_from_article_id_or_none, is_doi_article_id
+from datetime import datetime
+
+from sciety_labs.models.article import (
+    ArticleMention,
+    get_doi_from_article_id_or_none,
+    is_doi_article_id
+)
+
+
+DOI_1 = '10.12345/doi_1'
+DOI_2 = '10.12345/doi_2'
+
+TIMESTAMP_1 = datetime.fromisoformat('2001-01-01+00:00')
+TIMESTAMP_2 = datetime.fromisoformat('2001-01-02+00:00')
 
 
 class TestIsDoiArticleId:
@@ -21,3 +34,35 @@ class TestGetDoiFromArticleIdOrNone:
 
     def test_should_return_none_for_no_colon(self):
         assert get_doi_from_article_id_or_none('value_1') is None
+
+
+class TestArticleMention:
+    def test_should_sort_by_created_timestamp(self):
+        unsorted_list = [
+            ArticleMention(
+                article_doi=DOI_1,
+                created_at_timestamp=TIMESTAMP_2
+            ),
+            ArticleMention(
+                article_doi=DOI_2,
+                created_at_timestamp=TIMESTAMP_1
+            )
+        ]
+        sorted_list = sorted(unsorted_list, key=ArticleMention.get_created_at_sort_key)
+        assert sorted_list == [unsorted_list[1], unsorted_list[0]]
+
+    def test_should_return_formatted_date_string(self):
+        article_mention = ArticleMention(
+            article_doi=DOI_1,
+            created_at_timestamp=datetime.fromisoformat('2001-02-03+00:00')
+        )
+        assert article_mention.created_at_isoformat == '2001-02-03'
+        assert article_mention.created_at_display_format == 'Feb 3, 2001'
+
+    def test_should_return_none_for_formatted_date_string_without_timestamp(self):
+        article_mention = ArticleMention(
+            article_doi=DOI_1,
+            created_at_timestamp=None
+        )
+        assert article_mention.created_at_isoformat is None
+        assert article_mention.created_at_display_format is None
