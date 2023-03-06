@@ -21,17 +21,42 @@ class ListMetaData(NamedTuple):
         )
 
 
+def get_avatar_url_for_avatar_path(avatar_path: Optional[str]) -> Optional[str]:
+    if not avatar_path:
+        return avatar_path
+    return f'https://sciety.org{avatar_path}'
+
+
+class OwnerTypes:
+    USER = 'user'
+    GROUP = 'group'
+
+
 class OwnerMetaData(NamedTuple):
+    owner_type: str
     display_name: str
-    avatar_url: str
+    avatar_url: Optional[str] = None
+    slug: Optional[str] = None
     twitter_handle: Optional[str] = None
 
     @staticmethod
     def from_sciety_event_user_meta(sciety_event_user_meta: dict) -> 'OwnerMetaData':
         return OwnerMetaData(
+            owner_type=OwnerTypes.USER,
             display_name=sciety_event_user_meta['user_display_name'],
             avatar_url=sciety_event_user_meta['avatar_url'],
             twitter_handle=sciety_event_user_meta.get('twitter_handle')
+        )
+
+    @staticmethod
+    def from_sciety_event_group_meta(sciety_event_group_meta: dict) -> 'OwnerMetaData':
+        return OwnerMetaData(
+            owner_type=OwnerTypes.GROUP,
+            display_name=sciety_event_group_meta['group_name'],
+            avatar_url=get_avatar_url_for_avatar_path(
+                sciety_event_group_meta.get('avatar_path')
+            ),
+            slug=sciety_event_group_meta.get('slug')
         )
 
 
@@ -131,15 +156,24 @@ class ScietyEventListsModel(ListsModel):
             if not sciety_list:
                 continue
             sciety_user = event.get('sciety_user')
+            sciety_group = event.get('sciety_group')
             article_id = event.get('article_id')
             list_id = sciety_list['list_id']
             list_meta = ListMetaData.from_sciety_event_list_meta(sciety_list)
             list_id = list_meta.list_id
             if list_id:
                 self._list_meta_by_list_id[list_id] = list_meta
+            if sciety_user and not sciety_user['user_id']:
+                sciety_user = None
+            if sciety_group and not sciety_group['group_id']:
+                sciety_group = None
             if list_id and sciety_user:
                 self._owner_meta_by_list_id[list_id] = (
                     OwnerMetaData.from_sciety_event_user_meta(sciety_user)
+                )
+            if list_id and sciety_group:
+                self._owner_meta_by_list_id[list_id] = (
+                    OwnerMetaData.from_sciety_event_group_meta(sciety_group)
                 )
             if list_id and article_id:
                 if event_name == ScietyEventNames.ARTICLE_ADDED_TO_LIST:
@@ -192,6 +226,7 @@ class ScietyEventListsModel(ListsModel):
             list_summary_data
             for list_summary_data in self.iter_list_summary_data()
             if list_summary_data.article_count >= min_article_count
+            and list_summary_data.owner.owner_type == OwnerTypes.USER
         ])
         if top_n:
             result = result[:top_n]

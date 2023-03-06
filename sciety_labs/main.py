@@ -15,7 +15,7 @@ import requests_cache
 from sciety_labs.models.article import ArticleMention
 from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
 
-from sciety_labs.models.lists import ScietyEventListsModel
+from sciety_labs.models.lists import OwnerMetaData, OwnerTypes, ScietyEventListsModel
 from sciety_labs.providers.crossref import (
     CrossrefMetaDataProvider
 )
@@ -36,6 +36,14 @@ LOGGER = logging.getLogger(__name__)
 
 class AtomResponse(starlette.responses.Response):
     media_type = "application/atom+xml"
+
+
+def get_owner_url(owner: OwnerMetaData) -> Optional[str]:
+    if owner.owner_type == OwnerTypes.USER and owner.twitter_handle:
+        return f'https://sciety.org/users/{owner.twitter_handle}'
+    if owner.owner_type == OwnerTypes.GROUP and owner.slug:
+        return f'https://sciety.org/groups/{owner.slug}'
+    return None
 
 
 def create_app():  # pylint: disable=too-many-locals, too-many-statements
@@ -193,6 +201,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             'list-by-sciety-list-id.html', {
                 'request': request,
                 'rss_url': rss_url,
+                'owner_url': get_owner_url(list_summary_data.owner),
                 'list_summary_data': list_summary_data,
                 'article_list_content': article_mention_with_article_meta,
                 'pagination': url_pagination_state
@@ -269,6 +278,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         return templates.TemplateResponse(
             'article-recommendations-by-sciety-list-id.html', {
                 'request': request,
+                'owner_url': get_owner_url(list_summary_data.owner),
                 'list_summary_data': list_summary_data,
                 'article_list_content': article_recommendation_with_article_meta,
                 'pagination': url_pagination_state

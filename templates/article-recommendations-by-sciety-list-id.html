@@ -6,10 +6,10 @@
 
   <header class="page-header page-header--list">
 
-    <h1>Article Recommendations for <a href="/lists/by-id/{{ list_summary_data.list_meta.list_id }}">{{ list_summary_data.list_meta.list_name }}</a> by <a href="https://sciety.org/users/{{ list_summary_data.owner.twitter_handle }}">{{ list_summary_data.owner.display_name }}</a></h1>
+    <h1>Article Recommendations for <a href="/lists/by-id/{{ list_summary_data.list_meta.list_id }}">{{ list_summary_data.list_meta.list_name }}</a> by <a href="{{ owner_url }}">{{ list_summary_data.owner.display_name }}</a></h1>
 
     <p class="page-header__description">
-        <span>The following articles have been recommended by <a href="https://www.semanticscholar.org">Semantic Scholar</a>'s <a href="https://api.semanticscholar.org/api-docs/recommendations">Paper Recommendations API</a> as related content to <a href="/lists/by-id/{{ list_summary_data.list_meta.list_id }}">{{ list_summary_data.list_meta.list_name }}</a> by <a href="https://sciety.org/users/{{ list_summary_data.owner.twitter_handle }}">{{ list_summary_data.owner.display_name }}</a></span>
+        <span>The following articles have been recommended by <a href="https://www.semanticscholar.org">Semantic Scholar</a>'s <a href="https://api.semanticscholar.org/api-docs/recommendations">Paper Recommendations API</a> as related content to <a href="/lists/by-id/{{ list_summary_data.list_meta.list_id }}">{{ list_summary_data.list_meta.list_name }}</a> by <a href="{{ owner_url }}">{{ list_summary_data.owner.display_name }}</a></span>
     </p>
 
   <section>

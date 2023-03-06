@@ -3,6 +3,7 @@ SELECT
   event.normalized_event_name AS event_name,
   event.sciety_list,
   event.sciety_user,
+  event.sciety_group,
   event.article_id,
   event.evaluation_locator,
   event.content
@@ -10,7 +11,6 @@ FROM `elife-data-pipeline.de_proto.v_sciety_event` AS event
 WHERE
   (
     event.normalized_event_name IN ('ArticleAddedToList', 'ArticleRemovedFromList', 'AnnotationCreated')
-    AND event.sciety_user.user_id IS NOT NULL
     AND event.sciety_list.list_id NOT IN (
       -- exclude some lists of users who's avatar no longer resolves
       'c145fb46-9487-4910-ae25-aa3e9f3fa5e8',
