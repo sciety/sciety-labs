@@ -12,8 +12,8 @@
         {% if list_summary_data.owner.avatar_url %}
         <img src="{{ list_summary_data.owner.avatar_url }}" alt="" class="page-header__avatar">
         {% endif %}
-        {% if list_summary_data.owner.twitter_handle %}
-        <span>A list by <a href="https://sciety.org/users/{{ list_summary_data.owner.twitter_handle }}">{{ list_summary_data.owner.display_name }}</a></span>
+        {% if owner_url %}
+        <span>A list by <a href="{{ owner_url }}">{{ list_summary_data.owner.display_name }}</a></span>
         {% else %}
         <span>A list by {{ list_summary_data.owner.display_name }}</span>
         {% endif %}

@@ -149,12 +149,13 @@ class TestScietyEventListsModel:
         assert [item.owner.display_name for item in result] == [SCIETY_USER_1['user_display_name']]
         assert [item.owner.twitter_handle for item in result] == [SCIETY_USER_1['twitter_handle']]
 
-    def test_should_populate_group_display_name(self):
+    def test_should_populate_group_display_name_and_slug(self):
         model = ScietyEventListsModel([
             GROUP_ARTICLE_ADDED_TO_LIST_EVENT_1
         ])
         result = model.get_list_summary_data_by_list_id(SCIETY_LIST_1['list_id'])
         assert result.owner.display_name == SCIETY_GROUP_1['group_name']
+        assert result.owner.slug == SCIETY_GROUP_1['slug']
 
     def test_should_set_group_avatar_url_to_none_if_not_available(self):
         model = ScietyEventListsModel([{

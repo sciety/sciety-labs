@@ -36,6 +36,7 @@ class OwnerMetaData(NamedTuple):
     owner_type: str
     display_name: str
     avatar_url: Optional[str] = None
+    slug: Optional[str] = None
     twitter_handle: Optional[str] = None
 
     @staticmethod
@@ -54,7 +55,8 @@ class OwnerMetaData(NamedTuple):
             display_name=sciety_event_group_meta['group_name'],
             avatar_url=get_avatar_url_for_avatar_path(
                 sciety_event_group_meta.get('avatar_path')
-            )
+            ),
+            slug=sciety_event_group_meta.get('slug')
         )
 
 
