@@ -6,9 +6,44 @@ from typing import Mapping, NamedTuple, Optional, Sequence
 DOI_ARTICLE_ID_PREFIX = 'doi:'
 
 
-PREPRINT_DOI_PREFIX_LIST = [
-    '10.1101'  # bioRxiv/medRxiv
-]
+# Potential Preprint servers:
+# - 10.1101: bioRxiv, medRxiv (Cold Spring Harbor Laboratory in general)
+# - 10.21203: Research Square (https://www.researchsquare.com/)
+# - 10.20944: Preprints.org
+# - 10.31234: PsyArXiv (https://psyarxiv.com/)
+# - 10.22541: Authorea Preprints (https://www.authorea.com)
+# - 10.2139: SSRN (https://papers.ssrn.com)
+# - 10.12688: F1000 (https://f1000research.com/, also https://wellcomeopenresearch.org)
+#             F1000 itself says not preprints because they can't be published to a journal.
+# - 10.26434: ChemRxiv (https://chemrxiv.org)
+# - 10.7287: PeerJ (https://peerj.com/)
+# - 10.1590: SciELO Preprints (https://preprints.scielo.org/);
+#            DOI prefix may also contain non-preprints
+
+
+class KnownDoiPrefix:
+    BIORXIV_MEDRXIV = '10.1101'
+    RESEARCH_SQUARE = '10.21203'
+    PREPRINTS_ORG = '10.20944'
+    PSYARXIV = '10.31234'
+    AUTHOREA_PREPRINTS = '10.22541'
+    SSRN = '10.2139'
+    F1000 = '10.12688'
+    CHEMRXIV = '10.26434'
+    PEERJ = '10.7287'
+    SCIELO = '10.1590'
+
+
+_PREPRINT_DOI_PREFIX_SET = {
+    KnownDoiPrefix.BIORXIV_MEDRXIV,
+    KnownDoiPrefix.RESEARCH_SQUARE,
+    KnownDoiPrefix.PREPRINTS_ORG,
+    KnownDoiPrefix.PSYARXIV,
+    KnownDoiPrefix.AUTHOREA_PREPRINTS,
+    KnownDoiPrefix.SSRN,
+    KnownDoiPrefix.CHEMRXIV,
+    KnownDoiPrefix.PEERJ
+}
 
 
 def is_doi_article_id(article_id: str) -> bool:
@@ -28,7 +63,7 @@ def _get_doi_prefix(article_doi: str) -> str:
 
 def is_preprint_doi(article_doi: str) -> bool:
     doi_prefix = _get_doi_prefix(article_doi)
-    return doi_prefix in PREPRINT_DOI_PREFIX_LIST
+    return doi_prefix in _PREPRINT_DOI_PREFIX_SET
 
 
 class ArticleMetaData(NamedTuple):
