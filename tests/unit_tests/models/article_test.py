@@ -1,9 +1,11 @@
 from datetime import datetime
+from typing import Iterable
 
 from sciety_labs.models.article import (
     ArticleMention,
     get_doi_from_article_id_or_none,
-    is_doi_article_id
+    is_doi_article_id,
+    is_preprint_doi
 )
 
 
@@ -36,6 +38,14 @@ class TestGetDoiFromArticleIdOrNone:
         assert get_doi_from_article_id_or_none('value_1') is None
 
 
+class TestIsPreprintDoi:
+    def test_should_return_true_for_biorxiv_prefix(self):
+        assert is_preprint_doi('10.1101/doi1') is True
+
+    def test_should_return_false_for_elife_prefix(self):
+        assert is_preprint_doi('10.7554/doi1') is False
+
+
 class TestArticleMention:
     def test_should_sort_by_created_timestamp(self):
         unsorted_list = [
@@ -66,3 +76,13 @@ class TestArticleMention:
         )
         assert article_mention.created_at_isoformat is None
         assert article_mention.created_at_display_format is None
+
+
+def iter_preprint_article_mention(
+    article_mention_iterable: Iterable[ArticleMention]
+) -> Iterable[ArticleMention]:
+    return (
+        article_mention
+        for article_mention in article_mention_iterable
+        if is_preprint_doi(article_mention.article_doi)
+    )

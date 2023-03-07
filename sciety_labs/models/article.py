@@ -6,6 +6,11 @@ from typing import Mapping, NamedTuple, Optional, Sequence
 DOI_ARTICLE_ID_PREFIX = 'doi:'
 
 
+PREPRINT_DOI_PREFIX_LIST = [
+    '10.1101'  # bioRxiv/medRxiv
+]
+
+
 def is_doi_article_id(article_id: str) -> bool:
     return article_id.startswith(DOI_ARTICLE_ID_PREFIX)
 
@@ -14,6 +19,16 @@ def get_doi_from_article_id_or_none(article_id: str) -> Optional[str]:
     if not is_doi_article_id(article_id):
         return None
     return article_id[len(DOI_ARTICLE_ID_PREFIX):]
+
+
+def _get_doi_prefix(article_doi: str) -> str:
+    doi_prefix, _ = article_doi.split('/', maxsplit=1)
+    return doi_prefix
+
+
+def is_preprint_doi(article_doi: str) -> bool:
+    doi_prefix = _get_doi_prefix(article_doi)
+    return doi_prefix in PREPRINT_DOI_PREFIX_LIST
 
 
 class ArticleMetaData(NamedTuple):
