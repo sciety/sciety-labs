@@ -11,7 +11,7 @@ DOI_ARTICLE_ID_PREFIX = 'doi:'
 # - 10.1101: bioRxiv, medRxiv (Cold Spring Harbor Laboratory in general)
 # - 10.21203: Research Square (https://www.researchsquare.com/)
 # - 10.20944: Preprints.org
-# - 10.31234: PsyArXiv (https://psyarxiv.com/)
+# - 10.31234: PsyArXiv (https://psyarxiv.com/), part of OSF Preprints
 # - 10.22541: Authorea Preprints (https://www.authorea.com)
 # - 10.2139: SSRN (https://papers.ssrn.com)
 # - 10.12688: F1000 (https://f1000research.com/, also https://wellcomeopenresearch.org)
