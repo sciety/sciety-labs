@@ -339,6 +339,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         max_recommendations: int = 500,
         enable_pagination: bool = True
     ):
+        article_meta = crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
         all_article_recommendations = list(
             iter_preprint_article_mention(
                 semantic_scholar_provider.iter_article_recommendation_for_article_dois(
@@ -372,6 +373,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         return templates.TemplateResponse(
             'article-recommendations-by-article-doi.html', {
                 'request': request,
+                'article_meta': article_meta,
                 'article_list_content': article_recommendation_with_article_meta,
                 'pagination': url_pagination_state
             }
