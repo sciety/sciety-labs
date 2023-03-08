@@ -54,6 +54,9 @@ class TestIsPreprintDoi:
     def test_should_return_false_for_scielo_but_not_preprints(self):
         assert is_preprint_doi('10.1590/SciELO.1234') is False
 
+    def test_should_return_false_for_doi_prefix_not_supported_by_sciety(self):
+        assert is_preprint_doi('10.20944/doi_1') is False
+
 
 class TestArticleMention:
     def test_should_sort_by_created_timestamp(self):
