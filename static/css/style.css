@@ -38,3 +38,7 @@
 .article-card footer a {
     position: relative;
 }
+
+.page-header__description ol {
+    display: inline;
+}

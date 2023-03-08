@@ -8,9 +8,18 @@
 
     <h1>Article Recommendations for <a href="https://sciety.org/articles/{{ article_meta.article_doi }}">{{ article_meta.article_title }}</a></h1>
 
-    <p class="page-header__description">
+    <div class="page-header__description">
         <span>The following articles have been recommended by <a href="https://www.semanticscholar.org">Semantic Scholar</a>'s <a href="https://api.semanticscholar.org/api-docs/recommendations">Paper Recommendations API</a> as related content to <a href="https://sciety.org/articles/{{ article_meta.article_doi }}">{{ article_meta.article_title }}</a></span>
-    </p>
+        {% if article_meta.author_name_list %}
+        <span> by
+        <ol class="card-authors" role="list" aria-describedby="article-card-author-list-{{ article_meta.article_doi }}">
+            {% for author_name in article_meta.author_name_list %}
+            <li class="card-authors__author">{{ author_name }}</li>
+            {% endfor %}
+        </ol>
+        </span>
+        {% endif %}
+    </div>
 
   <section>
     <p class="articles-page-count">
