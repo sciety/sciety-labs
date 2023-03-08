@@ -330,4 +330,51 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             }
         )
 
+    @app.get('/article-recommendations/by', response_class=HTMLResponse)
+    async def article_recommendations_by_article_doi(  # pylint: disable=too-many-arguments
+        request: Request,
+        article_doi: str,
+        items_per_page: int = 10,
+        page: int = 1,
+        max_recommendations: int = 500,
+        enable_pagination: bool = True
+    ):
+        all_article_recommendations = list(
+            iter_preprint_article_mention(
+                semantic_scholar_provider.iter_article_recommendation_for_article_dois(
+                    [article_doi],
+                    max_recommendations=max_recommendations
+                )
+            )
+        )
+        item_count = len(all_article_recommendations)
+        article_recommendation_with_article_meta = list(
+            evaluation_stats_model.iter_article_mention_with_article_stats(
+                get_page_iterable(
+                    all_article_recommendations,
+                    page=page,
+                    items_per_page=items_per_page
+                )
+            )
+        )
+        LOGGER.info(
+            'article_recommendation_with_article_meta=%r',
+            article_recommendation_with_article_meta
+        )
+
+        url_pagination_state = get_url_pagination_state_for_url(
+            url=request.url,
+            page=page,
+            items_per_page=items_per_page,
+            item_count=item_count,
+            enable_pagination=enable_pagination
+        )
+        return templates.TemplateResponse(
+            'article-recommendations-by-article-doi.html', {
+                'request': request,
+                'article_list_content': article_recommendation_with_article_meta,
+                'pagination': url_pagination_state
+            }
+        )
+
     return app
