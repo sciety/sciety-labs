@@ -1,5 +1,6 @@
 import dataclasses
 from datetime import datetime
+import re
 from typing import Mapping, NamedTuple, Optional, Sequence
 
 
@@ -46,6 +47,11 @@ _PREPRINT_DOI_PREFIX_SET = {
 }
 
 
+_KNOWN_PREPRINT_SERVER_REGEXP_SET = {
+    r'10\.1590/SciELOPreprints.*'
+}
+
+
 def is_doi_article_id(article_id: str) -> bool:
     return article_id.startswith(DOI_ARTICLE_ID_PREFIX)
 
@@ -63,7 +69,12 @@ def _get_doi_prefix(article_doi: str) -> str:
 
 def is_preprint_doi(article_doi: str) -> bool:
     doi_prefix = _get_doi_prefix(article_doi)
-    return doi_prefix in _PREPRINT_DOI_PREFIX_SET
+    if doi_prefix in _PREPRINT_DOI_PREFIX_SET:
+        return True
+    for preprint_server_regexp in _KNOWN_PREPRINT_SERVER_REGEXP_SET:
+        if re.match(preprint_server_regexp, article_doi, re.RegexFlag.IGNORECASE):
+            return True
+    return False
 
 
 class ArticleMetaData(NamedTuple):

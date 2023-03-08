@@ -45,6 +45,15 @@ class TestIsPreprintDoi:
     def test_should_return_false_for_elife_prefix(self):
         assert is_preprint_doi('10.7554/doi1') is False
 
+    def test_should_return_true_for_scielo_preprints(self):
+        assert is_preprint_doi('10.1590/SciELOPreprints.1234') is True
+
+    def test_should_return_true_for_scielo_preprints_lowecase(self):
+        assert is_preprint_doi('10.1590/scielopreprints.1234') is True
+
+    def test_should_return_false_for_scielo_but_not_preprints(self):
+        assert is_preprint_doi('10.1590/SciELO.1234') is False
+
 
 class TestArticleMention:
     def test_should_sort_by_created_timestamp(self):
