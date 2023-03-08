@@ -59,7 +59,8 @@ _PREPRINT_DOI_PREFIX_SET = _ALL_PREPRINT_DOI_PREFIX_SET - _DOI_PREFIX_NOT_SUPPOR
 
 
 _KNOWN_PREPRINT_SERVER_REGEXP_SET = {
-    r'10\.1590/SciELOPreprints.*'
+    r'10\.1590/SciELOPreprints.*',
+    r'[^/]+/osf\.io/.*'
 }
 
 

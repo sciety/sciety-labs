@@ -54,6 +54,9 @@ class TestIsPreprintDoi:
     def test_should_return_false_for_scielo_but_not_preprints(self):
         assert is_preprint_doi('10.1590/SciELO.1234') is False
 
+    def test_should_return_true_for_osf_preprints_with_unknown_doi_prefix(self):
+        assert is_preprint_doi('10.12345/osf.io/12345') is True
+
     def test_should_return_false_for_doi_prefix_not_supported_by_sciety(self):
         assert is_preprint_doi('10.20944/doi_1') is False
 
