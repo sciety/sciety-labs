@@ -29,6 +29,7 @@ from sciety_labs.utils.pagination import (
     get_url_pagination_state_for_url
 )
 from sciety_labs.utils.threading import UpdateThread
+from tests.unit_tests.models.article_test import iter_preprint_article_mention
 
 
 LOGGER = logging.getLogger(__name__)
@@ -243,14 +244,16 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     ):
         list_summary_data = lists_model.get_list_summary_data_by_list_id(list_id)
         all_article_recommendations = list(
-            semantic_scholar_provider.iter_article_recommendation_for_article_dois(
-                (
-                    article_mention.article_doi
-                    for article_mention in lists_model.iter_article_mentions_by_list_id(
-                        list_id
-                    )
-                ),
-                max_recommendations=max_recommendations
+            iter_preprint_article_mention(
+                semantic_scholar_provider.iter_article_recommendation_for_article_dois(
+                    (
+                        article_mention.article_doi
+                        for article_mention in lists_model.iter_article_mentions_by_list_id(
+                            list_id
+                        )
+                    ),
+                    max_recommendations=max_recommendations
+                )
             )
         )
         item_count = len(all_article_recommendations)
