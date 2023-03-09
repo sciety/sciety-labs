@@ -92,6 +92,7 @@ def is_preprint_doi(article_doi: str) -> bool:
 class ArticleMetaData(NamedTuple):
     article_doi: str
     article_title: str
+    abstract: Optional[str] = None
     author_name_list: Optional[Sequence[str]] = None
 
 

@@ -20,6 +20,13 @@ class TestGetArticleMetadataFromCrossrefMetadata:
         )
         assert result.article_title == 'Title 1'
 
+    def test_should_extract_abstract(self):
+        result = get_article_metadata_from_crossref_metadata(
+            DOI_1,
+            {**CROSSREF_RESPONSE_MESSAGE_1, 'abstract': 'Abstract 1'}
+        )
+        assert result.abstract == 'Abstract 1'
+
     def test_should_extract_author_names_from_given_and_family_name(self):
         result = get_article_metadata_from_crossref_metadata(
             DOI_1,

@@ -19,6 +19,15 @@
                 <a href="https://doi.org/{{ article_meta.article_doi }}" class="full-article-button">Read the full article</a>
             </div>
 
+            {% if article_meta.abstract %}
+            <section role="doc-abstract" class="article-abstract">
+                <h2>Abstract</h2>
+                <div>
+                    {{ article_meta.abstract }}
+                </div>
+            </section>
+            {% endif %}
+
         </div>
 
     </main>
