@@ -21,46 +21,8 @@
         {% endif %}
         <span class="visually-hidden"> of list content</span>
     </p>
-    <ul class="articles-list" role="list">{% for item in article_list_content %}
-    <li class="articles-list__item">
-        <article>
-            <section class="article-card">
-                <h3 class="article-card__title"><a class="article-card__link" href="https://sciety.org/articles/activity/{{ item.article_doi }}">{{ item.article_meta.article_title }}</a></h3>
 
-                <div class="hidden" id="article-card-author-list-{{ item.article_doi }}">This article's authors</div>
-                {% if item.article_meta.author_name_list %}
-                <ol class="card-authors" role="list" aria-describedby="article-card-author-list-{{ item.article_doi }}">
-                    {% for author_name in item.article_meta.author_name_list %}
-                    <li class="card-authors__author">{{ author_name }}</li>
-                    {% endfor %}
-                </ol>
-                {% endif %}
-                
-                <footer class="article-card__footer">
-                    <div class="article-card__meta">
-                    {% if item.article_stats %}
-                    <span class="visually-hidden">This article has </span><span>{{ item.article_stats.evaluation_count }} evaluations</span>
-                    {% endif %}
-                    {% if item.created_at_timestamp %}
-                    <span>Added on <time datetime="{{ item.created_at_isoformat }}">{{ item.created_at_display_format }}</time></span>
-                    {% endif %}
-                    {% if item.external_reference_by_name.semantic_scholar_paper_id %}
-                    <span class="visually-hidden">Read this paper on </span><span><a href="https://www.semanticscholar.org/paper/{{ item.external_reference_by_name.semantic_scholar_paper_id }}">Semantic Scholar</a></span>
-                    {% endif %}
-                    </div>
-                </footer>
-            </section>
-
-            {% if item.comment %}
-            <section class="article-card-annotation">
-                <h4 class="visually-hidden">Annotation by {{ list_summary_data.owner.display_name }}</h4>
-                <p>{{ item.comment }}</p>
-            </section>
-            {% endif %}
-        </article>
-    </li>
-    {% endfor %}
-    </ul>
+    {% include 'includes/article-list-content.html' with context %}
 
     {% include 'includes/pagination.html' with context %}
 
