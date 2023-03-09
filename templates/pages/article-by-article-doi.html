@@ -6,15 +6,13 @@
             <header class="page-header page-header--article">
                 <h1>{{ article_meta.article_title }}</h1>
 
-                <div class="page-header__description">
-                    {% if article_meta.author_name_list %}
-                    <ol aria-label="Authors of this article" class="article-author-list" role="list">
-                        {% for author_name in article_meta.author_name_list %}
-                        <li>{{ author_name }}</li>
-                        {% endfor %}
-                    </ol>
-                    {% endif %}
-                </div>
+                {% if article_meta.author_name_list %}
+                <ol aria-label="Authors of this article" class="article-author-list" role="list">
+                    {% for author_name in article_meta.author_name_list %}
+                    <li>{{ author_name }}</li>
+                    {% endfor %}
+                </ol>
+                {% endif %}
             </header>
 
             <div class="article-actions">
