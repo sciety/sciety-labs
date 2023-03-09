@@ -330,7 +330,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             }
         )
 
-    @app.get('/article-recommendations/by', response_class=HTMLResponse)
+    @app.get('/articles/article-recommendations/by', response_class=HTMLResponse)
     async def article_recommendations_by_article_doi(  # pylint: disable=too-many-arguments
         request: Request,
         article_doi: str,
