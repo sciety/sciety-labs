@@ -1,0 +1,56 @@
+{% include 'includes/page-header.html' with context %}
+
+  <main class="page-content" id="mainContent">
+      
+  <div class="sciety-grid-two-columns">
+
+  <header class="page-header page-header--list">
+
+    <h1>{{ list_summary_data.list_meta.list_name }}</h1>
+
+    <p class="page-header__subheading">
+        {% if list_summary_data.owner.avatar_url %}
+        <img src="{{ list_summary_data.owner.avatar_url }}" alt="" class="page-header__avatar">
+        {% endif %}
+        {% if owner_url %}
+        <span>A list by <a href="{{ owner_url }}">{{ list_summary_data.owner.display_name }}</a></span>
+        {% else %}
+        <span>A list by {{ list_summary_data.owner.display_name }}</span>
+        {% endif %}
+    </p>
+
+    <p class="page-header__description">{{ list_summary_data.list_meta.list_description }}</p>
+
+    <p class="page-header__meta"><span class="visually-hidden">This list contains </span><span>{{ list_summary_data.article_count }} articles</span><span>Last updated <time datetime="{{ list_summary_data.last_updated_date_isoformat }}">{{ list_summary_data.last_updated_date_display_format }}</time></p>
+
+    <div class="page-header__links">
+        <ul>
+            <li><span class="visually-hidden">This list can be subscribed to via the </span><span><a
+        href="{{ rss_url }}">RSS</a><span></li>
+            <li><span class="visually-hidden">Find related articles using our </span><span><a
+        href="/lists/by-id/{{ list_summary_data.list_meta.list_id }}/article-recommendations">Article recommendations</a><span></li>
+            <li><a href="https://sciety.org/lists/{{ list_summary_data.list_meta.list_id }}?utm_source=sciety_labs">This list on Sciety</a></span></li>
+        </ul>
+    </div>
+
+  <section>
+    <p class="articles-page-count">
+        Showing page <b>{{ pagination.page }}</b>
+        {% if pagination.page_count %}
+            of <b>{{ pagination.page_count }}</b>
+            <span class="visually-hidden"> pages</span>
+        {% endif %}
+        <span class="visually-hidden"> of list content</span>
+    </p>
+
+    {% include 'includes/article-list-content.html' with context %}
+
+    {% include 'includes/pagination.html' with context %}
+
+  </header>
+
+  </div>
+
+  </main>
+
+{% include 'includes/page-footer.html' with context %}

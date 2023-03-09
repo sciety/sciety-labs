@@ -1,0 +1,44 @@
+{% include 'includes/page-header.html' with context %}
+
+  <main class="page-content" id="mainContent">
+      
+  <div class="sciety-grid-two-columns">
+
+  <header class="page-header page-header--list">
+
+    <h1>Article Recommendations for <a href="https://sciety.org/articles/{{ article_meta.article_doi }}">{{ article_meta.article_title }}</a></h1>
+
+    <div class="page-header__description">
+        <span>The following articles have been recommended by <a href="https://www.semanticscholar.org">Semantic Scholar</a>'s <a href="https://api.semanticscholar.org/api-docs/recommendations">Paper Recommendations API</a> as related content to <a href="https://sciety.org/articles/{{ article_meta.article_doi }}">{{ article_meta.article_title }}</a></span>
+        {% if article_meta.author_name_list %}
+        <span> by
+        <ol class="card-authors" role="list" aria-describedby="article-card-author-list-{{ article_meta.article_doi }}">
+            {% for author_name in article_meta.author_name_list %}
+            <li class="card-authors__author">{{ author_name }}</li>
+            {% endfor %}
+        </ol>
+        </span>
+        {% endif %}
+    </div>
+
+  <section>
+    <p class="articles-page-count">
+        Showing page <b>{{ pagination.page }}</b>
+        {% if pagination.page_count %}
+            of <b>{{ pagination.page_count }}</b>
+            <span class="visually-hidden"> pages</span>
+        {% endif %}
+        <span class="visually-hidden"> of list content</span>
+    </p>
+
+    {% include 'includes/article-list-content.html' with context %}
+
+    {% include 'includes/pagination.html' with context %}
+
+  </header>
+
+  </div>
+
+  </main>
+
+{% include 'includes/page-footer.html' with context %}

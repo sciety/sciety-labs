@@ -125,7 +125,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     @app.get('/', response_class=HTMLResponse)
     async def index(request: Request):
         return templates.TemplateResponse(
-            'index.html', {
+            'pages/index.html', {
                 'request': request,
                 'user_lists': lists_model.get_most_active_user_lists(
                     top_n=3,
@@ -137,7 +137,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     @app.get('/lists', response_class=HTMLResponse)
     async def lists(request: Request):
         return templates.TemplateResponse(
-            'lists.html', {
+            'pages/lists.html', {
                 'request': request,
                 'user_lists': lists_model.get_most_active_user_lists(
                     min_article_count=min_article_count
@@ -199,7 +199,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             )
         )
         return templates.TemplateResponse(
-            'list-by-sciety-list-id.html', {
+            'pages/list-by-sciety-list-id.html', {
                 'request': request,
                 'rss_url': rss_url,
                 'owner_url': get_owner_url(list_summary_data.owner),
@@ -225,7 +225,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             )
         )
         return templates.TemplateResponse(
-            'list-by-sciety-list-id.atom.xml', {
+            'pages/list-by-sciety-list-id.atom.xml', {
                 'request': request,
                 'list_summary_data': list_summary_data,
                 'article_list_content': article_mention_with_article_meta
@@ -279,7 +279,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             enable_pagination=enable_pagination
         )
         return templates.TemplateResponse(
-            'article-recommendations-by-sciety-list-id.html', {
+            'pages/article-recommendations-by-sciety-list-id.html', {
                 'request': request,
                 'owner_url': get_owner_url(list_summary_data.owner),
                 'list_summary_data': list_summary_data,
@@ -321,7 +321,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             enable_pagination=enable_pagination
         )
         return templates.TemplateResponse(
-            'list-by-twitter-handle.html', {
+            'pages/list-by-twitter-handle.html', {
                 'request': request,
                 'twitter_handle': twitter_handle,
                 'twitter_user': twitter_user,
@@ -371,7 +371,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             enable_pagination=enable_pagination
         )
         return templates.TemplateResponse(
-            'article-recommendations-by-article-doi.html', {
+            'pages/article-recommendations-by-article-doi.html', {
                 'request': request,
                 'article_meta': article_meta,
                 'article_list_content': article_recommendation_with_article_meta,
