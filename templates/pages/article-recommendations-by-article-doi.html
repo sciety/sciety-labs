@@ -70,16 +70,9 @@
     </li>
     {% endfor %}
     </ul>
-    {% if pagination.previous_page_url or pagination.next_page_url %}
-    <div class="pagination-controls">
-        {% if pagination.previous_page_url %}
-            <a href="{{ pagination.previous_page_url }}" class="pagination-controls__next_link">Previous</a>
-        {% endif %}
-        {% if pagination.next_page_url %}
-            <a href="{{ pagination.next_page_url }}" class="pagination-controls__next_link">Next</a>
-        {% endif %}
-    </div>
-    {% endif %}
+
+    {% include 'includes/pagination.html' with context %}
+
   </header>
 
   </div>
