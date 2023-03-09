@@ -330,6 +330,20 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             }
         )
 
+    @app.get('/articles/by', response_class=HTMLResponse)
+    async def article_by_article_doi(
+        request: Request,
+        article_doi: str
+    ):
+        article_meta = crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
+        LOGGER.info('article_meta=%r', article_meta)
+        return templates.TemplateResponse(
+            'pages/article-by-article-doi.html', {
+                'request': request,
+                'article_meta': article_meta
+            }
+        )
+
     @app.get('/articles/article-recommendations/by', response_class=HTMLResponse)
     async def article_recommendations_by_article_doi(  # pylint: disable=too-many-arguments
         request: Request,
