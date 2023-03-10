@@ -13,6 +13,8 @@ from fastapi.staticfiles import StaticFiles
 
 import requests_cache
 
+import markupsafe
+
 import bleach
 
 from sciety_labs.models.article import ArticleMention
@@ -59,8 +61,8 @@ def get_owner_url(owner: OwnerMetaData) -> Optional[str]:
     return None
 
 
-def get_sanitized_string(text: str) -> str:
-    return bleach.clean(text, tags=ALLOWED_TAGS)
+def get_sanitized_string_as_safe_markup(text: str) -> markupsafe.Markup:
+    return markupsafe.Markup(bleach.clean(text, tags=ALLOWED_TAGS))
 
 
 def create_app():  # pylint: disable=too-many-locals, too-many-statements
@@ -120,7 +122,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     ).start()
 
     templates = Jinja2Templates(directory='templates')
-    templates.env.filters['sanitize'] = get_sanitized_string
+    templates.env.filters['sanitize'] = get_sanitized_string_as_safe_markup
 
     app = FastAPI()
     app.mount('/static', StaticFiles(directory='static', html=False), name='static')
