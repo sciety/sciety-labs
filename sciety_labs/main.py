@@ -12,6 +12,11 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
 import requests_cache
+
+import markupsafe
+
+import bleach
+
 from sciety_labs.models.article import ArticleMention
 from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
 
@@ -35,6 +40,20 @@ from tests.unit_tests.models.article_test import iter_preprint_article_mention
 LOGGER = logging.getLogger(__name__)
 
 
+ALLOWED_TAGS = [
+    'a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
+    'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
+    'h1', 'h2', 'h3', 'p', 'img', 'video', 'div',
+    'p', 'br', 'span', 'hr', 'src', 'class',
+    'section', 'sup'
+]
+
+
+# This is the number of recommendations we ask Semantic Scholar to generate,
+# before post filtering
+DEFAULT_MAX_RECOMMENDATIONS = 500
+
+
 class AtomResponse(starlette.responses.Response):
     media_type = "application/atom+xml"
 
@@ -45,6 +64,10 @@ def get_owner_url(owner: OwnerMetaData) -> Optional[str]:
     if owner.owner_type == OwnerTypes.GROUP and owner.slug:
         return f'https://sciety.org/groups/{owner.slug}'
     return None
+
+
+def get_sanitized_string_as_safe_markup(text: str) -> markupsafe.Markup:
+    return markupsafe.Markup(bleach.clean(text, tags=ALLOWED_TAGS))
 
 
 def create_app():  # pylint: disable=too-many-locals, too-many-statements
@@ -104,6 +127,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     ).start()
 
     templates = Jinja2Templates(directory='templates')
+    templates.env.filters['sanitize'] = get_sanitized_string_as_safe_markup
 
     app = FastAPI()
     app.mount('/static', StaticFiles(directory='static', html=False), name='static')
@@ -330,13 +354,56 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             }
         )
 
+    @app.get('/articles/by', response_class=HTMLResponse)
+    async def article_by_article_doi(
+        request: Request,
+        article_doi: str
+    ):
+        article_meta = crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
+        LOGGER.info('article_meta=%r', article_meta)
+
+        all_article_recommendations = list(
+            iter_preprint_article_mention(
+                semantic_scholar_provider.iter_article_recommendation_for_article_dois(
+                    [article_doi],
+                    max_recommendations=DEFAULT_MAX_RECOMMENDATIONS
+                )
+            )
+        )
+        article_recommendation_with_article_meta = list(
+            evaluation_stats_model.iter_article_mention_with_article_stats(
+                get_page_iterable(
+                    all_article_recommendations,
+                    page=1,
+                    items_per_page=3
+                )
+            )
+        )
+        LOGGER.info(
+            'article_recommendation_with_article_meta=%r',
+            article_recommendation_with_article_meta
+        )
+
+        article_recommendation_url = (
+            request.url.replace(path='/articles/article-recommendations/by')
+        )
+
+        return templates.TemplateResponse(
+            'pages/article-by-article-doi.html', {
+                'request': request,
+                'article_meta': article_meta,
+                'article_list_content': article_recommendation_with_article_meta,
+                'article_recommendation_url': article_recommendation_url
+            }
+        )
+
     @app.get('/articles/article-recommendations/by', response_class=HTMLResponse)
     async def article_recommendations_by_article_doi(  # pylint: disable=too-many-arguments
         request: Request,
         article_doi: str,
         items_per_page: int = 10,
         page: int = 1,
-        max_recommendations: int = 500,
+        max_recommendations: int = DEFAULT_MAX_RECOMMENDATIONS,
         enable_pagination: bool = True
     ):
         article_meta = crossref_metadata_provider.get_article_metadata_by_doi(article_doi)

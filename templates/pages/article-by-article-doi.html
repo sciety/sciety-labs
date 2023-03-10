@@ -1,0 +1,44 @@
+{% include 'includes/page-header.html' with context %}
+
+    <main class="page-content" id="mainContent">
+      
+        <div class="sciety-grid-two-columns">
+            <header class="page-header page-header--article">
+                <h1>{{ article_meta.article_title }}</h1>
+
+                {% if article_meta.author_name_list %}
+                <ol aria-label="Authors of this article" class="article-author-list" role="list">
+                    {% for author_name in article_meta.author_name_list %}
+                    <li>{{ author_name }}</li>
+                    {% endfor %}
+                </ol>
+                {% endif %}
+            </header>
+
+            <div class="article-actions">
+                <a href="https://doi.org/{{ article_meta.article_doi }}" class="full-article-button">Read the full article</a>
+                <a href="#article-recommendations" class="article-recommendations-button">Related papers</a>
+            </div>
+
+            {% if article_meta.abstract %}
+            <section role="doc-abstract" class="article-abstract">
+                <h2>Abstract</h2>
+                <div>
+                    {{ article_meta.abstract | sanitize }}
+                </div>
+            </section>
+            {% endif %}
+
+            {% if article_list_content %}
+            <section id="article-recommendations">
+                <h2><a href="{{ article_recommendation_url }}">Related articles</a></h2>
+                {% include 'includes/article-list-content.html' with context %}
+                <a href="{{ article_recommendation_url }}">More</a>
+            </section>
+            {% endif %}
+
+        </div>
+
+    </main>
+
+{% include 'includes/page-footer.html' with context %}

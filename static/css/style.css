@@ -42,3 +42,56 @@
 .page-header__description ol {
     display: inline;
 }
+
+
+/* copied from logged-out-call-to-action */
+.article-recommendations-button {
+  font-family: Ubuntu, sans-serif;
+  font-size: 1rem;
+  font-weight: bold;
+  line-height: 1;
+  border-radius: 6px;
+  border: 1px solid rgb(206, 72, 26);
+  padding: 0.5rem 0.6875rem;
+  display: inline-block;
+  border-color: rgb(49, 73, 82);
+}
+.article-recommendations-button:link, .article-recommendations-button:visited {
+  background-color: rgb(206, 72, 26);
+  color: rgb(255, 255, 255);
+}
+.article-recommendations-button:link:active, .article-recommendations-button:link:hover, .article-recommendations-button:visited:active, .article-recommendations-button:visited:hover {
+  border-color: rgb(155, 54, 19);
+  color: rgb(255, 255, 255);
+  text-decoration: none;
+}
+.article-recommendations-button:link:active, .article-recommendations-button:visited:active {
+  background-color: rgb(206, 72, 26);
+}
+.article-recommendations-button:link:hover, .article-recommendations-button:visited:hover {
+  background-color: rgb(155, 54, 19);
+}
+.article-recommendations-button:link:focus, .article-recommendations-button:visited:focus {
+  text-decoration: none;
+}
+.article-recommendations-button:link:focus-visible {
+  outline-style: none;
+  box-shadow: 0 0 0 3px rgb(245, 218, 209);
+}
+.article-recommendations-button:link:focus {
+  outline-style: none;
+  box-shadow: 0 0 0 3px rgb(245, 218, 209);
+}
+.article-recommendations-button:link:focus:not(:focus-visible) {
+  box-shadow: none;
+}
+.article-recommendations-button:link, .article-recommendations-button:visited {
+  background-color: rgb(49, 73, 82);
+  color: rgb(255, 255, 255);
+}
+.article-recommendations-button:link:active, .article-recommendations-button:link:hover, .article-recommendations-button:visited:active, .article-recommendations-button:visited:hover {
+  border-color: rgb(49, 73, 82);
+  background-color: rgb(33, 33, 33);
+  color: rgb(255, 255, 255);
+  text-decoration: none;
+}

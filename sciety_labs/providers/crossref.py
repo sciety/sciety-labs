@@ -1,9 +1,10 @@
 import logging
 import concurrent.futures
 from itertools import tee
-from typing import Dict, Iterable, Optional
+from typing import Dict, Iterable, Mapping, Optional
 
 import requests
+import lxml.etree
 
 from sciety_labs.models.article import ArticleMention, ArticleMetaData
 
@@ -22,6 +23,47 @@ def get_author_name_from_crossref_metadata_author_dict(
     ])
 
 
+def remove_namespaces_from_xml_node(root: lxml.etree._Element):
+    for element in root.getiterator():
+        LOGGER.debug('element: %r', element)
+        tag_parts = element.tag.split(':', maxsplit=1)
+        element.tag = str(lxml.etree.QName(tag_parts[-1]).localname)
+
+
+def map_xml_tags(root: lxml.etree._Element, mapping: Mapping[str, str]):
+    for element in root.getiterator():
+        element.tag = mapping.get(element.tag, element.tag)
+
+
+def get_cleaned_abstract_html(abstract_html: Optional[str]) -> Optional[str]:
+    if not abstract_html:
+        return None
+    if not abstract_html.startswith('<'):
+        return abstract_html
+    try:
+        parser = lxml.etree.XMLParser(recover=True)
+        root = lxml.etree.fromstring(
+            f'<root>{abstract_html}</root>',
+            parser=parser
+        )
+        remove_namespaces_from_xml_node(root)
+        map_xml_tags(root, {
+            'title': 'h3',
+            'sec': 'section',
+            'italic': 'i',
+            'list': 'ul',
+            'list-item': 'li'
+        })
+        if root[0].tag == 'h3':
+            root.remove(root[0])
+        LOGGER.debug('root: %r', root)
+        LOGGER.debug('root.tag: %r', root.tag)
+        return b''.join(lxml.etree.tostring(child) for child in root).decode('utf-8')
+    except lxml.etree.XMLSyntaxError as exc:
+        LOGGER.debug('failed to parse abstract %r due to %r', abstract_html, exc)
+        return abstract_html
+
+
 def get_article_metadata_from_crossref_metadata(
     doi: str,
     crossref_metadata: dict
@@ -29,6 +71,7 @@ def get_article_metadata_from_crossref_metadata(
     return ArticleMetaData(
         article_doi=doi,
         article_title='\n'.join(crossref_metadata['title']),
+        abstract=get_cleaned_abstract_html(crossref_metadata.get('abstract')),
         author_name_list=[
             get_author_name_from_crossref_metadata_author_dict(author_dict)
             for author_dict in crossref_metadata.get('author', [])
