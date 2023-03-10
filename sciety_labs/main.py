@@ -4,6 +4,8 @@ import logging
 from pathlib import Path
 from typing import Iterable, Optional
 
+import requests
+
 import starlette.responses
 
 from fastapi import FastAPI, Request
@@ -362,14 +364,18 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         article_meta = crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
         LOGGER.info('article_meta=%r', article_meta)
 
-        all_article_recommendations = list(
-            iter_preprint_article_mention(
-                semantic_scholar_provider.iter_article_recommendation_for_article_dois(
-                    [article_doi],
-                    max_recommendations=DEFAULT_MAX_RECOMMENDATIONS
+        try:
+            all_article_recommendations = list(
+                iter_preprint_article_mention(
+                    semantic_scholar_provider.iter_article_recommendation_for_article_dois(
+                        [article_doi],
+                        max_recommendations=DEFAULT_MAX_RECOMMENDATIONS
+                    )
                 )
             )
-        )
+        except requests.exceptions.HTTPError as exc:
+            LOGGER.warning('failed to get recommendations for %r due to %r', article_doi, exc)
+            all_article_recommendations = []
         article_recommendation_with_article_meta = list(
             evaluation_stats_model.iter_article_mention_with_article_stats(
                 get_page_iterable(
