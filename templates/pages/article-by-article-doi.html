@@ -30,7 +30,7 @@
 
             {% if article_list_content %}
             <section>
-                <h2>Related articles</h2>
+                <h2><a href="{{ article_recommendation_url }}">Related articles</a></h2>
                 {% include 'includes/article-list-content.html' with context %}
             </section>
             {% endif %}

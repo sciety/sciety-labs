@@ -49,6 +49,11 @@ ALLOWED_TAGS = [
 ]
 
 
+# This is the number of recommendations we ask Semantic Scholar to generate,
+# before post filtering
+DEFAULT_MAX_RECOMMENDATIONS = 500
+
+
 class AtomResponse(starlette.responses.Response):
     media_type = "application/atom+xml"
 
@@ -361,7 +366,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             iter_preprint_article_mention(
                 semantic_scholar_provider.iter_article_recommendation_for_article_dois(
                     [article_doi],
-                    max_recommendations=100
+                    max_recommendations=DEFAULT_MAX_RECOMMENDATIONS
                 )
             )
         )
@@ -379,11 +384,16 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             article_recommendation_with_article_meta
         )
 
+        article_recommendation_url = (
+            request.url.replace(path='/articles/article-recommendations/by')
+        )
+
         return templates.TemplateResponse(
             'pages/article-by-article-doi.html', {
                 'request': request,
                 'article_meta': article_meta,
-                'article_list_content': article_recommendation_with_article_meta
+                'article_list_content': article_recommendation_with_article_meta,
+                'article_recommendation_url': article_recommendation_url
             }
         )
 
@@ -393,7 +403,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         article_doi: str,
         items_per_page: int = 10,
         page: int = 1,
-        max_recommendations: int = 500,
+        max_recommendations: int = DEFAULT_MAX_RECOMMENDATIONS,
         enable_pagination: bool = True
     ):
         article_meta = crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
