@@ -12,6 +12,9 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
 import requests_cache
+
+import bleach
+
 from sciety_labs.models.article import ArticleMention
 from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
 
@@ -35,6 +38,15 @@ from tests.unit_tests.models.article_test import iter_preprint_article_mention
 LOGGER = logging.getLogger(__name__)
 
 
+ALLOWED_TAGS = [
+    'a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
+    'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
+    'h1', 'h2', 'h3', 'p', 'img', 'video', 'div',
+    'p', 'br', 'span', 'hr', 'src', 'class',
+    'section'
+]
+
+
 class AtomResponse(starlette.responses.Response):
     media_type = "application/atom+xml"
 
@@ -45,6 +57,10 @@ def get_owner_url(owner: OwnerMetaData) -> Optional[str]:
     if owner.owner_type == OwnerTypes.GROUP and owner.slug:
         return f'https://sciety.org/groups/{owner.slug}'
     return None
+
+
+def get_sanitized_string(text: str) -> str:
+    return bleach.clean(text, tags=ALLOWED_TAGS)
 
 
 def create_app():  # pylint: disable=too-many-locals, too-many-statements
@@ -104,6 +120,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     ).start()
 
     templates = Jinja2Templates(directory='templates')
+    templates.env.filters['sanitize'] = get_sanitized_string
 
     app = FastAPI()
     app.mount('/static', StaticFiles(directory='static', html=False), name='static')
