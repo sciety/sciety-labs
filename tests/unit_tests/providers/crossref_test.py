@@ -1,5 +1,6 @@
 from sciety_labs.providers.crossref import (
-    get_article_metadata_from_crossref_metadata
+    get_article_metadata_from_crossref_metadata,
+    get_cleaned_abstract_html
 )
 
 
@@ -10,6 +11,30 @@ CROSSREF_RESPONSE_MESSAGE_1: dict = {
     'title': [],
     'author': []
 }
+
+
+class TestGetCleanedAbstractHtml:
+    def test_should_return_none_if_input_is_none(self):
+        assert get_cleaned_abstract_html(None) is None
+
+    def test_should_return_unchanged_input_without_html(self):
+        assert get_cleaned_abstract_html('This is the abstract') == 'This is the abstract'
+
+    def test_should_replace_single_jats_sec_element_with_section(self):
+        assert (
+            get_cleaned_abstract_html('<jats:sec>This is the abstract</jats:sec>')
+         ) == '<section>This is the abstract</section>'
+
+    def test_should_replace_multiple_jats_sec_elements_with_section(self):
+        assert (
+            get_cleaned_abstract_html(
+                '<jats:sec>This is the section 1</jats:sec>'
+                '<jats:sec>This is the section 2</jats:sec>'
+            )
+         ) == (
+                '<section>This is the section 1</section>'
+                '<section>This is the section 2</section>'
+         )
 
 
 class TestGetArticleMetadataFromCrossrefMetadata:
