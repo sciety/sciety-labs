@@ -45,7 +45,7 @@ ALLOWED_TAGS = [
     'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
     'h1', 'h2', 'h3', 'p', 'img', 'video', 'div',
     'p', 'br', 'span', 'hr', 'src', 'class',
-    'section'
+    'section', 'sup'
 ]
 
 
