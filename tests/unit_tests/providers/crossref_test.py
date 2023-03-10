@@ -36,6 +36,16 @@ class TestGetCleanedAbstractHtml:
                 '<section>This is the section 2</section>'
          )
 
+    def test_should_remove_leading_title(self):
+        assert (
+            get_cleaned_abstract_html(
+                '<jats:title>Abstract</jats:title>'
+                '<jats:sec>This is the section 1</jats:sec>'
+            )
+         ) == (
+                '<section>This is the section 1</section>'
+         )
+
 
 class TestGetArticleMetadataFromCrossrefMetadata:
     def test_should_extract_single_line_title(self):

@@ -54,6 +54,8 @@ def get_cleaned_abstract_html(abstract_html: Optional[str]) -> Optional[str]:
             'list': 'ul',
             'list-item': 'li'
         })
+        if root[0].tag == 'h3':
+            root.remove(root[0])
         LOGGER.debug('root: %r', root)
         LOGGER.debug('root.tag: %r', root.tag)
         return b''.join(lxml.etree.tostring(child) for child in root).decode('utf-8')
