@@ -356,10 +356,34 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     ):
         article_meta = crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
         LOGGER.info('article_meta=%r', article_meta)
+
+        all_article_recommendations = list(
+            iter_preprint_article_mention(
+                semantic_scholar_provider.iter_article_recommendation_for_article_dois(
+                    [article_doi],
+                    max_recommendations=100
+                )
+            )
+        )
+        article_recommendation_with_article_meta = list(
+            evaluation_stats_model.iter_article_mention_with_article_stats(
+                get_page_iterable(
+                    all_article_recommendations,
+                    page=1,
+                    items_per_page=3
+                )
+            )
+        )
+        LOGGER.info(
+            'article_recommendation_with_article_meta=%r',
+            article_recommendation_with_article_meta
+        )
+
         return templates.TemplateResponse(
             'pages/article-by-article-doi.html', {
                 'request': request,
-                'article_meta': article_meta
+                'article_meta': article_meta,
+                'article_list_content': article_recommendation_with_article_meta
             }
         )
 
