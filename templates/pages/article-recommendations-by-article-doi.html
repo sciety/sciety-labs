@@ -6,10 +6,10 @@
 
   <header class="page-header page-header--list">
 
-    <h1>Article Recommendations for <a href="/articles/by?article_doi={{ article_meta.article_doi }}">{{ article_meta.article_title }}</a></h1>
+    <h1>Article Recommendations for <a href="/articles/by?article_doi={{ article_meta.article_doi }}">{{ article_meta.article_title | sanitize }}</a></h1>
 
     <div class="page-header__description">
-        <span>The following articles have been recommended by <a href="https://www.semanticscholar.org">Semantic Scholar</a>'s <a href="https://api.semanticscholar.org/api-docs/recommendations">Paper Recommendations API</a> as related content to <a href="/articles/by?article_doi={{ article_meta.article_doi }}">{{ article_meta.article_title }}</a></span>
+        <span>The following articles have been recommended by <a href="https://www.semanticscholar.org">Semantic Scholar</a>'s <a href="https://api.semanticscholar.org/api-docs/recommendations">Paper Recommendations API</a> as related content to <a href="/articles/by?article_doi={{ article_meta.article_doi }}">{{ article_meta.article_title | sanitize }}</a></span>
         {% if article_meta.author_name_list %}
         <span> by
         <ol class="card-authors" role="list" aria-describedby="article-card-author-list-{{ article_meta.article_doi }}">
