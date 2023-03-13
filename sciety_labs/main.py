@@ -398,7 +398,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             'pages/article-by-article-doi.html', {
                 'request': request,
                 'article_meta': article_meta,
-                'article_list_content': article_recommendation_with_article_meta,
+                'article_recommendation_list': article_recommendation_with_article_meta,
                 'article_recommendation_url': article_recommendation_url
             }
         )

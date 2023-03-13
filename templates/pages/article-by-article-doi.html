@@ -18,7 +18,7 @@
 
             <div class="article-actions">
                 <a href="https://doi.org/{{ article_meta.article_doi }}" class="full-article-button">Read the full article</a>
-                {% if article_list_content %}
+                {% if article_recommendation_list %}
                 <a href="#article-recommendations" class="article-recommendations-button">Related papers</a>
                 {% endif %}
             </div>
@@ -32,10 +32,10 @@
             </section>
             {% endif %}
 
-            {% if article_list_content %}
+            {% if article_recommendation_list %}
             <section id="article-recommendations">
                 <h2><a href="{{ article_recommendation_url }}">Related articles</a></h2>
-                {{ render_article_list_content(article_list_content) }}
+                {{ render_article_list_content(article_recommendation_list) }}
                 <a href="{{ article_recommendation_url }}">More</a>
             </section>
             {% endif %}
