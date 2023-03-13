@@ -1,3 +1,4 @@
+{% macro render_article_list_content(article_list_content) -%}
     <ul class="articles-list" role="list">{% for item in article_list_content %}
     <li class="articles-list__item">
         <article>
@@ -38,3 +39,4 @@
     </li>
     {% endfor %}
     </ul>
+{%- endmacro %}

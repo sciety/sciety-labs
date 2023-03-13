@@ -1,5 +1,5 @@
-{% include 'includes/page-header.html' with context %}
-
+{% from 'macros/page.html' import render_page with context  %}
+{% call render_page() %}
   <main id="mainContent">
   <div class="sciety-grid-two-columns">
 
@@ -12,5 +12,4 @@
 
   </div>
   </main>
-
-{% include 'includes/page-footer.html' with context %}
+{% endcall %}

@@ -1,5 +1,7 @@
-{% include 'includes/page-header.html' with context %}
-
+{% from 'macros/page.html' import render_page with context  %}
+{% from 'macros/article.html' import render_article_list_content with context  %}
+{% from 'macros/pagination.html' import render_pagination with context  %}
+{% call render_page() %}
   <main class="page-content" id="mainContent">
       
   <div class="sciety-grid-two-columns">
@@ -22,14 +24,12 @@
         <span class="visually-hidden"> of list content</span>
     </p>
 
-    {% include 'includes/article-list-content.html' with context %}
-
-    {% include 'includes/pagination.html' with context %}
+    {{ render_article_list_content(article_list_content) }}
+    {{ render_pagination(pagination) }}
 
   </header>
 
   </div>
 
   </main>
-
-{% include 'includes/page-footer.html' with context %}
+{% endcall %}

@@ -1,4 +1,5 @@
-{% include 'includes/page-header.html' with context %}
+{% from 'macros/page.html' import render_page with context  %}
+{% call render_page(page_container_class='home-page-container') %}
 
   <main id="mainContent">
       
@@ -46,5 +47,4 @@
 
 
   </main>
-
-{% include 'includes/page-footer.html' with context %}
+{% endcall %}

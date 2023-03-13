@@ -1,4 +1,6 @@
-{% include 'includes/page-header.html' with context %}
+{% from 'macros/page.html' import render_page with context  %}
+{% from 'macros/pagination.html' import render_pagination with context  %}
+{% call render_page() %}
 
   <main class="page-content" id="mainContent">
       
@@ -57,12 +59,11 @@
     {% endfor %}
     </ul>
 
-    {% include 'includes/pagination.html' with context %}
+    {{ render_pagination(pagination) }}
 
   </section>
 
   </div>
 
   </main>
-
-{% include 'includes/page-footer.html' with context %}
+{% endcall %}
