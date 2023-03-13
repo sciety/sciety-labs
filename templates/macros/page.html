@@ -1,0 +1,5 @@
+{% macro render_page() -%}
+    {% include 'includes/page-header.html' with context %}
+    {{ caller() }}
+    {% include 'includes/page-footer.html' with context %}
+{%- endmacro %}
