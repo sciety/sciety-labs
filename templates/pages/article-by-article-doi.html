@@ -18,9 +18,7 @@
 
             <div class="article-actions">
                 <a href="https://doi.org/{{ article_meta.article_doi }}" class="full-article-button">Read the full article</a>
-                {% if article_recommendation_list %}
                 <a href="#article-recommendations" class="article-recommendations-button">Related papers</a>
-                {% endif %}
             </div>
 
             {% if article_meta.abstract %}
@@ -37,6 +35,11 @@
                 <h2><a href="{{ article_recommendation_url }}">Related articles</a></h2>
                 {{ render_article_list_content(article_recommendation_list) }}
                 <a href="{{ article_recommendation_url }}">More</a>
+            </section>
+            {% else %}
+            <section id="article-recommendations">
+                <h2>Related articles</h2>
+                <p>Related articles are currently not available for this article.</p>  
             </section>
             {% endif %}
 
