@@ -95,3 +95,7 @@
   color: rgb(255, 255, 255);
   text-decoration: none;
 }
+
+.article-actions__external-links {
+    margin-top: 1em;
+}
