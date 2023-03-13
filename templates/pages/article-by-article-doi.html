@@ -19,6 +19,9 @@
             <div class="article-actions">
                 <a href="https://doi.org/{{ article_meta.article_doi }}" class="full-article-button">Read the full article</a>
                 <a href="#article-recommendations" class="article-recommendations-button">Related papers</a>
+                <div class="article-actions__external-links">
+                <a href="https://sciety.org/articles/activity/{{ article_meta.article_doi }}" class="article-on-sciety-button">This article on Sciety</a>
+                </div>
             </div>
 
             {% if article_meta.abstract %}
