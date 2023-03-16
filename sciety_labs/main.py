@@ -31,7 +31,11 @@ from sciety_labs.providers.sciety_event import ScietyEventProvider
 from sciety_labs.providers.semantic_scholar import SemanticScholarProvider
 from sciety_labs.providers.twitter import get_twitter_user_article_list_provider_or_none
 from sciety_labs.utils.bq_cache import BigQueryTableModifiedInMemorySingleObjectCache
-from sciety_labs.utils.cache import ChainedObjectCache, DiskSingleObjectCache
+from sciety_labs.utils.cache import (
+    ChainedObjectCache,
+    DiskSingleObjectCache,
+    InMemorySingleObjectCache
+)
 from sciety_labs.utils.pagination import (
     get_page_iterable,
     get_url_pagination_state_for_url
@@ -122,7 +126,19 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         requests_session=cached_requests_session
     )
 
-    google_sheet_article_image_provider = GoogleSheetArticleImageProvider()
+    article_image_mapping_cache = ChainedObjectCache([
+        InMemorySingleObjectCache(
+            max_age_in_seconds=max_age_in_seconds
+        ),
+        DiskSingleObjectCache(
+            file_path=cache_dir / 'article_image_mapping_cache.pickle',
+            max_age_in_seconds=max_age_in_seconds
+        )
+    ])
+
+    google_sheet_article_image_provider = GoogleSheetArticleImageProvider(
+        article_image_mapping_cache=article_image_mapping_cache
+    )
 
     UpdateThread(
         update_interval_in_secs=update_interval_in_secs,

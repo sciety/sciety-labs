@@ -5,6 +5,7 @@ import google.auth
 import googleapiclient.discovery
 
 from sciety_labs.models.article import ArticleImages, ArticleMention
+from sciety_labs.utils.cache import DummySingleObjectCache, SingleObjectCache
 
 
 LOGGER = logging.getLogger(__name__)
@@ -20,15 +21,20 @@ class GoogleSheetArticleImageProvider:
     def __init__(
         self,
         sheet_id: str = DEFAULT_SHEET_ID,
-        sheet_range: str = DEFAULT_SHEET_RANGE
+        sheet_range: str = DEFAULT_SHEET_RANGE,
+        article_image_mapping_cache: Optional[SingleObjectCache] = None
     ) -> None:
         self.sheet_id = sheet_id
         self.sheet_range = sheet_range
-        self.image_url_by_doi: Mapping[str, str] = {}
-        LOGGER.info('sheet_id: %r, sheet_range: %r', sheet_id, sheet_range)
-        self.reload()
+        if article_image_mapping_cache is None:
+            article_image_mapping_cache = DummySingleObjectCache()
+        self.article_image_mapping_cache = article_image_mapping_cache
 
     def load_mapping(self) -> Mapping[str, str]:
+        LOGGER.info(
+            'Loading article image mapping from sheet_id: %r, sheet_range: %r',
+            self.sheet_id, self.sheet_range
+        )
         credentials, _ = google.auth.default(scopes=SCOPES)
         service = googleapiclient.discovery.build('sheets', 'v4', credentials=credentials)
         sheets = service.spreadsheets()
@@ -40,11 +46,15 @@ class GoogleSheetArticleImageProvider:
         LOGGER.info('sheet values: %r', values)
         return dict(values[1:])
 
-    def reload(self):
-        self.image_url_by_doi = self.load_mapping()
+    def get_mapping(self) -> Mapping[str, str]:
+        return self.article_image_mapping_cache.get_or_load(
+            load_fn=self.load_mapping
+        )
 
     def get_article_image_url_by_doi(self, article_doi: str) -> Optional[str]:
-        return self.image_url_by_doi.get(article_doi)
+        mapping = self.get_mapping()
+        LOGGER.info('mapping: %r', mapping)
+        return mapping.get(article_doi)
 
     def get_article_images_by_doi(self, article_doi: str) -> ArticleImages:
         return ArticleImages(
