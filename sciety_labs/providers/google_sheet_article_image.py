@@ -1,17 +1,19 @@
-from typing import Iterable, Optional
+from typing import Iterable, Mapping, Optional
 
 from sciety_labs.models.article import ArticleImages, ArticleMention
 
 
 class GoogleSheetArticleImageProvider:
+    def __init__(self) -> None:
+        self.image_url_by_doi: Mapping[str, str] = {}
+        self.image_url_by_doi['10.1101/2023.01.12.523782'] = (
+            'https://storage.googleapis.com/public-article-images/generated/'
+            '20230315235915-Cell%20lines%2C%20photography%2C%20canon%2C%20'
+            'blurred%20background-1.jpg'
+        )
+
     def get_article_image_url_by_doi(self, article_doi: str) -> Optional[str]:
-        if article_doi == '10.1101/2023.01.12.523782':
-            return (
-                'https://storage.googleapis.com/public-article-images/generated/'
-                '20230315235915-Cell%20lines%2C%20photography%2C%20canon%2C%20'
-                'blurred%20background-1.jpg'
-            )
-        return None
+        return self.image_url_by_doi.get(article_doi)
 
     def get_article_images_by_doi(self, article_doi: str) -> ArticleImages:
         return ArticleImages(
