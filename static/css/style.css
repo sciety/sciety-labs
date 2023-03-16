@@ -108,8 +108,8 @@
 }
 
 .article-card__striking_image {
-    float: left;
+    float: right;
     width: 8em;
     height: 8em;
-    margin-right: 1em;
+    margin-left: 1em;
 }
