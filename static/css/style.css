@@ -109,7 +109,9 @@
 
 .article-card__striking_image {
     float: right;
-    width: 8em;
-    height: 8em;
-    margin-left: 1em;
+    border-radius: 6px;
+    border: 3px rgb(207, 216, 220) solid;
+    width: 64px;
+    height: 64px;
+    margin-left: 0.5rem;
 }
