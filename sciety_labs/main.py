@@ -110,9 +110,8 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         query_results_cache=query_results_cache
     )
 
-    _sciety_event_dict_list = sciety_event_provider.get_sciety_event_dict_list()
-    lists_model = ScietyEventListsModel(_sciety_event_dict_list)
-    evaluation_stats_model = ScietyEventEvaluationStatsModel(_sciety_event_dict_list)
+    lists_model = ScietyEventListsModel([])
+    evaluation_stats_model = ScietyEventEvaluationStatsModel([])
 
     twitter_user_article_list_provider = get_twitter_user_article_list_provider_or_none(
         requests_session=cached_requests_session
@@ -141,7 +140,8 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         refresh_manually=True
     )
 
-    def check_refresh_data():
+    def check_or_reload_data():
+        # Note: this may still use a cache
         _sciety_event_dict_list = sciety_event_provider.get_sciety_event_dict_list()
         lists_model.apply_events(_sciety_event_dict_list)
         evaluation_stats_model.apply_events(_sciety_event_dict_list)
@@ -149,8 +149,11 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
 
     UpdateThread(
         update_interval_in_secs=update_interval_in_secs,
-        update_fn=check_refresh_data
+        update_fn=check_or_reload_data
     ).start()
+
+    LOGGER.info('Preloading data')
+    check_or_reload_data()
 
     templates = Jinja2Templates(directory='templates')
     templates.env.filters['sanitize'] = get_sanitized_string_as_safe_markup
