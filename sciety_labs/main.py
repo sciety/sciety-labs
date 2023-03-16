@@ -137,14 +137,19 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     ])
 
     google_sheet_article_image_provider = GoogleSheetArticleImageProvider(
-        article_image_mapping_cache=article_image_mapping_cache
+        article_image_mapping_cache=article_image_mapping_cache,
+        refresh_manually=True
     )
+
+    def check_refresh_data():
+        lists_model.apply_events(
+            sciety_event_provider.get_sciety_event_dict_list()
+        )
+        google_sheet_article_image_provider.refresh()
 
     UpdateThread(
         update_interval_in_secs=update_interval_in_secs,
-        update_fn=lambda: lists_model.apply_events(
-            sciety_event_provider.get_sciety_event_dict_list()
-        )
+        update_fn=check_refresh_data
     ).start()
 
     templates = Jinja2Templates(directory='templates')

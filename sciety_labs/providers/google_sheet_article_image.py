@@ -5,7 +5,12 @@ import google.auth
 import googleapiclient.discovery
 
 from sciety_labs.models.article import ArticleImages, ArticleMention
-from sciety_labs.utils.cache import DummySingleObjectCache, SingleObjectCache
+from sciety_labs.utils.cache import (
+    ChainedObjectCache,
+    DummySingleObjectCache,
+    InMemorySingleObjectCache,
+    SingleObjectCache
+)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -22,13 +27,20 @@ class GoogleSheetArticleImageProvider:
         self,
         sheet_id: str = DEFAULT_SHEET_ID,
         sheet_range: str = DEFAULT_SHEET_RANGE,
-        article_image_mapping_cache: Optional[SingleObjectCache] = None
+        refresh_manually: bool = False,
+        article_image_mapping_cache: Optional[SingleObjectCache[Mapping[str, str]]] = None
     ) -> None:
         self.sheet_id = sheet_id
         self.sheet_range = sheet_range
         if article_image_mapping_cache is None:
             article_image_mapping_cache = DummySingleObjectCache()
         self.article_image_mapping_cache = article_image_mapping_cache
+        self.current_article_image_mapping_cache = article_image_mapping_cache
+        if refresh_manually:
+            self.current_article_image_mapping_cache = ChainedObjectCache[Mapping[str, str]]([
+                InMemorySingleObjectCache(max_age_in_seconds=None),
+                article_image_mapping_cache
+            ])
 
     def load_mapping(self) -> Mapping[str, str]:
         LOGGER.info(
@@ -48,6 +60,11 @@ class GoogleSheetArticleImageProvider:
 
     def get_mapping(self) -> Mapping[str, str]:
         return self.article_image_mapping_cache.get_or_load(
+            load_fn=self.load_mapping
+        )
+
+    def refresh(self):
+        self.article_image_mapping_cache.reload(
             load_fn=self.load_mapping
         )
 
