@@ -90,3 +90,29 @@ class TestGetArticleMetadataFromCrossrefMetadata:
         assert result.author_name_list == [
             'John Smith Group'
         ]
+
+    def test_should_extract_author_names_from_family_field_without_given_name(self):
+        result = get_article_metadata_from_crossref_metadata(
+            DOI_1,
+            {
+                **CROSSREF_RESPONSE_MESSAGE_1,
+                'author': [{
+                    'family': 'Smith'
+                }]
+            }
+        )
+        assert result.author_name_list == [
+            'Smith'
+        ]
+
+    def test_should_extract_author_name_as_question_mark_without_valid_name_field(self):
+        result = get_article_metadata_from_crossref_metadata(
+            DOI_1,
+            {
+                **CROSSREF_RESPONSE_MESSAGE_1,
+                'author': [{}]
+            }
+        )
+        assert result.author_name_list == [
+            '?'
+        ]

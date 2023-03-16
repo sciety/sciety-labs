@@ -18,9 +18,9 @@ def get_author_name_from_crossref_metadata_author_dict(
     if author_dict.get('name'):
         return author_dict['name']
     return ' '.join([
-        author_dict['given'],
-        author_dict['family']
-    ])
+        author_dict.get('given', ''),
+        author_dict.get('family', '')
+    ]).strip() or '?'
 
 
 def remove_namespaces_from_xml_node(root: lxml.etree._Element):
