@@ -142,9 +142,9 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     )
 
     def check_refresh_data():
-        lists_model.apply_events(
-            sciety_event_provider.get_sciety_event_dict_list()
-        )
+        _sciety_event_dict_list = sciety_event_provider.get_sciety_event_dict_list()
+        lists_model.apply_events(_sciety_event_dict_list)
+        evaluation_stats_model.apply_events(_sciety_event_dict_list)
         google_sheet_article_image_provider.refresh()
 
     UpdateThread(
