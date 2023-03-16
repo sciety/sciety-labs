@@ -101,10 +101,12 @@
 }
 
 .article__striking_image {
-    float: left;
-    width: 8em;
-    height: 8em;
-    margin-right: 1em;
+    float: right;
+    border-radius: 6px;
+    border: 3px rgb(207, 216, 220) solid;
+    width: 128px;
+    height: 128px;
+    margin-left: 0.5rem;
 }
 
 .article-card__striking_image {
