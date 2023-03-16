@@ -26,11 +26,16 @@ from sciety_labs.models.lists import OwnerMetaData, OwnerTypes, ScietyEventLists
 from sciety_labs.providers.crossref import (
     CrossrefMetaDataProvider
 )
+from sciety_labs.providers.google_sheet_article_image import GoogleSheetArticleImageProvider
 from sciety_labs.providers.sciety_event import ScietyEventProvider
 from sciety_labs.providers.semantic_scholar import SemanticScholarProvider
 from sciety_labs.providers.twitter import get_twitter_user_article_list_provider_or_none
 from sciety_labs.utils.bq_cache import BigQueryTableModifiedInMemorySingleObjectCache
-from sciety_labs.utils.cache import ChainedObjectCache, DiskSingleObjectCache
+from sciety_labs.utils.cache import (
+    ChainedObjectCache,
+    DiskSingleObjectCache,
+    InMemorySingleObjectCache
+)
 from sciety_labs.utils.pagination import (
     get_page_iterable,
     get_url_pagination_state_for_url
@@ -105,9 +110,8 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         query_results_cache=query_results_cache
     )
 
-    _sciety_event_dict_list = sciety_event_provider.get_sciety_event_dict_list()
-    lists_model = ScietyEventListsModel(_sciety_event_dict_list)
-    evaluation_stats_model = ScietyEventEvaluationStatsModel(_sciety_event_dict_list)
+    lists_model = ScietyEventListsModel([])
+    evaluation_stats_model = ScietyEventEvaluationStatsModel([])
 
     twitter_user_article_list_provider = get_twitter_user_article_list_provider_or_none(
         requests_session=cached_requests_session
@@ -121,12 +125,35 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         requests_session=cached_requests_session
     )
 
+    article_image_mapping_cache = ChainedObjectCache([
+        InMemorySingleObjectCache(
+            max_age_in_seconds=max_age_in_seconds
+        ),
+        DiskSingleObjectCache(
+            file_path=cache_dir / 'article_image_mapping_cache.pickle',
+            max_age_in_seconds=max_age_in_seconds
+        )
+    ])
+
+    google_sheet_article_image_provider = GoogleSheetArticleImageProvider(
+        article_image_mapping_cache=article_image_mapping_cache,
+        refresh_manually=True
+    )
+
+    def check_or_reload_data():
+        # Note: this may still use a cache
+        _sciety_event_dict_list = sciety_event_provider.get_sciety_event_dict_list()
+        lists_model.apply_events(_sciety_event_dict_list)
+        evaluation_stats_model.apply_events(_sciety_event_dict_list)
+        google_sheet_article_image_provider.refresh()
+
     UpdateThread(
         update_interval_in_secs=update_interval_in_secs,
-        update_fn=lambda: lists_model.apply_events(
-            sciety_event_provider.get_sciety_event_dict_list()
-        )
+        update_fn=check_or_reload_data
     ).start()
+
+    LOGGER.info('Preloading data')
+    check_or_reload_data()
 
     templates = Jinja2Templates(directory='templates')
     templates.env.filters['sanitize'] = get_sanitized_string_as_safe_markup
@@ -181,13 +208,19 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 article_mention_iterable
             )
         )
-        article_mention_with_article_meta = list(
+        article_mention_with_article_meta = (
             crossref_metadata_provider.iter_article_mention_with_article_meta(
                 get_page_iterable(
                     article_mention_iterable, page=page, items_per_page=items_per_page
                 )
             )
         )
+        article_mention_with_article_meta = (
+            google_sheet_article_image_provider.iter_article_mention_with_article_image_url(
+                article_mention_with_article_meta
+            )
+        )
+        article_mention_with_article_meta = list(article_mention_with_article_meta)
         LOGGER.info('article_mention_with_article_meta: %r', article_mention_with_article_meta)
         return article_mention_with_article_meta
 
@@ -364,6 +397,8 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         article_meta = crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
         LOGGER.info('article_meta=%r', article_meta)
 
+        article_images = google_sheet_article_image_provider.get_article_images_by_doi(article_doi)
+
         try:
             all_article_recommendations = list(
                 iter_preprint_article_mention(
@@ -398,6 +433,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             'pages/article-by-article-doi.html', {
                 'request': request,
                 'article_meta': article_meta,
+                'article_images': article_images,
                 'article_recommendation_list': article_recommendation_with_article_meta,
                 'article_recommendation_url': article_recommendation_url
             }

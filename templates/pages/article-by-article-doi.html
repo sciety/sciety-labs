@@ -5,6 +5,14 @@
       
         <div class="sciety-grid-two-columns">
             <header class="page-header page-header--article">
+                {% if article_images and article_images.image_url %}
+                <img
+                    src="{{ article_images.image_url }}"
+                    alt="Striking image (AI generated)"
+                    class="article__striking_image"
+                >
+                {% endif %}
+
                 <h1>{{ article_meta.article_title | sanitize }}</h1>
 
                 {% if article_meta.author_name_list %}

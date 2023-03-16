@@ -3,6 +3,14 @@
     <li class="articles-list__item">
         <article>
             <section class="article-card">
+                {% if item.article_images and item.article_images.image_url %}
+                <img
+                    src="{{ item.article_images.image_url }}"
+                    alt="Striking image (AI generated)"
+                    class="article-card__striking_image"
+                >
+                {% endif %}
+
                 <h3 class="article-card__title"><a class="article-card__link" href="/articles/by?article_doi={{ item.article_doi }}">{{ item.article_meta.article_title | sanitize }}</a></h3>
 
                 <div class="hidden" id="article-card-author-list-{{ item.article_doi }}">This article's authors</div>

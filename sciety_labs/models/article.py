@@ -100,6 +100,10 @@ class ArticleStats(NamedTuple):
     evaluation_count: int = 0
 
 
+class ArticleImages(NamedTuple):
+    image_url: Optional[str] = None
+
+
 @dataclasses.dataclass(frozen=True)
 class ArticleMention:
     article_doi: str
@@ -108,6 +112,7 @@ class ArticleMention:
     external_reference_by_name: Mapping[str, str] = dataclasses.field(default_factory=dict)
     article_meta: Optional[ArticleMetaData] = None
     article_stats: Optional[ArticleStats] = None
+    article_images: Optional[ArticleImages] = None
 
     def _replace(self, **changes) -> 'ArticleMention':
         return dataclasses.replace(self, **changes)
