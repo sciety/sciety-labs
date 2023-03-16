@@ -99,3 +99,17 @@
 .article-actions__external-links {
     margin-top: 1em;
 }
+
+.article__striking_image {
+    float: left;
+    width: 8em;
+    height: 8em;
+    margin-right: 1em;
+}
+
+.article-card__striking_image {
+    float: left;
+    width: 8em;
+    height: 8em;
+    margin-right: 1em;
+}
