@@ -33,11 +33,12 @@ class BigQueryTableModifiedInMemorySingleObjectCache(SingleObjectCache[T]):
             table_id=self.table_id
         )
 
-    def get_or_load(self, load_fn: Callable[[], T]) -> T:
+    def get_or_load(self, load_fn: Callable[[], T], reload: bool = False) -> T:
         with self._lock:
             last_modified_datetime = self.get_table_last_modified_datetime()
             if (
-                self._last_table_modified_datetime
+                not reload
+                and self._last_table_modified_datetime
                 and last_modified_datetime >= self._last_table_modified_datetime
             ):
                 LOGGER.info(
