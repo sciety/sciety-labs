@@ -15,6 +15,12 @@ def _sciety_event_provider_class_mock() -> Iterable[MagicMock]:
         yield mock
 
 
+@pytest.fixture(name='google_sheet_article_image_provider_class_mock', autouse=True)
+def _google_sheet_article_image_provider_class_mock() -> Iterable[MagicMock]:
+    with patch.object(main_module, 'GoogleSheetArticleImageProvider') as mock:
+        yield mock
+
+
 def test_read_main():
     client = TestClient(create_app())
     response = client.get('/')
