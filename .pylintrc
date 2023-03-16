@@ -7,6 +7,9 @@ disable=
     missing-docstring,
     too-few-public-methods
 
+ignored-classes=
+    googleapiclient.discovery.Resource
+
 [SIMILARITIES]
 min-similarity-lines=5
 ignore-comments=yes
