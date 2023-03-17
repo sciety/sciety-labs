@@ -56,7 +56,7 @@ class GoogleSheetArticleImageProvider:
         ).execute()
         values = result.get('values', [])
         LOGGER.info('sheet values: %r', values)
-        return dict(values[1:])
+        return dict((row for row in values[1:] if len(row) == 2 and row[1]))
 
     def get_mapping(self) -> Mapping[str, str]:
         return self.article_image_mapping_cache.get_or_load(
