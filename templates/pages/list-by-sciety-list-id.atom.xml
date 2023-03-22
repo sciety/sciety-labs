@@ -13,12 +13,29 @@
         <summary>{{ item.article_meta.article_title }}</summary>
         <id>doi:{{ item.article_doi }}</id>
         {% if item.comment %}
-        <content type="xhtml">
-            <div xmlns="http://www.w3.org/1999/xhtml">
+        <summary type="xhtml">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="comment">
                 <p>{{ item.comment }}</p>
+            </div>
+        </summary>
+        {% endif %}
+
+        {% if item.article_meta.abstract %}
+        <content type="xhtml">
+            {% if item.comment %}
+            <div xmlns="http://www.w3.org/1999/xhtml" class="comment">
+                <p>{{ item.comment }}</p>
+            </div>
+            {% endif %}
+            <div xmlns="http://www.w3.org/1999/xhtml" class="article-abstract">
+                <h2>Abstract</h2>
+                <div>
+                    {{ item.article_meta.abstract | sanitize }}
+                </div>
             </div>
         </content>
         {% endif %}
+
         <author>
             <name>{{ list_summary_data.owner.display_name }}</name>
         </author>
