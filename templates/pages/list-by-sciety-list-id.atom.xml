@@ -12,11 +12,13 @@
         <published>{{ item.created_at_isoformat }}</published>
         <summary>{{ item.article_meta.article_title }}</summary>
         <id>doi:{{ item.article_doi }}</id>
+        {% if item.comment %}
         <content type="xhtml">
             <div xmlns="http://www.w3.org/1999/xhtml">
                 <p>{{ item.comment }}</p>
             </div>
         </content>
+        {% endif %}
         <author>
             <name>{{ list_summary_data.owner.display_name }}</name>
         </author>
