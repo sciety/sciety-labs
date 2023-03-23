@@ -18,6 +18,7 @@ import requests_cache
 import markupsafe
 
 import bleach
+from sciety_labs.config.site_config import get_site_config_from_environment_variables
 
 from sciety_labs.models.article import ArticleMention
 from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
@@ -78,6 +79,8 @@ def get_sanitized_string_as_safe_markup(text: str) -> markupsafe.Markup:
 
 
 def create_app():  # pylint: disable=too-many-locals, too-many-statements
+    site_config = get_site_config_from_environment_variables()
+
     gcp_project_name = 'elife-data-pipeline'
     sciety_event_table_id = f'{gcp_project_name}.de_proto.sciety_event_v1'
     update_interval_in_secs = 60 * 60  # 1 hour
@@ -157,6 +160,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
 
     templates = Jinja2Templates(directory='templates')
     templates.env.filters['sanitize'] = get_sanitized_string_as_safe_markup
+    templates.env.globals['site_config'] = site_config
 
     app = FastAPI()
     app.mount('/static', StaticFiles(directory='static', html=False), name='static')

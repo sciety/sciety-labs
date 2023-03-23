@@ -1,0 +1,5 @@
+{% macro render_cookiebot(cookiebot_identifier) -%}
+    {% if cookiebot_identifier %}
+    <script id="Cookiebot" src="https://consent.cookiebot.com/uc.js" data-cbid="{{ cookiebot_identifier }}" data-blockingmode="auto"></script>
+    {% endif %}
+{%- endmacro %}

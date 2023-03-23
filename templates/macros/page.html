@@ -1,3 +1,5 @@
+{% from 'macros/web-tracking.html' import render_cookiebot with context  %}
+
 {% macro render_page(page_container_class='standard-page-container') -%}
 <!doctype html>
 <html lang="en" prefix="og: http://ogp.me/ns#">
@@ -28,6 +30,8 @@
   <meta name="msapplication-TileColor" content="#cf4500">
   <meta name="msapplication-config" content="/static/sciety/images/favicons/generated/browserconfig.xml">
   <meta name="theme-color" content="#ffffff">
+
+  {{ render_cookiebot(site_config.cookiebot_identifier) }}
 </head>
 
 <body>
