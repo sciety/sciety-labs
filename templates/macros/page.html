@@ -1,3 +1,5 @@
+{% from 'macros/web-tracking.html' import render_cookiebot, render_gtm_script_block, render_gtm_noscript_block, render_gtag_settings_script_block with context  %}
+
 {% macro render_page(page_container_class='standard-page-container') -%}
 <!doctype html>
 <html lang="en" prefix="og: http://ogp.me/ns#">
@@ -28,9 +30,14 @@
   <meta name="msapplication-TileColor" content="#cf4500">
   <meta name="msapplication-config" content="/static/sciety/images/favicons/generated/browserconfig.xml">
   <meta name="theme-color" content="#ffffff">
+
+  {{ render_gtag_settings_script_block() }}
+  {{ render_cookiebot(site_config.cookiebot_identifier) }}
+  {{ render_gtm_script_block(site_config.google_tag_manager_id) }}
 </head>
 
 <body>
+  {{ render_gtm_noscript_block(site_config.google_tag_manager_id) }}
   <div class="{{ page_container_class }}">
     <header class="site-header">
   <a href="#mainContent" class="visually-hidden">Skip navigation</a>

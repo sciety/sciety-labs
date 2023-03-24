@@ -37,6 +37,15 @@ Bearer <Twitter API token>
 
 If the file is not present, the app will still start but the Twitter related endpoint will not work.
 
+## Configuration
+
+The following environment variables can be used to configure the site:
+
+| name | description |
+| ---- | ----------- |
+| SCIETY_LABS_COOKIEBOT_IDENTIFIER | The cookiebot identifier. (Not included if blank) |
+| SCIETY_LABS_GOOGLE_TAG_MANAGER_ID | The Google Tag Manager (GTM) id. (Not included if blank) |
+
 ## Development using a Python Virtual Environment (venv)
 
 ### Install Python via pyenv
