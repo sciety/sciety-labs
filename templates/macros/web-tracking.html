@@ -4,6 +4,20 @@
     {% endif %}
 {%- endmacro %}
 
+{% macro render_gtag_settings_script_block() -%}
+  <script data-cookieconsent="ignore">
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+
+    gtag('consent', 'default', {
+      'ad_storage': 'denied',
+      'analytics_storage': 'denied',
+      'wait_for_update': 500,
+    });
+    gtag("set", "ads_data_redaction", true);
+  </script>
+{%- endmacro %}
+
 {% macro render_gtm_script_block(google_tag_manager_id) -%}
     {% if google_tag_manager_id %}
     <script data-cookieconsent="ignore">
