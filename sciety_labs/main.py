@@ -80,6 +80,7 @@ def get_sanitized_string_as_safe_markup(text: str) -> markupsafe.Markup:
 
 def create_app():  # pylint: disable=too-many-locals, too-many-statements
     site_config = get_site_config_from_environment_variables()
+    LOGGER.info('site_config: %r', site_config)
 
     gcp_project_name = 'elife-data-pipeline'
     sciety_event_table_id = f'{gcp_project_name}.de_proto.sciety_event_v1'

@@ -1,4 +1,4 @@
-{% from 'macros/web-tracking.html' import render_cookiebot with context  %}
+{% from 'macros/web-tracking.html' import render_cookiebot, render_gtm_script_block, render_gtm_noscript_block with context  %}
 
 {% macro render_page(page_container_class='standard-page-container') -%}
 <!doctype html>
@@ -32,9 +32,11 @@
   <meta name="theme-color" content="#ffffff">
 
   {{ render_cookiebot(site_config.cookiebot_identifier) }}
+  {{ render_gtm_script_block(site_config.google_tag_manager_id) }}
 </head>
 
 <body>
+  {{ render_gtm_noscript_block(site_config.google_tag_manager_id) }}
   <div class="{{ page_container_class }}">
     <header class="site-header">
   <a href="#mainContent" class="visually-hidden">Skip navigation</a>
