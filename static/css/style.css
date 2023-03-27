@@ -21,6 +21,15 @@
     float: right;
 }
 
+.list-card__list-image {
+    border-radius: 6px;
+    border: 3px rgb(207, 216, 220) solid;
+    width: 52px;
+    height: 52px;
+    margin-right: 0.5rem;
+    float: left;
+}
+
 .page-header__links ul {
     list-style: none;
     padding-left: 0;
