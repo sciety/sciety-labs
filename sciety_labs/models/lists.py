@@ -5,6 +5,7 @@ from threading import Lock
 from typing import Dict, Iterable, NamedTuple, Optional, Protocol, Sequence, Sized
 
 from sciety_labs.models.article import ArticleMention, get_doi_from_article_id_or_none
+from sciety_labs.models.image import ObjectImages
 
 
 class ListMetaData(NamedTuple):
@@ -103,6 +104,7 @@ class ListSummaryData(NamedTuple):
     owner: OwnerMetaData
     article_count: int
     last_updated_datetime: Optional[datetime]
+    list_images: Optional[ObjectImages] = None
 
     @property
     def last_updated_date_isoformat(self) -> str:
