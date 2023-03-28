@@ -30,6 +30,15 @@
     float: left;
 }
 
+.page-header__list-image {
+    float: left;
+    border-radius: 6px;
+    border: 3px rgb(207, 216, 220) solid;
+    width: 128px;
+    height: 128px;
+    margin-right: 1rem;
+}
+
 .page-header__links ul {
     list-style: none;
     padding-left: 0;

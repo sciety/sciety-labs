@@ -269,6 +269,9 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         enable_pagination: bool = True
     ):
         list_summary_data = lists_model.get_list_summary_data_by_list_id(list_id)
+        LOGGER.info('list_summary_data: %r', list_summary_data)
+        list_images = google_sheet_list_image_provider.get_list_images_by_list_id(list_id)
+        LOGGER.info('list_images: %r', list_images)
         item_count = list_summary_data.article_count
         article_mention_with_article_meta = (
             _get_page_article_mention_with_article_meta_for_article_mention_iterable(
@@ -299,6 +302,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 'rss_url': rss_url,
                 'owner_url': get_owner_url(list_summary_data.owner),
                 'list_summary_data': list_summary_data,
+                'list_images': list_images,
                 'article_list_content': article_mention_with_article_meta,
                 'pagination': url_pagination_state
             }
@@ -312,6 +316,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         page: int = 1
     ):
         list_summary_data = lists_model.get_list_summary_data_by_list_id(list_id)
+        LOGGER.info('list_summary_data: %r', list_summary_data)
         article_mention_with_article_meta = (
             _get_page_article_mention_with_article_meta_for_article_mention_iterable(
                 lists_model.iter_article_mentions_by_list_id(list_id),

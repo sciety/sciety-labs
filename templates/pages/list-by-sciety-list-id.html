@@ -8,6 +8,13 @@
   <div class="sciety-grid-two-columns">
 
   <header class="page-header page-header--list">
+    {% if list_images and list_images.image_url %}
+    <img
+        src="{{ list_images.image_url }}"
+        alt="List image (AI generated)"
+        class="page-header__list-image"
+    >
+    {% endif %}
 
     <h1>{{ list_summary_data.list_meta.list_name }}</h1>
 
