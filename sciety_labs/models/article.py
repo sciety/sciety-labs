@@ -3,6 +3,8 @@ from datetime import datetime
 import re
 from typing import Mapping, NamedTuple, Optional, Sequence
 
+from sciety_labs.models.image import ObjectImages
+
 
 DOI_ARTICLE_ID_PREFIX = 'doi:'
 
@@ -100,10 +102,6 @@ class ArticleStats(NamedTuple):
     evaluation_count: int = 0
 
 
-class ArticleImages(NamedTuple):
-    image_url: Optional[str] = None
-
-
 @dataclasses.dataclass(frozen=True)
 class ArticleMention:
     article_doi: str
@@ -112,7 +110,7 @@ class ArticleMention:
     external_reference_by_name: Mapping[str, str] = dataclasses.field(default_factory=dict)
     article_meta: Optional[ArticleMetaData] = None
     article_stats: Optional[ArticleStats] = None
-    article_images: Optional[ArticleImages] = None
+    article_images: Optional[ObjectImages] = None
 
     def _replace(self, **changes) -> 'ArticleMention':
         return dataclasses.replace(self, **changes)

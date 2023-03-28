@@ -27,7 +27,10 @@ from sciety_labs.models.lists import OwnerMetaData, OwnerTypes, ScietyEventLists
 from sciety_labs.providers.crossref import (
     CrossrefMetaDataProvider
 )
-from sciety_labs.providers.google_sheet_article_image import GoogleSheetArticleImageProvider
+from sciety_labs.providers.google_sheet_image import (
+    GoogleSheetArticleImageProvider,
+    GoogleSheetListImageProvider
+)
 from sciety_labs.providers.sciety_event import ScietyEventProvider
 from sciety_labs.providers.semantic_scholar import SemanticScholarProvider
 from sciety_labs.providers.twitter import get_twitter_user_article_list_provider_or_none
@@ -140,7 +143,22 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     ])
 
     google_sheet_article_image_provider = GoogleSheetArticleImageProvider(
-        article_image_mapping_cache=article_image_mapping_cache,
+        image_mapping_cache=article_image_mapping_cache,
+        refresh_manually=True
+    )
+
+    list_image_mapping_cache = ChainedObjectCache([
+        InMemorySingleObjectCache(
+            max_age_in_seconds=max_age_in_seconds
+        ),
+        DiskSingleObjectCache(
+            file_path=cache_dir / 'list_image_mapping_cache.pickle',
+            max_age_in_seconds=max_age_in_seconds
+        )
+    ])
+
+    google_sheet_list_image_provider = GoogleSheetListImageProvider(
+        image_mapping_cache=list_image_mapping_cache,
         refresh_manually=True
     )
 
@@ -150,6 +168,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         lists_model.apply_events(_sciety_event_dict_list)
         evaluation_stats_model.apply_events(_sciety_event_dict_list)
         google_sheet_article_image_provider.refresh()
+        google_sheet_list_image_provider.refresh()
 
     UpdateThread(
         update_interval_in_secs=update_interval_in_secs,
@@ -182,24 +201,36 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
 
     @app.get('/', response_class=HTMLResponse)
     async def index(request: Request):
-        return templates.TemplateResponse(
-            'pages/index.html', {
-                'request': request,
-                'user_lists': lists_model.get_most_active_user_lists(
+        list_summary_data_list = list(
+            google_sheet_list_image_provider.iter_list_summary_data_with_list_image_url(
+                lists_model.get_most_active_user_lists(
                     top_n=3,
                     min_article_count=min_article_count
                 )
+            )
+        )
+        LOGGER.info('list_summary_data_list: %r', list_summary_data_list)
+        return templates.TemplateResponse(
+            'pages/index.html', {
+                'request': request,
+                'user_lists': list_summary_data_list
             }
         )
 
     @app.get('/lists', response_class=HTMLResponse)
     async def lists(request: Request):
+        list_summary_data_list = list(
+            google_sheet_list_image_provider.iter_list_summary_data_with_list_image_url(
+                lists_model.get_most_active_user_lists(
+                    min_article_count=min_article_count
+                )
+            )
+        )
+        LOGGER.info('list_summary_data_list: %r', list_summary_data_list)
         return templates.TemplateResponse(
             'pages/lists.html', {
                 'request': request,
-                'user_lists': lists_model.get_most_active_user_lists(
-                    min_article_count=min_article_count
-                )
+                'user_lists': list_summary_data_list
             }
         )
 
@@ -238,6 +269,9 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         enable_pagination: bool = True
     ):
         list_summary_data = lists_model.get_list_summary_data_by_list_id(list_id)
+        LOGGER.info('list_summary_data: %r', list_summary_data)
+        list_images = google_sheet_list_image_provider.get_list_images_by_list_id(list_id)
+        LOGGER.info('list_images: %r', list_images)
         item_count = list_summary_data.article_count
         article_mention_with_article_meta = (
             _get_page_article_mention_with_article_meta_for_article_mention_iterable(
@@ -268,6 +302,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 'rss_url': rss_url,
                 'owner_url': get_owner_url(list_summary_data.owner),
                 'list_summary_data': list_summary_data,
+                'list_images': list_images,
                 'article_list_content': article_mention_with_article_meta,
                 'pagination': url_pagination_state
             }
@@ -281,6 +316,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         page: int = 1
     ):
         list_summary_data = lists_model.get_list_summary_data_by_list_id(list_id)
+        LOGGER.info('list_summary_data: %r', list_summary_data)
         article_mention_with_article_meta = (
             _get_page_article_mention_with_article_meta_for_article_mention_iterable(
                 lists_model.iter_article_mentions_by_list_id(list_id),
