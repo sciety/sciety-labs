@@ -25,7 +25,7 @@
     display: flex;
 }
 
-.list-card__list-image {
+.list-card__list-image, .user-list-card__list-image {
     border-radius: 6px;
     border: 3px rgb(207, 216, 220) solid;
     width: 52px;

@@ -27,6 +27,9 @@
         <article class="user-list-card">
         <div class="user-list-card__body">
           <div>
+            {% if item.list_images.image_url %}
+            <img class="user-list-card__list-image" src="{{ item.list_images.image_url }}" alt="" />
+            {% endif %}
             <h3 class="user-list-card__title">{{ item.list_meta.list_name }}</h3>
             <p>{{ item.list_meta.list_description }}</p>
           </div>
