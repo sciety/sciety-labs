@@ -21,6 +21,10 @@
     float: right;
 }
 
+.page-header--list {
+    display: flex;
+}
+
 .list-card__list-image {
     border-radius: 6px;
     border: 3px rgb(207, 216, 220) solid;
