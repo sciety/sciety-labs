@@ -57,6 +57,10 @@
     margin-right: 0.25rem;
 }
 
+.article-author-list li:after {
+    content: ',\00a0';
+}
+
 .article-card footer a {
     position: relative;
 }
