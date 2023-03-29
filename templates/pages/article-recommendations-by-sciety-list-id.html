@@ -5,34 +5,39 @@
     <main class="page-content" id="mainContent">
         <div class="sciety-grid-two-columns">
             <header class="page-header page-header--list">
-                <h1>Article Recommendations for
-                    <a href="/lists/by-id/{{ list_summary_data.list_meta.list_id }}">{{ list_summary_data.list_meta.list_name }}</a>
-                    by <a href="{{ owner_url }}">{{ list_summary_data.owner.display_name }}</a>
-                </h1>
-
-                <p class="page-header__description">
-                    <span>The following articles have been recommended by
-                        <a href="https://www.semanticscholar.org">Semantic Scholar</a>'s
-                        <a href="https://api.semanticscholar.org/api-docs/recommendations">Paper Recommendations API</a>
-                        as related content to
+                <div>
+                    <h1>Article Recommendations for
                         <a href="/lists/by-id/{{ list_summary_data.list_meta.list_id }}">{{ list_summary_data.list_meta.list_name }}</a>
                         by <a href="{{ owner_url }}">{{ list_summary_data.owner.display_name }}</a>
-                    </span>
-                </p>
+                    </h1>
 
-                <section>
-                    <p class="articles-page-count">
-                        Showing page <b>{{ pagination.page }}</b>
-                        {% if pagination.page_count %}
-                        of <b>{{ pagination.page_count }}</b>
-                        <span class="visually-hidden"> pages</span>
-                        {% endif %}
-                        <span class="visually-hidden"> of list content</span>
+                    <p class="page-header__description">
+                        <span>The following articles have been recommended by
+                            <a href="https://www.semanticscholar.org">Semantic Scholar</a>'s
+                            <a href="https://api.semanticscholar.org/api-docs/recommendations">Paper Recommendations API</a>
+                            as related content to
+                            <a href="/lists/by-id/{{ list_summary_data.list_meta.list_id }}">{{ list_summary_data.list_meta.list_name }}</a>
+                            by <a href="{{ owner_url }}">{{ list_summary_data.owner.display_name }}</a>
+                        </span>
                     </p>
 
-                    {{ render_article_list_content(article_list_content) }}
-                    {{ render_pagination(pagination) }}
+                    <section>
+                        <p class="articles-page-count">
+                            Showing page <b>{{ pagination.page }}</b>
+                            {% if pagination.page_count %}
+                            of <b>{{ pagination.page_count }}</b>
+                            <span class="visually-hidden"> pages</span>
+                            {% endif %}
+                            <span class="visually-hidden"> of list content</span>
+                        </p>
+                    </section>
+                </div>
             </header>
+
+            <section>
+                {{ render_article_list_content(article_list_content) }}
+                {{ render_pagination(pagination) }}
+            </section>
         </div>
     </main>
 {% endcall %}
