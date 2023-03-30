@@ -1,7 +1,8 @@
+from datetime import date
 import logging
 import concurrent.futures
 from itertools import tee
-from typing import Dict, Iterable, Mapping, Optional
+from typing import Dict, Iterable, Mapping, Optional, Sequence
 
 import requests
 import lxml.etree
@@ -64,6 +65,22 @@ def get_cleaned_abstract_html(abstract_html: Optional[str]) -> Optional[str]:
         return abstract_html
 
 
+def get_optional_date_from_date_parts(
+    date_parts: Optional[Sequence[Sequence[int]]]
+) -> Optional[date]:
+    if not date_parts:
+        return None
+    assert len(date_parts) == 1
+    year, month, day = date_parts[0]
+    return date(year, month, day)
+
+
+def get_optional_date_from_date_field(date_field: Optional[dict]) -> Optional[date]:
+    if not date_field:
+        return None
+    return get_optional_date_from_date_parts(date_field.get('date-parts'))
+
+
 def get_article_metadata_from_crossref_metadata(
     doi: str,
     crossref_metadata: dict
@@ -75,7 +92,10 @@ def get_article_metadata_from_crossref_metadata(
         author_name_list=[
             get_author_name_from_crossref_metadata_author_dict(author_dict)
             for author_dict in crossref_metadata.get('author', [])
-        ]
+        ],
+        published_date=get_optional_date_from_date_field(
+            crossref_metadata.get('published')
+        )
     )
 
 

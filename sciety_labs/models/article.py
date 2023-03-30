@@ -1,5 +1,5 @@
 import dataclasses
-from datetime import datetime
+from datetime import date, datetime
 import re
 from typing import Mapping, NamedTuple, Optional, Sequence
 
@@ -96,6 +96,7 @@ class ArticleMetaData(NamedTuple):
     article_title: str
     abstract: Optional[str] = None
     author_name_list: Optional[Sequence[str]] = None
+    published_date: Optional[date] = None
 
 
 class ArticleStats(NamedTuple):

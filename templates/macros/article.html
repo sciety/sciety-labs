@@ -27,6 +27,9 @@
                     {% if item.article_stats %}
                     <span class="visually-hidden">This article has </span><span>{{ item.article_stats.evaluation_count }} evaluations</span>
                     {% endif %}
+                    {% if item.article_meta.published_date %}
+                    <span>Published on <time datetime="{{ item.article_meta.published_date | date_isoformat }}">{{ item.article_meta.published_date | date_display_format }}</time></span>
+                    {% endif %}
                     {% if item.created_at_timestamp %}
                     <span>Added on <time datetime="{{ item.created_at_isoformat }}">{{ item.created_at_display_format }}</time></span>
                     {% endif %}

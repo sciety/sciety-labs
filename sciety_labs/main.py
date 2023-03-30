@@ -40,6 +40,7 @@ from sciety_labs.utils.cache import (
     DiskSingleObjectCache,
     InMemorySingleObjectCache
 )
+from sciety_labs.utils.datetime import get_date_as_display_format, get_date_as_isoformat
 from sciety_labs.utils.pagination import (
     get_page_iterable,
     get_url_pagination_state_for_url
@@ -180,6 +181,8 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
 
     templates = Jinja2Templates(directory='templates')
     templates.env.filters['sanitize'] = get_sanitized_string_as_safe_markup
+    templates.env.filters['date_isoformat'] = get_date_as_isoformat
+    templates.env.filters['date_display_format'] = get_date_as_display_format
     templates.env.globals['site_config'] = site_config
 
     app = FastAPI()
@@ -358,12 +361,10 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         )
         item_count = len(all_article_recommendations)
         article_recommendation_with_article_meta = list(
-            evaluation_stats_model.iter_article_mention_with_article_stats(
-                get_page_iterable(
-                    all_article_recommendations,
-                    page=page,
-                    items_per_page=items_per_page
-                )
+            _get_page_article_mention_with_article_meta_for_article_mention_iterable(
+                all_article_recommendations,
+                page=page,
+                items_per_page=items_per_page
             )
         )
         LOGGER.info(
@@ -453,12 +454,10 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             LOGGER.warning('failed to get recommendations for %r due to %r', article_doi, exc)
             all_article_recommendations = []
         article_recommendation_with_article_meta = list(
-            evaluation_stats_model.iter_article_mention_with_article_stats(
-                get_page_iterable(
-                    all_article_recommendations,
-                    page=1,
-                    items_per_page=3
-                )
+            _get_page_article_mention_with_article_meta_for_article_mention_iterable(
+                all_article_recommendations,
+                page=1,
+                items_per_page=3
             )
         )
         LOGGER.info(
@@ -500,12 +499,10 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         )
         item_count = len(all_article_recommendations)
         article_recommendation_with_article_meta = list(
-            evaluation_stats_model.iter_article_mention_with_article_stats(
-                get_page_iterable(
-                    all_article_recommendations,
-                    page=page,
-                    items_per_page=items_per_page
-                )
+            _get_page_article_mention_with_article_meta_for_article_mention_iterable(
+                all_article_recommendations,
+                page=page,
+                items_per_page=items_per_page
             )
         )
         LOGGER.info(
