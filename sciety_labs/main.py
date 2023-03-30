@@ -84,7 +84,7 @@ def get_sanitized_string_as_safe_markup(text: str) -> markupsafe.Markup:
 
 
 def get_page_title(text: str) -> str:
-    return remove_markup(text) + ' | Sciety Labs (Experimental)'
+    return remove_markup(text)
 
 
 def create_app():  # pylint: disable=too-many-locals, too-many-statements
