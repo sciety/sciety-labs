@@ -1,4 +1,4 @@
-{% from 'macros/date.html' import render_date_value  %}
+{% from 'macros/date.html' import render_optional_date_value_with_label  %}
 
 {% macro render_article_list_content(article_list_content) -%}
     <ul class="articles-list" role="list">{% for item in article_list_content %}
@@ -29,12 +29,8 @@
                     {% if item.article_stats %}
                     <span class="visually-hidden">This article has </span><span>{{ item.article_stats.evaluation_count }} evaluations</span>
                     {% endif %}
-                    {% if item.article_meta.published_date %}
-                    <span>Published on {{ render_date_value(item.article_meta.published_date) }}</span>
-                    {% endif %}
-                    {% if item.created_at_timestamp %}
-                    <span>Added on {{ render_date_value(item.created_at_timestamp) }}</span>
-                    {% endif %}
+                    {{ render_optional_date_value_with_label('Published on', item.article_meta.published_date) }}
+                    {{ render_optional_date_value_with_label('Added on', item.created_at_timestamp) }}
                     {% if item.external_reference_by_name.semantic_scholar_paper_id %}
                     <span class="visually-hidden">Read this paper on </span><span><a href="https://www.semanticscholar.org/paper/{{ item.external_reference_by_name.semantic_scholar_paper_id }}">Semantic Scholar</a></span>
                     {% endif %}
