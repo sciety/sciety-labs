@@ -1,69 +1,69 @@
-{% from 'macros/page.html' import render_page with context  %}
-{% from 'macros/pagination.html' import render_pagination with context  %}
+{% from 'macros/page.html' import render_page with context %}
+{% from 'macros/pagination.html' import render_pagination with context %}
 {% call render_page() %}
+    <main class="page-content" id="mainContent">
+        <div class="sciety-grid-two-columns">
+            <header class="page-header page-header--list">
+                <div>
+                    <p class="page-header__subheading">
+                        <span>A list by <a href="https://twitter.com/{{ twitter_handle }}">{{ twitter_user.name }}</a></span>
+                    </p>
+                    <p class="page-header__description">{{ twitter_user.description }}</p>
+                </div>
+            </header>
+            <section>
+                <p class="articles-page-count">
+                    Showing page <b>{{ pagination.page }}</b>
+                    {% if pagination.page_count %}
+                    of <b>{{ pagination.page_count }}</b>
+                    <span class="visually-hidden"> pages</span>
+                    {% endif %}
+                    <span class="visually-hidden"> of list content</span>
+                </p>
+                <ul class="articles-list" role="list">{% for item in article_list_content %}
+                    <li class="articles-list__item">
+                        <article>
+                            <section class="article-card">
+                                <h3 class="article-card__title"><a class="article-card__link"
+                                        href="/articles/by?article_doi={{ item.article_doi }}">{{
+                                        item.article_meta.article_title | sanitize }}</a></h3>
 
-  <main class="page-content" id="mainContent">
-      
-  <div class="sciety-grid-two-columns">
+                                <div class="hidden" id="article-card-author-list-{{ item.article_doi }}">This article's authors</div>
+                                <ol
+                                    class="card-authors"
+                                    role="list"
+                                    aria-describedby="article-card-author-list-{{ item.article_doi }}"
+                                >
+                                    {% for author_name in item.article_meta.author_name_list %}
+                                    <li class="card-authors__author">{{ author_name }}</li>
+                                    {% endfor %}
+                                </ol>
 
-  <header class="page-header page-header--list">
+                                <footer class="article-card__footer">
+                                    <div class="article-card__meta">
+                                        <span class="visually-hidden">This article has </span><span>{{ item.article_stats.evaluation_count }} evaluations</span>
+                                    </div>
+                                </footer>
+                            </section>
 
-    <p class="page-header__subheading">
-      <span>A list by <a href="https://twitter.com/{{ twitter_handle }}">{{ twitter_user.name }}</a></span>
-    </p>
-    <p class="page-header__description">{{ twitter_user.description }}</p>
-
-  </header>
-  <section>
-    <p class="articles-page-count">
-        Showing page <b>{{ pagination.page }}</b>
-        {% if pagination.page_count %}
-            of <b>{{ pagination.page_count }}</b>
-            <span class="visually-hidden"> pages</span>
-        {% endif %}
-        <span class="visually-hidden"> of list content</span>
-    </p>
-    <ul class="articles-list" role="list">{% for item in article_list_content %}
-    <li class="articles-list__item">
-        <article>
-            <section class="article-card">
-                <h3 class="article-card__title"><a class="article-card__link" href="/articles/by?article_doi={{ item.article_doi }}">{{ item.article_meta.article_title | sanitize }}</a></h3>
-
-                <div class="hidden" id="article-card-author-list-{{ item.article_doi }}">This article's authors</div>
-                <ol class="card-authors" role="list" aria-describedby="article-card-author-list-{{ item.article_doi }}">
-                    {% for author_name in item.article_meta.author_name_list %}
-                    <li class="card-authors__author">{{ author_name }}</li>
+                            <section class="article-card-annotation">
+                                <h4 class="visually-hidden">Annotation by {{ twitter_handle }}</h4>
+                                <p>{{ item.comment }}</p>
+                                <footer class="article-card__footer">
+                                    <div class="article-card__meta">
+                                        <span class="visually-hidden">This annotation was created via the </span><span><a
+                                                href="https://twitter.com/{{ twitter_handle }}/status/{{ item.external_reference_by_name.tweet_id }}">Original
+                                                Tweet</a> at <time datetime="{{ item.created_at_isoformat }}">{{ item.created_at_display_format }}</time></span>
+                                    </div>
+                                </footer>
+                            </section>
+                        </article>
+                    </li>
                     {% endfor %}
-                </ol>
-                
-                <footer class="article-card__footer">
-                    <div class="article-card__meta">
-                    <span class="visually-hidden">This article has </span><span>{{ item.article_stats.evaluation_count }} evaluations</span>
-                    </div>
-                </footer>
+                </ul>
 
+                {{ render_pagination(pagination) }}
             </section>
-
-            <section class="article-card-annotation">
-                <h4 class="visually-hidden">Annotation by {{ twitter_handle }}</h4>
-                <p>{{ item.comment }}</p>
-                <footer class="article-card__footer">
-                    <div class="article-card__meta">
-                    <span class="visually-hidden">This annotation was created via the </span><span><a href="https://twitter.com/{{ twitter_handle }}/status/{{ item.external_reference_by_name.tweet_id }}">Original Tweet</a> at <time datetime="{{ item.created_at_isoformat }}">{{ item.created_at_display_format }}</time></span>
-                    </div>
-                </footer>
-            </section>
-
-        </article>
-    </li>
-    {% endfor %}
-    </ul>
-
-    {{ render_pagination(pagination) }}
-
-  </section>
-
-  </div>
-
-  </main>
+        </div>
+    </main>
 {% endcall %}
