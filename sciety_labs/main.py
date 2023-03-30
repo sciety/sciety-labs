@@ -45,7 +45,7 @@ from sciety_labs.utils.pagination import (
     get_page_iterable,
     get_url_pagination_state_for_url
 )
-from sciety_labs.utils.text import remove_markup
+from sciety_labs.utils.text import remove_markup, remove_markup_or_none
 from sciety_labs.utils.threading import UpdateThread
 
 
@@ -317,7 +317,9 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             'pages/list-by-sciety-list-id.html', {
                 'request': request,
                 'page_title': get_page_title(list_summary_data.list_meta.list_name),
-                'page_description': remove_markup(list_summary_data.list_meta.list_description),
+                'page_description': remove_markup_or_none(
+                    list_summary_data.list_meta.list_description
+                ),
                 'rss_url': rss_url,
                 'owner_url': get_owner_url(list_summary_data.owner),
                 'list_summary_data': list_summary_data,
@@ -495,6 +497,9 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             'pages/article-by-article-doi.html', {
                 'request': request,
                 'page_title': get_page_title(article_meta.article_title),
+                'page_description': remove_markup_or_none(
+                    article_meta.abstract
+                ),
                 'article_meta': article_meta,
                 'article_images': article_images,
                 'article_recommendation_list': article_recommendation_with_article_meta,
