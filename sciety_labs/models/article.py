@@ -1,7 +1,7 @@
 import dataclasses
 from datetime import date, datetime
 import re
-from typing import Mapping, NamedTuple, Optional, Sequence
+from typing import Iterable, Mapping, NamedTuple, Optional, Sequence
 
 from sciety_labs.models.image import ObjectImages
 
@@ -119,3 +119,13 @@ class ArticleMention:
     def get_created_at_sort_key(self) -> datetime:
         assert self.created_at_timestamp
         return self.created_at_timestamp
+
+
+def iter_preprint_article_mention(
+    article_mention_iterable: Iterable[ArticleMention]
+) -> Iterable[ArticleMention]:
+    return (
+        article_mention
+        for article_mention in article_mention_iterable
+        if is_preprint_doi(article_mention.article_doi)
+    )

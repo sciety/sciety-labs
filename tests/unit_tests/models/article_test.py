@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Iterable
 
 from sciety_labs.models.article import (
     ArticleMention,
@@ -75,13 +74,3 @@ class TestArticleMention:
         ]
         sorted_list = sorted(unsorted_list, key=ArticleMention.get_created_at_sort_key)
         assert sorted_list == [unsorted_list[1], unsorted_list[0]]
-
-
-def iter_preprint_article_mention(
-    article_mention_iterable: Iterable[ArticleMention]
-) -> Iterable[ArticleMention]:
-    return (
-        article_mention
-        for article_mention in article_mention_iterable
-        if is_preprint_doi(article_mention.article_doi)
-    )

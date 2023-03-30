@@ -20,7 +20,7 @@ import markupsafe
 import bleach
 from sciety_labs.config.site_config import get_site_config_from_environment_variables
 
-from sciety_labs.models.article import ArticleMention
+from sciety_labs.models.article import ArticleMention, iter_preprint_article_mention
 from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
 
 from sciety_labs.models.lists import OwnerMetaData, OwnerTypes, ScietyEventListsModel
@@ -46,7 +46,6 @@ from sciety_labs.utils.pagination import (
     get_url_pagination_state_for_url
 )
 from sciety_labs.utils.threading import UpdateThread
-from tests.unit_tests.models.article_test import iter_preprint_article_mention
 
 
 LOGGER = logging.getLogger(__name__)
