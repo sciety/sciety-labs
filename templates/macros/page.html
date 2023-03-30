@@ -25,7 +25,11 @@
   {% else %}
   <meta property="og:title" content="Sciety">
   {% endif %}
+  {% if page_description %}
+  <meta property="og:description" content="{{ page_description }}">
+  {% else %}
   <meta property="og:description" content="Experiment with Sciety Discovery to explore alternative ways to navigate the preprint landscape">
+  {% endif %}
   <meta property="og:image" content="/static/sciety/images/sciety-twitter-profile.png">
   <link rel="icon" type="image/svg+xml" href="/static/sciety/images/favicons/favicon.svg">
 

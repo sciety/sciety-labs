@@ -317,6 +317,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             'pages/list-by-sciety-list-id.html', {
                 'request': request,
                 'page_title': get_page_title(list_summary_data.list_meta.list_name),
+                'page_description': remove_markup(list_summary_data.list_meta.list_description),
                 'rss_url': rss_url,
                 'owner_url': get_owner_url(list_summary_data.owner),
                 'list_summary_data': list_summary_data,
