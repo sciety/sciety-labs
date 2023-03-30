@@ -8,7 +8,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>
+    {% if page_title %}
+    {{ page_title }}
+    {% else %}
     Sciety Labs (Experimental): experimental discovery related to preprints and the Sciety community
+    {% endif %}
   </title>
   
   <link rel="stylesheet" href="/static/sciety/style.css">

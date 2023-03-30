@@ -45,6 +45,7 @@ from sciety_labs.utils.pagination import (
     get_page_iterable,
     get_url_pagination_state_for_url
 )
+from sciety_labs.utils.text import remove_markup
 from sciety_labs.utils.threading import UpdateThread
 
 
@@ -80,6 +81,10 @@ def get_owner_url(owner: OwnerMetaData) -> Optional[str]:
 
 def get_sanitized_string_as_safe_markup(text: str) -> markupsafe.Markup:
     return markupsafe.Markup(bleach.clean(text, tags=ALLOWED_TAGS))
+
+
+def get_page_title(text: str) -> str:
+    return remove_markup(text) + ' | Sciety Labs (Experimental)'
 
 
 def create_app():  # pylint: disable=too-many-locals, too-many-statements
@@ -191,14 +196,22 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     @app.exception_handler(404)
     async def not_found_exception_handler(request: Request, exception: HTTPException):
         return templates.TemplateResponse(
-            'errors/404.html', {'request': request, 'exception': exception},
+            'errors/404.html', {
+                'request': request,
+                'page_title': get_page_title('Page not found'),
+                'exception': exception
+            },
             status_code=404
         )
 
     @app.exception_handler(500)
     async def server_error_exception_handler(request: Request, exception: HTTPException):
         return templates.TemplateResponse(
-            'errors/500.html', {'request': request, 'exception': exception},
+            'errors/500.html', {
+                'request': request,
+                'page_title': get_page_title('Something went wrong'),
+                'exception': exception
+            },
             status_code=500
         )
 
@@ -233,6 +246,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         return templates.TemplateResponse(
             'pages/lists.html', {
                 'request': request,
+                'page_title': get_page_title('Most active lists'),
                 'user_lists': list_summary_data_list
             }
         )
@@ -302,6 +316,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         return templates.TemplateResponse(
             'pages/list-by-sciety-list-id.html', {
                 'request': request,
+                'page_title': get_page_title(list_summary_data.list_meta.list_name),
                 'rss_url': rss_url,
                 'owner_url': get_owner_url(list_summary_data.owner),
                 'list_summary_data': list_summary_data,
@@ -382,6 +397,9 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         return templates.TemplateResponse(
             'pages/article-recommendations-by-sciety-list-id.html', {
                 'request': request,
+                'page_title': get_page_title(
+                    f'Article recommendations for {list_summary_data.list_meta.list_name}'
+                ),
                 'owner_url': get_owner_url(list_summary_data.owner),
                 'list_summary_data': list_summary_data,
                 'article_list_content': article_recommendation_with_article_meta,
@@ -424,6 +442,9 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         return templates.TemplateResponse(
             'pages/list-by-twitter-handle.html', {
                 'request': request,
+                'page_title': get_page_title(
+                    f'Twitter curations by {twitter_user.name} (@{twitter_handle})'
+                ),
                 'twitter_handle': twitter_handle,
                 'twitter_user': twitter_user,
                 'article_list_content': article_mention_with_article_meta,
@@ -472,6 +493,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         return templates.TemplateResponse(
             'pages/article-by-article-doi.html', {
                 'request': request,
+                'page_title': get_page_title(article_meta.article_title),
                 'article_meta': article_meta,
                 'article_images': article_images,
                 'article_recommendation_list': article_recommendation_with_article_meta,
@@ -520,6 +542,9 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         return templates.TemplateResponse(
             'pages/article-recommendations-by-article-doi.html', {
                 'request': request,
+                'page_title': get_page_title(
+                    f'Article recommendations for {article_meta.article_title}'
+                ),
                 'article_meta': article_meta,
                 'article_list_content': article_recommendation_with_article_meta,
                 'pagination': url_pagination_state
