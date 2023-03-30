@@ -1,7 +1,7 @@
 import dataclasses
-from datetime import datetime
+from datetime import date, datetime
 import re
-from typing import Mapping, NamedTuple, Optional, Sequence
+from typing import Iterable, Mapping, NamedTuple, Optional, Sequence
 
 from sciety_labs.models.image import ObjectImages
 
@@ -96,6 +96,7 @@ class ArticleMetaData(NamedTuple):
     article_title: str
     abstract: Optional[str] = None
     author_name_list: Optional[Sequence[str]] = None
+    published_date: Optional[date] = None
 
 
 class ArticleStats(NamedTuple):
@@ -119,14 +120,12 @@ class ArticleMention:
         assert self.created_at_timestamp
         return self.created_at_timestamp
 
-    @property
-    def created_at_isoformat(self) -> Optional[str]:
-        if not self.created_at_timestamp:
-            return None
-        return self.created_at_timestamp.strftime(r'%Y-%m-%d')
 
-    @property
-    def created_at_display_format(self) -> Optional[str]:
-        if not self.created_at_timestamp:
-            return None
-        return self.created_at_timestamp.strftime(r'%b %-d, %Y')
+def iter_preprint_article_mention(
+    article_mention_iterable: Iterable[ArticleMention]
+) -> Iterable[ArticleMention]:
+    return (
+        article_mention
+        for article_mention in article_mention_iterable
+        if is_preprint_doi(article_mention.article_doi)
+    )

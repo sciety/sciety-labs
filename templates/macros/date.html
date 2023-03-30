@@ -1,0 +1,9 @@
+{% macro render_date_value(date_value) -%}
+<time datetime="{{ date_value | date_isoformat }}">{{ date_value | date_display_format }}</time>
+{%- endmacro %}
+
+{% macro render_optional_date_value_with_label(label, date_value) -%}
+{% if date_value %}
+<span>{{ label }} {{ render_date_value(date_value) }}</span>
+{% endif %}
+{%- endmacro %}

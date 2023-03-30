@@ -1,3 +1,4 @@
+from datetime import date
 from sciety_labs.providers.crossref import (
     get_article_metadata_from_crossref_metadata,
     get_cleaned_abstract_html
@@ -116,3 +117,13 @@ class TestGetArticleMetadataFromCrossrefMetadata:
         assert result.author_name_list == [
             '?'
         ]
+
+    def test_should_extract_published_date(self):
+        result = get_article_metadata_from_crossref_metadata(
+            DOI_1,
+            {
+                **CROSSREF_RESPONSE_MESSAGE_1,
+                'published': {'date-parts': [[2001, 2, 3]]}
+            }
+        )
+        assert result.published_date == date(2001, 2, 3)
