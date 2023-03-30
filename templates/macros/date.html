@@ -1,0 +1,3 @@
+{% macro render_date_value(date_value) -%}
+<time datetime="{{ date_value | date_isoformat }}">{{ date_value | date_display_format }}</time>
+{%- endmacro %}

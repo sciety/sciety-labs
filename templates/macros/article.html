@@ -1,6 +1,4 @@
-{% macro render_date_value(date_value) -%}
-<time datetime="{{ date_value | date_isoformat }}">{{ date_value | date_display_format }}</time>
-{%- endmacro %}
+{% from 'macros/date.html' import render_date_value  %}
 
 {% macro render_article_list_content(article_list_content) -%}
     <ul class="articles-list" role="list">{% for item in article_list_content %}
