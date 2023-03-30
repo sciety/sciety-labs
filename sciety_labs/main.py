@@ -52,11 +52,12 @@ LOGGER = logging.getLogger(__name__)
 
 
 ALLOWED_TAGS = [
-    'a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
+    'a', 'abbr', 'acronym', 'b', 'blockquote', 'bold',
+    'code',
     'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
     'h1', 'h2', 'h3', 'p', 'img', 'video', 'div',
     'p', 'br', 'span', 'hr', 'src', 'class',
-    'section', 'sup'
+    'section', 'sub', 'sup'
 ]
 
 
