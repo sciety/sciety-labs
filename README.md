@@ -1,6 +1,6 @@
 # Sciety Labs (Experimental)
 
-Early stage experiments related to discovery of preprints and the Sciety community.
+[Sciety Labs](https://labs.sciety.org/) is a place for early stage experiments related to discovery of preprints and the Sciety community. We will test out some ideas before adding them to [Sciety](https://sciety.org/).
 
 ## Prerequisites
 
