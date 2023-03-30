@@ -76,22 +76,6 @@ class TestArticleMention:
         sorted_list = sorted(unsorted_list, key=ArticleMention.get_created_at_sort_key)
         assert sorted_list == [unsorted_list[1], unsorted_list[0]]
 
-    def test_should_return_formatted_date_string(self):
-        article_mention = ArticleMention(
-            article_doi=DOI_1,
-            created_at_timestamp=datetime.fromisoformat('2001-02-03+00:00')
-        )
-        assert article_mention.created_at_isoformat == '2001-02-03'
-        assert article_mention.created_at_display_format == 'Feb 3, 2001'
-
-    def test_should_return_none_for_formatted_date_string_without_timestamp(self):
-        article_mention = ArticleMention(
-            article_doi=DOI_1,
-            created_at_timestamp=None
-        )
-        assert article_mention.created_at_isoformat is None
-        assert article_mention.created_at_display_format is None
-
 
 def iter_preprint_article_mention(
     article_mention_iterable: Iterable[ArticleMention]

@@ -119,15 +119,3 @@ class ArticleMention:
     def get_created_at_sort_key(self) -> datetime:
         assert self.created_at_timestamp
         return self.created_at_timestamp
-
-    @property
-    def created_at_isoformat(self) -> Optional[str]:
-        if not self.created_at_timestamp:
-            return None
-        return self.created_at_timestamp.strftime(r'%Y-%m-%d')
-
-    @property
-    def created_at_display_format(self) -> Optional[str]:
-        if not self.created_at_timestamp:
-            return None
-        return self.created_at_timestamp.strftime(r'%b %-d, %Y')
