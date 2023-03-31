@@ -2,7 +2,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime
 from threading import Lock
-from typing import Dict, Iterable, NamedTuple, Optional, Protocol, Sequence, Set, Sized
+from typing import Dict, Iterable, NamedTuple, Optional, Protocol, Sequence, Set, Sized, Tuple
 
 from sciety_labs.models.article import ArticleMention, get_doi_from_article_id_or_none
 from sciety_labs.models.image import ObjectImages
@@ -118,8 +118,10 @@ class ListSummaryData(NamedTuple):
             return ''
         return self.last_updated_datetime.strftime(r'%b %-d, %Y')
 
-    def get_activity_sort_key(self) -> int:
-        return -self.article_count
+    def get_activity_sort_key(self) -> Tuple[float, int]:
+        if not self.last_updated_datetime:
+            return (0, -self.article_count)
+        return (-self.last_updated_datetime.timestamp(), -self.article_count)
 
 
 class ScietyEventNames:

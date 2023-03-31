@@ -114,6 +114,28 @@ class TestGetSortedListSummaryListByMostActive:
         )
         assert result == expected_list_summary_data
 
+    def test_should_sort_by_last_updated_datetime_descending(self):
+        expected_list_summary_data = [
+            LIST_SUMMARY_DATA_1._replace(
+                last_updated_datetime=datetime.fromisoformat('2001-01-03')
+            ),
+            LIST_SUMMARY_DATA_1._replace(
+                last_updated_datetime=datetime.fromisoformat('2001-01-02')
+            ),
+            LIST_SUMMARY_DATA_1._replace(
+                last_updated_datetime=datetime.fromisoformat('2001-01-01')
+            )
+        ]
+        unsorted_list_summary_data = [
+            expected_list_summary_data[1],
+            expected_list_summary_data[0],
+            expected_list_summary_data[2]
+        ]
+        result = get_sorted_list_summary_list_by_most_active(
+            unsorted_list_summary_data
+        )
+        assert result == expected_list_summary_data
+
 
 class TestScietyEventListsModel:
     def test_should_return_empty_list_for_no_events(self):
