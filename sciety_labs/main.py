@@ -7,9 +7,10 @@ from typing import Iterable, Optional
 import requests
 
 import starlette.responses
+import starlette.status
 
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
@@ -243,8 +244,8 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             }
         )
 
-    @app.get('/lists', response_class=HTMLResponse)
-    async def lists(request: Request):
+    @app.get('/lists/user-lists', response_class=HTMLResponse)
+    async def user_lists(request: Request):
         list_summary_data_list = list(
             google_sheet_list_image_provider.iter_list_summary_data_with_list_image_url(
                 lists_model.get_most_active_user_lists(
@@ -278,6 +279,10 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 'user_lists': list_summary_data_list
             }
         )
+
+    @app.get('/lists', response_class=RedirectResponse)
+    async def lists():
+        return RedirectResponse('/lists/user-lists', status_code=starlette.status.HTTP_302_FOUND)
 
     def _get_page_article_mention_with_article_meta_for_article_mention_iterable(
         article_mention_iterable: Iterable[ArticleMention],
