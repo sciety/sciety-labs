@@ -491,7 +491,22 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         request: Request,
         article_doi: str
     ):
-        article_meta = crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
+        try:
+            article_meta = crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
+        except requests.exceptions.HTTPError as exception:
+            status_code = exception.response.status_code
+            LOGGER.info('Exception retrieving metadata (%r): %r', status_code, exception)
+            if status_code != 404:
+                raise
+            return templates.TemplateResponse(
+                'errors/error.html', {
+                    'request': request,
+                    'page_title': get_page_title(f'Article not found: {article_doi}'),
+                    'error_message': f'Article not found: {article_doi}',
+                    'exception': exception
+                },
+                status_code=404
+            )
         LOGGER.info('article_meta=%r', article_meta)
 
         article_images = google_sheet_article_image_provider.get_article_images_by_doi(article_doi)

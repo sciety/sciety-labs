@@ -1,0 +1,15 @@
+{% from 'macros/page.html' import render_page with context  %}
+{% call render_page() %}
+  <main id="mainContent">
+  <div class="sciety-grid-two-columns">
+
+  <div class="error-page">
+    <h1>Oops!</h1>
+    <p>
+      {{ error_message }}
+    </p>   
+  </div>
+
+  </div>
+  </main>
+{% endcall %}
