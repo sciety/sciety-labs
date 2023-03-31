@@ -1,8 +1,9 @@
 {% from 'macros/page.html' import render_page with context  %}
 {% from 'macros/article.html' import render_article_list_content with context  %}
 {% from 'macros/pagination.html' import render_pagination with context  %}
-{% call render_page() %}
+{% from 'macros/date.html' import render_optional_date_value_with_label  %}
 
+{% call render_page() %}
     <main class="page-content" id="mainContent">
         <div class="sciety-grid-two-columns">
             <header class="page-header page-header--list">
@@ -30,7 +31,7 @@
 
                     <p class="page-header__description">{{ list_summary_data.list_meta.list_description }}</p>
 
-                    <p class="page-header__meta"><span class="visually-hidden">This list contains </span><span>{{ list_summary_data.article_count }} articles</span><span>Last updated <time datetime="{{ list_summary_data.last_updated_date_isoformat }}">{{ list_summary_data.last_updated_date_display_format }}</time></p>
+                    <p class="page-header__meta"><span class="visually-hidden">This list contains </span><span>{{ list_summary_data.article_count }} articles</span>{{ render_optional_date_value_with_label('Last updated', list_summary_data.last_updated_datetime) }}</p>
 
                     <div class="page-header__links">
                         <ul>

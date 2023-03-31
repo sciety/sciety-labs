@@ -1,5 +1,7 @@
 {% from 'macros/page.html' import render_page with context %}
 {% from 'macros/tabs.html' import render_tab, render_tab_content with context %}
+{% from 'macros/date.html' import render_optional_date_value_with_label  %}
+
 {% macro render_list_cards(lists) -%}
     {% for item in lists %}
     <article class="list-card">
@@ -10,7 +12,7 @@
         <h3 class="list-card__title"><a href="/lists/by-id/{{ item.list_meta.list_id }}" class="list-card__link">{{ item.list_meta.list_name }}</a></h3>
         <p>{{ item.list_meta.list_description }}</p>
         <div class="list-card__meta">
-            <span class="visually-hidden">This list contains </span><span>{{ item.article_count }} articles</span><span>Last updated <time datetime="{{ item.last_updated_date_isoformat }}">{{ item.last_updated_date_display_format }}</time></span>
+            <span class="visually-hidden">This list contains </span><span>{{ item.article_count }} articles</span>{{ render_optional_date_value_with_label('Last updated', item.last_updated_datetime) }}
         </div>
     </article>
     {% endfor %}

@@ -269,11 +269,8 @@ class TestScietyEventListsModel:
             'article_id': ARTICLE_ID_2
         }])
         result = model.get_most_active_user_lists()
-        assert [item.last_updated_date_isoformat for item in result] == [
-            '2001-01-02'
-        ]
-        assert [item.last_updated_date_display_format for item in result] == [
-            'Jan 2, 2001'
+        assert [item.last_updated_datetime for item in result] == [
+            datetime.fromisoformat('2001-01-02+00:00')
         ]
 
     def test_should_ignore_other_events(self):

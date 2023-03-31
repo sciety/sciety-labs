@@ -106,18 +106,6 @@ class ListSummaryData(NamedTuple):
     last_updated_datetime: Optional[datetime]
     list_images: Optional[ObjectImages] = None
 
-    @property
-    def last_updated_date_isoformat(self) -> str:
-        if not self.last_updated_datetime:
-            return ''
-        return self.last_updated_datetime.strftime(r'%Y-%m-%d')
-
-    @property
-    def last_updated_date_display_format(self) -> str:
-        if not self.last_updated_datetime:
-            return ''
-        return self.last_updated_datetime.strftime(r'%b %-d, %Y')
-
     def get_activity_sort_key(self) -> Tuple[float, int]:
         if not self.last_updated_datetime:
             return (0, -self.article_count)
