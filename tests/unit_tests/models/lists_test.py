@@ -186,6 +186,20 @@ class TestScietyEventListsModel:
         result = model.get_most_active_user_lists()
         assert not result
 
+    def test_should_not_include_group_lists_in_group_lists(self):
+        model = ScietyEventListsModel([
+            GROUP_ARTICLE_ADDED_TO_LIST_EVENT_1
+        ])
+        result = model.get_most_active_group_lists()
+        assert result
+
+    def test_should_not_include_user_lists_in_group_lists(self):
+        model = ScietyEventListsModel([
+            USER_ARTICLE_ADDED_TO_LIST_EVENT_1
+        ])
+        result = model.get_most_active_group_lists()
+        assert not result
+
     def test_should_calculate_article_count_for_added_only_events(self):
         model = ScietyEventListsModel([{
             **USER_ARTICLE_ADDED_TO_LIST_EVENT_1,

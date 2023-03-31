@@ -1,27 +1,7 @@
 {% from 'macros/page.html' import render_page with context  %}
-{% call render_page(page_container_class='home-page-container') %}
-
-    <main id="mainContent">
-        
-        <div class="home-page">
-            
-        <section class="home-page-hero">
-            <div class="home-page-hero__left_wrapper">
-                <h1 class="home-page-hero__content_title">
-                    Discover preprints and the Sciety community.
-                </h1>
-                <p class="home-page-hero__content_byline">
-                    Experimental ways to explore and curate evaluated preprints.
-                </p>
-            </div>
-
-        </section>
-
-        <section class="home-page-cards">
-            
-            <h2 class="home-page-cards__title"><a href="/lists">Most active lists</a></h2>
+{% macro render_list_cards(lists) -%}
             <ul class="home-page-cards__cards">
-                {% for item in user_lists %}
+                {% for item in lists %}
                 <li>
                     <a href="/lists/by-id/{{ item.list_meta.list_id }}" class="user-list-card__link">
                         <article class="user-list-card">
@@ -45,7 +25,35 @@
                 </li>
                 {% endfor %}
             </ul>
-            <a href="/lists">More</a>
+{%- endmacro %}
+{% call render_page(page_container_class='home-page-container') %}
+
+    <main id="mainContent">
+        
+        <div class="home-page">
+            
+        <section class="home-page-hero">
+            <div class="home-page-hero__left_wrapper">
+                <h1 class="home-page-hero__content_title">
+                    Discover preprints and the Sciety community.
+                </h1>
+                <p class="home-page-hero__content_byline">
+                    Experimental ways to explore and curate evaluated preprints.
+                </p>
+            </div>
+
+        </section>
+
+        <section class="home-page-cards">
+            <h2 class="home-page-cards__title"><a href="/lists/user-lists">Most active user lists</a></h2>
+            {{ render_list_cards(user_lists) }}
+            <a href="/lists/user-lists">More</a>
+        </section>
+
+        <section class="home-page-cards">
+            <h2 class="home-page-cards__title"><a href="/lists/group-lists">Most active group lists</a></h2>
+            {{ render_list_cards(group_lists) }}
+            <a href="/lists/group-lists">More</a>
         </section>
 
     </main>

@@ -2,7 +2,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime
 from threading import Lock
-from typing import Dict, Iterable, NamedTuple, Optional, Protocol, Sequence, Sized
+from typing import Dict, Iterable, NamedTuple, Optional, Protocol, Sequence, Set, Sized
 
 from sciety_labs.models.article import ArticleMention, get_doi_from_article_id_or_none
 from sciety_labs.models.image import ObjectImages
@@ -219,20 +219,27 @@ class ScietyEventListsModel(ListsModel):
         for list_meta in self._list_meta_by_list_id.values():
             yield self.get_list_summary_data_for_list_meta(list_meta)
 
-    def get_most_active_user_lists(
+    def get_most_active_filtered_lists(
         self,
         top_n: Optional[int] = None,
-        min_article_count: int = 1
+        min_article_count: int = 1,
+        owner_types: Optional[Set[str]] = None
     ) -> Sequence[ListSummaryData]:
         result = get_sorted_list_summary_list_by_most_active([
             list_summary_data
             for list_summary_data in self.iter_list_summary_data()
             if list_summary_data.article_count >= min_article_count
-            and list_summary_data.owner.owner_type == OwnerTypes.USER
+            and (not owner_types or list_summary_data.owner.owner_type in owner_types)
         ])
         if top_n:
             result = result[:top_n]
         return result
+
+    def get_most_active_user_lists(self, **kwargs) -> Sequence[ListSummaryData]:
+        return self.get_most_active_filtered_lists(owner_types={OwnerTypes.USER}, **kwargs)
+
+    def get_most_active_group_lists(self, **kwargs) -> Sequence[ListSummaryData]:
+        return self.get_most_active_filtered_lists(owner_types={OwnerTypes.GROUP}, **kwargs)
 
     def get_list_meta_data_by_list_id(
         self,
