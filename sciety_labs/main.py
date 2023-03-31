@@ -244,41 +244,39 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             }
         )
 
-    @app.get('/lists/user-lists', response_class=HTMLResponse)
-    async def user_lists(request: Request):
-        list_summary_data_list = list(
+    def _render_lists(request: Request):
+        user_list_summary_data_list = list(
             google_sheet_list_image_provider.iter_list_summary_data_with_list_image_url(
                 lists_model.get_most_active_user_lists(
                     min_article_count=min_article_count
                 )
             )
         )
-        LOGGER.info('list_summary_data_list: %r', list_summary_data_list)
-        return templates.TemplateResponse(
-            'pages/lists.html', {
-                'request': request,
-                'page_title': get_page_title('Most active lists'),
-                'user_lists': list_summary_data_list
-            }
-        )
-
-    @app.get('/lists/group-lists', response_class=HTMLResponse)
-    async def group_lists(request: Request):
-        list_summary_data_list = list(
+        LOGGER.info('user_list_summary_data_list: %r', user_list_summary_data_list)
+        group_list_summary_data_list = list(
             google_sheet_list_image_provider.iter_list_summary_data_with_list_image_url(
                 lists_model.get_most_active_group_lists(
                     min_article_count=min_article_count
                 )
             )
         )
-        LOGGER.info('list_summary_data_list: %r', list_summary_data_list)
+        LOGGER.info('group_list_summary_data_list: %r', group_list_summary_data_list)
         return templates.TemplateResponse(
             'pages/lists.html', {
                 'request': request,
                 'page_title': get_page_title('Most active lists'),
-                'user_lists': list_summary_data_list
+                'user_lists': user_list_summary_data_list,
+                'group_lists': group_list_summary_data_list
             }
         )
+
+    @app.get('/lists/user-lists', response_class=HTMLResponse)
+    async def user_lists(request: Request):
+        return _render_lists(request)
+
+    @app.get('/lists/group-lists', response_class=HTMLResponse)
+    async def group_lists(request: Request):
+        return _render_lists(request)
 
     @app.get('/lists', response_class=RedirectResponse)
     async def lists():

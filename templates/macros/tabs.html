@@ -1,0 +1,17 @@
+{% macro render_tab(href) -%}
+    {% if request.url.path == href %}
+    <li class="tab tab--active" role="presentation">
+        <span role="tab" id="active-tab" aria-selected="true">{{ caller() }}</span>
+    </li>
+    {% else %}
+    <li class="tab" role="presentation">
+        <a role="tab" href="{{ href }}">{{ caller() }}</a>
+    </li>
+    {% endif %}
+{%- endmacro %}
+
+{% macro render_tab_content(href) -%}
+    {% if request.url.path == href %}
+    {{ caller() }}
+    {% endif %}
+{%- endmacro %}
