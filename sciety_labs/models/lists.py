@@ -234,6 +234,21 @@ class ScietyEventListsModel(ListsModel):
             result = result[:top_n]
         return result
 
+    def get_most_active_group_lists(
+        self,
+        top_n: Optional[int] = None,
+        min_article_count: int = 1
+    ) -> Sequence[ListSummaryData]:
+        result = get_sorted_list_summary_list_by_most_active([
+            list_summary_data
+            for list_summary_data in self.iter_list_summary_data()
+            if list_summary_data.article_count >= min_article_count
+            and list_summary_data.owner.owner_type == OwnerTypes.GROUP
+        ])
+        if top_n:
+            result = result[:top_n]
+        return result
+
     def get_list_meta_data_by_list_id(
         self,
         list_id: str

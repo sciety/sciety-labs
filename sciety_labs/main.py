@@ -251,6 +251,24 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             }
         )
 
+    @app.get('/lists/group-lists', response_class=HTMLResponse)
+    async def group_lists(request: Request):
+        list_summary_data_list = list(
+            google_sheet_list_image_provider.iter_list_summary_data_with_list_image_url(
+                lists_model.get_most_active_group_lists(
+                    min_article_count=min_article_count
+                )
+            )
+        )
+        LOGGER.info('list_summary_data_list: %r', list_summary_data_list)
+        return templates.TemplateResponse(
+            'pages/lists.html', {
+                'request': request,
+                'page_title': get_page_title('Most active lists'),
+                'user_lists': list_summary_data_list
+            }
+        )
+
     def _get_page_article_mention_with_article_meta_for_article_mention_iterable(
         article_mention_iterable: Iterable[ArticleMention],
         page: int,
