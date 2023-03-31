@@ -441,6 +441,45 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             }
         )
 
+    @app.get('/lists/by-id/{list_id}/article-recommendations/atom.xml', response_class=AtomResponse)
+    async def article_recommendations_atom_by_sciety_list_id(
+        request: Request,
+        list_id: str,
+        items_per_page: Optional[int] = 10,
+        page: int = 1,
+        max_recommendations: int = 500
+    ):
+        list_summary_data = lists_model.get_list_summary_data_by_list_id(list_id)
+        LOGGER.info('list_summary_data: %r', list_summary_data)
+        all_article_recommendations = list(
+            iter_preprint_article_mention(
+                semantic_scholar_provider.iter_article_recommendation_for_article_dois(
+                    (
+                        article_mention.article_doi
+                        for article_mention in lists_model.iter_article_mentions_by_list_id(
+                            list_id
+                        )
+                    ),
+                    max_recommendations=max_recommendations
+                )
+            )
+        )
+        article_recommendation_with_article_meta = list(
+            _get_page_article_mention_with_article_meta_for_article_mention_iterable(
+                all_article_recommendations,
+                page=page,
+                items_per_page=items_per_page
+            )
+        )
+        return templates.TemplateResponse(
+            'pages/article-recommendations-by-sciety-list-id.atom.xml', {
+                'request': request,
+                'list_summary_data': list_summary_data,
+                'article_list_content': article_recommendation_with_article_meta
+            },
+            media_type=AtomResponse.media_type
+        )
+
     @app.get('/lists/by-twitter-handle/{twitter_handle}', response_class=HTMLResponse)
     async def list_by_twitter_handle(
         request: Request,

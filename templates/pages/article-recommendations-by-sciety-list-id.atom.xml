@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+    <title>{{ list_summary_data.list_meta.list_name }}</title>
+    <subtitle>{{ list_summary_data.list_meta.list_description }}</subtitle>
+    <updated>{{ list_summary_data.last_updated_datetime | date_isoformat }}</updated>
+
+    {% for item in article_list_content %}
+    <entry>
+        <title>{{ item.article_meta.article_title }}</title>
+        <link href="https://sciety.org/articles/activity/{{ item.article_doi }}?utm_source=sciety_labs_atom_feed" />
+        <published>{{ item.created_at_timestamp | date_isoformat }}</published>
+        <summary>{{ item.article_meta.article_title }}</summary>
+        <id>doi:{{ item.article_doi }}</id>
+        {% if item.comment %}
+        <summary type="xhtml">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="comment">
+                <p>{{ item.comment }}</p>
+            </div>
+        </summary>
+        {% endif %}
+
+        {% if item.article_meta.abstract %}
+        <content type="xhtml">
+            {% if item.comment %}
+            <div xmlns="http://www.w3.org/1999/xhtml" class="comment">
+                <p>{{ item.comment }}</p>
+            </div>
+            {% endif %}
+            <div xmlns="http://www.w3.org/1999/xhtml" class="article-abstract">
+                <h2>Abstract</h2>
+                <div>
+                    {{ item.article_meta.abstract | sanitize }}
+                </div>
+            </div>
+        </content>
+        {% endif %}
+
+        <author>
+            <name>{{ list_summary_data.owner.display_name }}</name>
+        </author>
+    </entry>
+    {% endfor %}
+</feed>
