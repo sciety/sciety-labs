@@ -474,6 +474,9 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         return templates.TemplateResponse(
             'pages/article-recommendations-by-sciety-list-id.atom.xml', {
                 'request': request,
+                'feed_title': (
+                    f'Article recommendations for {list_summary_data.list_meta.list_name}'
+                ),
                 'list_summary_data': list_summary_data,
                 'article_list_content': article_recommendation_with_article_meta
             },
