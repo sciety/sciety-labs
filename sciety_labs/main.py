@@ -244,7 +244,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             }
         )
 
-    def _render_lists(request: Request):
+    def _render_lists(request: Request, page_title: str):
         user_list_summary_data_list = list(
             google_sheet_list_image_provider.iter_list_summary_data_with_list_image_url(
                 lists_model.get_most_active_user_lists(
@@ -264,7 +264,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         return templates.TemplateResponse(
             'pages/lists.html', {
                 'request': request,
-                'page_title': get_page_title('Most active lists'),
+                'page_title': page_title,
                 'user_lists': user_list_summary_data_list,
                 'group_lists': group_list_summary_data_list
             }
@@ -272,11 +272,11 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
 
     @app.get('/lists/user-lists', response_class=HTMLResponse)
     async def user_lists(request: Request):
-        return _render_lists(request)
+        return _render_lists(request, page_title=get_page_title('Most active user lists'))
 
     @app.get('/lists/group-lists', response_class=HTMLResponse)
     async def group_lists(request: Request):
-        return _render_lists(request)
+        return _render_lists(request, page_title=get_page_title('Most active group lists'))
 
     @app.get('/lists', response_class=RedirectResponse)
     async def lists():
