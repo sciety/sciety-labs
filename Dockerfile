@@ -1,9 +1,10 @@
-FROM python:3.8 AS base
+FROM python:3.8-slim AS base
 
 USER root
 
 WORKDIR /app/sciety-labs
 
+ENV PIP_NO_CACHE_DIR=1
 COPY requirements.build.txt ./
 RUN pip install --disable-pip-version-check -r requirements.build.txt
 
