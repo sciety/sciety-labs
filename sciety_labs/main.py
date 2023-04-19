@@ -458,18 +458,19 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     ):
         list_summary_data = lists_model.get_list_summary_data_by_list_id(list_id)
         LOGGER.info('list_summary_data: %r', list_summary_data)
-        all_article_recommendations = list(
-            iter_preprint_article_mention(
-                semantic_scholar_provider.iter_article_recommendation_for_article_dois(
-                    (
-                        article_mention.article_doi
-                        for article_mention in lists_model.iter_article_mentions_by_list_id(
-                            list_id
-                        )
-                    ),
-                    max_recommendations=max_recommendations
-                )
+        article_recommendation_list = (
+            semantic_scholar_provider.get_article_recommendation_list_for_article_dois(
+                (
+                    article_mention.article_doi
+                    for article_mention in lists_model.iter_article_mentions_by_list_id(
+                        list_id
+                    )
+                ),
+                max_recommendations=max_recommendations
             )
+        )
+        all_article_recommendations = list(
+            iter_preprint_article_mention(article_recommendation_list.recommendations)
         )
         article_recommendation_with_article_meta = list(
             _get_page_article_mention_with_article_meta_for_article_mention_iterable(
@@ -484,6 +485,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 'feed_title': (
                     f'Article recommendations for {list_summary_data.list_meta.list_name}'
                 ),
+                'recommendation_timestamp': article_recommendation_list.recommendation_timestamp,
                 'list_summary_data': list_summary_data,
                 'article_list_content': article_recommendation_with_article_meta
             },

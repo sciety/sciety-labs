@@ -1,6 +1,7 @@
 import dataclasses
 import itertools
 import logging
+from datetime import datetime
 from typing import Iterable, Optional, Sequence
 
 import requests
@@ -29,6 +30,7 @@ class ArticleRecommendation(ArticleMention):
 @dataclasses.dataclass(frozen=True)
 class ArticleRecommendationList:
     recommendations: Sequence[ArticleRecommendation]
+    recommendation_timestamp: datetime
 
 
 def _get_recommendation_request_payload_for_article_dois(
@@ -121,10 +123,12 @@ class SemanticScholarProvider:
         response.raise_for_status()
         response_json = response.json()
         LOGGER.debug('Semantic Scholar, response_json=%r', response_json)
+        recommendation_timestamp = datetime.utcnow()
         return ArticleRecommendationList(
             recommendations=list(_iter_article_recommendation_from_recommendation_response_json(
                 response_json
-            ))
+            )),
+            recommendation_timestamp=recommendation_timestamp
         )
 
     def iter_article_recommendation_for_article_dois(
