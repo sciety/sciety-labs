@@ -4,7 +4,7 @@
     {%- if feed_description %}
     <subtitle>{{ list_summary_data.list_meta.list_description }}</subtitle>
     {%- endif %}
-    <updated>{{ recommendation_timestamp | date_isoformat }}</updated>
+    <updated>{{ recommendation_timestamp | timestamp_isoformat }}</updated>
 
     {%- for item in article_list_content %}
     <entry>

@@ -18,3 +18,9 @@ def get_date_as_display_format(date_value: Union[date, datetime]) -> Optional[st
     if not date_value:
         return None
     return date_value.strftime(r'%b %-d, %Y')
+
+
+def get_timestamp_as_isoformat(timestamp_value: Union[date, datetime]) -> Optional[str]:
+    if not timestamp_value:
+        return None
+    return timestamp_value.isoformat()
