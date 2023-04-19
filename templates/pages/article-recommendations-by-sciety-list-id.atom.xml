@@ -1,34 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-
     <title>{{ feed_title }}</title>
-    {% if feed_description %}
+    {%- if feed_description %}
     <subtitle>{{ list_summary_data.list_meta.list_description }}</subtitle>
-    {% endif %}
+    {%- endif %}
     <updated>{{ list_summary_data.last_updated_datetime | date_isoformat }}</updated>
 
-    {% for item in article_list_content %}
+    {%- for item in article_list_content %}
     <entry>
         <title>{{ item.article_meta.article_title }}</title>
         <link href="https://sciety.org/articles/activity/{{ item.article_doi }}?utm_source=sciety_labs_atom_feed" />
         <published>{{ item.article_meta.published_date | date_isoformat }}</published>
         <summary>{{ item.article_meta.article_title }}</summary>
         <id>doi:{{ item.article_doi }}</id>
-        {% if item.comment %}
+        {%- if item.comment %}
         <summary type="xhtml">
             <div xmlns="http://www.w3.org/1999/xhtml" class="comment">
                 <p>{{ item.comment }}</p>
             </div>
         </summary>
-        {% endif %}
+        {%- endif %}
 
-        {% if item.article_meta.abstract %}
+        {%- if item.article_meta.abstract %}
         <content type="xhtml">
-            {% if item.comment %}
+            {%- if item.comment %}
             <div xmlns="http://www.w3.org/1999/xhtml" class="comment">
                 <p>{{ item.comment }}</p>
             </div>
-            {% endif %}
+            {%- endif %}
             <div xmlns="http://www.w3.org/1999/xhtml" class="article-abstract">
                 <h2>Abstract</h2>
                 <div>
@@ -36,15 +35,15 @@
                 </div>
             </div>
         </content>
-        {% endif %}
+        {%- endif %}
 
-        {% if item.article_meta.author_name_list %}
+        {%- if item.article_meta.author_name_list %}
         <author>
-            {% for author_name in item.article_meta.author_name_list %}
+            {%- for author_name in item.article_meta.author_name_list %}
             <name>{{ author_name }}</name>
-            {% endfor %}
+            {%- endfor %}
         </author>
-        {% endif %}
+        {%- endif %}
     </entry>
-    {% endfor %}
+    {%- endfor %}
 </feed>
