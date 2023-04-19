@@ -13,6 +13,10 @@ LOGGER = logging.getLogger(__name__)
 
 MAX_SEMANTIC_SCHOLAR_RECOMMENDATION_REQUEST_PAPER_IDS = 100
 
+# This is the number of recommendations we ask Semantic Scholar to generate,
+# before post filtering
+DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS = 500
+
 
 SEMANTIC_SCHOLAR_PAPER_ID_EXT_REF_ID = 'semantic_scholar_paper_id'
 
@@ -92,7 +96,7 @@ class SemanticScholarProvider:
     def get_article_recommendation_list_for_article_dois(
         self,
         article_dois: Iterable[str],
-        max_recommendations: int = 500
+        max_recommendations: int = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
     ) -> ArticleRecommendationList:
         request_json = _get_recommendation_request_payload_for_article_dois(
             article_dois=article_dois
@@ -126,7 +130,7 @@ class SemanticScholarProvider:
     def iter_article_recommendation_for_article_dois(
         self,
         article_dois: Iterable[str],
-        max_recommendations: int = 500
+        max_recommendations: int = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
     ) -> Iterable[ArticleRecommendation]:
         return self.get_article_recommendation_list_for_article_dois(
             article_dois=article_dois,

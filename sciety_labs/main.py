@@ -33,7 +33,10 @@ from sciety_labs.providers.google_sheet_image import (
     GoogleSheetListImageProvider
 )
 from sciety_labs.providers.sciety_event import ScietyEventProvider
-from sciety_labs.providers.semantic_scholar import SemanticScholarProvider
+from sciety_labs.providers.semantic_scholar import (
+    DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS,
+    SemanticScholarProvider
+)
 from sciety_labs.providers.twitter import get_twitter_user_article_list_provider_or_none
 from sciety_labs.utils.bq_cache import BigQueryTableModifiedInMemorySingleObjectCache
 from sciety_labs.utils.cache import (
@@ -61,11 +64,6 @@ ALLOWED_TAGS = [
     'p', 'br', 'span', 'hr', 'src', 'class',
     'section', 'sub', 'sup'
 ]
-
-
-# This is the number of recommendations we ask Semantic Scholar to generate,
-# before post filtering
-DEFAULT_MAX_RECOMMENDATIONS = 500
 
 
 class AtomResponse(starlette.responses.Response):
@@ -391,7 +389,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         list_id: str,
         items_per_page: int = 10,
         page: int = 1,
-        max_recommendations: int = 500,
+        max_recommendations: int = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS,
         enable_pagination: bool = True
     ):
         list_summary_data = lists_model.get_list_summary_data_by_list_id(list_id)
@@ -456,7 +454,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         list_id: str,
         items_per_page: Optional[int] = 10,
         page: int = 1,
-        max_recommendations: int = 500
+        max_recommendations: int = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
     ):
         list_summary_data = lists_model.get_list_summary_data_by_list_id(list_id)
         LOGGER.info('list_summary_data: %r', list_summary_data)
@@ -567,7 +565,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 iter_preprint_article_mention(
                     semantic_scholar_provider.iter_article_recommendation_for_article_dois(
                         [article_doi],
-                        max_recommendations=DEFAULT_MAX_RECOMMENDATIONS
+                        max_recommendations=DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
                     )
                 )
             )
@@ -610,7 +608,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         article_doi: str,
         items_per_page: int = 10,
         page: int = 1,
-        max_recommendations: int = DEFAULT_MAX_RECOMMENDATIONS,
+        max_recommendations: int = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS,
         enable_pagination: bool = True
     ):
         article_meta = crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
