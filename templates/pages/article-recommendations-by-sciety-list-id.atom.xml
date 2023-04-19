@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <title>{{ feed_title }}</title>
+    <title type="html">{{ feed_title }}</title>
     {%- if feed_description %}
-    <subtitle>{{ list_summary_data.list_meta.list_description }}</subtitle>
+    <subtitle type="html">{{ list_summary_data.list_meta.list_description }}</subtitle>
     {%- endif %}
     <updated>{{ recommendation_timestamp | timestamp_isoformat }}</updated>
     <id>tag:sciety-labs,{{ list_summary_data.list_meta.list_id }}/article-recommendations</id>
