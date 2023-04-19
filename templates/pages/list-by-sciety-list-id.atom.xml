@@ -11,7 +11,6 @@
         <title>{{ item.article_meta.article_title }}</title>
         <link href="https://sciety.org/articles/activity/{{ item.article_doi }}?utm_source=sciety_labs_atom_feed" />
         <published>{{ item.created_at_timestamp | date_isoformat }}</published>
-        <summary>{{ item.article_meta.article_title }}</summary>
         <id>doi:{{ item.article_doi }}</id>
         {% if item.comment %}
         <summary type="xhtml">
