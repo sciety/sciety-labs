@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import Iterable, Optional, Sequence
 
 import requests
+from requests_cache import CachedResponse
 
 from sciety_labs.models.article import ArticleMention, ArticleMetaData
 
@@ -85,6 +86,12 @@ def _iter_article_recommendation_from_recommendation_response_json(
         )
 
 
+def get_response_timestamp(response: requests.Response) -> datetime:
+    if isinstance(response, CachedResponse):
+        return response.created_at
+    return datetime.utcnow()
+
+
 class SemanticScholarProvider:
     def __init__(
         self,
@@ -123,7 +130,7 @@ class SemanticScholarProvider:
         response.raise_for_status()
         response_json = response.json()
         LOGGER.debug('Semantic Scholar, response_json=%r', response_json)
-        recommendation_timestamp = datetime.utcnow()
+        recommendation_timestamp = get_response_timestamp(response)
         return ArticleRecommendationList(
             recommendations=list(_iter_article_recommendation_from_recommendation_response_json(
                 response_json

@@ -469,6 +469,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 max_recommendations=max_recommendations
             )
         )
+        recommendation_timestamp = article_recommendation_list.recommendation_timestamp
         all_article_recommendations = list(
             iter_preprint_article_mention(article_recommendation_list.recommendations)
         )
@@ -479,13 +480,14 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 items_per_page=items_per_page
             )
         )
+        LOGGER.info('recommendation_timestamp: %r', recommendation_timestamp)
         return templates.TemplateResponse(
             'pages/article-recommendations-by-sciety-list-id.atom.xml', {
                 'request': request,
                 'feed_title': (
                     f'Article recommendations for {list_summary_data.list_meta.list_name}'
                 ),
-                'recommendation_timestamp': article_recommendation_list.recommendation_timestamp,
+                'recommendation_timestamp': recommendation_timestamp,
                 'list_summary_data': list_summary_data,
                 'article_list_content': article_recommendation_with_article_meta
             },
