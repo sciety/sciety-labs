@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title type="html">{{ feed_title }}</title>
+    {%- if feed_description %}
+    <subtitle type="html">{{ list_summary_data.list_meta.list_description }}</subtitle>
+    {%- endif %}
+    <updated>{{ recommendation_timestamp | timestamp_isoformat }}</updated>
+    <id>tag:sciety-labs,{{ list_summary_data.list_meta.list_id }}/article-recommendations</id>
+
+    {%- for item in article_list_content %}
+    <entry>
+        <title type="html">{{ item.article_meta.article_title }}</title>
+        <link href="https://sciety.org/articles/activity/{{ item.article_doi }}?utm_source=sciety_labs_article_recommendations_atom_feed" />
+        <published>{{ item.article_meta.published_date | date_isoformat }}+00:00</published>
+        <updated>{{ item.article_meta.published_date | date_isoformat }}+00:00</updated>
+        <id>tag:doi,{{ item.article_doi }}</id>
+        {%- if item.comment %}
+        <summary type="xhtml">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="comment">
+                <p>{{ item.comment }}</p>
+            </div>
+        </summary>
+        {%- endif %}
+
+        {%- if item.article_meta.abstract %}
+        <content type="xhtml">
+            <div xmlns="http://www.w3.org/1999/xhtml">
+                {%- if item.comment %}
+                <div class="comment">
+                    <p>{{ item.comment }}</p>
+                </div>
+                {%- endif %}
+                <div class="article-abstract">
+                    <h2>Abstract</h2>
+                    <div>
+                        {{ item.article_meta.abstract | sanitize }}
+                    </div>
+                </div>
+            </div>
+        </content>
+        {%- endif %}
+
+        {%- if item.article_meta.author_name_list %}
+        {%- for author_name in item.article_meta.author_name_list %}
+        <author>
+            <name>{{ author_name }}</name>
+        </author>
+        {%- endfor %}
+        {%- endif %}
+    </entry>
+    {%- endfor %}
+</feed>

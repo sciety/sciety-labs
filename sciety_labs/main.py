@@ -33,7 +33,10 @@ from sciety_labs.providers.google_sheet_image import (
     GoogleSheetListImageProvider
 )
 from sciety_labs.providers.sciety_event import ScietyEventProvider
-from sciety_labs.providers.semantic_scholar import SemanticScholarProvider
+from sciety_labs.providers.semantic_scholar import (
+    DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS,
+    SemanticScholarProvider
+)
 from sciety_labs.providers.twitter import get_twitter_user_article_list_provider_or_none
 from sciety_labs.utils.bq_cache import BigQueryTableModifiedInMemorySingleObjectCache
 from sciety_labs.utils.cache import (
@@ -41,7 +44,11 @@ from sciety_labs.utils.cache import (
     DiskSingleObjectCache,
     InMemorySingleObjectCache
 )
-from sciety_labs.utils.datetime import get_date_as_display_format, get_date_as_isoformat
+from sciety_labs.utils.datetime import (
+    get_date_as_display_format,
+    get_date_as_isoformat,
+    get_timestamp_as_isoformat
+)
 from sciety_labs.utils.pagination import (
     get_page_iterable,
     get_url_pagination_state_for_url
@@ -63,13 +70,8 @@ ALLOWED_TAGS = [
 ]
 
 
-# This is the number of recommendations we ask Semantic Scholar to generate,
-# before post filtering
-DEFAULT_MAX_RECOMMENDATIONS = 500
-
-
 class AtomResponse(starlette.responses.Response):
-    media_type = "application/atom+xml"
+    media_type = "application/atom+xml;charset=utf-8"
 
 
 def get_owner_url(owner: OwnerMetaData) -> Optional[str]:
@@ -189,6 +191,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     templates.env.filters['sanitize'] = get_sanitized_string_as_safe_markup
     templates.env.filters['date_isoformat'] = get_date_as_isoformat
     templates.env.filters['date_display_format'] = get_date_as_display_format
+    templates.env.filters['timestamp_isoformat'] = get_timestamp_as_isoformat
     templates.env.globals['site_config'] = site_config
 
     app = FastAPI()
@@ -391,7 +394,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         list_id: str,
         items_per_page: int = 10,
         page: int = 1,
-        max_recommendations: int = 500,
+        max_recommendations: int = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS,
         enable_pagination: bool = True
     ):
         list_summary_data = lists_model.get_list_summary_data_by_list_id(list_id)
@@ -428,17 +431,72 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             item_count=item_count,
             enable_pagination=enable_pagination
         )
+        rss_url = (
+            request
+            .url
+            .remove_query_params(['page', 'items_per_page', 'enable_pagination'])
+            .replace(
+                path=request.url.path + '/atom.xml'
+            )
+        )
         return templates.TemplateResponse(
             'pages/article-recommendations-by-sciety-list-id.html', {
                 'request': request,
                 'page_title': get_page_title(
                     f'Article recommendations for {list_summary_data.list_meta.list_name}'
                 ),
+                'rss_url': rss_url,
                 'owner_url': get_owner_url(list_summary_data.owner),
                 'list_summary_data': list_summary_data,
                 'article_list_content': article_recommendation_with_article_meta,
                 'pagination': url_pagination_state
             }
+        )
+
+    @app.get('/lists/by-id/{list_id}/article-recommendations/atom.xml', response_class=AtomResponse)
+    async def article_recommendations_atom_by_sciety_list_id(
+        request: Request,
+        list_id: str,
+        items_per_page: Optional[int] = 10,
+        page: int = 1,
+        max_recommendations: int = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
+    ):
+        list_summary_data = lists_model.get_list_summary_data_by_list_id(list_id)
+        LOGGER.info('list_summary_data: %r', list_summary_data)
+        article_recommendation_list = (
+            semantic_scholar_provider.get_article_recommendation_list_for_article_dois(
+                (
+                    article_mention.article_doi
+                    for article_mention in lists_model.iter_article_mentions_by_list_id(
+                        list_id
+                    )
+                ),
+                max_recommendations=max_recommendations
+            )
+        )
+        recommendation_timestamp = article_recommendation_list.recommendation_timestamp
+        all_article_recommendations = list(
+            iter_preprint_article_mention(article_recommendation_list.recommendations)
+        )
+        article_recommendation_with_article_meta = list(
+            _get_page_article_mention_with_article_meta_for_article_mention_iterable(
+                all_article_recommendations,
+                page=page,
+                items_per_page=items_per_page
+            )
+        )
+        LOGGER.info('recommendation_timestamp: %r', recommendation_timestamp)
+        return templates.TemplateResponse(
+            'pages/article-recommendations-by-sciety-list-id.atom.xml', {
+                'request': request,
+                'feed_title': (
+                    f'Article recommendations for {list_summary_data.list_meta.list_name}'
+                ),
+                'recommendation_timestamp': recommendation_timestamp,
+                'list_summary_data': list_summary_data,
+                'article_list_content': article_recommendation_with_article_meta
+            },
+            media_type=AtomResponse.media_type
         )
 
     @app.get('/lists/by-twitter-handle/{twitter_handle}', response_class=HTMLResponse)
@@ -516,7 +574,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 iter_preprint_article_mention(
                     semantic_scholar_provider.iter_article_recommendation_for_article_dois(
                         [article_doi],
-                        max_recommendations=DEFAULT_MAX_RECOMMENDATIONS
+                        max_recommendations=DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
                     )
                 )
             )
@@ -559,7 +617,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         article_doi: str,
         items_per_page: int = 10,
         page: int = 1,
-        max_recommendations: int = DEFAULT_MAX_RECOMMENDATIONS,
+        max_recommendations: int = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS,
         enable_pagination: bool = True
     ):
         article_meta = crossref_metadata_provider.get_article_metadata_by_doi(article_doi)

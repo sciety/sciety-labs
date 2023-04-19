@@ -1,17 +1,24 @@
 import dataclasses
 import itertools
 import logging
+from datetime import datetime
 from typing import Iterable, Optional, Sequence
 
 import requests
+from requests_cache import CachedResponse
 
 from sciety_labs.models.article import ArticleMention, ArticleMetaData
+from sciety_labs.utils.datetime import get_utc_timestamp_with_tzinfo, get_utcnow
 
 
 LOGGER = logging.getLogger(__name__)
 
 
 MAX_SEMANTIC_SCHOLAR_RECOMMENDATION_REQUEST_PAPER_IDS = 100
+
+# This is the number of recommendations we ask Semantic Scholar to generate,
+# before post filtering
+DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS = 500
 
 
 SEMANTIC_SCHOLAR_PAPER_ID_EXT_REF_ID = 'semantic_scholar_paper_id'
@@ -20,6 +27,12 @@ SEMANTIC_SCHOLAR_PAPER_ID_EXT_REF_ID = 'semantic_scholar_paper_id'
 @dataclasses.dataclass(frozen=True)
 class ArticleRecommendation(ArticleMention):
     pass
+
+
+@dataclasses.dataclass(frozen=True)
+class ArticleRecommendationList:
+    recommendations: Sequence[ArticleRecommendation]
+    recommendation_timestamp: datetime
 
 
 def _get_recommendation_request_payload_for_article_dois(
@@ -74,6 +87,12 @@ def _iter_article_recommendation_from_recommendation_response_json(
         )
 
 
+def get_response_timestamp(response: requests.Response) -> datetime:
+    if isinstance(response, CachedResponse):
+        return get_utc_timestamp_with_tzinfo(response.created_at)
+    return get_utcnow()
+
+
 class SemanticScholarProvider:
     def __init__(
         self,
@@ -84,11 +103,11 @@ class SemanticScholarProvider:
             requests_session = requests.Session()
         self.requests_session = requests_session
 
-    def iter_article_recommendation_for_article_dois(
+    def get_article_recommendation_list_for_article_dois(
         self,
         article_dois: Iterable[str],
-        max_recommendations: int = 500
-    ) -> Iterable[ArticleRecommendation]:
+        max_recommendations: int = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
+    ) -> ArticleRecommendationList:
         request_json = _get_recommendation_request_payload_for_article_dois(
             article_dois=article_dois
         )
@@ -112,6 +131,20 @@ class SemanticScholarProvider:
         response.raise_for_status()
         response_json = response.json()
         LOGGER.debug('Semantic Scholar, response_json=%r', response_json)
-        return _iter_article_recommendation_from_recommendation_response_json(
-            response_json
+        recommendation_timestamp = get_response_timestamp(response)
+        return ArticleRecommendationList(
+            recommendations=list(_iter_article_recommendation_from_recommendation_response_json(
+                response_json
+            )),
+            recommendation_timestamp=recommendation_timestamp
         )
+
+    def iter_article_recommendation_for_article_dois(
+        self,
+        article_dois: Iterable[str],
+        max_recommendations: int = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
+    ) -> Iterable[ArticleRecommendation]:
+        return self.get_article_recommendation_list_for_article_dois(
+            article_dois=article_dois,
+            max_recommendations=max_recommendations
+        ).recommendations
