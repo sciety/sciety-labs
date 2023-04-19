@@ -71,7 +71,7 @@ ALLOWED_TAGS = [
 
 
 class AtomResponse(starlette.responses.Response):
-    media_type = "application/atom+xml"
+    media_type = "application/atom+xml;charset=utf-8"
 
 
 def get_owner_url(owner: OwnerMetaData) -> Optional[str]:
