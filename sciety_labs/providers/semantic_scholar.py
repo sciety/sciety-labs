@@ -74,6 +74,11 @@ def _iter_article_recommendation_from_recommendation_response_json(
         )
 
 
+@dataclasses.dataclass(frozen=True)
+class ArticleRecommendationList:
+    recommendations: Sequence[ArticleRecommendation]
+
+
 class SemanticScholarProvider:
     def __init__(
         self,
@@ -84,11 +89,11 @@ class SemanticScholarProvider:
             requests_session = requests.Session()
         self.requests_session = requests_session
 
-    def iter_article_recommendation_for_article_dois(
+    def get_article_recommendation_list_for_article_dois(
         self,
         article_dois: Iterable[str],
         max_recommendations: int = 500
-    ) -> Iterable[ArticleRecommendation]:
+    ) -> ArticleRecommendationList:
         request_json = _get_recommendation_request_payload_for_article_dois(
             article_dois=article_dois
         )
@@ -112,6 +117,18 @@ class SemanticScholarProvider:
         response.raise_for_status()
         response_json = response.json()
         LOGGER.debug('Semantic Scholar, response_json=%r', response_json)
-        return _iter_article_recommendation_from_recommendation_response_json(
-            response_json
+        return ArticleRecommendationList(
+            recommendations=list(_iter_article_recommendation_from_recommendation_response_json(
+                response_json
+            ))
         )
+
+    def iter_article_recommendation_for_article_dois(
+        self,
+        article_dois: Iterable[str],
+        max_recommendations: int = 500
+    ) -> Iterable[ArticleRecommendation]:
+        return self.get_article_recommendation_list_for_article_dois(
+            article_dois=article_dois,
+            max_recommendations=max_recommendations
+        ).recommendations
