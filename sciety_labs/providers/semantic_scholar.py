@@ -26,6 +26,11 @@ class ArticleRecommendation(ArticleMention):
     pass
 
 
+@dataclasses.dataclass(frozen=True)
+class ArticleRecommendationList:
+    recommendations: Sequence[ArticleRecommendation]
+
+
 def _get_recommendation_request_payload_for_article_dois(
     article_dois: Iterable[str]
 ) -> dict:
@@ -76,11 +81,6 @@ def _iter_article_recommendation_from_recommendation_response_json(
                 SEMANTIC_SCHOLAR_PAPER_ID_EXT_REF_ID: recommended_paper_json.get('paperId')
             }
         )
-
-
-@dataclasses.dataclass(frozen=True)
-class ArticleRecommendationList:
-    recommendations: Sequence[ArticleRecommendation]
 
 
 class SemanticScholarProvider:
