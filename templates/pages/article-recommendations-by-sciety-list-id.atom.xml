@@ -24,15 +24,17 @@
 
         {%- if item.article_meta.abstract %}
         <content type="xhtml">
-            {%- if item.comment %}
-            <div xmlns="http://www.w3.org/1999/xhtml" class="comment">
-                <p>{{ item.comment }}</p>
-            </div>
-            {%- endif %}
-            <div xmlns="http://www.w3.org/1999/xhtml" class="article-abstract">
-                <h2>Abstract</h2>
-                <div>
-                    {{ item.article_meta.abstract | sanitize }}
+            <div xmlns="http://www.w3.org/1999/xhtml">
+                {%- if item.comment %}
+                <div class="comment">
+                    <p>{{ item.comment }}</p>
+                </div>
+                {%- endif %}
+                <div class="article-abstract">
+                    <h2>Abstract</h2>
+                    <div>
+                        {{ item.article_meta.abstract | sanitize }}
+                    </div>
                 </div>
             </div>
         </content>
