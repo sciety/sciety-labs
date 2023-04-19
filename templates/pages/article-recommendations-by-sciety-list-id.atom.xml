@@ -38,11 +38,11 @@
         {%- endif %}
 
         {%- if item.article_meta.author_name_list %}
+        {%- for author_name in item.article_meta.author_name_list %}
         <author>
-            {%- for author_name in item.article_meta.author_name_list %}
             <name>{{ author_name }}</name>
-            {%- endfor %}
         </author>
+        {%- endfor %}
         {%- endif %}
     </entry>
     {%- endfor %}
