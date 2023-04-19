@@ -4,6 +4,7 @@
     <title>{{ list_summary_data.list_meta.list_name }}</title>
     <subtitle>{{ list_summary_data.list_meta.list_description }}</subtitle>
     <updated>{{ list_summary_data.last_updated_datetime | date_isoformat }}</updated>
+    <id>sciety-labs:{{ list_summary_data.list_meta.list_id }}</id>
 
     {% for item in article_list_content %}
     <entry>

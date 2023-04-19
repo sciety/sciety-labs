@@ -5,6 +5,7 @@
     <subtitle>{{ list_summary_data.list_meta.list_description }}</subtitle>
     {%- endif %}
     <updated>{{ recommendation_timestamp | timestamp_isoformat }}</updated>
+    <id>sciety-labs:{{ list_summary_data.list_meta.list_id }}/article-recommendations</id>
 
     {%- for item in article_list_content %}
     <entry>
