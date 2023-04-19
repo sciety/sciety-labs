@@ -8,6 +8,7 @@ import requests
 from requests_cache import CachedResponse
 
 from sciety_labs.models.article import ArticleMention, ArticleMetaData
+from sciety_labs.utils.datetime import get_utc_timestamp_with_tzinfo, get_utcnow
 
 
 LOGGER = logging.getLogger(__name__)
@@ -88,8 +89,8 @@ def _iter_article_recommendation_from_recommendation_response_json(
 
 def get_response_timestamp(response: requests.Response) -> datetime:
     if isinstance(response, CachedResponse):
-        return response.created_at
-    return datetime.utcnow()
+        return get_utc_timestamp_with_tzinfo(response.created_at)
+    return get_utcnow()
 
 
 class SemanticScholarProvider:
