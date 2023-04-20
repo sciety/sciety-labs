@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title type="html">Article recommendations for @AvasthiReading&#39;s saved articles</title>
+    <updated>2023-04-19T21:04:26.387958+00:00</updated>
+    <id>tag:sciety-labs,dcc7c864-6630-40e7-8eeb-9fb6f012e92b/article-recommendations</id>
+    <entry>
+        <title type="html">HEATR5B associates with dynein-dynactin and selectively promotes motility of AP1-bound endosomal membranes</title>
+        <link href="https://sciety.org/articles/activity/10.1101/2023.03.14.532574?utm_source=sciety_labs_article_recommendations_atom_feed" />
+        <published>2023-03-14+00:00</published>
+        <updated>2023-03-14+00:00</updated>
+        <id>tag:doi,10.1101/2023.03.14.532574</id>
+        <content type="xhtml">
+            <div xmlns="http://www.w3.org/1999/xhtml">
+                <div class="article-abstract">
+                    <h2>Abstract</h2>
+                    <div>
+                        <p>The dynein motor complex mediates polarised trafficking of a wide variety of organelles, intracellular vesicles and macromolecules. These functions are dependent on the dynactin complex, which helps recruit cargoes to dynein&#8217;s tail region and activates motor movement. How dynein and dynactin orchestrate trafficking of diverse cargoes is unclear. Here, we identify HEATR5B, an interactor of the AP1 clathrin adaptor complex, as a novel player in dynein-dynactin function. HEATR5B is one of several proteins recovered in a biochemical screen for proteins whose association with the human dynein tail complex is augmented by dynactin. We show that HEATR5B binds directly to the dynein tail and dynactin and stimulates motility of AP1-associated endosomal membranes in human cells. We also demonstrate that the HEATR5B homologue in<i>Drosophila</i>is an essential gene that promotes dynein-based transport of AP1-bound membranes to the Golgi apparatus. As HEATR5B lacks the coiled- coil architecture typical of dynein adaptors, our data point to a non-canonical process orchestrating motor function on a specific cargo. We additionally show that HEATR5B promotes association of AP1 with endosomal membranes in a dynein-independent manner. Thus, HEATR5B co-ordinates multiple events in AP1-based trafficking.</p>
+                    </div>
+                </div>
+            </div>
+        </content>
+        <author>
+            <name>Vanesa Madan</name>
+        </author>
+        <author>
+            <name>Lucas Albacete Albacete</name>
+        </author>
+        <author>
+            <name>Li Jin</name>
+        </author>
+        <author>
+            <name>Pietro Scaturro</name>
+        </author>
+        <author>
+            <name>Joseph L. Watson</name>
+        </author>
+        <author>
+            <name>Nadine Muschalik</name>
+        </author>
+        <author>
+            <name>Farida Begum</name>
+        </author>
+        <author>
+            <name>Jérôme Boulanger</name>
+        </author>
+        <author>
+            <name>Karl Bauer</name>
+        </author>
+        <author>
+            <name>Michael A. Kiebler</name>
+        </author>
+        <author>
+            <name>Emmanuel Derivery</name>
+        </author>
+        <author>
+            <name>Simon L. Bullock</name>
+        </author>
+    </entry>
+    <entry>
+        <title type="html">Salactin, a dynamically unstable actin homolog in Haloarchaea</title>
+        <link href="https://sciety.org/articles/activity/10.1101/2023.03.09.531933?utm_source=sciety_labs_article_recommendations_atom_feed" />
+        <published>2023-03-10+00:00</published>
+        <updated>2023-03-10+00:00</updated>
+        <id>tag:doi,10.1101/2023.03.09.531933</id>
+        <content type="xhtml">
+            <div xmlns="http://www.w3.org/1999/xhtml">
+                <div class="article-abstract">
+                    <h2>Abstract</h2>
+                    <div>
+                        <p>Across the domains of life, actin homologs are integral components of many essential processes such as DNA segregation, cell division, and cell shape determination. Archaea genomes, like those of bacteria and eukaryotes, also encode actin homologs, but much less is known about these proteins&#8217; in vivo dynamics and cellular functions. We identified and characterized the function and dynamics of Salactin, an actin homolog in the hypersaline archaeon Halobacterium salinarum. Despite Salactin&#8217;s homology to bacterial MreB proteins, we find it does not function as a MreB ortholog in H. salinarum. Rather, live-cell imaging revealed that Salactin forms dynamically unstable filaments that grow and shrink out of the cell poles. Like other dynamically unstable polymers, Salactin monomers add at the growing filament end and its ATP-bound critical concentration is substantially lower than the ADP-bound form. When H. salinarum&#8217;s chromosomal copy number becomes limiting under low phosphate growth conditions, cells lacking Salactin show perturbed DNA distributions. Taken together, we propose that Salactin is part of a previously unknown chromosomal segregation apparatus required during low-ploidy conditions.</p>
+                    </div>
+                </div>
+            </div>
+        </content>
+        <author>
+            <name>Jenny Zheng</name>
+        </author>
+        <author>
+            <name>Alex Lammers</name>
+        </author>
+        <author>
+            <name>John Mallon</name>
+        </author>
+        <author>
+            <name>Thomas Litschel</name>
+        </author>
+        <author>
+            <name>Edmund R.R. Moody</name>
+        </author>
+        <author>
+            <name>Diego A. Ramirez-Diaz</name>
+        </author>
+        <author>
+            <name>Amy Schmid</name>
+        </author>
+        <author>
+            <name>Tom A. Williams</name>
+        </author>
+        <author>
+            <name>Alexandre W. Bisson-Filho</name>
+        </author>
+        <author>
+            <name>Ethan Garner</name>
+        </author>
+    </entry>
+    <entry>
+        <title type="html">Tau-Tubulin Kinase 2 restrains microtubule-depolymerizer KIF2A to support primary cilia growth</title>
+        <link href="https://sciety.org/articles/activity/10.1101/2023.02.21.529351?utm_source=sciety_labs_article_recommendations_atom_feed" />
+        <published>2023-02-21+00:00</published>
+        <updated>2023-02-21+00:00</updated>
+        <id>tag:doi,10.1101/2023.02.21.529351</id>
+        <content type="xhtml">
+            <div xmlns="http://www.w3.org/1999/xhtml">
+                <div class="article-abstract">
+                    <h2>Abstract</h2>
+                    <div>
+                        <p>The initiation of assembly of primary cilia, organelles with crucial functions in development and disease, is under the control of Tau-Tubulin Kinase 2 (TTBK2). Recent work has implicated TTBK2 also in the regulation of primary cilia maintenance and function. However, the mechanisms underlying individual functions of TTBK2 in primary cilia are not fully understood.</p><p>Here, to dissect the role of TTBK2 in primary cilia maintenance in human cells, we examined disease related TTBK2 truncations. We demonstrate that these truncated protein moieties show selective activity towards TTBK2 substrates. This creates a semi-permissive condition where partial TTBK2 activity suffices to support the initiation of ciliogenesis but fails to sustain primary cilia length. Subsequently, we show that the defects in primary cilia growth are linked to aberrant turnover of kinesin KIF2A at basal body. Furthermore, we demonstrate that TTBK2 regulates KIF2A by phosphorylation, which in turn restrains its levels at the ciliary base to promote primary cilia elongation and maintenance.</p><p>Taken together, our data highlight the regulation of KIF2A by TTBK2 as an important mechanism governing primary cilia in human cells.</p>
+                    </div>
+                </div>
+            </div>
+        </content>
+        <author>
+            <name>David Vysloužil</name>
+        </author>
+        <author>
+            <name>Ondřej Bernatík</name>
+        </author>
+        <author>
+            <name>Tereza Renzová</name>
+        </author>
+        <author>
+            <name>Lucia Binó</name>
+        </author>
+        <author>
+            <name>Andrea Lacigová</name>
+        </author>
+        <author>
+            <name>Lukáš Čajánek</name>
+        </author>
+    </entry>
+    <entry>
+        <title type="html">ARF-family global interactome mapping uncovers spatial organization of cellular signaling pathways</title>
+        <link href="https://sciety.org/articles/activity/10.1101/2023.03.01.530598?utm_source=sciety_labs_article_recommendations_atom_feed" />
+        <published>2023-03-01+00:00</published>
+        <updated>2023-03-01+00:00</updated>
+        <id>tag:doi,10.1101/2023.03.01.530598</id>
+        <content type="xhtml">
+            <div xmlns="http://www.w3.org/1999/xhtml">
+                <div class="article-abstract">
+                    <h2>Abstract</h2>
+                    <div>
+                        <p>The ADP-ribosylation factor (ARF) family of GTPases are essential molecular switches that control a large variety of cellular processes. Here, we used classical proximity-dependent biotin identification (BioID) to comprehensively define the interactome of 28 out of 29 ARF proteins in two cell lines. The identification of &#8764;3000 high-confidence interactors allowed us to assign specific subcellular localization to the family members, uncovering previously undefined localization for ARL4D and ARL10. Clusterization analysis further showed the uniqueness in the set of interactors identified with these two ARF GTPases. We found that the expression of the understudied member ARL14 is restricted to the stomach and intestines and have identified phospholipase D1 (PLD1) and the ESCPE-1 complex, more precisely SNX1, as effectors. We showed that ARL14 can activate PLD1<i>in cellulo</i>and is involved in the trafficking of cargos<i>via</i>the ESCPE-1 complex. Thus, the BioID data generated in this study represent a useful tool to dissect the intricacies of ARF signaling and its spatial organization.</p>
+                    </div>
+                </div>
+            </div>
+        </content>
+        <author>
+            <name>Laura Quirion</name>
+        </author>
+        <author>
+            <name>Amélie Robert</name>
+        </author>
+        <author>
+            <name>Jonathan Boulais</name>
+        </author>
+        <author>
+            <name>Shiying Huang</name>
+        </author>
+        <author>
+            <name>Yacine Kherdjemil</name>
+        </author>
+        <author>
+            <name>Denis Faubert</name>
+        </author>
+        <author>
+            <name>Marie-Pier Thibault</name>
+        </author>
+        <author>
+            <name>Marie Kmita</name>
+        </author>
+        <author>
+            <name>Jeremy M. Baskin</name>
+        </author>
+        <author>
+            <name>Anne-Claude Gingras</name>
+        </author>
+        <author>
+            <name>Matthew J. Smith</name>
+        </author>
+        <author>
+            <name>Jean-François Côté</name>
+        </author>
+    </entry>
+    <entry>
+        <title type="html">Phosphorylation controls spatial and temporal activities of motor-PRC1 complexes to complete mitosis</title>
+        <link href="https://sciety.org/articles/activity/10.1101/2023.03.11.531660?utm_source=sciety_labs_article_recommendations_atom_feed" />
+        <published>2023-03-11+00:00</published>
+        <updated>2023-03-11+00:00</updated>
+        <id>tag:doi,10.1101/2023.03.11.531660</id>
+        <content type="xhtml">
+            <div xmlns="http://www.w3.org/1999/xhtml">
+                <div class="article-abstract">
+                    <h2>Abstract</h2>
+                    <div>
+                        <p>During mitosis, spindle architecture alters as chromosomes segregate to daughter cells. The microtubule crosslinker Protein Required for Cytokinesis 1 (PRC1) is essential for spindle stability, chromosome segregation and completion of cytokinesis, but how it recruits motors to the central spindle to coordinate the segregation of chromosomes is unknown. Here, we combine structural and cell biology approaches to show that the human CENP-E motor, which is essential for chromosome capture and alignment by microtubules, binds to PRC1 through a conserved hydrophobic motif. This binding mechanism is also used by Kinesin-4 Kif4A:PRC1. Using<i>in vitro</i>reconstitution, we demonstrate that CENP-E slides antiparallel PRC1-crosslinked microtubules. We find that the regulation of CENP-E -PRC1 interaction is spatially and temporally coupled with relocalization to overlapping microtubules in anaphase. Finally, we demonstrate that the PRC1:microtubule motor interaction is essential in anaphase to control chromosome partitioning, retain central spindle integrity and ensure cytokinesis. Taken together our findings reveal the molecular basis for the cell cycle regulation of motor-PRC1 complexes to couple chromosome segregation and cytokinesis.</p>
+                    </div>
+                </div>
+            </div>
+        </content>
+        <author>
+            <name>Agata Gluszek-Kustusz</name>
+        </author>
+        <author>
+            <name>Benjamin Craske</name>
+        </author>
+        <author>
+            <name>Thibault Legal</name>
+        </author>
+        <author>
+            <name>Toni McHugh</name>
+        </author>
+        <author>
+            <name>Julie P.I. Welburn</name>
+        </author>
+    </entry>
+    <entry>
+        <title type="html">A dynamic bactofilin cytoskeleton recruits an M23 endopeptidase to control bacterial morphogenesis</title>
+        <link href="https://sciety.org/articles/activity/10.1101/2023.02.27.530196?utm_source=sciety_labs_article_recommendations_atom_feed" />
+        <published>2023-03-01+00:00</published>
+        <updated>2023-03-01+00:00</updated>
+        <id>tag:doi,10.1101/2023.02.27.530196</id>
+        <content type="xhtml">
+            <div xmlns="http://www.w3.org/1999/xhtml">
+                <div class="article-abstract">
+                    <h2>Abstract</h2>
+                    <div>
+                        <p>Bactofilins have emerged as a widespread family of cytoskeletal proteins with important roles in bacterial morphogenesis, but their precise mode of action is still incompletely understood. Here, we identify the bactofilin cytoskeleton as a key regulator of cell growth in the stalked budding alphaproteobacterium<i>Hyphomonas neptunium</i>. We show that in this species, the lack of bactofilins causes severe morphological defects, resulting from unconstrained growth of the stalk and bud compartments. In line with this finding, bactofilin polymers localize dynamically to the stalk base and then to the incipient bud neck prior to the onset of bud formation, suggesting that they act as a barrier that retains the cell wall biosynthetic machinery in the respective growth zones. Notably, in a broad range of species, bactofilin genes lie adjacent to genes encoding cell wall hydrolases of the M23 peptidase family. We show that the corresponding<i>H. neptunium</i>endopeptidase, LmdC, is a bitopic membrane protein with peptidoglycan hydrolase activity that colocalizes with the bactofilin cytoskeleton, dependent on a direct interaction of its cytoplasmic tail with the bactofilin cytoskeleton. A functional association of bactofilins with M23 peptidases is further verified by studies of the spiral-shaped alphaproteobacterium<i>Rhodospirillum rubrum</i>, whose bactofilin and LmdC homologs colocalize at the inner cell curvature, forming a complex that modulates the degree of cell helicity. These findings indicate that bactofilins and M23 peptidases form a conserved functional module that is critical for cell shape determination in morphologically complex bacteria.</p>
+                    </div>
+                </div>
+            </div>
+        </content>
+        <author>
+            <name>Manuel Osorio-Valeriano</name>
+        </author>
+        <author>
+            <name>Emöke Cserti</name>
+        </author>
+        <author>
+            <name>Sebastian Pöhl</name>
+        </author>
+        <author>
+            <name>Rogelio Hernández-Tamayo</name>
+        </author>
+        <author>
+            <name>Jacob Biboy</name>
+        </author>
+        <author>
+            <name>Patrick Sobetzko</name>
+        </author>
+        <author>
+            <name>Waldemar Vollmer</name>
+        </author>
+        <author>
+            <name>Peter L. Graumann</name>
+        </author>
+        <author>
+            <name>Martin Thanbichler</name>
+        </author>
+    </entry>
+    <entry>
+        <title type="html">A synthetic biology approach defines mechanistic and regulatory roles for phase condensation in the assembly of microtubule architectures by human TPPP</title>
+        <link href="https://sciety.org/articles/activity/10.1101/2023.03.14.532644?utm_source=sciety_labs_article_recommendations_atom_feed" />
+        <published>2023-03-14+00:00</published>
+        <updated>2023-03-14+00:00</updated>
+        <id>tag:doi,10.1101/2023.03.14.532644</id>
+        <content type="xhtml">
+            <div xmlns="http://www.w3.org/1999/xhtml">
+                <div class="article-abstract">
+                    <h2>Abstract</h2>
+                    <div>
+                        <p>Protein condensation regulates numerous cellular processes, but how it participates in the organization of microtubule architectures is unclear. Using synthetic biology approaches to manipulate human Tubulin polymerization-promoting protein (TPPP), we find a microtubule-binding domain and phase-separation motif are sufficient for higher-order microtubule bundling.<i>In vitro</i>, native or engineered TPPP phase transitions create multivalent structures that bind and bridge microtubules together. In cells, synthetic modulation of TPPP condensation regulates the strength and lifetime of its microtubule interaction. Surprisingly, cell-scale microtubule assemblies develop when TPPP is connected to synthetic droplets derived from unrelated sequences, mimicking its native localization at Golgi outposts. Systematically targeting TPPP variants to droplet hubs with different biophysical properties defines a two-level scheme for TPPP-regulated microtubule assembly operating at both the nanoscale (microtubule-binding affinity) and microscale (droplet strength). We suggest protein condensates can serve as general-purpose regulatable multivalent bridges for biophysically organizing or engineering microtubule architectures across cellular length-scales.</p>
+                    </div>
+                </div>
+            </div>
+        </content>
+        <author>
+            <name>Chih-Chia Chang</name>
+        </author>
+        <author>
+            <name>Scott M. Coyle</name>
+        </author>
+    </entry>
+    <entry>
+        <title type="html">RNA scaffolds the Golgi ribbon by forming condensates with GM130</title>
+        <link href="https://sciety.org/articles/activity/10.1101/2023.03.02.530905?utm_source=sciety_labs_article_recommendations_atom_feed" />
+        <published>2023-03-03+00:00</published>
+        <updated>2023-03-03+00:00</updated>
+        <id>tag:doi,10.1101/2023.03.02.530905</id>
+        <content type="xhtml">
+            <div xmlns="http://www.w3.org/1999/xhtml">
+                <div class="article-abstract">
+                    <h2>Abstract</h2>
+                    <div>
+                        <p>The mammalian Golgi apparatus is composed of stacks of cisternae that are laterally linked to form a continuous ribbon like structure, but the molecular mechanisms that maintain the Golgi ribbon remain unclear. Here, we show that ribbon formation is mediated by biomolecular condensates of RNA and the Golgi resident protein GM130. We identified GM130 as a membrane-bound RNA binding protein at the Golgi. Acute degradation of either RNA or GM130 in cells disrupted the Golgi ribbon. Under stress conditions, RNA was displaced from GM130 and the ribbon was disjoint, which was restored after cells recovered from stress. When overexpressed in cells, GM130 formed RNA-dependent liquid-like condensates. GM130 contains an intrinsically disordered domain at its N-terminus, which was sufficient to recruit RNA to drive condensate assembly<i>in vitro</i>. Condensates of the N-terminal domain of GM130 and RNA were sufficient to link purified rat liver Golgi membranes which is a reconstruction of aspects of lateral linking of stacks into a ribbon-like structure. Together, these studies reveal that biomolecular condensates of GM130-RNA scaffold the Golgi ribbon.</p>
+                    </div>
+                </div>
+            </div>
+        </content>
+        <author>
+            <name>Yijiun Zhang</name>
+        </author>
+        <author>
+            <name>Joachim Seemann</name>
+        </author>
+    </entry>
+    <entry>
+        <title type="html">Adhesion-induced cortical flows pattern E-cadherin-mediated cell contacts</title>
+        <link href="https://sciety.org/articles/activity/10.1101/2023.04.11.536411?utm_source=sciety_labs_article_recommendations_atom_feed" />
+        <published>2023-04-11+00:00</published>
+        <updated>2023-04-11+00:00</updated>
+        <id>tag:doi,10.1101/2023.04.11.536411</id>
+        <content type="xhtml">
+            <div xmlns="http://www.w3.org/1999/xhtml">
+                <div class="article-abstract">
+                    <h2>Abstract</h2>
+                    <div>
+                        <p>Metazoan development relies on the formation and remodeling of cell-cell contacts. Dynamic reorganization of adhesion receptors and the actomyosin cell cortex in space and time play a central role in cell-cell contact formation and maturation. Yet, how this process is mechanistically achieved remains unclear. Here, by building a biomimetic assay composed of progenitor cells adhering to supported lipid bilayers functionalized with E-cadherin ectodomains, we show that cortical Actin flows, driven by the depletion of Myosin-2 at the cell contact center, mediate the dynamic reorganization of adhesion receptors and cell cortex at the contact. E-cadherin-dependent downregulation of the small GTPase RhoA at the forming contact leads to both a depletion of Myosin-2 and a decrease of F-actin at the contact center. This depletion of Myosin-2 causes centrifugal F-actin flows, leading to further accumulation of F-actin at the contact rim and the progressive redistribution of E-cadherin from the contact center to the rim. Eventually, this combination of actomyosin downregulation and flows at the contact determine the characteristic molecular organization, with E-cadherin and F-actin accumulating at the contact rim, where they are needed to mechanically link the contractile cortices of the adhering cells.</p>
+                    </div>
+                </div>
+            </div>
+        </content>
+        <author>
+            <name>Feyza Nur Arslan</name>
+        </author>
+        <author>
+            <name>Édouard Hannezo</name>
+        </author>
+        <author>
+            <name>Jack Merrin</name>
+        </author>
+        <author>
+            <name>Martin Loose</name>
+        </author>
+        <author>
+            <name>Carl-Philipp Heisenberg</name>
+        </author>
+    </entry>
+    <entry>
+        <title type="html">Actin-microtubule crosstalk imparts stiffness to the contractile ring in fission yeast</title>
+        <link href="https://sciety.org/articles/activity/10.1101/2023.03.01.530611?utm_source=sciety_labs_article_recommendations_atom_feed" />
+        <published>2023-03-02+00:00</published>
+        <updated>2023-03-02+00:00</updated>
+        <id>tag:doi,10.1101/2023.03.01.530611</id>
+        <content type="xhtml">
+            <div xmlns="http://www.w3.org/1999/xhtml">
+                <div class="article-abstract">
+                    <h2>Abstract</h2>
+                    <div>
+                        <p>Actin-microtubule interactions are critical for cell division yet how these networks of polymers mutually influence their mechanical properties and functions in live cells remains unknown. In fission yeast, the post-anaphase array (PAA) of microtubules assembles in the plane of the contractile ring and its assembly relies on the Myp2p-dependent recruitment of Mto1p, a component of equatorial microtubule organizing centers (eMTOCs). The general organization of this array of microtubule and the impact on their physical attachment to the contractile ring remain unclear. We found that Myp2p facilitates the recruitment of Mto1p to the inner face of the contractile ring where the eMTOCs polymerize microtubules without their direct interaction. The PAA microtubules form a dynamic polygon of Ase1p crosslinked microtubules inside the contractile ring. The specific loss of PAA microtubules affects the mechanical properties of the contractile ring of actin by lowering its stiffness. This change in the mechanical properties of the ring has no measurable impact on cytokinesis or on the anchoring of the ring. Our work proposes that the PAA microtubules exploit the contractile ring for their assembly and function during cell division while the contractile ring may receive no benefit from these interactions.</p>
+                    </div>
+                </div>
+            </div>
+        </content>
+        <author>
+            <name>Kimberly Bellingham-Johnstun</name>
+        </author>
+        <author>
+            <name>Zoe L. Tyree</name>
+        </author>
+        <author>
+            <name>Jessica Martinez-Baird</name>
+        </author>
+        <author>
+            <name>Annelise Thorn</name>
+        </author>
+        <author>
+            <name>Caroline Laplante</name>
+        </author>
+    </entry>
+</feed>
