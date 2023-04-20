@@ -3,7 +3,7 @@
 
     <title type="html">{{ list_summary_data.list_meta.list_name }}</title>
     <subtitle type="html">{{ list_summary_data.list_meta.list_description }}</subtitle>
-    <updated>{{ list_summary_data.last_updated_datetime | date_isoformat }}</updated>
+    <updated>{{ list_summary_data.last_updated_datetime | timestamp_isoformat }}</updated>
     <id>tag:sciety-labs,{{ list_summary_data.list_meta.list_id }}</id>
 
     {% for item in article_list_content %}
