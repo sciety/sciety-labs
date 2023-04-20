@@ -46,6 +46,9 @@
     <meta name="msapplication-TileColor" content="#cf4500">
     <meta name="msapplication-config" content="/static/sciety/images/favicons/generated/browserconfig.xml">
     <meta name="theme-color" content="#ffffff">
+    {%- if rss_url %}
+    <link href="{{ rss_url }}" type="application/atom+xml" rel="alternate" title="RSS" />
+    {%- endif %}
 
     {{ render_gtag_settings_script_block() }}
     {{ render_cookiebot(site_config.cookiebot_identifier) }}
