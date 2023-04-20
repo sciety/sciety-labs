@@ -19,9 +19,10 @@
         <content type="xhtml">
             <div xmlns="http://www.w3.org/1999/xhtml">
                 {%- if item.comment %}
-                <div class="comment">
-                    <p>{{ item.comment }}</p>
-                </div>
+                <figure class="comment">
+                    <blockquote><p>{{ item.comment }}</p></blockquote>
+                    <figcaption>—{{ list_summary_data.owner.display_name }}</figcaption>
+                </figure>
                 {%- endif %}
                 <div class="article-abstract">
                     <h2>Abstract</h2>
