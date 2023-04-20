@@ -34,9 +34,13 @@
         </content>
         {% endif %}
 
+        {%- if item.article_meta.author_name_list %}
+        {%- for author_name in item.article_meta.author_name_list %}
         <author>
-            <name>{{ list_summary_data.owner.display_name }}</name>
+            <name>{{ author_name }}</name>
         </author>
+        {%- endfor %}
+        {%- endif %}
     </entry>
     {% endfor %}
 </feed>
