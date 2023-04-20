@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-
     <title type="html">{{ list_summary_data.list_meta.list_name }}</title>
     <subtitle type="html">{{ list_summary_data.list_meta.list_description }}</subtitle>
     <link href="{{ request.url }}" rel="self" />
     <updated>{{ list_summary_data.last_updated_datetime | timestamp_isoformat }}</updated>
     <id>tag:sciety-labs,2023-04-20:list-id={{ list_summary_data.list_meta.list_id }}</id>
 
-    {% for item in article_list_content %}
+    {%- for item in article_list_content %}
     <entry>
         <title type="html">{{ item.article_meta.article_title }}</title>
         <link href="https://sciety.org/articles/activity/{{ item.article_doi }}?utm_source=sciety_labs_atom_feed" />
@@ -15,7 +14,7 @@
         <updated>{{ item.created_at_timestamp | date_isoformat }}T00:00:00+00:00</updated>
         <id>tag:sciety-labs,2023-04-20:doi={{ item.article_doi }}</id>
 
-        {% if item.article_meta.abstract %}
+        {%- if item.article_meta.abstract %}
         <content type="xhtml">
             <div xmlns="http://www.w3.org/1999/xhtml">
                 {%- if item.comment %}
@@ -32,7 +31,7 @@
                 </div>
             </div>
         </content>
-        {% endif %}
+        {%- endif %}
 
         {%- if item.article_meta.author_name_list %}
         {%- for author_name in item.article_meta.author_name_list %}
