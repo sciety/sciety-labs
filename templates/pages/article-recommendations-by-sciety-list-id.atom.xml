@@ -11,8 +11,8 @@
     <entry>
         <title type="html">{{ item.article_meta.article_title }}</title>
         <link href="https://sciety.org/articles/activity/{{ item.article_doi }}?utm_source=sciety_labs_article_recommendations_atom_feed" />
-        <published>{{ item.article_meta.published_date | date_isoformat }}+00:00</published>
-        <updated>{{ item.article_meta.published_date | date_isoformat }}+00:00</updated>
+        <published>{{ item.article_meta.published_date | date_isoformat }}T00:00:00+00:00</published>
+        <updated>{{ item.article_meta.published_date | date_isoformat }}T00:00:00+00:00</updated>
         <id>tag:doi,{{ item.article_doi }}</id>
         {%- if item.comment %}
         <summary type="xhtml">
