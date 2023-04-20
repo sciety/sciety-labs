@@ -53,7 +53,8 @@ def get_cleaned_abstract_html(abstract_html: Optional[str]) -> Optional[str]:
             'sec': 'section',
             'italic': 'i',
             'list': 'ul',
-            'list-item': 'li'
+            'list-item': 'li',
+            'bold': 'b'
         })
         if root[0].tag == 'h3':
             root.remove(root[0])
