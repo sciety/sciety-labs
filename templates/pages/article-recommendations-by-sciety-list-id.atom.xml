@@ -5,7 +5,7 @@
     <subtitle type="html">{{ list_summary_data.list_meta.list_description }}</subtitle>
     {%- endif %}
     <updated>{{ recommendation_timestamp | timestamp_isoformat }}</updated>
-    <id>tag:sciety-labs,{{ list_summary_data.list_meta.list_id }}/article-recommendations</id>
+    <id>tag:sciety-labs,2023-04-20:article-recommendations-by-list-id={{ list_summary_data.list_meta.list_id }}</id>
 
     {%- for item in article_list_content %}
     <entry>
@@ -13,7 +13,7 @@
         <link href="https://sciety.org/articles/activity/{{ item.article_doi }}?utm_source=sciety_labs_article_recommendations_atom_feed" />
         <published>{{ item.article_meta.published_date | date_isoformat }}T00:00:00+00:00</published>
         <updated>{{ item.article_meta.published_date | date_isoformat }}T00:00:00+00:00</updated>
-        <id>tag:doi,{{ item.article_doi }}</id>
+        <id>tag:sciety-labs,2023-04-20:doi={{ item.article_doi }}</id>
         {%- if item.comment %}
         <summary type="xhtml">
             <div xmlns="http://www.w3.org/1999/xhtml" class="comment">
