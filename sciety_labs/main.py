@@ -70,6 +70,14 @@ ALLOWED_TAGS = [
 ]
 
 
+DEFAULT_ITEMS_PER_PAGE = 10
+
+# Note: we are aiming to include all of the recommendations in the RSS
+#   because RSS clients may sort by publication date, whereas the recommendations
+#   are otherwise sorted by relevancy
+DEFAULT_ARTICLE_RECOMMENDATION_RSS_ITEM_COUNT = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
+
+
 class AtomResponse(starlette.responses.Response):
     media_type = "application/atom+xml;charset=utf-8"
 
@@ -315,7 +323,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     async def list_by_sciety_list_id(
         request: Request,
         list_id: str,
-        items_per_page: int = 10,
+        items_per_page: int = DEFAULT_ITEMS_PER_PAGE,
         page: int = 1,
         enable_pagination: bool = True
     ):
@@ -367,7 +375,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     async def list_atom_by_sciety_list_id(
         request: Request,
         list_id: str,
-        items_per_page: Optional[int] = 10,
+        items_per_page: Optional[int] = DEFAULT_ITEMS_PER_PAGE,
         page: int = 1
     ):
         list_summary_data = lists_model.get_list_summary_data_by_list_id(list_id)
@@ -392,7 +400,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     async def article_recommendations_by_sciety_list_id(  # pylint: disable=too-many-arguments
         request: Request,
         list_id: str,
-        items_per_page: int = 10,
+        items_per_page: int = DEFAULT_ITEMS_PER_PAGE,
         page: int = 1,
         max_recommendations: int = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS,
         enable_pagination: bool = True
@@ -457,7 +465,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     async def article_recommendations_atom_by_sciety_list_id(
         request: Request,
         list_id: str,
-        items_per_page: Optional[int] = 10,
+        items_per_page: Optional[int] = DEFAULT_ARTICLE_RECOMMENDATION_RSS_ITEM_COUNT,
         page: int = 1,
         max_recommendations: int = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
     ):
@@ -503,7 +511,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     async def list_by_twitter_handle(
         request: Request,
         twitter_handle: str,
-        items_per_page: int = 10,
+        items_per_page: int = DEFAULT_ITEMS_PER_PAGE,
         page: int = 1,
         enable_pagination: bool = True
     ):
@@ -615,7 +623,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     async def article_recommendations_by_article_doi(  # pylint: disable=too-many-arguments
         request: Request,
         article_doi: str,
-        items_per_page: int = 10,
+        items_per_page: int = DEFAULT_ITEMS_PER_PAGE,
         page: int = 1,
         max_recommendations: int = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS,
         enable_pagination: bool = True
