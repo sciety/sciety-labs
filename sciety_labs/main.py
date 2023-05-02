@@ -263,7 +263,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 )
             )
         )
-        LOGGER.info('user_list_summary_data_list: %r', user_list_summary_data_list)
+        LOGGER.info('user_list_summary_data_list[:1]=%r', user_list_summary_data_list[:1])
         group_list_summary_data_list = list(
             google_sheet_list_image_provider.iter_list_summary_data_with_list_image_url(
                 lists_model.get_most_active_group_lists(
@@ -271,7 +271,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 )
             )
         )
-        LOGGER.info('group_list_summary_data_list: %r', group_list_summary_data_list)
+        LOGGER.info('group_list_summary_data_list[:1]=%r', group_list_summary_data_list[:1])
         return templates.TemplateResponse(
             'pages/lists.html', {
                 'request': request,
@@ -316,7 +316,9 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             )
         )
         article_mention_with_article_meta = list(article_mention_with_article_meta)
-        LOGGER.info('article_mention_with_article_meta: %r', article_mention_with_article_meta)
+        LOGGER.debug(
+            'article_mention_with_article_meta[:1]=%r', article_mention_with_article_meta[:1]
+        )
         return article_mention_with_article_meta
 
     @app.get('/lists/by-id/{list_id}', response_class=HTMLResponse)
@@ -428,8 +430,8 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             )
         )
         LOGGER.info(
-            'article_recommendation_with_article_meta=%r',
-            article_recommendation_with_article_meta
+            'article_recommendation_with_article_meta[:1]=%r',
+            article_recommendation_with_article_meta[:1]
         )
 
         url_pagination_state = get_url_pagination_state_for_url(
@@ -529,7 +531,9 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 article_mention_iterable, page=page, items_per_page=items_per_page
             )
         )
-        LOGGER.info('article_mention_with_article_meta: %r', article_mention_with_article_meta)
+        LOGGER.info(
+            'article_mention_with_article_meta[:1]=%r', article_mention_with_article_meta[:1]
+        )
 
         # Note: we don't know the page count unless this is the last page
         url_pagination_state = get_url_pagination_state_for_url(
@@ -597,8 +601,8 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             )
         )
         LOGGER.info(
-            'article_recommendation_with_article_meta=%r',
-            article_recommendation_with_article_meta
+            'article_recommendation_with_article_meta[:1]=%r',
+            article_recommendation_with_article_meta[:1]
         )
 
         article_recommendation_url = (
@@ -646,8 +650,8 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             )
         )
         LOGGER.info(
-            'article_recommendation_with_article_meta=%r',
-            article_recommendation_with_article_meta
+            'article_recommendation_with_article_meta[:1]=%r',
+            article_recommendation_with_article_meta[:1]
         )
 
         url_pagination_state = get_url_pagination_state_for_url(
