@@ -6,6 +6,18 @@
             <header class="page-header page-header--search-results">
                 <h1>Search Sciety</h1>
             </header>
+
+            <form action="/search" method="get" class="search-form">
+                <input type="hidden" name="category" value="articles">
+                <label for="searchText" class="search-form__text_input_label">Find preprints and evaluating groups</label>
+                <div class="search-form__helper_text">
+                    Search articles by DOI, author or keyword
+                </div>
+                <div class="search-form__positioning_context">
+                    <input value="" id="searchText" name="query" class="search-form__text">
+                    <button type="submit" class="search-form__submit" aria-label="Run the search">Search</button>
+                </div>
+            </form>
         </div>
     </main>
 {% endcall %}
