@@ -59,7 +59,7 @@ class GoogleSheetImageProvider:
             range=self.sheet_range
         ).execute()
         values = result.get('values', [])
-        LOGGER.info('sheet values: %r', values)
+        LOGGER.debug('sheet values: %r', values)
         return dict((row for row in values[1:] if len(row) == 2 and row[1]))
 
     def get_mapping(self) -> Mapping[str, str]:
@@ -74,7 +74,7 @@ class GoogleSheetImageProvider:
 
     def get_image_url_by_key(self, article_doi: str) -> Optional[str]:
         mapping = self.get_mapping()
-        LOGGER.info('mapping: %r', mapping)
+        LOGGER.debug('mapping: %r', mapping)
         return mapping.get(article_doi)
 
 
