@@ -100,6 +100,42 @@ def get_article_metadata_from_crossref_metadata(
     )
 
 
+def get_filter_parameter_for_dois(dois: Iterable[str]) -> str:
+    return ','.join((f'doi:{doi}' for doi in dois))
+
+
+def get_batch_doi_request_parameters(dois: Sequence[str]) -> Mapping[str, str]:
+    return {'filter': get_filter_parameter_for_dois(dois), 'rows': str(len(dois))}
+
+
+def get_response_dict_by_doi_map(response_dict: dict) -> Mapping[str, dict]:
+    return {
+        item['DOI']: item
+        for item in response_dict['message']['items']
+    }
+
+
+def get_article_meta_by_doi_map_for_response_dict_mapping(
+    response_dict_by_doi_map: Mapping[str, dict]
+) -> Mapping[str, ArticleMetaData]:
+    return {
+        doi: get_article_metadata_from_crossref_metadata(doi, response_dict)
+        for doi, response_dict in response_dict_by_doi_map.items()
+    }
+
+
+def iter_article_mention_with_replaced_article_meta(
+    article_mention_iterable: Iterable[ArticleMention],
+    article_meta_by_doi_map: Mapping[str, ArticleMetaData]
+) -> Iterable[ArticleMention]:
+    return (
+        item._replace(
+            article_meta=article_meta_by_doi_map.get(item.article_doi)
+        )
+        for item in article_mention_iterable
+    )
+
+
 class CrossrefMetaDataProvider:
     def __init__(self, requests_session: Optional[requests.Session] = None) -> None:
         self.headers = {'accept': 'application/json'}
@@ -114,6 +150,15 @@ class CrossrefMetaDataProvider:
         response.raise_for_status()
         return response.json()['message']
 
+    def get_batch_crossref_metadata_dict_by_doi(self, dois: Sequence[str]) -> Mapping[str, dict]:
+        url = 'https://api.crossref.org/works'
+        params = get_batch_doi_request_parameters(dois)
+        response = self.requests_session.get(
+            url, headers=self.headers, params=params, timeout=self.timeout
+        )
+        response.raise_for_status()
+        return get_response_dict_by_doi_map(response.json())
+
     def get_article_metadata_by_doi(self, doi: str) -> ArticleMetaData:
         return get_article_metadata_from_crossref_metadata(
             doi,
@@ -121,6 +166,23 @@ class CrossrefMetaDataProvider:
         )
 
     def iter_article_mention_with_article_meta(
+        self,
+        article_mention_iterable: Iterable[ArticleMention]
+    ) -> Iterable[ArticleMention]:
+        article_mention_list = list(article_mention_iterable)
+        article_dois = {
+            item.article_doi
+            for item in article_mention_list
+        }
+        article_meta_by_doi_map = get_article_meta_by_doi_map_for_response_dict_mapping(
+            self.get_batch_crossref_metadata_dict_by_doi(list(article_dois))
+        )
+        return iter_article_mention_with_replaced_article_meta(
+            article_mention_list,
+            article_meta_by_doi_map=article_meta_by_doi_map
+        )
+
+    def iter_article_mention_with_article_meta_parallel(
         self,
         article_mention_iterable: Iterable[ArticleMention]
     ) -> Iterable[ArticleMention]:
@@ -148,9 +210,7 @@ class CrossrefMetaDataProvider:
                     article_meta_by_doi_map[article_doi] = article_meta
                 except Exception as exc:  # pylint: disable=broad-except
                     LOGGER.warning('Failed to lookup DOI: %r due to %r', article_doi, exc)
-        return (
-            item._replace(
-                article_meta=article_meta_by_doi_map.get(item.article_doi)
-            )
-            for item in article_mention_iterable
+        return iter_article_mention_with_replaced_article_meta(
+            article_mention_iterable,
+            article_meta_by_doi_map=article_meta_by_doi_map
         )

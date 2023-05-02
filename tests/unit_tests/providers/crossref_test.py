@@ -1,11 +1,17 @@
 from datetime import date
 from sciety_labs.providers.crossref import (
     get_article_metadata_from_crossref_metadata,
-    get_cleaned_abstract_html
+    get_batch_doi_request_parameters,
+    get_cleaned_abstract_html,
+    get_filter_parameter_for_dois,
+    get_response_dict_by_doi_map
 )
 
 
 DOI_1 = '10.1101/doi1'
+DOI_2 = '10.1101/doi2'
+
+DOI_LIST = [DOI_1,  DOI_2]
 
 
 CROSSREF_RESPONSE_MESSAGE_1: dict = {
@@ -127,3 +133,38 @@ class TestGetArticleMetadataFromCrossrefMetadata:
             }
         )
         assert result.published_date == date(2001, 2, 3)
+
+
+class TestGetFilterParameterForDois:
+    def test_should_return_comma_separated_dois_with_prefix(self):
+        assert get_filter_parameter_for_dois([DOI_1, DOI_2]) == f'doi:{DOI_1},doi:{DOI_2}'
+
+
+class TestGetBatchDoiRequestParameters:
+    def test_should_include_filter_parameter(self):
+        assert (
+            get_batch_doi_request_parameters(DOI_LIST)['filter']
+        ) == get_filter_parameter_for_dois(DOI_LIST)
+
+    def test_should_set_rows_to_number_of_dois(self):
+        assert get_batch_doi_request_parameters(DOI_LIST)['rows'] == str(len(DOI_LIST))
+
+
+class TestGetResponseDictByDoiMap:
+    def test_should_return_responses_by_doi(self):
+        response_1 = {
+            **CROSSREF_RESPONSE_MESSAGE_1,
+            'DOI': DOI_1
+        }
+        response_2 = {
+            **CROSSREF_RESPONSE_MESSAGE_1,
+            'DOI': DOI_2
+        }
+        assert get_response_dict_by_doi_map({
+            'message': {
+                'items': [response_1, response_2]
+            }
+        }) == {
+            DOI_1: response_1,
+            DOI_2: response_2
+        }
