@@ -2004,6 +2004,9 @@ p.activity-feed__item__title {
 }
 
 .search-form {
+  background-color: rgb(255, 255, 255);
+  padding: 1rem 1.25rem;
+  border: 1px solid rgb(207, 216, 220);
   margin-left: 1rem;
   margin-right: 1rem;
   margin-bottom: 1.5rem;
@@ -2044,6 +2047,10 @@ p.activity-feed__item__title {
   line-height: 1.4;
   display: inline-block;
   margin-bottom: 0.5rem;
+}
+
+.search-form__positioning_context {
+  position: relative;
 }
 
 .search-form__clear {
