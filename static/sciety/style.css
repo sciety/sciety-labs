@@ -2007,14 +2007,15 @@ p.activity-feed__item__title {
   background-color: rgb(255, 255, 255);
   padding: 1rem 1.25rem;
   border: 1px solid rgb(207, 216, 220);
-  margin-left: 1rem;
-  margin-right: 1rem;
-  margin-bottom: 1.5rem;
+  border-left-width: 0;
+  border-right-width: 0;
+  margin-bottom: 3rem;
 }
 @media screen and (min-width: 46.25em) {
   .search-form {
-    margin-left: 0;
-    margin-right: 0;
+    border-radius: 6px;
+    border-left-width: 1px;
+    border-right-width: 1px;
   }
 }
 
@@ -2049,8 +2050,20 @@ p.activity-feed__item__title {
   margin-bottom: 0.5rem;
 }
 
+.search-form__helper_text {
+  color: rgb(75, 96, 106);
+  margin-bottom: 0.5rem;
+}
+
 .search-form__positioning_context {
   position: relative;
+}
+
+.search-form__text_input_label {
+  display: block;
+  font-weight: bold;
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
 }
 
 .search-form__clear {
