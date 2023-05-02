@@ -673,4 +673,15 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             }
         )
 
+    @app.get('/search', response_class=HTMLResponse)
+    async def search(
+        request: Request
+    ):
+        return templates.TemplateResponse(
+            'pages/search.html', {
+                'request': request,
+                'page_title': 'Search'
+            }
+        )
+
     return app
