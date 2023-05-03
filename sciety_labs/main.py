@@ -678,7 +678,8 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         request: Request,
         query: Optional[str],
         items_per_page: int = DEFAULT_ITEMS_PER_PAGE,
-        page: int = 1
+        page: int = 1,
+        enable_pagination: bool = True
     ):
         search_result_iterable = semantic_scholar_provider.iter_search_result_item(
             query=query
@@ -696,6 +697,13 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             'search_result_list_with_article_meta[:1]=%r',
             search_result_list_with_article_meta[:1]
         )
+        url_pagination_state = get_url_pagination_state_for_url(
+            url=request.url,
+            page=page,
+            items_per_page=items_per_page,
+            remaining_item_iterable=search_result_iterable,
+            enable_pagination=enable_pagination
+        )
         return templates.TemplateResponse(
             'pages/search.html', {
                 'request': request,
@@ -703,7 +711,8 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                     f'Search results for {query}' if query else 'Search'
                 ),
                 'query': query,
-                'search_results': search_result_list_with_article_meta
+                'search_results': search_result_list_with_article_meta,
+                'pagination': url_pagination_state
             }
         )
 

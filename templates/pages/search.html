@@ -1,5 +1,6 @@
 {% from 'macros/page.html' import render_page with context  %}
 {% from 'macros/article.html' import render_article_list_content with context  %}
+{% from 'macros/pagination.html' import render_pagination with context  %}
 
 {% call render_page() %}
     <main class="page-content" id="mainContent">
@@ -23,8 +24,22 @@
                 </div>
             </form>
 
+            <header class="search-results__header">
+                <div>
+                    <p class="articles-page-count">
+                        Showing page <b>{{ pagination.page }}</b>
+                        {% if pagination.page_count %}
+                            of <b>{{ pagination.page_count }}</b>
+                            <span class="visually-hidden"> pages</span>
+                        {% endif %}
+                        <span class="visually-hidden"> of list content</span>
+                    </p>
+                </div>
+            </header>
+
             <section>
                 {{ render_article_list_content(search_results) }}
+                {{ render_pagination(pagination) }}
             </section>
         </div>
     </main>
