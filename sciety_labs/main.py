@@ -685,7 +685,9 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         )
         search_result_list_with_article_meta = list(
             _get_page_article_mention_with_article_meta_for_article_mention_iterable(
-                search_result_list.items,
+                iter_preprint_article_mention(
+                    search_result_list.items
+                ),
                 page=page,
                 items_per_page=items_per_page
             )
