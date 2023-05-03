@@ -16,6 +16,11 @@ LOGGER = logging.getLogger(__name__)
 
 MAX_SEMANTIC_SCHOLAR_RECOMMENDATION_REQUEST_PAPER_IDS = 100
 
+MAX_SEMANTIC_SCHOLAR_SEARCH_ITEMS = 100
+MAX_SEMANTIC_SCHOLAR_SEARCH_OFFSET_PLUS_LIMIT = 9999
+MAX_SEMANTIC_SCHOLAR_SEARCH_OFFSET = MAX_SEMANTIC_SCHOLAR_SEARCH_OFFSET_PLUS_LIMIT - 1
+
+
 # This is the number of recommendations we ask Semantic Scholar to generate,
 # before post filtering
 DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS = 500
@@ -40,6 +45,9 @@ class ArticleRecommendationList:
 @dataclasses.dataclass(frozen=True)
 class ArticleSearchResultList:
     items: Sequence[ArticleSearchResultItem]
+    offset: int
+    total: int
+    next_offset: Optional[int]
 
 
 def _get_recommendation_request_payload_for_article_dois(
@@ -97,7 +105,7 @@ def _iter_article_recommendation_from_recommendation_response_json(
 def _iter_article_search_result_item_from_search_response_json(
     search_response_json: dict
 ) -> Iterable[ArticleSearchResultItem]:
-    for item_json in search_response_json['data']:
+    for item_json in search_response_json.get('data', []):
         article_doi = item_json.get('externalIds', {}).get('DOI')
         if not article_doi:
             continue
@@ -210,12 +218,32 @@ class SemanticScholarProvider:
             items=list(_iter_article_search_result_item_from_search_response_json(
                 response_json
             )),
+            offset=response_json['offset'],
+            total=response_json['total'],
+            next_offset=response_json.get('next')
         )
 
     def iter_search_result_item(
         self,
-        query: str
+        query: str,
+        items_per_page: int = DEFAULT_SEMANTIC_SCHOLAR_SEARCH_RESULT_LIMIT
     ) -> Iterable[ArticleSearchResultItem]:
-        return self.get_search_result_list(
-            query=query
-        ).items
+        offset = 0
+        while True:
+            search_result_list = self.get_search_result_list(
+                query=query,
+                offset=offset,
+                limit=items_per_page
+            )
+            yield from search_result_list.items
+            if not search_result_list.next_offset:
+                LOGGER.info('no more search results (no next offset)')
+                break
+            offset = search_result_list.next_offset
+            if offset > MAX_SEMANTIC_SCHOLAR_SEARCH_OFFSET:
+                LOGGER.info('reached max offset')
+                break
+            items_per_page = min(
+                items_per_page,
+                MAX_SEMANTIC_SCHOLAR_SEARCH_OFFSET_PLUS_LIMIT - offset
+            )
