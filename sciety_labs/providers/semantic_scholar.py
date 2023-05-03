@@ -2,7 +2,7 @@ import dataclasses
 import itertools
 import logging
 from datetime import datetime
-from typing import Iterable, Optional, Sequence
+from typing import Iterable, Mapping, Optional, Sequence
 
 import requests
 from requests_cache import CachedResponse
@@ -189,10 +189,12 @@ class SemanticScholarProvider:
     def get_search_result_list(
         self,
         query: str,
+        search_parameters: Optional[Mapping[str, str]] = None,
         offset: int = 0,
         limit: int = DEFAULT_SEMANTIC_SCHOLAR_SEARCH_RESULT_LIMIT
     ) -> ArticleSearchResultList:
         request_params = {
+            **(search_parameters if search_parameters else {}),
             'query': query,
             'fields': ','.join([
                 'externalIds',
@@ -226,12 +228,14 @@ class SemanticScholarProvider:
     def iter_search_result_item(
         self,
         query: str,
+        search_parameters: Optional[Mapping[str, str]] = None,
         items_per_page: int = DEFAULT_SEMANTIC_SCHOLAR_SEARCH_RESULT_LIMIT
     ) -> Iterable[ArticleSearchResultItem]:
         offset = 0
         while True:
             search_result_list = self.get_search_result_list(
                 query=query,
+                search_parameters=search_parameters,
                 offset=offset,
                 limit=items_per_page
             )

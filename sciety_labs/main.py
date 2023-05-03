@@ -682,7 +682,10 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         enable_pagination: bool = True
     ):
         search_result_iterable = semantic_scholar_provider.iter_search_result_item(
-            query=query
+            query=query,
+            search_parameters={
+                'year': 2023
+            }
         )
         search_result_list_with_article_meta = list(
             _get_page_article_mention_with_article_meta_for_article_mention_iterable(
