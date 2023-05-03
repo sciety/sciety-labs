@@ -675,12 +675,15 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
 
     @app.get('/search', response_class=HTMLResponse)
     async def search(
-        request: Request
+        request: Request,
+        query: Optional[str]
     ):
         return templates.TemplateResponse(
             'pages/search.html', {
                 'request': request,
-                'page_title': 'Search'
+                'page_title': (
+                    f'Search results for {query}' if query else 'Search'
+                )
             }
         )
 
