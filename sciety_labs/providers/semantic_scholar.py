@@ -211,3 +211,11 @@ class SemanticScholarProvider:
                 response_json
             )),
         )
+
+    def iter_search_result_item(
+        self,
+        query: str
+    ) -> Iterable[ArticleSearchResultItem]:
+        return self.get_search_result_list(
+            query=query
+        ).items

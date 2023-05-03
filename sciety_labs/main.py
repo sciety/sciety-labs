@@ -680,13 +680,13 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         items_per_page: int = DEFAULT_ITEMS_PER_PAGE,
         page: int = 1
     ):
-        search_result_list = semantic_scholar_provider.get_search_result_list(
+        search_result_iterable = semantic_scholar_provider.iter_search_result_item(
             query=query
         )
         search_result_list_with_article_meta = list(
             _get_page_article_mention_with_article_meta_for_article_mention_iterable(
                 iter_preprint_article_mention(
-                    search_result_list.items
+                    search_result_iterable
                 ),
                 page=page,
                 items_per_page=items_per_page
