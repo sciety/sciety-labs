@@ -7,7 +7,7 @@ from typing import Iterable, Optional, Sequence
 import requests
 from requests_cache import CachedResponse
 
-from sciety_labs.models.article import ArticleMention, ArticleMetaData
+from sciety_labs.models.article import ArticleMention, ArticleMetaData, ArticleSearchResultItem
 from sciety_labs.utils.datetime import get_utc_timestamp_with_tzinfo, get_utcnow
 
 
@@ -19,6 +19,8 @@ MAX_SEMANTIC_SCHOLAR_RECOMMENDATION_REQUEST_PAPER_IDS = 100
 # This is the number of recommendations we ask Semantic Scholar to generate,
 # before post filtering
 DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS = 500
+
+DEFAULT_SEMANTIC_SCHOLAR_SEARCH_RESULT_LIMIT = 100
 
 
 SEMANTIC_SCHOLAR_PAPER_ID_EXT_REF_ID = 'semantic_scholar_paper_id'
@@ -33,6 +35,11 @@ class ArticleRecommendation(ArticleMention):
 class ArticleRecommendationList:
     recommendations: Sequence[ArticleRecommendation]
     recommendation_timestamp: datetime
+
+
+@dataclasses.dataclass(frozen=True)
+class ArticleSearchResultList:
+    items: Sequence[ArticleSearchResultItem]
 
 
 def _get_recommendation_request_payload_for_article_dois(
@@ -83,6 +90,28 @@ def _iter_article_recommendation_from_recommendation_response_json(
             ),
             external_reference_by_name={
                 SEMANTIC_SCHOLAR_PAPER_ID_EXT_REF_ID: recommended_paper_json.get('paperId')
+            }
+        )
+
+
+def _iter_article_search_result_item_from_search_response_json(
+    search_response_json: dict
+) -> Iterable[ArticleSearchResultItem]:
+    for item_json in search_response_json['data']:
+        article_doi = item_json.get('externalIds', {}).get('DOI')
+        if not article_doi:
+            continue
+        yield ArticleSearchResultItem(
+            article_doi=article_doi,
+            article_meta=ArticleMetaData(
+                article_doi=article_doi,
+                article_title=item_json['title'],
+                author_name_list=_get_author_names_from_recommended_paper_json(
+                    item_json
+                )
+            ),
+            external_reference_by_name={
+                SEMANTIC_SCHOLAR_PAPER_ID_EXT_REF_ID: item_json.get('paperId')
             }
         )
 
@@ -148,3 +177,37 @@ class SemanticScholarProvider:
             article_dois=article_dois,
             max_recommendations=max_recommendations
         ).recommendations
+
+    def get_search_result_list(
+        self,
+        query: str,
+        offset: int = 0,
+        limit: int = DEFAULT_SEMANTIC_SCHOLAR_SEARCH_RESULT_LIMIT
+    ) -> ArticleSearchResultList:
+        request_params = {
+            'query': query,
+            'fields': ','.join([
+                'externalIds',
+                'url',
+                'title',
+                'abstract',
+                'authors'
+            ]),
+            'offset': str(offset),
+            'limit': str(limit)
+        }
+        LOGGER.info('Semantic Scholar search, request_params=%r', request_params)
+        response = self.requests_session.get(
+            'https://api.semanticscholar.org/graph/v1/paper/search',
+            params=request_params,
+            headers=self.headers,
+            timeout=5 * 60
+        )
+        response.raise_for_status()
+        response_json = response.json()
+        LOGGER.debug('Semantic Scholar search, response_json=%r', response_json)
+        return ArticleSearchResultList(
+            items=list(_iter_article_search_result_item_from_search_response_json(
+                response_json
+            )),
+        )

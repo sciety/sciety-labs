@@ -1,4 +1,5 @@
 {% from 'macros/page.html' import render_page with context  %}
+{% from 'macros/article.html' import render_article_list_content with context  %}
 
 {% call render_page() %}
     <main class="page-content" id="mainContent">
@@ -21,6 +22,10 @@
                     </button>
                 </div>
             </form>
+
+            <section>
+                {{ render_article_list_content(search_results) }}
+            </section>
         </div>
     </main>
 {% endcall %}

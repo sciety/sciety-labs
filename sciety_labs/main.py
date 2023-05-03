@@ -676,15 +676,32 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     @app.get('/search', response_class=HTMLResponse)
     async def search(
         request: Request,
-        query: Optional[str]
+        query: Optional[str],
+        items_per_page: int = DEFAULT_ITEMS_PER_PAGE,
+        page: int = 1
     ):
+        search_result_list = semantic_scholar_provider.get_search_result_list(
+            query=query
+        )
+        search_result_list_with_article_meta = list(
+            _get_page_article_mention_with_article_meta_for_article_mention_iterable(
+                search_result_list.items,
+                page=page,
+                items_per_page=items_per_page
+            )
+        )
+        LOGGER.info(
+            'search_result_list_with_article_meta[:1]=%r',
+            search_result_list_with_article_meta[:1]
+        )
         return templates.TemplateResponse(
             'pages/search.html', {
                 'request': request,
                 'page_title': (
                     f'Search results for {query}' if query else 'Search'
                 ),
-                'query': query
+                'query': query,
+                'search_results': search_result_list_with_article_meta
             }
         )
 

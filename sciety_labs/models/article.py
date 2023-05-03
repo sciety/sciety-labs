@@ -121,6 +121,11 @@ class ArticleMention:
         return self.created_at_timestamp
 
 
+@dataclasses.dataclass(frozen=True)
+class ArticleSearchResultItem(ArticleMention):
+    pass
+
+
 def iter_preprint_article_mention(
     article_mention_iterable: Iterable[ArticleMention]
 ) -> Iterable[ArticleMention]:
