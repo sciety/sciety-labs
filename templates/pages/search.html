@@ -17,6 +17,16 @@
                 </div>
                 <div class="search-form__positioning_context">
                     <input value="{{ query }}" id="searchText" name="query" class="search-form__text">
+                    <div>
+                        <legend>Please select type of search:</legend>
+                        <div>
+                            <input type="radio" id="search_type_semantic_scholar" name="search_type" value="semantic_scholar" checked/>
+                            <label for="search_type_semantic_scholar">Semantic Scholar</label>
+                    
+                            <input type="radio" id="search_type_europe_pmc" name="search_type" value="europe_pmc" />
+                            <label for="search_type_europe_pmc">Europe PMC</label>
+                        </div>
+                    </div>
                     <button type="submit" class="search-form__submit" aria-label="Run the search">Search</button>
                     <button type="reset" id="clearSearchText" class="search-form__clear">
                         <img src="/static/sciety/images/clear-search-text-icon.svg" class="search-form__clear_icon" alt="">
