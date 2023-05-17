@@ -213,6 +213,7 @@ class SemanticScholarProvider:
             headers=self.headers,
             timeout=5 * 60
         )
+        LOGGER.info('Semantic Scholar search, url=%r', response.request.url)
         response.raise_for_status()
         response_json = response.json()
         LOGGER.debug('Semantic Scholar search, response_json=%r', response_json)
