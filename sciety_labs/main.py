@@ -78,6 +78,13 @@ DEFAULT_ITEMS_PER_PAGE = 10
 DEFAULT_ARTICLE_RECOMMENDATION_RSS_ITEM_COUNT = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
 
 
+SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITHOUT_VENUES: dict = {'year': 2023}
+SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITH_VENUES: dict = {
+    **SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITHOUT_VENUES,
+    'venue': ','.join(['bioRxiv', 'medRxiv', 'Research Square'])
+}
+
+
 class AtomResponse(starlette.responses.Response):
     media_type = "application/atom+xml;charset=utf-8"
 
@@ -669,6 +676,55 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 ),
                 'article_meta': article_meta,
                 'article_list_content': article_recommendation_with_article_meta,
+                'pagination': url_pagination_state
+            }
+        )
+
+    @app.get('/search', response_class=HTMLResponse)
+    async def search(  # pylint: disable=too-many-arguments
+        request: Request,
+        query: Optional[str],
+        use_venues: bool = True,
+        items_per_page: int = DEFAULT_ITEMS_PER_PAGE,
+        page: int = 1,
+        enable_pagination: bool = True
+    ):
+        search_result_iterable = semantic_scholar_provider.iter_search_result_item(
+            query=query,
+            search_parameters=(
+                SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITH_VENUES
+                if use_venues
+                else SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITHOUT_VENUES
+            )
+        )
+        search_result_list_with_article_meta = list(
+            _get_page_article_mention_with_article_meta_for_article_mention_iterable(
+                iter_preprint_article_mention(
+                    search_result_iterable
+                ),
+                page=page,
+                items_per_page=items_per_page
+            )
+        )
+        LOGGER.info(
+            'search_result_list_with_article_meta[:1]=%r',
+            search_result_list_with_article_meta[:1]
+        )
+        url_pagination_state = get_url_pagination_state_for_url(
+            url=request.url,
+            page=page,
+            items_per_page=items_per_page,
+            remaining_item_iterable=search_result_iterable,
+            enable_pagination=enable_pagination
+        )
+        return templates.TemplateResponse(
+            'pages/search.html', {
+                'request': request,
+                'page_title': (
+                    f'Search results for {query}' if query else 'Search'
+                ),
+                'query': query,
+                'search_results': search_result_list_with_article_meta,
                 'pagination': url_pagination_state
             }
         )

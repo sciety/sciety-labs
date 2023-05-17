@@ -1,0 +1,46 @@
+{% from 'macros/page.html' import render_page with context  %}
+{% from 'macros/article.html' import render_article_list_content with context  %}
+{% from 'macros/pagination.html' import render_pagination with context  %}
+
+{% call render_page() %}
+    <main class="page-content" id="mainContent">
+        <div class="sciety-grid-two-columns">
+            <header class="page-header page-header--search-results">
+                <h1>Search Sciety</h1>
+            </header>
+
+            <form action="/search" method="get" class="search-form">
+                <input type="hidden" name="category" value="articles">
+                <label for="searchText" class="search-form__text_input_label">Find preprints and evaluating groups</label>
+                <div class="search-form__helper_text">
+                    Search articles by DOI, author or keyword
+                </div>
+                <div class="search-form__positioning_context">
+                    <input value="{{ query }}" id="searchText" name="query" class="search-form__text">
+                    <button type="submit" class="search-form__submit" aria-label="Run the search">Search</button>
+                    <button type="reset" id="clearSearchText" class="search-form__clear">
+                        <img src="/static/sciety/images/clear-search-text-icon.svg" class="search-form__clear_icon" alt="">
+                    </button>
+                </div>
+            </form>
+
+            <header class="search-results__header">
+                <div>
+                    <p class="articles-page-count">
+                        Showing page <b>{{ pagination.page }}</b>
+                        {% if pagination.page_count %}
+                            of <b>{{ pagination.page_count }}</b>
+                            <span class="visually-hidden"> pages</span>
+                        {% endif %}
+                        <span class="visually-hidden"> of list content</span>
+                    </p>
+                </div>
+            </header>
+
+            <section>
+                {{ render_article_list_content(search_results) }}
+                {{ render_pagination(pagination) }}
+            </section>
+        </div>
+    </main>
+{% endcall %}
