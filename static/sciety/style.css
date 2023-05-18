@@ -824,6 +824,29 @@ svg.saved-articles-control__icon {
   }
 }
 
+.search-results__header {
+  font-family: Ubuntu, sans-serif;
+  font-size: 0.875rem;
+  line-height: 1.2;
+  margin-left: 1.25rem;
+  margin-right: 1.25rem;
+  padding-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+@media screen and (min-width: 46.25em) {
+  .search-results__header {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+.search-results__header_details {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
 .page-header--user {
   display: flex;
   align-items: center;
