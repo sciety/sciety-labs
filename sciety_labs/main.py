@@ -86,7 +86,7 @@ SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITH_VENUES: dict = {
 }
 
 
-class SearchTypes:
+class SearchProviders:
     SEMANTIC_SCHOLAR = 'semantic_scholar'
     EUROPE_PMC = 'europe_pmc'
 
@@ -695,12 +695,12 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         request: Request,
         query: Optional[str],
         use_venues: bool = True,
-        search_type: str = SearchTypes.SEMANTIC_SCHOLAR,
+        search_provider: str = SearchProviders.SEMANTIC_SCHOLAR,
         items_per_page: int = DEFAULT_ITEMS_PER_PAGE,
         page: int = 1,
         enable_pagination: bool = True
     ):
-        if search_type == SearchTypes.SEMANTIC_SCHOLAR:
+        if search_provider == SearchProviders.SEMANTIC_SCHOLAR:
             search_result_iterable = semantic_scholar_provider.iter_search_result_item(
                 query=query,
                 search_parameters=(
@@ -709,7 +709,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                     else SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITHOUT_VENUES
                 )
             )
-        elif search_type == SearchTypes.EUROPE_PMC:
+        elif search_provider == SearchProviders.EUROPE_PMC:
             search_result_iterable = europe_pmc_provider.iter_search_result_item(query=query)
         else:
             search_result_iterable = []
@@ -740,7 +740,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                     f'Search results for {query}' if query else 'Search'
                 ),
                 'query': query,
-                'search_type': search_type,
+                'search_provider': search_provider,
                 'search_results': search_result_list_with_article_meta,
                 'pagination': url_pagination_state
             }
