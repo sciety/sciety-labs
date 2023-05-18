@@ -2,6 +2,7 @@
 {% from 'macros/article.html' import render_article_list_content with context %}
 {% from 'macros/pagination.html' import render_pagination_header, render_pagination %}
 {% from 'macros/radio-button.html' import render_radio_button %}
+{% from 'macros/checkbox.html' import render_checkbox_with_label %}
 
 {% call render_page() %}
     <main class="page-content" id="mainContent">
@@ -19,8 +20,9 @@
                 <div class="search-form__positioning_context">
                     <input value="{{ query }}" id="searchText" name="query" class="search-form__text">
                     <section class="search-form__section">
-                        <input type="checkbox" name="evaluated_only" value="true" id="searchEvaluatedOnlyFilter" checked="">
-                        <label for="searchEvaluatedOnlyFilter" class="search-form__checkbox_label">Search only evaluated articles</label>
+                        {{ render_checkbox_with_label(name='evaluated_only', label='Search only evaluated articles', label_class='search-form__checkbox_label', is_checked=is_search_evaluated_only) }}
+                        <!-- <input type="checkbox" name="evaluated_only" value="true" id="searchEvaluatedOnlyFilter" checked="">
+                        <label for="searchEvaluatedOnlyFilter" class="search-form__checkbox_label">Search only evaluated articles</label> -->
                     </section>
                     <div>
                         <legend>Please select a search provider:</legend>

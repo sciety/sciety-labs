@@ -699,6 +699,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         request: Request,
         query: str = '',
         use_venues: bool = True,
+        evaluated_only: bool = False,
         search_provider: str = SearchProviders.SEMANTIC_SCHOLAR,
         items_per_page: int = DEFAULT_ITEMS_PER_PAGE,
         page: int = 1,
@@ -749,6 +750,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                     f'Search results for {query}' if query else 'Search'
                 ),
                 'query': query,
+                'is_search_evaluated_only': evaluated_only,
                 'search_provider': search_provider,
                 'search_results': search_result_list_with_article_meta,
                 'pagination': url_pagination_state
