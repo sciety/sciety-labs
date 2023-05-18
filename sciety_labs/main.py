@@ -32,7 +32,7 @@ from sciety_labs.models.lists import OwnerMetaData, OwnerTypes, ScietyEventLists
 from sciety_labs.providers.crossref import (
     CrossrefMetaDataProvider
 )
-from sciety_labs.providers.europe_pmc import EuropePmcProvider
+from sciety_labs.providers.europe_pmc import EUROPE_PMC_PREPRINT_SERVERS, EuropePmcProvider
 from sciety_labs.providers.google_sheet_image import (
     GoogleSheetArticleImageProvider,
     GoogleSheetListImageProvider
@@ -729,6 +729,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 query=query,
                 is_evaluated_only=evaluated_only
             )
+            preprint_servers = EUROPE_PMC_PREPRINT_SERVERS
         else:
             search_result_iterable = []
         search_result_iterator = iter(search_result_iterable)

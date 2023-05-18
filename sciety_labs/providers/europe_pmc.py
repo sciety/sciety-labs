@@ -13,6 +13,8 @@ DEFAULT_EUROPE_PMC_SEARCH_RESULT_LIMIT = 100
 
 START_CURSOR = '*'
 
+EUROPE_PMC_PREPRINT_SERVERS = ['bioRxiv', 'medRxiv', 'Research Square', 'SciELO Preprints']
+
 
 @dataclasses.dataclass(frozen=True)
 class CursorBasedArticleSearchResultList:
@@ -38,10 +40,19 @@ def _iter_article_search_result_item_from_search_response_json(
         )
 
 
+def get_preprint_servers_query(preprint_servers: Sequence[str]) -> str:
+    return ' OR '.join([
+        f'PUBLISHER:"{preprint_server}"'
+        for preprint_server in preprint_servers
+    ])
+
+
 def get_query_with_additional_filters(query: str, is_evaluated_only: bool) -> str:
-    result = f'(SRC:PPR) ({query})'
+    preprint_servers_query = get_preprint_servers_query(EUROPE_PMC_PREPRINT_SERVERS)
+    result = f'({preprint_servers_query})'
     if is_evaluated_only:
         result += ' (LABS_PUBS:"2112")'
+    result += f' ({query})'
     return result
 
 
