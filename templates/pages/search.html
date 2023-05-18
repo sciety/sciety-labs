@@ -41,8 +41,14 @@
                     {{ render_pagination_header(pagination, list_type_name='search results') }}
                 </div>
                 <div class="search-results__header_details">
-                    <div class="search-results__header_details_item">Results from <b>bioRxiv</b>, <b>medRxiv</b>, <b>Research
-                            Square</b>, <b>SciELO Preprints</b></div>
+                    <div class="search-results__header_details_item">Results from
+                        {% for preprint_server in preprint_servers %}
+                            {% if not loop.first %}
+                                ,
+                            {% endif %}
+                            <b>{{ preprint_server }}</b>
+                        {% endfor -%}
+                    </div>
                     <div class="search-results__header_details_item">Sorted by <b>relevancy</b></div>
                 </div>
             </header>

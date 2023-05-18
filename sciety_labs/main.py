@@ -708,6 +708,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         enable_pagination: bool = True
     ):
         search_result_iterable: Iterable[ArticleSearchResultItem]
+        preprint_servers = SEMANTIC_SCHOLAR_SEARCH_VENUES
         if not query:
             search_result_iterable = []
         elif search_provider == SearchProviders.SEMANTIC_SCHOLAR:
@@ -760,6 +761,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 ),
                 'query': query,
                 'is_search_evaluated_only': evaluated_only,
+                'preprint_servers': preprint_servers,
                 'search_provider': search_provider,
                 'search_results': search_result_list_with_article_meta,
                 'pagination': url_pagination_state
