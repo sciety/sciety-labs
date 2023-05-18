@@ -38,6 +38,10 @@ def _iter_article_search_result_item_from_search_response_json(
         )
 
 
+def get_query_with_additional_filters(query: str) -> str:
+    return f'(SRC:PPR) ({query})'
+
+
 class EuropePmcProvider:
     def __init__(
         self,
@@ -57,7 +61,7 @@ class EuropePmcProvider:
     ) -> CursorBasedArticleSearchResultList:
         request_params = {
             **(search_parameters if search_parameters else {}),
-            'query': query,
+            'query': get_query_with_additional_filters(query),
             'format': 'json',
             'cursorMark': cursor,
             'pageSize': str(limit)
