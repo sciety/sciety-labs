@@ -718,7 +718,10 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 )
             )
         elif search_provider == SearchProviders.EUROPE_PMC:
-            search_result_iterable = europe_pmc_provider.iter_search_result_item(query=query)
+            search_result_iterable = europe_pmc_provider.iter_search_result_item(
+                query=query,
+                is_evaluated_only=evaluated_only
+            )
         else:
             search_result_iterable = []
         search_result_iterator = iter(search_result_iterable)
