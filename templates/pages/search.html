@@ -18,6 +18,10 @@
                 </div>
                 <div class="search-form__positioning_context">
                     <input value="{{ query }}" id="searchText" name="query" class="search-form__text">
+                    <section class="search-form__section">
+                        <input type="checkbox" name="evaluated_only" value="true" id="searchEvaluatedOnlyFilter" checked="">
+                        <label for="searchEvaluatedOnlyFilter" class="search-form__checkbox_label">Search only evaluated articles</label>
+                    </section>
                     <div>
                         <legend>Please select a search provider:</legend>
                         <div>
