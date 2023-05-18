@@ -32,7 +32,7 @@ from sciety_labs.models.lists import OwnerMetaData, OwnerTypes, ScietyEventLists
 from sciety_labs.providers.crossref import (
     CrossrefMetaDataProvider
 )
-from sciety_labs.providers.europe_pmc import EuropePmcProvider
+from sciety_labs.providers.europe_pmc import EUROPE_PMC_PREPRINT_SERVERS, EuropePmcProvider
 from sciety_labs.providers.google_sheet_image import (
     GoogleSheetArticleImageProvider,
     GoogleSheetListImageProvider
@@ -83,10 +83,12 @@ DEFAULT_ITEMS_PER_PAGE = 10
 DEFAULT_ARTICLE_RECOMMENDATION_RSS_ITEM_COUNT = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
 
 
+SEMANTIC_SCHOLAR_SEARCH_VENUES = ['bioRxiv', 'medRxiv', 'Research Square']
+
 SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITHOUT_VENUES: dict = {'year': 2023}
 SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITH_VENUES: dict = {
     **SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITHOUT_VENUES,
-    'venue': ','.join(['bioRxiv', 'medRxiv', 'Research Square'])
+    'venue': ','.join(SEMANTIC_SCHOLAR_SEARCH_VENUES)
 }
 
 
@@ -706,6 +708,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         enable_pagination: bool = True
     ):
         search_result_iterable: Iterable[ArticleSearchResultItem]
+        preprint_servers = SEMANTIC_SCHOLAR_SEARCH_VENUES
         if not query:
             search_result_iterable = []
         elif search_provider == SearchProviders.SEMANTIC_SCHOLAR:
@@ -726,6 +729,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 query=query,
                 is_evaluated_only=evaluated_only
             )
+            preprint_servers = EUROPE_PMC_PREPRINT_SERVERS
         else:
             search_result_iterable = []
         search_result_iterator = iter(search_result_iterable)
@@ -758,6 +762,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 ),
                 'query': query,
                 'is_search_evaluated_only': evaluated_only,
+                'preprint_servers': preprint_servers,
                 'search_provider': search_provider,
                 'search_results': search_result_list_with_article_meta,
                 'pagination': url_pagination_state
