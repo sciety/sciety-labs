@@ -1,6 +1,6 @@
 {% from 'macros/page.html' import render_page with context  %}
 {% from 'macros/article.html' import render_article_list_content with context  %}
-{% from 'macros/pagination.html' import render_pagination with context  %}
+{% from 'macros/pagination.html' import render_pagination_header, render_pagination %}
 {% from 'macros/radio-button.html' import render_radio_button %}
 
 {% call render_page() %}
@@ -34,16 +34,7 @@
 
             <header class="search-results__header">
                 <div>
-                    {%- if not pagination.is_empty %}
-                    <p class="articles-page-count">
-                        Showing page <b>{{ pagination.page }}</b>
-                        {% if pagination.page_count %}
-                            of <b>{{ pagination.page_count }}</b>
-                            <span class="visually-hidden"> pages</span>
-                        {% endif %}
-                        <span class="visually-hidden"> of list content</span>
-                    </p>
-                    {%- endif %}
+                    {{ render_pagination_header(pagination) }}
                 </div>
             </header>
 
