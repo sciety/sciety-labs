@@ -82,6 +82,14 @@ def get_optional_date_from_date_field(date_field: Optional[dict]) -> Optional[da
     return get_optional_date_from_date_parts(date_field.get('date-parts'))
 
 
+def get_published_date_from_crossref_metadata(crossref_metadata: dict) -> Optional[date]:
+    accepted_date = get_optional_date_from_date_field(crossref_metadata.get('accepted'))
+    published_date = get_optional_date_from_date_field(crossref_metadata.get('published'))
+    if accepted_date and published_date:
+        return max(accepted_date, published_date)
+    return accepted_date or published_date
+
+
 def get_article_metadata_from_crossref_metadata(
     doi: str,
     crossref_metadata: dict
@@ -94,8 +102,8 @@ def get_article_metadata_from_crossref_metadata(
             get_author_name_from_crossref_metadata_author_dict(author_dict)
             for author_dict in crossref_metadata.get('author', [])
         ],
-        published_date=get_optional_date_from_date_field(
-            crossref_metadata.get('published')
+        published_date=get_published_date_from_crossref_metadata(
+            crossref_metadata
         )
     )
 

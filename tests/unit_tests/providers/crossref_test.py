@@ -134,6 +134,28 @@ class TestGetArticleMetadataFromCrossrefMetadata:
         )
         assert result.published_date == date(2001, 2, 3)
 
+    def test_should_prefer_accepted_date_as_published_date_if_available_and_later(self):
+        result = get_article_metadata_from_crossref_metadata(
+            DOI_1,
+            {
+                **CROSSREF_RESPONSE_MESSAGE_1,
+                'published': {'date-parts': [[2001, 2, 3]]},
+                'accepted': {'date-parts': [[2002, 2, 3]]}
+            }
+        )
+        assert result.published_date == date(2002, 2, 3)
+
+    def test_should_prefer_published_date_as_published_date_if_available_and_later(self):
+        result = get_article_metadata_from_crossref_metadata(
+            DOI_1,
+            {
+                **CROSSREF_RESPONSE_MESSAGE_1,
+                'published': {'date-parts': [[2002, 2, 3]]},
+                'accepted': {'date-parts': [[2001, 2, 3]]}
+            }
+        )
+        assert result.published_date == date(2002, 2, 3)
+
 
 class TestGetFilterParameterForDois:
     def test_should_return_comma_separated_dois_with_prefix(self):
