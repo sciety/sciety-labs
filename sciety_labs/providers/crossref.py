@@ -174,6 +174,8 @@ class CrossrefMetaDataProvider:
             item.article_doi
             for item in article_mention_list
         }
+        if not article_dois:
+            return article_mention_list
         article_meta_by_doi_map = get_article_meta_by_doi_map_for_response_dict_mapping(
             self.get_batch_crossref_metadata_dict_by_doi(list(article_dois))
         )

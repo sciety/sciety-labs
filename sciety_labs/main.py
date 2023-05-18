@@ -21,7 +21,11 @@ import markupsafe
 import bleach
 from sciety_labs.config.site_config import get_site_config_from_environment_variables
 
-from sciety_labs.models.article import ArticleMention, iter_preprint_article_mention
+from sciety_labs.models.article import (
+    ArticleMention,
+    ArticleSearchResultItem,
+    iter_preprint_article_mention
+)
 from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
 
 from sciety_labs.models.lists import OwnerMetaData, OwnerTypes, ScietyEventListsModel
@@ -693,14 +697,17 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     @app.get('/search', response_class=HTMLResponse)
     async def search(  # pylint: disable=too-many-arguments
         request: Request,
-        query: Optional[str],
+        query: str = '',
         use_venues: bool = True,
         search_provider: str = SearchProviders.SEMANTIC_SCHOLAR,
         items_per_page: int = DEFAULT_ITEMS_PER_PAGE,
         page: int = 1,
         enable_pagination: bool = True
     ):
-        if search_provider == SearchProviders.SEMANTIC_SCHOLAR:
+        search_result_iterable: Iterable[ArticleSearchResultItem]
+        if not query:
+            search_result_iterable = []
+        elif search_provider == SearchProviders.SEMANTIC_SCHOLAR:
             search_result_iterable = semantic_scholar_provider.iter_search_result_item(
                 query=query,
                 search_parameters=(
@@ -713,10 +720,11 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             search_result_iterable = europe_pmc_provider.iter_search_result_item(query=query)
         else:
             search_result_iterable = []
+        search_result_iterator = iter(search_result_iterable)
         search_result_list_with_article_meta = list(
             _get_page_article_mention_with_article_meta_for_article_mention_iterable(
                 iter_preprint_article_mention(
-                    search_result_iterable
+                    search_result_iterator
                 ),
                 page=page,
                 items_per_page=items_per_page
@@ -729,8 +737,9 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         url_pagination_state = get_url_pagination_state_for_url(
             url=request.url,
             page=page,
+            is_this_page_empty=not search_result_list_with_article_meta,
             items_per_page=items_per_page,
-            remaining_item_iterable=search_result_iterable,
+            remaining_item_iterable=search_result_iterator,
             enable_pagination=enable_pagination
         )
         return templates.TemplateResponse(
