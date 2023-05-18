@@ -143,3 +143,7 @@
     height: 64px;
     margin-left: 0.5rem;
 }
+
+.search-form__section {
+    margin-bottom: 1em;
+}

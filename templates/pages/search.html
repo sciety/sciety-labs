@@ -21,16 +21,14 @@
                     <input value="{{ query }}" id="searchText" name="query" class="search-form__text">
                     <section class="search-form__section">
                         {{ render_checkbox_with_label(name='evaluated_only', label='Search only evaluated articles', label_class='search-form__checkbox_label', is_checked=is_search_evaluated_only) }}
-                        <!-- <input type="checkbox" name="evaluated_only" value="true" id="searchEvaluatedOnlyFilter" checked="">
-                        <label for="searchEvaluatedOnlyFilter" class="search-form__checkbox_label">Search only evaluated articles</label> -->
                     </section>
-                    <div>
+                    <section class="search-form__section">
                         <legend>Please select a search provider:</legend>
                         <div>
                             {{ render_radio_button(name='search_provider', value='semantic_scholar', label='Semantic Scholar', selected_value=search_provider) }}
                             {{ render_radio_button(name='search_provider', value='europe_pmc', label='Europe PMC', selected_value=search_provider) }}
                         </div>
-                    </div>
+                    </section>
                     <button type="submit" class="search-form__submit" aria-label="Run the search">Search</button>
                     <button type="reset" id="clearSearchText" class="search-form__clear">
                         <img src="/static/sciety/images/clear-search-text-icon.svg" class="search-form__clear_icon" alt="">
