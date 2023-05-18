@@ -38,8 +38,11 @@ def _iter_article_search_result_item_from_search_response_json(
         )
 
 
-def get_query_with_additional_filters(query: str) -> str:
-    return f'(SRC:PPR) ({query})'
+def get_query_with_additional_filters(query: str, is_evaluated_only: bool) -> str:
+    result = f'(SRC:PPR) ({query})'
+    if is_evaluated_only:
+        result += ' (LABS_PUBS:"2112")'
+    return result
 
 
 class EuropePmcProvider:
@@ -52,16 +55,17 @@ class EuropePmcProvider:
             requests_session = requests.Session()
         self.requests_session = requests_session
 
-    def get_search_result_list(
+    def get_search_result_list(  # pylint: disable=too-many-arguments
         self,
         query: str,
+        is_evaluated_only: bool,
         search_parameters: Optional[Mapping[str, str]] = None,
         cursor: str = START_CURSOR,
         limit: int = DEFAULT_EUROPE_PMC_SEARCH_RESULT_LIMIT
     ) -> CursorBasedArticleSearchResultList:
         request_params = {
             **(search_parameters if search_parameters else {}),
-            'query': get_query_with_additional_filters(query),
+            'query': get_query_with_additional_filters(query, is_evaluated_only=is_evaluated_only),
             'format': 'json',
             'cursorMark': cursor,
             'pageSize': str(limit)
@@ -89,6 +93,7 @@ class EuropePmcProvider:
     def iter_search_result_item(
         self,
         query: str,
+        is_evaluated_only: bool = False,
         search_parameters: Optional[Mapping[str, str]] = None,
         items_per_page: int = DEFAULT_EUROPE_PMC_SEARCH_RESULT_LIMIT
     ) -> Iterable[ArticleSearchResultItem]:
@@ -96,6 +101,7 @@ class EuropePmcProvider:
         while True:
             search_result_list = self.get_search_result_list(
                 query=query,
+                is_evaluated_only=is_evaluated_only,
                 search_parameters=search_parameters,
                 cursor=cursor,
                 limit=items_per_page

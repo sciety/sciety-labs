@@ -699,6 +699,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         request: Request,
         query: str = '',
         use_venues: bool = True,
+        evaluated_only: bool = False,
         search_provider: str = SearchProviders.SEMANTIC_SCHOLAR,
         items_per_page: int = DEFAULT_ITEMS_PER_PAGE,
         page: int = 1,
@@ -716,8 +717,15 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                     else SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITHOUT_VENUES
                 )
             )
+            if evaluated_only:
+                search_result_iterable = evaluation_stats_model.iter_evaluated_only_article_mention(
+                    search_result_iterable
+                )
         elif search_provider == SearchProviders.EUROPE_PMC:
-            search_result_iterable = europe_pmc_provider.iter_search_result_item(query=query)
+            search_result_iterable = europe_pmc_provider.iter_search_result_item(
+                query=query,
+                is_evaluated_only=evaluated_only
+            )
         else:
             search_result_iterable = []
         search_result_iterator = iter(search_result_iterable)
@@ -749,6 +757,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                     f'Search results for {query}' if query else 'Search'
                 ),
                 'query': query,
+                'is_search_evaluated_only': evaluated_only,
                 'search_provider': search_provider,
                 'search_results': search_result_list_with_article_meta,
                 'pagination': url_pagination_state

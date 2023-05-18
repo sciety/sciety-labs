@@ -1,0 +1,4 @@
+{% macro render_checkbox_with_label(name, label, is_checked, label_class='') -%}
+    <input type="checkbox" id="{{ name }}_checkbox" name="{{ name }}" value="true" {{ 'checked' if is_checked else '' }}>
+    <label for="{{ name }}_checkbox" class="{{ label_class }}">{{ label }}</label>
+{%- endmacro %}
