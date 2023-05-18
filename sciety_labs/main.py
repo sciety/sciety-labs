@@ -717,6 +717,10 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                     else SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITHOUT_VENUES
                 )
             )
+            if evaluated_only:
+                search_result_iterable = evaluation_stats_model.iter_evaluated_only_article_mention(
+                    search_result_iterable
+                )
         elif search_provider == SearchProviders.EUROPE_PMC:
             search_result_iterable = europe_pmc_provider.iter_search_result_item(
                 query=query,
