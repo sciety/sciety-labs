@@ -15,6 +15,7 @@ T = TypeVar('T')
 
 class UrlPaginationState(NamedTuple):
     page: int
+    is_empty: Optional[bool] = None
     page_count: Optional[int] = None
     previous_page_url: Optional[str] = None
     next_page_url: Optional[str] = None
@@ -45,6 +46,7 @@ def get_page_iterable(
 def get_url_pagination_state_for_url(  # pylint: disable=too-many-arguments
     url: starlette.datastructures.URL,
     page: int,
+    is_this_page_empty: bool = False,
     items_per_page: Optional[int] = None,
     item_count: Optional[int] = None,
     remaining_item_iterable: Optional[SupportsNext[Any]] = None,
@@ -83,6 +85,7 @@ def get_url_pagination_state_for_url(  # pylint: disable=too-many-arguments
         page_count = page
     return UrlPaginationState(
         page=page,
+        is_empty=is_this_page_empty and page == 1,
         page_count=page_count,
         previous_page_url=previous_page_url,
         next_page_url=next_page_url

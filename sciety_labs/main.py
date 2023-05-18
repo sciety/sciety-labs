@@ -737,6 +737,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         url_pagination_state = get_url_pagination_state_for_url(
             url=request.url,
             page=page,
+            is_this_page_empty=not search_result_list_with_article_meta,
             items_per_page=items_per_page,
             remaining_item_iterable=search_result_iterator,
             enable_pagination=enable_pagination

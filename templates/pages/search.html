@@ -34,6 +34,7 @@
 
             <header class="search-results__header">
                 <div>
+                    {%- if not pagination.is_empty %}
                     <p class="articles-page-count">
                         Showing page <b>{{ pagination.page }}</b>
                         {% if pagination.page_count %}
@@ -42,6 +43,7 @@
                         {% endif %}
                         <span class="visually-hidden"> of list content</span>
                     </p>
+                    {%- endif %}
                 </div>
             </header>
 
