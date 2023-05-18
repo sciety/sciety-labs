@@ -1,0 +1,4 @@
+{% macro render_radio_button(name, value, label, selected_value) -%}
+    <input type="radio" id="{{ name }}_{{ value }}" name="{{ name }}" value="{{ value }}" {{ 'checked' if selected_value == value else '' }}/>
+    <label for="{{ name }}_{{ value }}">{{ label }}</label>
+{%- endmacro %}

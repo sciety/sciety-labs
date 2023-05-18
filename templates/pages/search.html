@@ -1,6 +1,7 @@
 {% from 'macros/page.html' import render_page with context  %}
 {% from 'macros/article.html' import render_article_list_content with context  %}
 {% from 'macros/pagination.html' import render_pagination with context  %}
+{% from 'macros/radio-button.html' import render_radio_button %}
 
 {% call render_page() %}
     <main class="page-content" id="mainContent">
@@ -20,11 +21,8 @@
                     <div>
                         <legend>Please select type of search:</legend>
                         <div>
-                            <input type="radio" id="search_type_semantic_scholar" name="search_type" value="semantic_scholar" checked/>
-                            <label for="search_type_semantic_scholar">Semantic Scholar</label>
-                    
-                            <input type="radio" id="search_type_europe_pmc" name="search_type" value="europe_pmc" />
-                            <label for="search_type_europe_pmc">Europe PMC</label>
+                            {{ render_radio_button(name='search_type', value='semantic_scholar', label='Semantic Scholar', selected_value=search_type) }}
+                            {{ render_radio_button(name='search_type', value='europe_pmc', label='Europe PMC', selected_value=search_type) }}
                         </div>
                     </div>
                     <button type="submit" class="search-form__submit" aria-label="Run the search">Search</button>

@@ -740,6 +740,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                     f'Search results for {query}' if query else 'Search'
                 ),
                 'query': query,
+                'search_type': search_type,
                 'search_results': search_result_list_with_article_meta,
                 'pagination': url_pagination_state
             }
