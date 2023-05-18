@@ -55,7 +55,7 @@ class EuropePmcProvider:
             requests_session = requests.Session()
         self.requests_session = requests_session
 
-    def get_search_result_list(
+    def get_search_result_list(  # pylint: disable=too-many-arguments
         self,
         query: str,
         is_evaluated_only: bool,
