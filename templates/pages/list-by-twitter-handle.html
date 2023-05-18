@@ -1,5 +1,5 @@
 {% from 'macros/page.html' import render_page with context %}
-{% from 'macros/pagination.html' import render_pagination with context %}
+{% from 'macros/pagination.html' import render_pagination_header, render_pagination %}
 {% from 'macros/date.html' import render_date_value  %}
 {% call render_page() %}
     <main class="page-content" id="mainContent">
@@ -13,14 +13,7 @@
                 </div>
             </header>
             <section>
-                <p class="articles-page-count">
-                    Showing page <b>{{ pagination.page }}</b>
-                    {% if pagination.page_count %}
-                    of <b>{{ pagination.page_count }}</b>
-                    <span class="visually-hidden"> pages</span>
-                    {% endif %}
-                    <span class="visually-hidden"> of list content</span>
-                </p>
+                {{ render_pagination_header(pagination) }}
                 <ul class="articles-list" role="list">{% for item in article_list_content %}
                     <li class="articles-list__item">
                         <article>
