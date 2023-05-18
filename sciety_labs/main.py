@@ -28,6 +28,7 @@ from sciety_labs.models.lists import OwnerMetaData, OwnerTypes, ScietyEventLists
 from sciety_labs.providers.crossref import (
     CrossrefMetaDataProvider
 )
+from sciety_labs.providers.europe_pmc import EuropePmcProvider
 from sciety_labs.providers.google_sheet_image import (
     GoogleSheetArticleImageProvider,
     GoogleSheetListImageProvider
@@ -83,6 +84,11 @@ SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITH_VENUES: dict = {
     **SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITHOUT_VENUES,
     'venue': ','.join(['bioRxiv', 'medRxiv', 'Research Square'])
 }
+
+
+class SearchProviders:
+    SEMANTIC_SCHOLAR = 'semantic_scholar'
+    EUROPE_PMC = 'europe_pmc'
 
 
 class AtomResponse(starlette.responses.Response):
@@ -153,6 +159,10 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     )
 
     semantic_scholar_provider = SemanticScholarProvider(
+        requests_session=cached_requests_session
+    )
+
+    europe_pmc_provider = EuropePmcProvider(
         requests_session=cached_requests_session
     )
 
@@ -685,18 +695,24 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         request: Request,
         query: Optional[str],
         use_venues: bool = True,
+        search_provider: str = SearchProviders.SEMANTIC_SCHOLAR,
         items_per_page: int = DEFAULT_ITEMS_PER_PAGE,
         page: int = 1,
         enable_pagination: bool = True
     ):
-        search_result_iterable = semantic_scholar_provider.iter_search_result_item(
-            query=query,
-            search_parameters=(
-                SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITH_VENUES
-                if use_venues
-                else SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITHOUT_VENUES
+        if search_provider == SearchProviders.SEMANTIC_SCHOLAR:
+            search_result_iterable = semantic_scholar_provider.iter_search_result_item(
+                query=query,
+                search_parameters=(
+                    SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITH_VENUES
+                    if use_venues
+                    else SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITHOUT_VENUES
+                )
             )
-        )
+        elif search_provider == SearchProviders.EUROPE_PMC:
+            search_result_iterable = europe_pmc_provider.iter_search_result_item(query=query)
+        else:
+            search_result_iterable = []
         search_result_list_with_article_meta = list(
             _get_page_article_mention_with_article_meta_for_article_mention_iterable(
                 iter_preprint_article_mention(
@@ -724,6 +740,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                     f'Search results for {query}' if query else 'Search'
                 ),
                 'query': query,
+                'search_provider': search_provider,
                 'search_results': search_result_list_with_article_meta,
                 'pagination': url_pagination_state
             }
