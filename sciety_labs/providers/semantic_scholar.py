@@ -240,6 +240,7 @@ class SemanticScholarProvider:
                 offset=offset,
                 limit=items_per_page
             )
+            LOGGER.info('Semantic Scholar search, total=%r', search_result_list.total)
             yield from search_result_list.items
             if not search_result_list.next_offset:
                 LOGGER.info('no more search results (no next offset)')
