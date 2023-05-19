@@ -10,6 +10,7 @@ import requests
 from requests_cache import CachedResponse
 
 from sciety_labs.models.article import ArticleMention, ArticleMetaData, ArticleSearchResultItem
+from sciety_labs.providers.requests_provider import RequestsProvider
 from sciety_labs.utils.datetime import get_utc_timestamp_with_tzinfo, get_utcnow
 
 
@@ -135,19 +136,16 @@ def get_response_timestamp(response: requests.Response) -> datetime:
     return get_utcnow()
 
 
-class SemanticScholarProvider:
+class SemanticScholarProvider(RequestsProvider):
     def __init__(
         self,
         api_key_file_path: Optional[str],
-        requests_session: Optional[requests.Session] = None
+        **kwargs
     ) -> None:
-        self.headers: dict = {}
+        super().__init__(**kwargs)
         if api_key_file_path:
             api_key = Path(api_key_file_path).read_text(encoding='utf-8')
             self.headers['x-api-key'] = api_key
-        if requests_session is None:
-            requests_session = requests.Session()
-        self.requests_session = requests_session
 
     def get_article_recommendation_list_for_article_dois(
         self,
@@ -172,7 +170,7 @@ class SemanticScholarProvider:
                 'limit': str(max_recommendations)
             },
             headers=self.headers,
-            timeout=5 * 60
+            timeout=self.timeout
         )
         response.raise_for_status()
         response_json = response.json()
@@ -220,7 +218,7 @@ class SemanticScholarProvider:
             'https://api.semanticscholar.org/graph/v1/paper/search',
             params=request_params,
             headers=self.headers,
-            timeout=5 * 60
+            timeout=self.timeout
         )
         LOGGER.info('Semantic Scholar search, url=%r', response.request.url)
         response.raise_for_status()
