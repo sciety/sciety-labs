@@ -709,6 +709,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     ):
         search_result_iterable: Iterable[ArticleSearchResultItem]
         error_message: Optional[str] = None
+        status_code: int = 200
         try:
             preprint_servers = SEMANTIC_SCHOLAR_SEARCH_VENUES
             if not query:
@@ -752,6 +753,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             )
         except requests.exceptions.HTTPError as exc:
             error_message = f'Error retrieving search results from provider: {exc}'
+            status_code = exc.response.status_code
             search_result_list_with_article_meta = []
             search_result_iterator = iter([])
         url_pagination_state = get_url_pagination_state_for_url(
@@ -775,7 +777,8 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 'search_provider': search_provider,
                 'search_results': search_result_list_with_article_meta,
                 'pagination': url_pagination_state
-            }
+            },
+            status_code=status_code
         )
 
     return app
