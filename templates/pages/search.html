@@ -54,6 +54,9 @@
             </header>
 
             <section>
+                {%- if error_message %}
+                    <p class="error-message">{{ error_message }}</p>
+                {% endif -%}
                 {{ render_article_list_content(search_results) }}
                 {{ render_pagination(pagination) }}
             </section>
