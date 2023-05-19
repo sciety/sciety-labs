@@ -2,8 +2,8 @@ import dataclasses
 import logging
 from typing import Iterable, Mapping, Optional, Sequence
 
-import requests
 from sciety_labs.models.article import ArticleMetaData, ArticleSearchResultItem
+from sciety_labs.providers.requests_provider import RequestsProvider
 
 
 LOGGER = logging.getLogger(__name__)
@@ -56,16 +56,7 @@ def get_query_with_additional_filters(query: str, is_evaluated_only: bool) -> st
     return result
 
 
-class EuropePmcProvider:
-    def __init__(
-        self,
-        requests_session: Optional[requests.Session] = None
-    ) -> None:
-        self.headers: dict = {}
-        if requests_session is None:
-            requests_session = requests.Session()
-        self.requests_session = requests_session
-
+class EuropePmcProvider(RequestsProvider):
     def get_search_result_list(  # pylint: disable=too-many-arguments
         self,
         query: str,
@@ -86,7 +77,7 @@ class EuropePmcProvider:
             'https://www.ebi.ac.uk/europepmc/webservices/rest/search',
             params=request_params,
             headers=self.headers,
-            timeout=5 * 60
+            timeout=self.timeout
         )
         LOGGER.info('Europe PMC search, url=%r', response.request.url)
         response.raise_for_status()

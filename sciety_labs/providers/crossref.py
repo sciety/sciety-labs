@@ -4,10 +4,10 @@ import concurrent.futures
 from itertools import tee
 from typing import Dict, Iterable, Mapping, Optional, Sequence
 
-import requests
 import lxml.etree
 
 from sciety_labs.models.article import ArticleMention, ArticleMetaData
+from sciety_labs.providers.requests_provider import RequestsProvider
 
 
 LOGGER = logging.getLogger(__name__)
@@ -144,13 +144,10 @@ def iter_article_mention_with_replaced_article_meta(
     )
 
 
-class CrossrefMetaDataProvider:
-    def __init__(self, requests_session: Optional[requests.Session] = None) -> None:
-        self.headers = {'accept': 'application/json'}
-        self.timeout: float = 5 * 60
-        if requests_session is None:
-            requests_session = requests.Session()
-        self.requests_session = requests_session
+class CrossrefMetaDataProvider(RequestsProvider):
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.headers['accept'] = 'application/json'
 
     def get_crossref_metadata_dict_by_doi(self, doi: str) -> dict:
         url = f'https://api.crossref.org/works/{doi}'

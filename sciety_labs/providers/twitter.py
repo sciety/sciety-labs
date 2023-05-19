@@ -7,6 +7,7 @@ from typing import Iterable, NamedTuple, Optional
 import requests
 
 from sciety_labs.models.article import ArticleMention
+from sciety_labs.providers.requests_provider import RequestsProvider
 from sciety_labs.utils.datetime import parse_timestamp
 
 
@@ -158,19 +159,15 @@ def iter_api_page_responses(
             break
 
 
-class TwitterUserArticleListProvider:
+class TwitterUserArticleListProvider(RequestsProvider):
     def __init__(
         self,
         authorization_file: str,
-        requests_session: Optional[requests.Session] = None
+        **kwargs
     ):
+        super().__init__(**kwargs)
         self.twitter_authorization = Path(authorization_file).read_text(encoding='utf-8')
-        self.headers = {
-            'Authorization': self.twitter_authorization
-        }
-        if requests_session is None:
-            requests_session = requests.Session()
-        self.requests_session = requests_session
+        self.headers['Authorization'] = self.twitter_authorization
 
     def get_twitter_user_by_screen_name(self, screen_name: str) -> TwitterUser:
         LOGGER.info('Looking up user %r', screen_name)
@@ -202,7 +199,7 @@ class TwitterUserArticleListProvider:
             },
             session=self.requests_session,
             headers=self.headers,
-            timeout=5 * 60
+            timeout=self.timeout
         )
         for response_json in response_json_iterable:
             yield from iter_twitter_article_list_item_for_user_tweets_response(
