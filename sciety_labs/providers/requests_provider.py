@@ -8,7 +8,9 @@ class RequestsProvider:
         self,
         requests_session: Optional[requests.Session] = None
     ) -> None:
-        self.headers: dict = {}
+        self.headers: dict = {
+            'User-Agent': 'Sciety Labs; +https://github.com/sciety/sciety-labs'
+        }
         if requests_session is None:
             requests_session = requests.Session()
         self.requests_session = requests_session
