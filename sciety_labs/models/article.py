@@ -120,6 +120,17 @@ class ArticleMention:
         assert self.created_at_timestamp
         return self.created_at_timestamp
 
+    def get_published_date_sort_key(self) -> date:
+        assert self.article_meta
+        assert self.article_meta.published_date
+        return self.article_meta.published_date
+
+    @staticmethod
+    def get_sorted_by_publication_date(
+        iterable: Iterable['ArticleMention']
+    ) -> Sequence['ArticleMention']:
+        return sorted(iterable, key=ArticleMention.get_published_date_sort_key, reverse=True)
+
 
 @dataclasses.dataclass(frozen=True)
 class ArticleSearchResultItem(ArticleMention):

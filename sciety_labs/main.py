@@ -101,6 +101,11 @@ class AtomResponse(starlette.responses.Response):
     media_type = "application/atom+xml;charset=utf-8"
 
 
+class SearchSortBy:
+    RELEVANCE = 'relevance'
+    PUBLICATION_DATE = 'publication_date'
+
+
 def get_owner_url(owner: OwnerMetaData) -> Optional[str]:
     if owner.owner_type == OwnerTypes.USER and owner.twitter_handle:
         return f'https://sciety.org/users/{owner.twitter_handle}'
@@ -703,6 +708,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         use_venues: bool = True,
         evaluated_only: bool = False,
         search_provider: str = SearchProviders.SEMANTIC_SCHOLAR,
+        sort_by: str = SearchSortBy.RELEVANCE,
         items_per_page: int = DEFAULT_ITEMS_PER_PAGE,
         page: int = 1,
         enable_pagination: bool = True
@@ -728,6 +734,12 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                         evaluation_stats_model.iter_evaluated_only_article_mention(
                             search_result_iterable
                         )
+                    )
+                if sort_by == SearchSortBy.PUBLICATION_DATE:
+                    search_result_iterable = sorted(
+                        search_result_iterable,
+                        key=ArticleMention.get_published_date_sort_key,
+                        reverse=True
                     )
             elif search_provider == SearchProviders.EUROPE_PMC:
                 search_result_iterable = europe_pmc_provider.iter_search_result_item(
