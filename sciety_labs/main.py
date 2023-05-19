@@ -697,7 +697,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         )
 
     @app.get('/search', response_class=HTMLResponse)
-    def search(  # pylint: disable=too-many-arguments
+    def search(  # pylint: disable=too-many-arguments, too-many-locals
         request: Request,
         query: str = '',
         use_venues: bool = True,
