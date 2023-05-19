@@ -178,7 +178,7 @@ class TwitterUserArticleListProvider(RequestsProvider):
                 'user.fields': 'description'
             },
             headers=self.headers,
-            timeout=5 * 60
+            timeout=self.timeout
         )
         response.raise_for_status()
         return get_twitter_user_from_user_lookup_response(
