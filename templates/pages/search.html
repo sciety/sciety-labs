@@ -40,6 +40,7 @@
                 <div>
                     {{ render_pagination_header(pagination, list_type_name='search results') }}
                 </div>
+                {%- if not pagination.is_empty %}
                 <div class="search-results__header_details">
                     <div class="search-results__header_details_item">Results from
                         {% for preprint_server in preprint_servers %}
@@ -51,9 +52,13 @@
                     </div>
                     <div class="search-results__header_details_item">Sorted by <b>relevancy</b></div>
                 </div>
+                {%- endif %}
             </header>
 
             <section>
+                {%- if error_message %}
+                    <p class="error-message">{{ error_message }}</p>
+                {%- endif %}
                 {{ render_article_list_content(search_results) }}
                 {{ render_pagination(pagination) }}
             </section>

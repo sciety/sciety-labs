@@ -697,7 +697,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         )
 
     @app.get('/search', response_class=HTMLResponse)
-    def search(  # pylint: disable=too-many-arguments
+    def search(  # pylint: disable=too-many-arguments, too-many-locals
         request: Request,
         query: str = '',
         use_venues: bool = True,
@@ -708,44 +708,54 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         enable_pagination: bool = True
     ):
         search_result_iterable: Iterable[ArticleSearchResultItem]
-        preprint_servers = SEMANTIC_SCHOLAR_SEARCH_VENUES
-        if not query:
-            search_result_iterable = []
-        elif search_provider == SearchProviders.SEMANTIC_SCHOLAR:
-            search_result_iterable = semantic_scholar_provider.iter_search_result_item(
-                query=query,
-                search_parameters=(
-                    SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITH_VENUES
-                    if use_venues
-                    else SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITHOUT_VENUES
+        error_message: Optional[str] = None
+        status_code: int = 200
+        try:
+            preprint_servers = SEMANTIC_SCHOLAR_SEARCH_VENUES
+            if not query:
+                search_result_iterable = []
+            elif search_provider == SearchProviders.SEMANTIC_SCHOLAR:
+                search_result_iterable = semantic_scholar_provider.iter_search_result_item(
+                    query=query,
+                    search_parameters=(
+                        SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITH_VENUES
+                        if use_venues
+                        else SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITHOUT_VENUES
+                    )
+                )
+                if evaluated_only:
+                    search_result_iterable = (
+                        evaluation_stats_model.iter_evaluated_only_article_mention(
+                            search_result_iterable
+                        )
+                    )
+            elif search_provider == SearchProviders.EUROPE_PMC:
+                search_result_iterable = europe_pmc_provider.iter_search_result_item(
+                    query=query,
+                    is_evaluated_only=evaluated_only
+                )
+                preprint_servers = EUROPE_PMC_PREPRINT_SERVERS
+            else:
+                search_result_iterable = []
+            search_result_iterator = iter(search_result_iterable)
+            search_result_list_with_article_meta = list(
+                _get_page_article_mention_with_article_meta_for_article_mention_iterable(
+                    iter_preprint_article_mention(
+                        search_result_iterator
+                    ),
+                    page=page,
+                    items_per_page=items_per_page
                 )
             )
-            if evaluated_only:
-                search_result_iterable = evaluation_stats_model.iter_evaluated_only_article_mention(
-                    search_result_iterable
-                )
-        elif search_provider == SearchProviders.EUROPE_PMC:
-            search_result_iterable = europe_pmc_provider.iter_search_result_item(
-                query=query,
-                is_evaluated_only=evaluated_only
+            LOGGER.info(
+                'search_result_list_with_article_meta[:1]=%r',
+                search_result_list_with_article_meta[:1]
             )
-            preprint_servers = EUROPE_PMC_PREPRINT_SERVERS
-        else:
-            search_result_iterable = []
-        search_result_iterator = iter(search_result_iterable)
-        search_result_list_with_article_meta = list(
-            _get_page_article_mention_with_article_meta_for_article_mention_iterable(
-                iter_preprint_article_mention(
-                    search_result_iterator
-                ),
-                page=page,
-                items_per_page=items_per_page
-            )
-        )
-        LOGGER.info(
-            'search_result_list_with_article_meta[:1]=%r',
-            search_result_list_with_article_meta[:1]
-        )
+        except requests.exceptions.HTTPError as exc:
+            error_message = f'Error retrieving search results from provider: {exc}'
+            status_code = exc.response.status_code
+            search_result_list_with_article_meta = []
+            search_result_iterator = iter([])
         url_pagination_state = get_url_pagination_state_for_url(
             url=request.url,
             page=page,
@@ -763,10 +773,12 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 'query': query,
                 'is_search_evaluated_only': evaluated_only,
                 'preprint_servers': preprint_servers,
+                'error_message': error_message,
                 'search_provider': search_provider,
                 'search_results': search_result_list_with_article_meta,
                 'pagination': url_pagination_state
-            }
+            },
+            status_code=status_code
         )
 
     return app
