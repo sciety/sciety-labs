@@ -251,7 +251,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         )
 
     @app.get('/', response_class=HTMLResponse)
-    async def index(request: Request):
+    def index(request: Request):
         user_list_summary_data_list = list(
             google_sheet_list_image_provider.iter_list_summary_data_with_list_image_url(
                 lists_model.get_most_active_user_lists(
@@ -305,15 +305,15 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         )
 
     @app.get('/lists/user-lists', response_class=HTMLResponse)
-    async def user_lists(request: Request):
+    def user_lists(request: Request):
         return _render_lists(request, page_title=get_page_title('Most active user lists'))
 
     @app.get('/lists/group-lists', response_class=HTMLResponse)
-    async def group_lists(request: Request):
+    def group_lists(request: Request):
         return _render_lists(request, page_title=get_page_title('Most active group lists'))
 
     @app.get('/lists', response_class=RedirectResponse)
-    async def lists():
+    def lists():
         return RedirectResponse('/lists/user-lists', status_code=starlette.status.HTTP_302_FOUND)
 
     def _get_page_article_mention_with_article_meta_for_article_mention_iterable(
@@ -345,7 +345,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         return article_mention_with_article_meta
 
     @app.get('/lists/by-id/{list_id}', response_class=HTMLResponse)
-    async def list_by_sciety_list_id(
+    def list_by_sciety_list_id(
         request: Request,
         list_id: str,
         items_per_page: int = DEFAULT_ITEMS_PER_PAGE,
@@ -397,7 +397,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         )
 
     @app.get('/lists/by-id/{list_id}/atom.xml', response_class=AtomResponse)
-    async def list_atom_by_sciety_list_id(
+    def list_atom_by_sciety_list_id(
         request: Request,
         list_id: str,
         items_per_page: Optional[int] = DEFAULT_ITEMS_PER_PAGE,
@@ -422,7 +422,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         )
 
     @app.get('/lists/by-id/{list_id}/article-recommendations', response_class=HTMLResponse)
-    async def article_recommendations_by_sciety_list_id(  # pylint: disable=too-many-arguments
+    def article_recommendations_by_sciety_list_id(  # pylint: disable=too-many-arguments
         request: Request,
         list_id: str,
         items_per_page: int = DEFAULT_ITEMS_PER_PAGE,
@@ -487,7 +487,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         )
 
     @app.get('/lists/by-id/{list_id}/article-recommendations/atom.xml', response_class=AtomResponse)
-    async def article_recommendations_atom_by_sciety_list_id(
+    def article_recommendations_atom_by_sciety_list_id(
         request: Request,
         list_id: str,
         items_per_page: Optional[int] = DEFAULT_ARTICLE_RECOMMENDATION_RSS_ITEM_COUNT,
@@ -533,7 +533,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         )
 
     @app.get('/lists/by-twitter-handle/{twitter_handle}', response_class=HTMLResponse)
-    async def list_by_twitter_handle(
+    def list_by_twitter_handle(
         request: Request,
         twitter_handle: str,
         items_per_page: int = DEFAULT_ITEMS_PER_PAGE,
@@ -580,7 +580,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         )
 
     @app.get('/articles/by', response_class=HTMLResponse)
-    async def article_by_article_doi(
+    def article_by_article_doi(
         request: Request,
         article_doi: str
     ):
@@ -647,7 +647,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         )
 
     @app.get('/articles/article-recommendations/by', response_class=HTMLResponse)
-    async def article_recommendations_by_article_doi(  # pylint: disable=too-many-arguments
+    def article_recommendations_by_article_doi(  # pylint: disable=too-many-arguments
         request: Request,
         article_doi: str,
         items_per_page: int = DEFAULT_ITEMS_PER_PAGE,
@@ -697,7 +697,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         )
 
     @app.get('/search', response_class=HTMLResponse)
-    async def search(  # pylint: disable=too-many-arguments
+    def search(  # pylint: disable=too-many-arguments
         request: Request,
         query: str = '',
         use_venues: bool = True,
