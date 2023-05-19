@@ -40,7 +40,7 @@ from sciety_labs.providers.google_sheet_image import (
 from sciety_labs.providers.sciety_event import ScietyEventProvider
 from sciety_labs.providers.semantic_scholar import (
     DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS,
-    SemanticScholarProvider
+    get_semantic_scholar_provider
 )
 from sciety_labs.providers.twitter import get_twitter_user_article_list_provider_or_none
 from sciety_labs.utils.bq_cache import BigQueryTableModifiedInMemorySingleObjectCache
@@ -164,7 +164,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         requests_session=cached_requests_session
     )
 
-    semantic_scholar_provider = SemanticScholarProvider(
+    semantic_scholar_provider = get_semantic_scholar_provider(
         requests_session=cached_requests_session
     )
 

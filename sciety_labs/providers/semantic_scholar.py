@@ -2,6 +2,8 @@ import dataclasses
 import itertools
 import logging
 from datetime import datetime
+import os
+from pathlib import Path
 from typing import Iterable, Mapping, Optional, Sequence
 
 import requests
@@ -12,6 +14,9 @@ from sciety_labs.utils.datetime import get_utc_timestamp_with_tzinfo, get_utcnow
 
 
 LOGGER = logging.getLogger(__name__)
+
+
+SEMANTIC_SCHOLAR_API_KEY_FILE_PATH_ENV_VAR = 'SEMANTIC_SCHOLAR_API_KEY_FILE_PATH'
 
 
 MAX_SEMANTIC_SCHOLAR_RECOMMENDATION_REQUEST_PAPER_IDS = 100
@@ -133,9 +138,13 @@ def get_response_timestamp(response: requests.Response) -> datetime:
 class SemanticScholarProvider:
     def __init__(
         self,
+        api_key_file_path: Optional[str],
         requests_session: Optional[requests.Session] = None
     ) -> None:
         self.headers: dict = {}
+        if api_key_file_path:
+            api_key = Path(api_key_file_path).read_text(encoding='utf-8')
+            self.headers['x-api-key'] = api_key
         if requests_session is None:
             requests_session = requests.Session()
         self.requests_session = requests_session
@@ -253,3 +262,21 @@ class SemanticScholarProvider:
                 items_per_page,
                 MAX_SEMANTIC_SCHOLAR_SEARCH_OFFSET_PLUS_LIMIT - offset
             )
+
+
+def get_semantic_scholar_api_key_file_path() -> Optional[str]:
+    return os.getenv(SEMANTIC_SCHOLAR_API_KEY_FILE_PATH_ENV_VAR)
+
+
+def get_semantic_scholar_provider(
+    **kwargs
+) -> Optional[SemanticScholarProvider]:
+    api_key_file_path = get_semantic_scholar_api_key_file_path()
+    if api_key_file_path and not os.path.exists(api_key_file_path):
+        LOGGER.info(
+            'Semantic Scholar API key file does not exist, not using api key: %r',
+            api_key_file_path
+        )
+        api_key_file_path = None
+    LOGGER.info('Semantic Scholar API key: %r', api_key_file_path)
+    return SemanticScholarProvider(api_key_file_path, **kwargs)
