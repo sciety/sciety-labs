@@ -53,7 +53,7 @@ class ArticleSearchResultList:
     items: Sequence[ArticleSearchResultItem]
     offset: int
     total: int
-    next_offset: Optional[int]
+    next_offset: Optional[int] = None
 
 
 def _get_recommendation_request_payload_for_article_dois(
@@ -134,6 +134,19 @@ def get_response_timestamp(response: requests.Response) -> datetime:
     if isinstance(response, CachedResponse):
         return get_utc_timestamp_with_tzinfo(response.created_at)
     return get_utcnow()
+
+
+def is_data_for_limit_or_offset_not_available_error(response: requests.Response) -> bool:
+    try:
+        return (
+            response.status_code == 400
+            and (
+                response.json().get('error')
+                == 'Requested data for this limit and/or offset is not available'
+            )
+        )
+    except requests.exceptions.JSONDecodeError:
+        return False
 
 
 class SemanticScholarProvider(RequestsProvider):
@@ -221,6 +234,11 @@ class SemanticScholarProvider(RequestsProvider):
             timeout=self.timeout
         )
         LOGGER.info('Semantic Scholar search, url=%r', response.request.url)
+
+        if is_data_for_limit_or_offset_not_available_error(response):
+            LOGGER.info('Semantic Scholar search, offset/limit error for offset=%r', offset)
+            return ArticleSearchResultList(items=[], offset=offset, total=offset)
+
         response.raise_for_status()
         response_json = response.json()
         LOGGER.debug('Semantic Scholar search, response_json=%r', response_json)
