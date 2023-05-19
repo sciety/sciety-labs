@@ -1,3 +1,4 @@
+from datetime import date
 from sciety_labs.providers.semantic_scholar import (
     SEMANTIC_SCHOLAR_PAPER_ID_EXT_REF_ID,
     _get_recommendation_request_payload_for_article_dois,
@@ -39,7 +40,8 @@ class TestIterArticleRecommendationFromRecommendationResponseJson:
                     'externalIds': {
                         'DOI': DOI_1
                     },
-                    'title': TITLE_1
+                    'title': TITLE_1,
+                    'publicationDate': '2001-02-03'
                 }]
             })
         )
@@ -51,6 +53,10 @@ class TestIterArticleRecommendationFromRecommendationResponseJson:
             article_recommendation.article_meta.article_title
             for article_recommendation in article_recommendation_list
         ] == [TITLE_1]
+        assert [
+            article_recommendation.article_meta.published_date
+            for article_recommendation in article_recommendation_list
+        ] == [date(2001, 2, 3)]
 
     def test_should_extract_authors(self):
         article_recommendation_list = list(
