@@ -1,0 +1,3 @@
+{% macro render_select_option(value, label, selected_value) -%}
+    <option value="{{ value }}" {{ 'selected' if selected_value == value  else '' }}>{{ label }}</option>
+{%- endmacro %}

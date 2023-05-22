@@ -784,6 +784,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 ),
                 'query': query,
                 'is_search_evaluated_only': evaluated_only,
+                'sort_by': sort_by,
                 'preprint_servers': preprint_servers,
                 'error_message': error_message,
                 'search_provider': search_provider,
