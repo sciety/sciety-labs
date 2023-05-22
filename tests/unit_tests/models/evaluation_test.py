@@ -39,3 +39,15 @@ class TestScietyEventEvaluationStatsModel:
             'evaluation_locator': EVALUATION_LOCATOR_2
         }])
         assert model.get_evaluation_count_by_article_id(ARTICLE_ID_1) == 2
+
+    def test_should_match_article_id_ignoring_case(self):
+        model = ScietyEventEvaluationStatsModel([{
+            **EVALUATION_RECORDED_EVENT_1,
+            'article_id': 'doi:10.1234/Doi_1',
+            'evaluation_locator': EVALUATION_LOCATOR_1
+        }, {
+            **EVALUATION_RECORDED_EVENT_1,
+            'article_id': 'doi:10.1234/dOi_1',
+            'evaluation_locator': EVALUATION_LOCATOR_2
+        }])
+        assert model.get_evaluation_count_by_article_id('doi:10.1234/doI_1') == 2

@@ -12,6 +12,10 @@ class EvaluationReference(NamedTuple):
     evaluation_locator: str
 
 
+def get_normalized_article_id(article_id: str) -> str:
+    return article_id.lower()
+
+
 class ScietyEventEvaluationStatsModel:
     def __init__(self, sciety_events: Sequence[dict]):
         self._evaluation_reference_by_article_id: Dict[str, List[EvaluationReference]] = {}
@@ -24,8 +28,9 @@ class ScietyEventEvaluationStatsModel:
             if event_name != 'EvaluationRecorded':
                 continue
             article_id = event['article_id']
+            normalized_article_id = get_normalized_article_id(article_id)
             evaluation_locator = event['evaluation_locator']
-            self._evaluation_reference_by_article_id.setdefault(article_id, []).append(
+            self._evaluation_reference_by_article_id.setdefault(normalized_article_id, []).append(
                 EvaluationReference(
                     article_id=article_id,
                     evaluation_locator=evaluation_locator
@@ -37,7 +42,12 @@ class ScietyEventEvaluationStatsModel:
             self._do_apply_events(sciety_events)
 
     def get_evaluation_count_by_article_id(self, article_id: str) -> int:
-        return len(self._evaluation_reference_by_article_id.get(article_id, []))
+        return len(
+            self._evaluation_reference_by_article_id.get(
+                get_normalized_article_id(article_id),
+                []
+            )
+        )
 
     def iter_article_mention_with_article_stats(
         self,
