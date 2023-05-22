@@ -11,7 +11,7 @@ from requests_cache import CachedResponse
 
 from sciety_labs.models.article import ArticleMention, ArticleMetaData, ArticleSearchResultItem
 from sciety_labs.providers.requests_provider import RequestsProvider
-from sciety_labs.utils.datetime import get_utc_timestamp_with_tzinfo, get_utcnow
+from sciety_labs.utils.datetime import get_utc_timestamp_with_tzinfo, get_utcnow, parse_date_or_none
 
 
 LOGGER = logging.getLogger(__name__)
@@ -37,6 +37,16 @@ DEFAULT_SEMANTIC_SCHOLAR_SEARCH_RESULT_LIMIT = 100
 SEMANTIC_SCHOLAR_PAPER_ID_EXT_REF_ID = 'semantic_scholar_paper_id'
 
 
+SEMANTIC_SCHOLAR_REQUESTED_FIELDS = [
+    'externalIds',
+    'url',
+    'title',
+    'abstract',
+    'authors',
+    'publicationDate'
+]
+
+
 @dataclasses.dataclass(frozen=True)
 class ArticleRecommendation(ArticleMention):
     pass
@@ -53,7 +63,7 @@ class ArticleSearchResultList:
     items: Sequence[ArticleSearchResultItem]
     offset: int
     total: int
-    next_offset: Optional[int]
+    next_offset: Optional[int] = None
 
 
 def _get_recommendation_request_payload_for_article_dois(
@@ -86,6 +96,21 @@ def _get_author_names_from_recommended_paper_json(
     return _get_author_names_from_author_list_json(author_list_json)
 
 
+def _get_article_meta_from_paper_json(
+    paper_json: dict
+) -> ArticleMetaData:
+    article_doi = paper_json.get('externalIds', {}).get('DOI')
+    assert article_doi
+    return ArticleMetaData(
+        article_doi=article_doi,
+        article_title=paper_json['title'],
+        published_date=parse_date_or_none(paper_json.get('publicationDate')),
+        author_name_list=_get_author_names_from_recommended_paper_json(
+            paper_json
+        )
+    )
+
+
 def _iter_article_recommendation_from_recommendation_response_json(
     recommendation_response_json: dict
 ) -> Iterable[ArticleRecommendation]:
@@ -95,13 +120,7 @@ def _iter_article_recommendation_from_recommendation_response_json(
             continue
         yield ArticleRecommendation(
             article_doi=article_doi,
-            article_meta=ArticleMetaData(
-                article_doi=article_doi,
-                article_title=recommended_paper_json['title'],
-                author_name_list=_get_author_names_from_recommended_paper_json(
-                    recommended_paper_json
-                )
-            ),
+            article_meta=_get_article_meta_from_paper_json(recommended_paper_json),
             external_reference_by_name={
                 SEMANTIC_SCHOLAR_PAPER_ID_EXT_REF_ID: recommended_paper_json.get('paperId')
             }
@@ -117,13 +136,7 @@ def _iter_article_search_result_item_from_search_response_json(
             continue
         yield ArticleSearchResultItem(
             article_doi=article_doi,
-            article_meta=ArticleMetaData(
-                article_doi=article_doi,
-                article_title=item_json['title'],
-                author_name_list=_get_author_names_from_recommended_paper_json(
-                    item_json
-                )
-            ),
+            article_meta=_get_article_meta_from_paper_json(item_json),
             external_reference_by_name={
                 SEMANTIC_SCHOLAR_PAPER_ID_EXT_REF_ID: item_json.get('paperId')
             }
@@ -134,6 +147,19 @@ def get_response_timestamp(response: requests.Response) -> datetime:
     if isinstance(response, CachedResponse):
         return get_utc_timestamp_with_tzinfo(response.created_at)
     return get_utcnow()
+
+
+def is_data_for_limit_or_offset_not_available_error(response: requests.Response) -> bool:
+    try:
+        return (
+            response.status_code == 400
+            and (
+                response.json().get('error')
+                == 'Requested data for this limit and/or offset is not available'
+            )
+        )
+    except requests.exceptions.JSONDecodeError:
+        return False
 
 
 class SemanticScholarProvider(RequestsProvider):
@@ -160,13 +186,7 @@ class SemanticScholarProvider(RequestsProvider):
             'https://api.semanticscholar.org/recommendations/v1/papers/',
             json=request_json,
             params={
-                'fields': ','.join([
-                    'externalIds',
-                    'url',
-                    'title',
-                    'abstract',
-                    'authors'
-                ]),
+                'fields': ','.join(SEMANTIC_SCHOLAR_REQUESTED_FIELDS),
                 'limit': str(max_recommendations)
             },
             headers=self.headers,
@@ -203,13 +223,7 @@ class SemanticScholarProvider(RequestsProvider):
         request_params = {
             **(search_parameters if search_parameters else {}),
             'query': query,
-            'fields': ','.join([
-                'externalIds',
-                'url',
-                'title',
-                'abstract',
-                'authors'
-            ]),
+            'fields': ','.join(SEMANTIC_SCHOLAR_REQUESTED_FIELDS),
             'offset': str(offset),
             'limit': str(limit)
         }
@@ -221,6 +235,11 @@ class SemanticScholarProvider(RequestsProvider):
             timeout=self.timeout
         )
         LOGGER.info('Semantic Scholar search, url=%r', response.request.url)
+
+        if is_data_for_limit_or_offset_not_available_error(response):
+            LOGGER.info('Semantic Scholar search, offset/limit error for offset=%r', offset)
+            return ArticleSearchResultList(items=[], offset=offset, total=offset)
+
         response.raise_for_status()
         response_json = response.json()
         LOGGER.debug('Semantic Scholar search, response_json=%r', response_json)

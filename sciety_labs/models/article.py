@@ -103,6 +103,11 @@ class ArticleStats(NamedTuple):
     evaluation_count: int = 0
 
 
+class SearchSortBy:
+    RELEVANCE = 'relevance'
+    PUBLICATION_DATE = 'publication_date'
+
+
 @dataclasses.dataclass(frozen=True)
 class ArticleMention:
     article_doi: str
@@ -119,6 +124,17 @@ class ArticleMention:
     def get_created_at_sort_key(self) -> datetime:
         assert self.created_at_timestamp
         return self.created_at_timestamp
+
+    def get_published_date_sort_key(self) -> date:
+        assert self.article_meta
+        assert self.article_meta.published_date
+        return self.article_meta.published_date
+
+    @staticmethod
+    def get_sorted_by_publication_date(
+        iterable: Iterable['ArticleMention']
+    ) -> Sequence['ArticleMention']:
+        return sorted(iterable, key=ArticleMention.get_published_date_sort_key, reverse=True)
 
 
 @dataclasses.dataclass(frozen=True)

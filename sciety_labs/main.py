@@ -24,6 +24,7 @@ from sciety_labs.config.site_config import get_site_config_from_environment_vari
 from sciety_labs.models.article import (
     ArticleMention,
     ArticleSearchResultItem,
+    SearchSortBy,
     iter_preprint_article_mention
 )
 from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
@@ -703,6 +704,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         use_venues: bool = True,
         evaluated_only: bool = False,
         search_provider: str = SearchProviders.SEMANTIC_SCHOLAR,
+        sort_by: str = SearchSortBy.PUBLICATION_DATE,
         items_per_page: int = DEFAULT_ITEMS_PER_PAGE,
         page: int = 1,
         enable_pagination: bool = True
@@ -729,10 +731,17 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                             search_result_iterable
                         )
                     )
+                if sort_by == SearchSortBy.PUBLICATION_DATE:
+                    search_result_iterable = sorted(
+                        search_result_iterable,
+                        key=ArticleMention.get_published_date_sort_key,
+                        reverse=True
+                    )
             elif search_provider == SearchProviders.EUROPE_PMC:
                 search_result_iterable = europe_pmc_provider.iter_search_result_item(
                     query=query,
-                    is_evaluated_only=evaluated_only
+                    is_evaluated_only=evaluated_only,
+                    sort_by=sort_by
                 )
                 preprint_servers = EUROPE_PMC_PREPRINT_SERVERS
             else:
@@ -772,6 +781,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 ),
                 'query': query,
                 'is_search_evaluated_only': evaluated_only,
+                'sort_by': sort_by,
                 'preprint_servers': preprint_servers,
                 'error_message': error_message,
                 'search_provider': search_provider,

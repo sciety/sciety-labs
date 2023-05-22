@@ -2,7 +2,7 @@ import dataclasses
 import logging
 from typing import Iterable, Mapping, Optional, Sequence
 
-from sciety_labs.models.article import ArticleMetaData, ArticleSearchResultItem
+from sciety_labs.models.article import ArticleMetaData, ArticleSearchResultItem, SearchSortBy
 from sciety_labs.providers.requests_provider import RequestsProvider
 
 
@@ -47,12 +47,18 @@ def get_preprint_servers_query(preprint_servers: Sequence[str]) -> str:
     ])
 
 
-def get_query_with_additional_filters(query: str, is_evaluated_only: bool) -> str:
+def get_query_with_additional_filters(
+    query: str,
+    is_evaluated_only: bool,
+    sort_by: str = SearchSortBy.RELEVANCE
+) -> str:
     preprint_servers_query = get_preprint_servers_query(EUROPE_PMC_PREPRINT_SERVERS)
     result = f'({preprint_servers_query})'
     if is_evaluated_only:
         result += ' (LABS_PUBS:"2112")'
     result += f' ({query})'
+    if sort_by == SearchSortBy.PUBLICATION_DATE:
+        result += ' sort_date:y'
     return result
 
 
@@ -61,13 +67,18 @@ class EuropePmcProvider(RequestsProvider):
         self,
         query: str,
         is_evaluated_only: bool,
+        sort_by: str = SearchSortBy.RELEVANCE,
         search_parameters: Optional[Mapping[str, str]] = None,
         cursor: str = START_CURSOR,
         limit: int = DEFAULT_EUROPE_PMC_SEARCH_RESULT_LIMIT
     ) -> CursorBasedArticleSearchResultList:
         request_params = {
             **(search_parameters if search_parameters else {}),
-            'query': get_query_with_additional_filters(query, is_evaluated_only=is_evaluated_only),
+            'query': get_query_with_additional_filters(
+                query,
+                is_evaluated_only=is_evaluated_only,
+                sort_by=sort_by
+            ),
             'format': 'json',
             'cursorMark': cursor,
             'pageSize': str(limit)
@@ -92,10 +103,11 @@ class EuropePmcProvider(RequestsProvider):
             next_cursor=response_json.get('nextCursorMark')
         )
 
-    def iter_search_result_item(
+    def iter_search_result_item(  # pylint: disable=too-many-arguments
         self,
         query: str,
         is_evaluated_only: bool = False,
+        sort_by: str = SearchSortBy.RELEVANCE,
         search_parameters: Optional[Mapping[str, str]] = None,
         items_per_page: int = DEFAULT_EUROPE_PMC_SEARCH_RESULT_LIMIT
     ) -> Iterable[ArticleSearchResultItem]:
@@ -104,6 +116,7 @@ class EuropePmcProvider(RequestsProvider):
             search_result_list = self.get_search_result_list(
                 query=query,
                 is_evaluated_only=is_evaluated_only,
+                sort_by=sort_by,
                 search_parameters=search_parameters,
                 cursor=cursor,
                 limit=items_per_page
