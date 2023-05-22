@@ -24,6 +24,7 @@ from sciety_labs.config.site_config import get_site_config_from_environment_vari
 from sciety_labs.models.article import (
     ArticleMention,
     ArticleSearchResultItem,
+    SearchSortBy,
     iter_preprint_article_mention
 )
 from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
@@ -99,11 +100,6 @@ class SearchProviders:
 
 class AtomResponse(starlette.responses.Response):
     media_type = "application/atom+xml;charset=utf-8"
-
-
-class SearchSortBy:
-    RELEVANCE = 'relevance'
-    PUBLICATION_DATE = 'publication_date'
 
 
 def get_owner_url(owner: OwnerMetaData) -> Optional[str]:

@@ -103,6 +103,11 @@ class ArticleStats(NamedTuple):
     evaluation_count: int = 0
 
 
+class SearchSortBy:
+    RELEVANCE = 'relevance'
+    PUBLICATION_DATE = 'publication_date'
+
+
 @dataclasses.dataclass(frozen=True)
 class ArticleMention:
     article_doi: str
