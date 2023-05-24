@@ -2,7 +2,7 @@ from datetime import timedelta
 from http.client import HTTPException
 import logging
 from pathlib import Path
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Sequence
 
 import requests
 
@@ -709,7 +709,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         error_message: Optional[str] = None
         status_code: int = 200
         try:
-            preprint_servers = SEMANTIC_SCHOLAR_SEARCH_VENUES
+            preprint_servers: Optional[Sequence[str]] = None
             search_parameters = SearchParameters(
                 query=query,
                 is_evaluated_only=evaluated_only,
@@ -721,6 +721,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 search_result_iterable = semantic_scholar_search_provider.iter_search_result_item(
                     search_parameters=search_parameters
                 )
+                preprint_servers = SEMANTIC_SCHOLAR_SEARCH_VENUES
             elif search_provider == SearchProviders.EUROPE_PMC:
                 search_result_iterable = europe_pmc_provider.iter_search_result_item(
                     search_parameters=search_parameters
