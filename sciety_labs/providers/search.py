@@ -1,3 +1,4 @@
+from datetime import date, timedelta
 from typing import Iterable, Mapping, NamedTuple, Optional, Protocol
 
 from sciety_labs.models.article import ArticleSearchResultItem
@@ -15,6 +16,36 @@ class SearchDateRange:
     LAST_30_DAYS = '30d'
     LAST_90_DAYS = '90d'
     THIS_YEAR = 'this_year'
+
+    @staticmethod
+    def is_valid(date_range: str) -> bool:
+        return date_range in {
+            SearchDateRange.LAST_30_DAYS,
+            SearchDateRange.LAST_90_DAYS,
+            SearchDateRange.THIS_YEAR
+        }
+
+    @staticmethod
+    def assert_valid(date_range: str):
+        if not SearchDateRange.is_valid(date_range):
+            raise ValueError(f'invalid date range: {date_range}')
+
+    @staticmethod
+    def get_from_date(date_range: str) -> date:
+        SearchDateRange.assert_valid(date_range)
+        today = date.today()
+        if date_range == SearchDateRange.LAST_30_DAYS:
+            return today - timedelta(days=30)
+        if date_range == SearchDateRange.LAST_90_DAYS:
+            return today - timedelta(days=90)
+        if date_range == SearchDateRange.THIS_YEAR:
+            return date(today.year, 1, 1)
+        raise ValueError(f'invalid date range: {date_range}')
+
+    @staticmethod
+    def get_to_date(date_range: str) -> date:
+        SearchDateRange.assert_valid(date_range)
+        return date.today()
 
 
 class SearchParameters(NamedTuple):

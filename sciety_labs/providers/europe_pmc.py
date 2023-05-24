@@ -1,10 +1,16 @@
 import dataclasses
+from datetime import date
 import logging
 from typing import Iterable, Optional, Sequence
 
 from sciety_labs.models.article import ArticleMetaData, ArticleSearchResultItem
 from sciety_labs.providers.requests_provider import RequestsProvider
-from sciety_labs.providers.search import SearchParameters, SearchProvider, SearchSortBy
+from sciety_labs.providers.search import (
+    SearchDateRange,
+    SearchParameters,
+    SearchProvider,
+    SearchSortBy
+)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -48,11 +54,19 @@ def get_preprint_servers_query(preprint_servers: Sequence[str]) -> str:
     ])
 
 
+def get_first_published_date_within_dates(from_date: date, to_date: date) -> str:
+    return f'(FIRST_PDATE:[{from_date.isoformat()} TO {to_date.isoformat()}])'
+
+
 def get_query_with_additional_filters(search_parameters: SearchParameters) -> str:
     preprint_servers_query = get_preprint_servers_query(EUROPE_PMC_PREPRINT_SERVERS)
     result = f'({preprint_servers_query})'
     if search_parameters.is_evaluated_only:
         result += ' (LABS_PUBS:"2112")'
+    result += ' ' + get_first_published_date_within_dates(
+        SearchDateRange.get_from_date(search_parameters.date_range),
+        SearchDateRange.get_to_date(search_parameters.date_range)
+    )
     result += f' ({search_parameters.query})'
     if search_parameters.sort_by == SearchSortBy.PUBLICATION_DATE:
         result += ' sort_date:y'
