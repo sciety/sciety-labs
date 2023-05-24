@@ -710,23 +710,20 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         status_code: int = 200
         try:
             preprint_servers = SEMANTIC_SCHOLAR_SEARCH_VENUES
+            search_parameters = SearchParameters(
+                query=query,
+                is_evaluated_only=evaluated_only,
+                sort_by=sort_by
+            )
             if not query:
                 search_result_iterable = []
             elif search_provider == SearchProviders.SEMANTIC_SCHOLAR:
                 search_result_iterable = semantic_scholar_search_provider.iter_search_result_item(
-                    search_parameters=SearchParameters(
-                        query=query,
-                        is_evaluated_only=evaluated_only,
-                        sort_by=sort_by
-                    )
+                    search_parameters=search_parameters
                 )
             elif search_provider == SearchProviders.EUROPE_PMC:
                 search_result_iterable = europe_pmc_provider.iter_search_result_item(
-                    search_parameters=SearchParameters(
-                        query=query,
-                        is_evaluated_only=evaluated_only,
-                        sort_by=sort_by
-                    )
+                    search_parameters=search_parameters
                 )
                 preprint_servers = EUROPE_PMC_PREPRINT_SERVERS
             else:
