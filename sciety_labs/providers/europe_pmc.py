@@ -4,6 +4,7 @@ from typing import Iterable, Mapping, Optional, Sequence
 
 from sciety_labs.models.article import ArticleMetaData, ArticleSearchResultItem, SearchSortBy
 from sciety_labs.providers.requests_provider import RequestsProvider
+from sciety_labs.providers.search import SearchProvider
 
 
 LOGGER = logging.getLogger(__name__)
@@ -62,7 +63,7 @@ def get_query_with_additional_filters(
     return result
 
 
-class EuropePmcProvider(RequestsProvider):
+class EuropePmcProvider(RequestsProvider, SearchProvider):
     def get_search_result_list(  # pylint: disable=too-many-arguments
         self,
         query: str,
