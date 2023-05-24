@@ -1,4 +1,4 @@
-from typing import Iterable, Mapping, Optional, Protocol
+from typing import Iterable, Mapping, NamedTuple, Optional, Protocol
 
 from sciety_labs.models.article import ArticleSearchResultItem
 
@@ -11,13 +11,17 @@ class SearchSortBy:
     PUBLICATION_DATE = 'publication_date'
 
 
+class SearchParameters(NamedTuple):
+    query: str
+    is_evaluated_only: bool = False
+    sort_by: str = SearchSortBy.RELEVANCE
+    additional_search_parameters: Optional[Mapping[str, str]] = None
+    items_per_page: int = DEFAULT_SEARCH_RESULT_LIMIT
+
+
 class SearchProvider(Protocol):
     def iter_search_result_item(  # pylint: disable=too-many-arguments
         self,
-        query: str,
-        is_evaluated_only: bool = False,
-        sort_by: str = SearchSortBy.RELEVANCE,
-        search_parameters: Optional[Mapping[str, str]] = None,
-        items_per_page: int = DEFAULT_SEARCH_RESULT_LIMIT
+        search_parameters: SearchParameters
     ) -> Iterable[ArticleSearchResultItem]:
         pass

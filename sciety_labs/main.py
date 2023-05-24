@@ -38,7 +38,7 @@ from sciety_labs.providers.google_sheet_image import (
     GoogleSheetListImageProvider
 )
 from sciety_labs.providers.sciety_event import ScietyEventProvider
-from sciety_labs.providers.search import SearchSortBy
+from sciety_labs.providers.search import SearchParameters, SearchSortBy
 from sciety_labs.providers.semantic_scholar import (
     DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS,
     get_semantic_scholar_provider
@@ -739,9 +739,11 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                     )
             elif search_provider == SearchProviders.EUROPE_PMC:
                 search_result_iterable = europe_pmc_provider.iter_search_result_item(
-                    query=query,
-                    is_evaluated_only=evaluated_only,
-                    sort_by=sort_by
+                    search_parameters=SearchParameters(
+                        query=query,
+                        is_evaluated_only=evaluated_only,
+                        sort_by=sort_by
+                    )
                 )
                 preprint_servers = EUROPE_PMC_PREPRINT_SERVERS
             else:
