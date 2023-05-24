@@ -11,6 +11,12 @@ class SearchSortBy:
     PUBLICATION_DATE = 'publication_date'
 
 
+class SearchDateRange:
+    LAST_30_DAYS = '30d'
+    LAST_90_DAYS = '90d'
+    THIS_YEAR = 'this_year'
+
+
 class SearchParameters(NamedTuple):
     query: str
     is_evaluated_only: bool = False

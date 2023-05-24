@@ -38,7 +38,7 @@ from sciety_labs.providers.google_sheet_image import (
     GoogleSheetListImageProvider
 )
 from sciety_labs.providers.sciety_event import ScietyEventProvider
-from sciety_labs.providers.search import SearchParameters, SearchSortBy
+from sciety_labs.providers.search import SearchDateRange, SearchParameters, SearchSortBy
 from sciety_labs.providers.semantic_scholar import (
     DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS,
     SEMANTIC_SCHOLAR_SEARCH_VENUES,
@@ -701,6 +701,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         evaluated_only: bool = False,
         search_provider: str = SearchProviders.SEMANTIC_SCHOLAR,
         sort_by: str = SearchSortBy.PUBLICATION_DATE,
+        date_range: str = SearchDateRange.LAST_30_DAYS,
         items_per_page: int = DEFAULT_ITEMS_PER_PAGE,
         page: int = 1,
         enable_pagination: bool = True
@@ -765,6 +766,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 'query': query,
                 'is_search_evaluated_only': evaluated_only,
                 'sort_by': sort_by,
+                'date_range': date_range,
                 'preprint_servers': preprint_servers,
                 'error_message': error_message,
                 'search_provider': search_provider,
