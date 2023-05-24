@@ -1,7 +1,7 @@
 import dataclasses
 import itertools
 import logging
-from datetime import datetime
+from datetime import date, datetime
 import os
 from pathlib import Path
 from typing import Iterable, Mapping, Optional, Sequence
@@ -12,7 +12,12 @@ from requests_cache import CachedResponse
 from sciety_labs.models.article import ArticleMention, ArticleMetaData, ArticleSearchResultItem
 from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
 from sciety_labs.providers.requests_provider import RequestsProvider
-from sciety_labs.providers.search import SearchParameters, SearchProvider, SearchSortBy
+from sciety_labs.providers.search import (
+    SearchDateRange,
+    SearchParameters,
+    SearchProvider,
+    SearchSortBy
+)
 from sciety_labs.utils.datetime import get_utc_timestamp_with_tzinfo, get_utcnow, parse_date_or_none
 
 
@@ -291,6 +296,21 @@ class SemanticScholarProvider(RequestsProvider):
             )
 
 
+def iter_search_results_published_within_date_range(
+    search_result_iterable: Iterable[ArticleSearchResultItem],
+    from_date: date,
+    to_date: date
+) -> Iterable[ArticleSearchResultItem]:
+    for search_result in search_result_iterable:
+        if not search_result.article_meta:
+            continue
+        published_date = search_result.article_meta.published_date
+        if not published_date:
+            continue
+        if from_date <= published_date <= to_date:
+            yield search_result
+
+
 class SemanticScholarSearchProvider(SearchProvider):
     def __init__(
         self,
@@ -317,6 +337,11 @@ class SemanticScholarSearchProvider(SearchProvider):
                     search_result_iterable
                 )
             )
+        search_result_iterable = iter_search_results_published_within_date_range(
+            search_result_iterable,
+            from_date=SearchDateRange.get_from_date(search_parameters.date_range),
+            to_date=SearchDateRange.get_to_date(search_parameters.date_range)
+        )
         if search_parameters.sort_by == SearchSortBy.PUBLICATION_DATE:
             search_result_iterable = sorted(
                 search_result_iterable,
