@@ -714,8 +714,10 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             search_parameters = SearchParameters(
                 query=query,
                 is_evaluated_only=evaluated_only,
-                sort_by=sort_by
+                sort_by=sort_by,
+                date_range=date_range
             )
+            LOGGER.info('search_parameters: %r', search_parameters)
             if not query:
                 search_result_iterable = []
             elif search_provider == SearchProviders.SEMANTIC_SCHOLAR:

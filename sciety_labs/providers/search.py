@@ -21,6 +21,7 @@ class SearchParameters(NamedTuple):
     query: str
     is_evaluated_only: bool = False
     sort_by: str = SearchSortBy.RELEVANCE
+    date_range: str = SearchDateRange.LAST_30_DAYS
     additional_search_parameters: Optional[Mapping[str, str]] = None
     items_per_page: int = DEFAULT_SEARCH_RESULT_LIMIT
 
