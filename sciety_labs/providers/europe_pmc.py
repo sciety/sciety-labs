@@ -104,7 +104,7 @@ class EuropePmcProvider(RequestsProvider, SearchProvider):
             next_cursor=response_json.get('nextCursorMark')
         )
 
-    def iter_search_result_item(  # pylint: disable=too-many-arguments
+    def iter_search_result_item(
         self,
         search_parameters: SearchParameters
     ) -> Iterable[ArticleSearchResultItem]:

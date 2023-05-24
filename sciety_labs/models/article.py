@@ -1,7 +1,7 @@
 import dataclasses
 from datetime import date, datetime
 import re
-from typing import Iterable, Mapping, NamedTuple, Optional, Sequence
+from typing import Iterable, Mapping, NamedTuple, Optional, Sequence, TypeVar
 
 from sciety_labs.models.image import ObjectImages
 
@@ -130,6 +130,9 @@ class ArticleMention:
         iterable: Iterable['ArticleMention']
     ) -> Sequence['ArticleMention']:
         return sorted(iterable, key=ArticleMention.get_published_date_sort_key, reverse=True)
+
+
+ArticleMentionT = TypeVar('ArticleMentionT', bound=ArticleMention)
 
 
 @dataclasses.dataclass(frozen=True)

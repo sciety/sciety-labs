@@ -10,7 +10,9 @@ import requests
 from requests_cache import CachedResponse
 
 from sciety_labs.models.article import ArticleMention, ArticleMetaData, ArticleSearchResultItem
+from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
 from sciety_labs.providers.requests_provider import RequestsProvider
+from sciety_labs.providers.search import SearchParameters, SearchProvider, SearchSortBy
 from sciety_labs.utils.datetime import get_utc_timestamp_with_tzinfo, get_utcnow, parse_date_or_none
 
 
@@ -45,6 +47,14 @@ SEMANTIC_SCHOLAR_REQUESTED_FIELDS = [
     'authors',
     'publicationDate'
 ]
+
+SEMANTIC_SCHOLAR_SEARCH_VENUES = ['bioRxiv', 'medRxiv', 'Research Square']
+
+SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITHOUT_VENUES: dict = {'year': 2023}
+SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITH_VENUES: dict = {
+    **SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITHOUT_VENUES,
+    'venue': ','.join(SEMANTIC_SCHOLAR_SEARCH_VENUES)
+}
 
 
 @dataclasses.dataclass(frozen=True)
@@ -252,7 +262,7 @@ class SemanticScholarProvider(RequestsProvider):
             next_offset=response_json.get('next')
         )
 
-    def iter_search_result_item(
+    def iter_unfiltered_search_result_item(
         self,
         query: str,
         search_parameters: Optional[Mapping[str, str]] = None,
@@ -279,6 +289,41 @@ class SemanticScholarProvider(RequestsProvider):
                 items_per_page,
                 MAX_SEMANTIC_SCHOLAR_SEARCH_OFFSET_PLUS_LIMIT - offset
             )
+
+
+class SemanticScholarSearchProvider(SearchProvider):
+    def __init__(
+        self,
+        semantic_scholar_provider: SemanticScholarProvider,
+        evaluation_stats_model: ScietyEventEvaluationStatsModel
+    ) -> None:
+        self.semantic_scholar_provider = semantic_scholar_provider
+        self.evaluation_stats_model = evaluation_stats_model
+
+    def iter_search_result_item(
+        self,
+        search_parameters: SearchParameters
+    ) -> Iterable[ArticleSearchResultItem]:
+        search_result_iterable: Iterable[ArticleSearchResultItem]
+        search_result_iterable = self.semantic_scholar_provider.iter_unfiltered_search_result_item(
+            query=search_parameters.query,
+            search_parameters=(
+                SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITH_VENUES
+            )
+        )
+        if search_parameters.is_evaluated_only:
+            search_result_iterable = (
+                self.evaluation_stats_model.iter_evaluated_only_article_mention(
+                    search_result_iterable
+                )
+            )
+        if search_parameters.sort_by == SearchSortBy.PUBLICATION_DATE:
+            search_result_iterable = sorted(
+                search_result_iterable,
+                key=ArticleMention.get_published_date_sort_key,
+                reverse=True
+            )
+        return search_result_iterable
 
 
 def get_semantic_scholar_api_key_file_path() -> Optional[str]:
