@@ -231,12 +231,12 @@ class SemanticScholarProvider(RequestsProvider):
     def get_search_result_list(
         self,
         query: str,
-        search_parameters: Optional[Mapping[str, str]] = None,
+        additional_search_parameters: Optional[Mapping[str, str]] = None,
         offset: int = 0,
         limit: int = DEFAULT_SEMANTIC_SCHOLAR_SEARCH_RESULT_LIMIT
     ) -> ArticleSearchResultList:
         request_params = {
-            **(search_parameters if search_parameters else {}),
+            **(additional_search_parameters or {}),
             'query': query,
             'fields': ','.join(SEMANTIC_SCHOLAR_REQUESTED_FIELDS),
             'offset': str(offset),
@@ -270,14 +270,14 @@ class SemanticScholarProvider(RequestsProvider):
     def iter_unfiltered_search_result_item(
         self,
         query: str,
-        search_parameters: Optional[Mapping[str, str]] = None,
+        additional_search_parameters: Optional[Mapping[str, str]] = None,
         items_per_page: int = DEFAULT_SEMANTIC_SCHOLAR_SEARCH_RESULT_LIMIT
     ) -> Iterable[ArticleSearchResultItem]:
         offset = 0
         while True:
             search_result_list = self.get_search_result_list(
                 query=query,
-                search_parameters=search_parameters,
+                additional_search_parameters=additional_search_parameters,
                 offset=offset,
                 limit=items_per_page
             )
@@ -294,6 +294,16 @@ class SemanticScholarProvider(RequestsProvider):
                 items_per_page,
                 MAX_SEMANTIC_SCHOLAR_SEARCH_OFFSET_PLUS_LIMIT - offset
             )
+
+
+def get_years_for_date_range(
+    from_date: date,
+    to_date: date
+) -> Sequence[int]:
+    years = [from_date.year]
+    while years[-1] < to_date.year:
+        years.append(years[-1] + 1)
+    return years
 
 
 def iter_search_results_published_within_date_range(
@@ -324,12 +334,18 @@ class SemanticScholarSearchProvider(SearchProvider):
         self,
         search_parameters: SearchParameters
     ) -> Iterable[ArticleSearchResultItem]:
+        from_date = SearchDateRange.get_from_date(search_parameters.date_range)
+        to_date = SearchDateRange.get_to_date(search_parameters.date_range)
         search_result_iterable: Iterable[ArticleSearchResultItem]
         search_result_iterable = self.semantic_scholar_provider.iter_unfiltered_search_result_item(
             query=search_parameters.query,
-            search_parameters=(
-                SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITH_VENUES
-            )
+            additional_search_parameters={
+                **SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITH_VENUES,
+                'year': ','.join([str(year) for year in get_years_for_date_range(
+                    from_date=from_date,
+                    to_date=to_date
+                )])
+            }
         )
         if search_parameters.is_evaluated_only:
             search_result_iterable = (
@@ -339,8 +355,8 @@ class SemanticScholarSearchProvider(SearchProvider):
             )
         search_result_iterable = iter_search_results_published_within_date_range(
             search_result_iterable,
-            from_date=SearchDateRange.get_from_date(search_parameters.date_range),
-            to_date=SearchDateRange.get_to_date(search_parameters.date_range)
+            from_date=from_date,
+            to_date=to_date
         )
         if search_parameters.sort_by == SearchSortBy.PUBLICATION_DATE:
             search_result_iterable = sorted(

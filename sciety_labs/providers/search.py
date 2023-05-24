@@ -16,13 +16,17 @@ class SearchDateRange:
     LAST_30_DAYS = '30d'
     LAST_90_DAYS = '90d'
     THIS_YEAR = 'this_year'
+    SINCE_2022 = 'since_2022'
+    SINCE_2021 = 'since_2021'
 
     @staticmethod
     def is_valid(date_range: str) -> bool:
         return date_range in {
             SearchDateRange.LAST_30_DAYS,
             SearchDateRange.LAST_90_DAYS,
-            SearchDateRange.THIS_YEAR
+            SearchDateRange.THIS_YEAR,
+            SearchDateRange.SINCE_2022,
+            SearchDateRange.SINCE_2021
         }
 
     @staticmethod
@@ -40,6 +44,10 @@ class SearchDateRange:
             return today - timedelta(days=90)
         if date_range == SearchDateRange.THIS_YEAR:
             return date(today.year, 1, 1)
+        if date_range == SearchDateRange.SINCE_2022:
+            return date(2022, 1, 1)
+        if date_range == SearchDateRange.SINCE_2021:
+            return date(2021, 1, 1)
         raise ValueError(f'invalid date range: {date_range}')
 
     @staticmethod
