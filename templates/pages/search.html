@@ -29,6 +29,15 @@
                                 {{ render_select_option(value='publication_date', label='Publication Date', selected_value=sort_by) }}
                                 {{ render_select_option(value='relevance', label='Relevance', selected_value=sort_by) }}
                             </select>
+                        </label>,
+                        <label>published:
+                            <select name="date_range">
+                                {{ render_select_option(value='30d', label='Last 30 days', selected_value=date_range) }}
+                                {{ render_select_option(value='90d', label='Last 90 days', selected_value=date_range) }}
+                                {{ render_select_option(value='this_year', label='This year', selected_value=date_range) }}
+                                {{ render_select_option(value='since_2022', label='Since 2022', selected_value=date_range) }}
+                                {{ render_select_option(value='since_2021', label='Since 2021', selected_value=date_range) }}
+                            </select>
                         </label>
                     </section>
                     <section class="search-form__section">

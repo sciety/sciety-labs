@@ -1,7 +1,7 @@
 import dataclasses
 import itertools
 import logging
-from datetime import datetime
+from datetime import date, datetime
 import os
 from pathlib import Path
 from typing import Iterable, Mapping, Optional, Sequence
@@ -10,7 +10,14 @@ import requests
 from requests_cache import CachedResponse
 
 from sciety_labs.models.article import ArticleMention, ArticleMetaData, ArticleSearchResultItem
+from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
 from sciety_labs.providers.requests_provider import RequestsProvider
+from sciety_labs.providers.search import (
+    SearchDateRange,
+    SearchParameters,
+    SearchProvider,
+    SearchSortBy
+)
 from sciety_labs.utils.datetime import get_utc_timestamp_with_tzinfo, get_utcnow, parse_date_or_none
 
 
@@ -45,6 +52,14 @@ SEMANTIC_SCHOLAR_REQUESTED_FIELDS = [
     'authors',
     'publicationDate'
 ]
+
+SEMANTIC_SCHOLAR_SEARCH_VENUES = ['bioRxiv', 'medRxiv', 'Research Square']
+
+SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITHOUT_VENUES: dict = {'year': 2023}
+SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITH_VENUES: dict = {
+    **SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITHOUT_VENUES,
+    'venue': ','.join(SEMANTIC_SCHOLAR_SEARCH_VENUES)
+}
 
 
 @dataclasses.dataclass(frozen=True)
@@ -216,12 +231,12 @@ class SemanticScholarProvider(RequestsProvider):
     def get_search_result_list(
         self,
         query: str,
-        search_parameters: Optional[Mapping[str, str]] = None,
+        additional_search_parameters: Optional[Mapping[str, str]] = None,
         offset: int = 0,
         limit: int = DEFAULT_SEMANTIC_SCHOLAR_SEARCH_RESULT_LIMIT
     ) -> ArticleSearchResultList:
         request_params = {
-            **(search_parameters if search_parameters else {}),
+            **(additional_search_parameters or {}),
             'query': query,
             'fields': ','.join(SEMANTIC_SCHOLAR_REQUESTED_FIELDS),
             'offset': str(offset),
@@ -252,17 +267,17 @@ class SemanticScholarProvider(RequestsProvider):
             next_offset=response_json.get('next')
         )
 
-    def iter_search_result_item(
+    def iter_unfiltered_search_result_item(
         self,
         query: str,
-        search_parameters: Optional[Mapping[str, str]] = None,
+        additional_search_parameters: Optional[Mapping[str, str]] = None,
         items_per_page: int = DEFAULT_SEMANTIC_SCHOLAR_SEARCH_RESULT_LIMIT
     ) -> Iterable[ArticleSearchResultItem]:
         offset = 0
         while True:
             search_result_list = self.get_search_result_list(
                 query=query,
-                search_parameters=search_parameters,
+                additional_search_parameters=additional_search_parameters,
                 offset=offset,
                 limit=items_per_page
             )
@@ -279,6 +294,77 @@ class SemanticScholarProvider(RequestsProvider):
                 items_per_page,
                 MAX_SEMANTIC_SCHOLAR_SEARCH_OFFSET_PLUS_LIMIT - offset
             )
+
+
+def get_years_for_date_range(
+    from_date: date,
+    to_date: date
+) -> Sequence[int]:
+    years = [from_date.year]
+    while years[-1] < to_date.year:
+        years.append(years[-1] + 1)
+    return years
+
+
+def iter_search_results_published_within_date_range(
+    search_result_iterable: Iterable[ArticleSearchResultItem],
+    from_date: date,
+    to_date: date
+) -> Iterable[ArticleSearchResultItem]:
+    for search_result in search_result_iterable:
+        if not search_result.article_meta:
+            continue
+        published_date = search_result.article_meta.published_date
+        if not published_date:
+            continue
+        if from_date <= published_date <= to_date:
+            yield search_result
+
+
+class SemanticScholarSearchProvider(SearchProvider):
+    def __init__(
+        self,
+        semantic_scholar_provider: SemanticScholarProvider,
+        evaluation_stats_model: ScietyEventEvaluationStatsModel
+    ) -> None:
+        self.semantic_scholar_provider = semantic_scholar_provider
+        self.evaluation_stats_model = evaluation_stats_model
+
+    def iter_search_result_item(
+        self,
+        search_parameters: SearchParameters
+    ) -> Iterable[ArticleSearchResultItem]:
+        from_date = SearchDateRange.get_from_date(search_parameters.date_range)
+        to_date = SearchDateRange.get_to_date(search_parameters.date_range)
+        search_result_iterable: Iterable[ArticleSearchResultItem]
+        search_result_iterable = self.semantic_scholar_provider.iter_unfiltered_search_result_item(
+            query=search_parameters.query,
+            additional_search_parameters={
+                **SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITH_VENUES,
+                'year': ','.join([str(year) for year in get_years_for_date_range(
+                    from_date=from_date,
+                    to_date=to_date
+                )])
+            }
+        )
+        if search_parameters.is_evaluated_only:
+            search_result_iterable = (
+                self.evaluation_stats_model.iter_evaluated_only_article_mention(
+                    search_result_iterable
+                )
+            )
+        search_result_iterable = iter_search_results_published_within_date_range(
+            search_result_iterable,
+            from_date=from_date,
+            to_date=to_date
+        )
+        if search_parameters.sort_by == SearchSortBy.PUBLICATION_DATE:
+            search_result_iterable = sorted(
+                search_result_iterable,
+                key=ArticleMention.get_published_date_sort_key,
+                reverse=True
+            )
+        return search_result_iterable
 
 
 def get_semantic_scholar_api_key_file_path() -> Optional[str]:

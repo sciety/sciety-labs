@@ -1,9 +1,16 @@
 import dataclasses
+from datetime import date
 import logging
-from typing import Iterable, Mapping, Optional, Sequence
+from typing import Iterable, Optional, Sequence
 
-from sciety_labs.models.article import ArticleMetaData, ArticleSearchResultItem, SearchSortBy
+from sciety_labs.models.article import ArticleMetaData, ArticleSearchResultItem
 from sciety_labs.providers.requests_provider import RequestsProvider
+from sciety_labs.providers.search import (
+    SearchDateRange,
+    SearchParameters,
+    SearchProvider,
+    SearchSortBy
+)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -47,41 +54,39 @@ def get_preprint_servers_query(preprint_servers: Sequence[str]) -> str:
     ])
 
 
-def get_query_with_additional_filters(
-    query: str,
-    is_evaluated_only: bool,
-    sort_by: str = SearchSortBy.RELEVANCE
-) -> str:
+def get_first_published_date_within_dates(from_date: date, to_date: date) -> str:
+    return f'(FIRST_PDATE:[{from_date.isoformat()} TO {to_date.isoformat()}])'
+
+
+def get_query_with_additional_filters(search_parameters: SearchParameters) -> str:
     preprint_servers_query = get_preprint_servers_query(EUROPE_PMC_PREPRINT_SERVERS)
     result = f'({preprint_servers_query})'
-    if is_evaluated_only:
+    if search_parameters.is_evaluated_only:
         result += ' (LABS_PUBS:"2112")'
-    result += f' ({query})'
-    if sort_by == SearchSortBy.PUBLICATION_DATE:
+    result += ' ' + get_first_published_date_within_dates(
+        SearchDateRange.get_from_date(search_parameters.date_range),
+        SearchDateRange.get_to_date(search_parameters.date_range)
+    )
+    result += f' ({search_parameters.query})'
+    if search_parameters.sort_by == SearchSortBy.PUBLICATION_DATE:
         result += ' sort_date:y'
     return result
 
 
-class EuropePmcProvider(RequestsProvider):
+class EuropePmcProvider(RequestsProvider, SearchProvider):
     def get_search_result_list(  # pylint: disable=too-many-arguments
         self,
-        query: str,
-        is_evaluated_only: bool,
-        sort_by: str = SearchSortBy.RELEVANCE,
-        search_parameters: Optional[Mapping[str, str]] = None,
-        cursor: str = START_CURSOR,
-        limit: int = DEFAULT_EUROPE_PMC_SEARCH_RESULT_LIMIT
+        search_parameters: SearchParameters,
+        cursor: str = START_CURSOR
     ) -> CursorBasedArticleSearchResultList:
         request_params = {
-            **(search_parameters if search_parameters else {}),
+            **(search_parameters.additional_search_parameters or {}),
             'query': get_query_with_additional_filters(
-                query,
-                is_evaluated_only=is_evaluated_only,
-                sort_by=sort_by
+                search_parameters
             ),
             'format': 'json',
             'cursorMark': cursor,
-            'pageSize': str(limit)
+            'pageSize': str(search_parameters.items_per_page)
         }
         LOGGER.info('Europe PMC search, request_params=%r', request_params)
         response = self.requests_session.get(
@@ -103,23 +108,15 @@ class EuropePmcProvider(RequestsProvider):
             next_cursor=response_json.get('nextCursorMark')
         )
 
-    def iter_search_result_item(  # pylint: disable=too-many-arguments
+    def iter_search_result_item(
         self,
-        query: str,
-        is_evaluated_only: bool = False,
-        sort_by: str = SearchSortBy.RELEVANCE,
-        search_parameters: Optional[Mapping[str, str]] = None,
-        items_per_page: int = DEFAULT_EUROPE_PMC_SEARCH_RESULT_LIMIT
+        search_parameters: SearchParameters
     ) -> Iterable[ArticleSearchResultItem]:
         cursor = START_CURSOR
         while True:
             search_result_list = self.get_search_result_list(
-                query=query,
-                is_evaluated_only=is_evaluated_only,
-                sort_by=sort_by,
                 search_parameters=search_parameters,
-                cursor=cursor,
-                limit=items_per_page
+                cursor=cursor
             )
             yield from search_result_list.items
             if not search_result_list.next_cursor or search_result_list.next_cursor == cursor:

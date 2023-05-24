@@ -2,7 +2,7 @@ from datetime import timedelta
 from http.client import HTTPException
 import logging
 from pathlib import Path
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Sequence
 
 import requests
 
@@ -24,7 +24,6 @@ from sciety_labs.config.site_config import get_site_config_from_environment_vari
 from sciety_labs.models.article import (
     ArticleMention,
     ArticleSearchResultItem,
-    SearchSortBy,
     iter_preprint_article_mention
 )
 from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
@@ -39,8 +38,11 @@ from sciety_labs.providers.google_sheet_image import (
     GoogleSheetListImageProvider
 )
 from sciety_labs.providers.sciety_event import ScietyEventProvider
+from sciety_labs.providers.search import SearchDateRange, SearchParameters, SearchSortBy
 from sciety_labs.providers.semantic_scholar import (
     DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS,
+    SEMANTIC_SCHOLAR_SEARCH_VENUES,
+    SemanticScholarSearchProvider,
     get_semantic_scholar_provider
 )
 from sciety_labs.providers.twitter import get_twitter_user_article_list_provider_or_none
@@ -82,15 +84,6 @@ DEFAULT_ITEMS_PER_PAGE = 10
 #   because RSS clients may sort by publication date, whereas the recommendations
 #   are otherwise sorted by relevancy
 DEFAULT_ARTICLE_RECOMMENDATION_RSS_ITEM_COUNT = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
-
-
-SEMANTIC_SCHOLAR_SEARCH_VENUES = ['bioRxiv', 'medRxiv', 'Research Square']
-
-SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITHOUT_VENUES: dict = {'year': 2023}
-SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITH_VENUES: dict = {
-    **SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITHOUT_VENUES,
-    'venue': ','.join(SEMANTIC_SCHOLAR_SEARCH_VENUES)
-}
 
 
 class SearchProviders:
@@ -167,6 +160,10 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
 
     semantic_scholar_provider = get_semantic_scholar_provider(
         requests_session=cached_requests_session
+    )
+    semantic_scholar_search_provider = SemanticScholarSearchProvider(
+        semantic_scholar_provider=semantic_scholar_provider,
+        evaluation_stats_model=evaluation_stats_model
     )
 
     europe_pmc_provider = EuropePmcProvider(
@@ -701,10 +698,10 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     def search(  # pylint: disable=too-many-arguments, too-many-locals
         request: Request,
         query: str = '',
-        use_venues: bool = True,
         evaluated_only: bool = False,
         search_provider: str = SearchProviders.SEMANTIC_SCHOLAR,
-        sort_by: str = SearchSortBy.PUBLICATION_DATE,
+        sort_by: str = SearchSortBy.RELEVANCE,
+        date_range: str = SearchDateRange.LAST_90_DAYS,
         items_per_page: int = DEFAULT_ITEMS_PER_PAGE,
         page: int = 1,
         enable_pagination: bool = True
@@ -713,35 +710,24 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         error_message: Optional[str] = None
         status_code: int = 200
         try:
-            preprint_servers = SEMANTIC_SCHOLAR_SEARCH_VENUES
+            preprint_servers: Optional[Sequence[str]] = None
+            search_parameters = SearchParameters(
+                query=query,
+                is_evaluated_only=evaluated_only,
+                sort_by=sort_by,
+                date_range=date_range
+            )
+            LOGGER.info('search_parameters: %r', search_parameters)
             if not query:
                 search_result_iterable = []
             elif search_provider == SearchProviders.SEMANTIC_SCHOLAR:
-                search_result_iterable = semantic_scholar_provider.iter_search_result_item(
-                    query=query,
-                    search_parameters=(
-                        SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITH_VENUES
-                        if use_venues
-                        else SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITHOUT_VENUES
-                    )
+                search_result_iterable = semantic_scholar_search_provider.iter_search_result_item(
+                    search_parameters=search_parameters
                 )
-                if evaluated_only:
-                    search_result_iterable = (
-                        evaluation_stats_model.iter_evaluated_only_article_mention(
-                            search_result_iterable
-                        )
-                    )
-                if sort_by == SearchSortBy.PUBLICATION_DATE:
-                    search_result_iterable = sorted(
-                        search_result_iterable,
-                        key=ArticleMention.get_published_date_sort_key,
-                        reverse=True
-                    )
+                preprint_servers = SEMANTIC_SCHOLAR_SEARCH_VENUES
             elif search_provider == SearchProviders.EUROPE_PMC:
                 search_result_iterable = europe_pmc_provider.iter_search_result_item(
-                    query=query,
-                    is_evaluated_only=evaluated_only,
-                    sort_by=sort_by
+                    search_parameters=search_parameters
                 )
                 preprint_servers = EUROPE_PMC_PREPRINT_SERVERS
             else:
@@ -782,6 +768,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 'query': query,
                 'is_search_evaluated_only': evaluated_only,
                 'sort_by': sort_by,
+                'date_range': date_range,
                 'preprint_servers': preprint_servers,
                 'error_message': error_message,
                 'search_provider': search_provider,

@@ -1,7 +1,7 @@
 import dataclasses
 from datetime import date, datetime
 import re
-from typing import Iterable, Mapping, NamedTuple, Optional, Sequence
+from typing import Iterable, Mapping, NamedTuple, Optional, Sequence, TypeVar
 
 from sciety_labs.models.image import ObjectImages
 
@@ -103,11 +103,6 @@ class ArticleStats(NamedTuple):
     evaluation_count: int = 0
 
 
-class SearchSortBy:
-    RELEVANCE = 'relevance'
-    PUBLICATION_DATE = 'publication_date'
-
-
 @dataclasses.dataclass(frozen=True)
 class ArticleMention:
     article_doi: str
@@ -135,6 +130,9 @@ class ArticleMention:
         iterable: Iterable['ArticleMention']
     ) -> Sequence['ArticleMention']:
         return sorted(iterable, key=ArticleMention.get_published_date_sort_key, reverse=True)
+
+
+ArticleMentionT = TypeVar('ArticleMentionT', bound=ArticleMention)
 
 
 @dataclasses.dataclass(frozen=True)
