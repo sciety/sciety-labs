@@ -2,9 +2,9 @@ import dataclasses
 import logging
 from typing import Iterable, Mapping, Optional, Sequence
 
-from sciety_labs.models.article import ArticleMetaData, ArticleSearchResultItem, SearchSortBy
+from sciety_labs.models.article import ArticleMetaData, ArticleSearchResultItem
 from sciety_labs.providers.requests_provider import RequestsProvider
-from sciety_labs.providers.search import SearchProvider
+from sciety_labs.providers.search import SearchProvider, SearchSortBy
 
 
 LOGGER = logging.getLogger(__name__)

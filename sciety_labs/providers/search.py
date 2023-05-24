@@ -1,9 +1,14 @@
 from typing import Iterable, Mapping, Optional, Protocol
 
-from sciety_labs.models.article import ArticleSearchResultItem, SearchSortBy
+from sciety_labs.models.article import ArticleSearchResultItem
 
 
 DEFAULT_SEARCH_RESULT_LIMIT = 100
+
+
+class SearchSortBy:
+    RELEVANCE = 'relevance'
+    PUBLICATION_DATE = 'publication_date'
 
 
 class SearchProvider(Protocol):

@@ -24,7 +24,6 @@ from sciety_labs.config.site_config import get_site_config_from_environment_vari
 from sciety_labs.models.article import (
     ArticleMention,
     ArticleSearchResultItem,
-    SearchSortBy,
     iter_preprint_article_mention
 )
 from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
@@ -39,6 +38,7 @@ from sciety_labs.providers.google_sheet_image import (
     GoogleSheetListImageProvider
 )
 from sciety_labs.providers.sciety_event import ScietyEventProvider
+from sciety_labs.providers.search import SearchSortBy
 from sciety_labs.providers.semantic_scholar import (
     DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS,
     get_semantic_scholar_provider
