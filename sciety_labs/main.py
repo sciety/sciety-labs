@@ -600,6 +600,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             )
         LOGGER.info('article_meta=%r', article_meta)
 
+        article_stats = evaluation_stats_model.get_article_stats_by_article_doi(article_doi)
         article_images = google_sheet_article_image_provider.get_article_images_by_doi(article_doi)
 
         try:
@@ -638,6 +639,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                     article_meta.abstract
                 ),
                 'article_meta': article_meta,
+                'article_stats': article_stats,
                 'article_images': article_images,
                 'article_recommendation_list': article_recommendation_with_article_meta,
                 'article_recommendation_url': article_recommendation_url

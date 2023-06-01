@@ -71,6 +71,13 @@ class ScietyEventEvaluationStatsModel:
             )
         )
 
+    def get_article_stats_by_article_doi(self, article_doi: str) -> ArticleStats:
+        return ArticleStats(
+            evaluation_count=self.get_evaluation_count_by_article_id(
+                DOI_ARTICLE_ID_PREFIX + article_doi
+            )
+        )
+
     def iter_article_mention_with_article_stats(
         self,
         article_mention_iterable: Iterable[ArticleMentionT]
@@ -79,10 +86,8 @@ class ScietyEventEvaluationStatsModel:
             cast(
                 ArticleMentionT,
                 article_mention._replace(
-                    article_stats=ArticleStats(
-                        evaluation_count=self.get_evaluation_count_by_article_id(
-                            DOI_ARTICLE_ID_PREFIX + article_mention.article_doi
-                        )
+                    article_stats=self.get_article_stats_by_article_doi(
+                        article_mention.article_doi
                     )
                 )
             )
