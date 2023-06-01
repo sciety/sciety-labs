@@ -47,7 +47,8 @@ class ScietyEventEvaluationStatsModel:
         LOGGER.debug('removing evaluation with locator: %r', evaluation_locator)
         evaluation_reference = self._evaluation_reference_by_evaluation_locator[evaluation_locator]
         LOGGER.debug('removing evaluation: %r', evaluation_reference)
-        self._evaluation_reference_by_article_id[evaluation_reference.article_id].remove(
+        normalized_article_id = get_normalized_article_id(evaluation_reference.article_id)
+        self._evaluation_reference_by_article_id[normalized_article_id].remove(
             evaluation_reference
         )
 
