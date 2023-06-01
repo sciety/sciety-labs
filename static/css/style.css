@@ -153,3 +153,7 @@
     font-size: 1.2em;
     color: #c44;
 }
+
+section.article-stats {
+    margin-top: 0.5em;
+}

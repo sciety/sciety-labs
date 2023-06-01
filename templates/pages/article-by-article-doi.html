@@ -1,5 +1,6 @@
 {% from 'macros/page.html' import render_page with context %}
 {% from 'macros/article.html' import render_article_list_content with context %}
+{% from 'macros/date.html' import render_optional_date_value_with_label %}
 {% call render_page() %}
     <main class="page-content" id="mainContent">
       
@@ -22,6 +23,16 @@
                     {% endfor %}
                 </ol>
                 {% endif %}
+
+                <section class="article-stats">
+                    <div class="article-card__meta">
+                    {% if article_stats %}
+                    <span class="visually-hidden">This article has </span><span>{{ article_stats.evaluation_count }} evaluations</span>
+                    {% endif %}
+                    {{ render_optional_date_value_with_label('Published on', article_meta.published_date) }}
+                    {{ render_optional_date_value_with_label('Added on', created_at_timestamp) }}
+                    </div>
+                </section>
             </header>
 
             <div class="article-actions">
