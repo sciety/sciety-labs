@@ -1,7 +1,11 @@
+import logging
 from threading import Lock
 from typing import Dict, Iterable, List, NamedTuple, Sequence, cast
 
 from sciety_labs.models.article import ArticleMentionT, ArticleStats
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 DOI_ARTICLE_ID_PREFIX = 'doi:'
@@ -19,23 +23,41 @@ def get_normalized_article_id(article_id: str) -> str:
 class ScietyEventEvaluationStatsModel:
     def __init__(self, sciety_events: Sequence[dict]):
         self._evaluation_reference_by_article_id: Dict[str, List[EvaluationReference]] = {}
+        self._evaluation_reference_by_evaluation_locator: Dict[str, EvaluationReference] = {}
         self._lock = Lock()
         self.apply_events(sciety_events)
+
+    def _do_apply_evaluation_recorded_event(self, event: dict):
+        article_id = event['article_id']
+        normalized_article_id = get_normalized_article_id(article_id)
+        evaluation_locator = event['evaluation_locator']
+        evaluation_reference = EvaluationReference(
+            article_id=article_id,
+            evaluation_locator=evaluation_locator
+        )
+        self._evaluation_reference_by_article_id.setdefault(normalized_article_id, []).append(
+            evaluation_reference
+        )
+        self._evaluation_reference_by_evaluation_locator[evaluation_locator] = (
+            evaluation_reference
+        )
+
+    def _do_apply_incorrectly_recorded_evaluation_erased_event(self, event: dict):
+        evaluation_locator = event['evaluation_locator']
+        LOGGER.debug('removing evaluation with locator: %r', evaluation_locator)
+        evaluation_reference = self._evaluation_reference_by_evaluation_locator[evaluation_locator]
+        LOGGER.debug('removing evaluation: %r', evaluation_reference)
+        self._evaluation_reference_by_article_id[evaluation_reference.article_id].remove(
+            evaluation_reference
+        )
 
     def _do_apply_events(self, sciety_events: Sequence[dict]):
         for event in sciety_events:
             event_name = event['event_name']
-            if event_name != 'EvaluationRecorded':
-                continue
-            article_id = event['article_id']
-            normalized_article_id = get_normalized_article_id(article_id)
-            evaluation_locator = event['evaluation_locator']
-            self._evaluation_reference_by_article_id.setdefault(normalized_article_id, []).append(
-                EvaluationReference(
-                    article_id=article_id,
-                    evaluation_locator=evaluation_locator
-                )
-            )
+            if event_name == 'EvaluationRecorded':
+                self._do_apply_evaluation_recorded_event(event)
+            if event_name == 'IncorrectlyRecordedEvaluationErased':
+                self._do_apply_incorrectly_recorded_evaluation_erased_event(event)
 
     def apply_events(self, sciety_events: Sequence[dict]):
         with self._lock:
