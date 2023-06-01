@@ -27,6 +27,9 @@ WHERE
     )
     AND NOT event.is_duplicate_event
   ) OR (
-    event.normalized_event_name = 'EvaluationRecorded'
+    event.normalized_event_name IN (
+        'EvaluationRecorded',
+        'IncorrectlyRecordedEvaluationErased'
+    )
   )
 ORDER BY event_timestamp
