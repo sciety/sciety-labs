@@ -16,6 +16,7 @@ import markupsafe
 
 import bleach
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
+from sciety_labs.app.app_update_manager import AppUpdateManager
 from sciety_labs.config.site_config import get_site_config_from_environment_variables
 
 from sciety_labs.models.article import (
@@ -41,7 +42,6 @@ from sciety_labs.utils.pagination import (
     get_url_pagination_state_for_url
 )
 from sciety_labs.utils.text import remove_markup, remove_markup_or_none
-from sciety_labs.utils.threading import UpdateThread
 
 
 LOGGER = logging.getLogger(__name__)
@@ -99,23 +99,13 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
 
     app_providers_and_models = AppProvidersAndModels()
 
-    def check_or_reload_data():
-        # Note: this may still use a cache
-        _sciety_event_dict_list = (
-            app_providers_and_models.sciety_event_provider.get_sciety_event_dict_list()
-        )
-        app_providers_and_models.lists_model.apply_events(_sciety_event_dict_list)
-        app_providers_and_models.evaluation_stats_model.apply_events(_sciety_event_dict_list)
-        app_providers_and_models.google_sheet_article_image_provider.refresh()
-        app_providers_and_models.google_sheet_list_image_provider.refresh()
-
-    UpdateThread(
-        update_interval_in_secs=update_interval_in_secs,
-        update_fn=check_or_reload_data
-    ).start()
+    app_update_manager = AppUpdateManager(
+        app_providers_and_models=app_providers_and_models
+    )
+    app_update_manager.start(update_interval_in_secs=update_interval_in_secs)
 
     LOGGER.info('Preloading data')
-    check_or_reload_data()
+    app_update_manager.check_or_reload_data()
 
     templates = Jinja2Templates(directory='templates')
     templates.env.filters['sanitize'] = get_sanitized_string_as_safe_markup
