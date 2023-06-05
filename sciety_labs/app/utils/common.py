@@ -1,9 +1,10 @@
-from typing import Optional
+from typing import Annotated, Optional
 
-from fastapi import Request
+from fastapi import Depends, Request
 
 from sciety_labs.models.lists import OwnerMetaData, OwnerTypes
 from sciety_labs.providers.semantic_scholar import DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
+from sciety_labs.utils.pagination import UrlPaginationParameters
 from sciety_labs.utils.text import remove_markup
 
 
@@ -40,3 +41,20 @@ def get_rss_url(request: Request):
             path=request.url.path + ATOM_XML_PATH_SUFFIX
         )
     )
+
+
+async def get_pagination_parameters(
+    items_per_page: int = DEFAULT_ITEMS_PER_PAGE,
+    page: int = 1,
+    enable_pagination: bool = True
+) -> UrlPaginationParameters:
+    return UrlPaginationParameters(
+        page=page,
+        items_per_page=items_per_page,
+        enable_pagination=enable_pagination
+    )
+
+
+AnnotatedPaginationParameters = Annotated[
+    UrlPaginationParameters, Depends(get_pagination_parameters)
+]

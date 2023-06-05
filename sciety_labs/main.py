@@ -18,6 +18,7 @@ from sciety_labs.app.routers.lists import create_lists_router
 from sciety_labs.app.utils.common import (
     DEFAULT_ITEMS_PER_PAGE,
     DEFAULT_ARTICLE_RECOMMENDATION_RSS_ITEM_COUNT,
+    AnnotatedPaginationParameters,
     get_page_title,
     get_owner_url,
     get_rss_url
@@ -159,9 +160,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     def list_by_sciety_list_id(
         request: Request,
         list_id: str,
-        items_per_page: int = DEFAULT_ITEMS_PER_PAGE,
-        page: int = 1,
-        enable_pagination: bool = True
+        pagination_parameters: AnnotatedPaginationParameters
     ):
         list_summary_data = (
             app_providers_and_models.lists_model.get_list_summary_data_by_list_id(list_id)
@@ -176,17 +175,17 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         article_mention_with_article_meta = (
             article_aggregator.iter_page_article_mention_with_article_meta_and_stats(
                 app_providers_and_models.lists_model.iter_article_mentions_by_list_id(list_id),
-                page=page,
-                items_per_page=items_per_page
+                page=pagination_parameters.page,
+                items_per_page=pagination_parameters.items_per_page
             )
         )
 
         url_pagination_state = get_url_pagination_state_for_url(
             url=request.url,
-            page=page,
-            items_per_page=items_per_page,
+            page=pagination_parameters.page,
+            items_per_page=pagination_parameters.items_per_page,
             item_count=item_count,
-            enable_pagination=enable_pagination
+            enable_pagination=pagination_parameters.enable_pagination
         )
         return templates.TemplateResponse(
             'pages/list-by-sciety-list-id.html', {
@@ -235,10 +234,8 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     def article_recommendations_by_sciety_list_id(  # pylint: disable=too-many-arguments
         request: Request,
         list_id: str,
-        items_per_page: int = DEFAULT_ITEMS_PER_PAGE,
-        page: int = 1,
-        max_recommendations: int = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS,
-        enable_pagination: bool = True
+        pagination_parameters: AnnotatedPaginationParameters,
+        max_recommendations: int = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
     ):
         list_summary_data = (
             app_providers_and_models.lists_model.get_list_summary_data_by_list_id(list_id)
@@ -264,8 +261,8 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         article_recommendation_with_article_meta = list(
             article_aggregator.iter_page_article_mention_with_article_meta_and_stats(
                 all_article_recommendations,
-                page=page,
-                items_per_page=items_per_page
+                page=pagination_parameters.page,
+                items_per_page=pagination_parameters.items_per_page
             )
         )
         LOGGER.info(
@@ -275,10 +272,10 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
 
         url_pagination_state = get_url_pagination_state_for_url(
             url=request.url,
-            page=page,
-            items_per_page=items_per_page,
+            page=pagination_parameters.page,
+            items_per_page=pagination_parameters.items_per_page,
             item_count=item_count,
-            enable_pagination=enable_pagination
+            enable_pagination=pagination_parameters.enable_pagination
         )
         return templates.TemplateResponse(
             'pages/article-recommendations-by-sciety-list-id.html', {
@@ -350,9 +347,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     def list_by_twitter_handle(
         request: Request,
         twitter_handle: str,
-        items_per_page: int = DEFAULT_ITEMS_PER_PAGE,
-        page: int = 1,
-        enable_pagination: bool = True
+        pagination_parameters: AnnotatedPaginationParameters
     ):
         assert app_providers_and_models.twitter_user_article_list_provider
         twitter_user = (
@@ -369,7 +364,9 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         )
         article_mention_with_article_meta = list(
             article_aggregator.iter_page_article_mention_with_article_meta_and_stats(
-                article_mention_iterable, page=page, items_per_page=items_per_page
+                article_mention_iterable,
+                page=pagination_parameters.page,
+                items_per_page=pagination_parameters.items_per_page
             )
         )
         LOGGER.info(
@@ -379,10 +376,10 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         # Note: we don't know the page count unless this is the last page
         url_pagination_state = get_url_pagination_state_for_url(
             url=request.url,
-            page=page,
-            items_per_page=items_per_page,
+            page=pagination_parameters.page,
+            items_per_page=pagination_parameters.items_per_page,
             remaining_item_iterable=article_mention_iterable,
-            enable_pagination=enable_pagination
+            enable_pagination=pagination_parameters.enable_pagination
         )
         return templates.TemplateResponse(
             'pages/list-by-twitter-handle.html', {
@@ -480,10 +477,8 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     def article_recommendations_by_article_doi(  # pylint: disable=too-many-arguments
         request: Request,
         article_doi: str,
-        items_per_page: int = DEFAULT_ITEMS_PER_PAGE,
-        page: int = 1,
-        max_recommendations: int = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS,
-        enable_pagination: bool = True
+        pagination_parameters: AnnotatedPaginationParameters,
+        max_recommendations: int = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
     ):
         article_meta = (
             app_providers_and_models
@@ -502,8 +497,8 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         article_recommendation_with_article_meta = list(
             article_aggregator.iter_page_article_mention_with_article_meta_and_stats(
                 all_article_recommendations,
-                page=page,
-                items_per_page=items_per_page
+                page=pagination_parameters.page,
+                items_per_page=pagination_parameters.items_per_page
             )
         )
         LOGGER.info(
@@ -513,10 +508,10 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
 
         url_pagination_state = get_url_pagination_state_for_url(
             url=request.url,
-            page=page,
-            items_per_page=items_per_page,
+            page=pagination_parameters.page,
+            items_per_page=pagination_parameters.items_per_page,
             item_count=item_count,
-            enable_pagination=enable_pagination
+            enable_pagination=pagination_parameters.enable_pagination
         )
         return templates.TemplateResponse(
             'pages/article-recommendations-by-article-doi.html', {
@@ -533,14 +528,12 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     @app.get('/search', response_class=HTMLResponse)
     def search(  # pylint: disable=too-many-arguments, too-many-locals
         request: Request,
+        pagination_parameters: AnnotatedPaginationParameters,
         query: str = '',
         evaluated_only: bool = False,
         search_provider: str = SearchProviders.SEMANTIC_SCHOLAR,
         sort_by: str = SearchSortBy.RELEVANCE,
-        date_range: str = SearchDateRange.LAST_90_DAYS,
-        items_per_page: int = DEFAULT_ITEMS_PER_PAGE,
-        page: int = 1,
-        enable_pagination: bool = True
+        date_range: str = SearchDateRange.LAST_90_DAYS
     ):
         search_result_iterable: Iterable[ArticleSearchResultItem]
         error_message: Optional[str] = None
@@ -580,8 +573,8 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                     iter_preprint_article_mention(
                         search_result_iterator
                     ),
-                    page=page,
-                    items_per_page=items_per_page
+                    page=pagination_parameters.page,
+                    items_per_page=pagination_parameters.items_per_page
                 )
             )
             LOGGER.info(
@@ -595,11 +588,11 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             search_result_iterator = iter([])
         url_pagination_state = get_url_pagination_state_for_url(
             url=request.url,
-            page=page,
+            page=pagination_parameters.page,
             is_this_page_empty=not search_result_list_with_article_meta,
-            items_per_page=items_per_page,
+            items_per_page=pagination_parameters.items_per_page,
             remaining_item_iterable=search_result_iterator,
-            enable_pagination=enable_pagination
+            enable_pagination=pagination_parameters.enable_pagination
         )
         return templates.TemplateResponse(
             'pages/search.html', {

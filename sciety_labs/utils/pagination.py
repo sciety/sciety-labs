@@ -13,6 +13,12 @@ LOGGER = logging.getLogger(__name__)
 T = TypeVar('T')
 
 
+class UrlPaginationParameters(NamedTuple):
+    page: int
+    items_per_page: int
+    enable_pagination: bool = True
+
+
 class UrlPaginationState(NamedTuple):
     page: int
     is_empty: Optional[bool] = None
