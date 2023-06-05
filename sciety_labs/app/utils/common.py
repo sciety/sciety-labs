@@ -1,10 +1,17 @@
 from typing import Optional
 
 from sciety_labs.models.lists import OwnerMetaData, OwnerTypes
+from sciety_labs.providers.semantic_scholar import DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
 from sciety_labs.utils.text import remove_markup
 
 
 DEFAULT_ITEMS_PER_PAGE = 10
+
+
+# Note: we are aiming to include all of the recommendations in the RSS
+#   because RSS clients may sort by publication date, whereas the recommendations
+#   are otherwise sorted by relevancy
+DEFAULT_ARTICLE_RECOMMENDATION_RSS_ITEM_COUNT = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
 
 
 def get_page_title(text: str) -> str:

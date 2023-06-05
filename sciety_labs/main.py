@@ -15,9 +15,12 @@ import bleach
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.app_update_manager import AppUpdateManager
 from sciety_labs.app.routers.lists import create_lists_router
-from sciety_labs.app.utils.common import get_page_title
-from sciety_labs.app.utils.common import get_owner_url
-from sciety_labs.app.utils.common import DEFAULT_ITEMS_PER_PAGE
+from sciety_labs.app.utils.common import (
+    DEFAULT_ITEMS_PER_PAGE,
+    DEFAULT_ARTICLE_RECOMMENDATION_RSS_ITEM_COUNT,
+    get_page_title,
+    get_owner_url
+)
 from sciety_labs.app.utils.response import AtomResponse
 from sciety_labs.config.site_config import get_site_config_from_environment_variables
 
@@ -56,12 +59,6 @@ ALLOWED_TAGS = [
     'p', 'br', 'span', 'hr', 'src', 'class',
     'section', 'sub', 'sup'
 ]
-
-
-# Note: we are aiming to include all of the recommendations in the RSS
-#   because RSS clients may sort by publication date, whereas the recommendations
-#   are otherwise sorted by relevancy
-DEFAULT_ARTICLE_RECOMMENDATION_RSS_ITEM_COUNT = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
 
 
 class SearchProviders:
