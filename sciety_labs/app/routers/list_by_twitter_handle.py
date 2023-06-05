@@ -7,7 +7,7 @@ from fastapi.templating import Jinja2Templates
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.utils.common import (
     AnnotatedPaginationParameters,
-    get_page_title,
+    get_page_title
 )
 from sciety_labs.utils.pagination import get_url_pagination_state_for_pagination_parameters
 

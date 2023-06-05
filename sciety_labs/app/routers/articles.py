@@ -8,7 +8,7 @@ import requests
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.utils.common import (
     AnnotatedPaginationParameters,
-    get_page_title,
+    get_page_title
 )
 from sciety_labs.models.article import iter_preprint_article_mention
 from sciety_labs.providers.semantic_scholar import DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
