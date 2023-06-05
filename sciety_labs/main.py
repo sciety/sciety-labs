@@ -16,6 +16,7 @@ from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.app_update_manager import AppUpdateManager
 from sciety_labs.app.routers.lists import create_lists_router
 from sciety_labs.app.utils.common import get_page_title
+from sciety_labs.app.utils.common import get_owner_url
 from sciety_labs.app.utils.response import AtomResponse
 from sciety_labs.config.site_config import get_site_config_from_environment_variables
 
@@ -25,7 +26,6 @@ from sciety_labs.models.article import (
     iter_preprint_article_mention
 )
 
-from sciety_labs.models.lists import OwnerMetaData, OwnerTypes
 from sciety_labs.providers.europe_pmc import EUROPE_PMC_PREPRINT_SERVERS
 from sciety_labs.providers.search import SearchDateRange, SearchParameters, SearchSortBy
 from sciety_labs.providers.semantic_scholar import (
@@ -68,14 +68,6 @@ DEFAULT_ARTICLE_RECOMMENDATION_RSS_ITEM_COUNT = DEFAULT_SEMANTIC_SCHOLAR_MAX_REC
 class SearchProviders:
     SEMANTIC_SCHOLAR = 'semantic_scholar'
     EUROPE_PMC = 'europe_pmc'
-
-
-def get_owner_url(owner: OwnerMetaData) -> Optional[str]:
-    if owner.owner_type == OwnerTypes.USER and owner.twitter_handle:
-        return f'https://sciety.org/users/{owner.twitter_handle}'
-    if owner.owner_type == OwnerTypes.GROUP and owner.slug:
-        return f'https://sciety.org/groups/{owner.slug}'
-    return None
 
 
 def get_sanitized_string_as_safe_markup(text: str) -> markupsafe.Markup:
