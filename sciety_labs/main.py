@@ -18,6 +18,7 @@ import bleach
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.app_update_manager import AppUpdateManager
 from sciety_labs.app.routers.lists import create_lists_router
+from sciety_labs.app.utils.common import get_page_title
 from sciety_labs.config.site_config import get_site_config_from_environment_variables
 
 from sciety_labs.models.article import (
@@ -42,7 +43,7 @@ from sciety_labs.utils.pagination import (
     get_page_iterable,
     get_url_pagination_state_for_url
 )
-from sciety_labs.utils.text import remove_markup, remove_markup_or_none
+from sciety_labs.utils.text import remove_markup_or_none
 
 
 LOGGER = logging.getLogger(__name__)
@@ -85,10 +86,6 @@ def get_owner_url(owner: OwnerMetaData) -> Optional[str]:
 
 def get_sanitized_string_as_safe_markup(text: str) -> markupsafe.Markup:
     return markupsafe.Markup(bleach.clean(text, tags=ALLOWED_TAGS))
-
-
-def get_page_title(text: str) -> str:
-    return remove_markup(text)
 
 
 def create_app():  # pylint: disable=too-many-locals, too-many-statements
