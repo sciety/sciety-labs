@@ -118,8 +118,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     app.include_router(create_lists_router(
         app_providers_and_models=app_providers_and_models,
         min_article_count=min_article_count,
-        templates=templates,
-        get_page_title=get_page_title
+        templates=templates
     ))
 
     @app.exception_handler(404)

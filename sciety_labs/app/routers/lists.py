@@ -1,5 +1,4 @@
 import logging
-from typing import Callable
 
 import starlette.status
 
@@ -8,6 +7,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
+from sciety_labs.app.utils.common import get_page_title
 
 
 LOGGER = logging.getLogger(__name__)
@@ -16,8 +16,7 @@ LOGGER = logging.getLogger(__name__)
 def create_lists_router(
     app_providers_and_models: AppProvidersAndModels,
     min_article_count: int,
-    templates: Jinja2Templates,
-    get_page_title: Callable[[str], str]
+    templates: Jinja2Templates
 ):
     router = APIRouter()
 
