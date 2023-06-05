@@ -43,7 +43,7 @@ from sciety_labs.utils.datetime import (
     get_timestamp_as_isoformat
 )
 from sciety_labs.utils.pagination import (
-    get_url_pagination_state_for_url
+    get_url_pagination_state_for_pagination_parameters
 )
 from sciety_labs.utils.text import remove_markup_or_none
 
@@ -180,12 +180,10 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             )
         )
 
-        url_pagination_state = get_url_pagination_state_for_url(
+        url_pagination_state = get_url_pagination_state_for_pagination_parameters(
             url=request.url,
-            page=pagination_parameters.page,
-            items_per_page=pagination_parameters.items_per_page,
-            item_count=item_count,
-            enable_pagination=pagination_parameters.enable_pagination
+            pagination_parameters=pagination_parameters,
+            item_count=item_count
         )
         return templates.TemplateResponse(
             'pages/list-by-sciety-list-id.html', {
@@ -270,12 +268,10 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             article_recommendation_with_article_meta[:1]
         )
 
-        url_pagination_state = get_url_pagination_state_for_url(
+        url_pagination_state = get_url_pagination_state_for_pagination_parameters(
             url=request.url,
-            page=pagination_parameters.page,
-            items_per_page=pagination_parameters.items_per_page,
-            item_count=item_count,
-            enable_pagination=pagination_parameters.enable_pagination
+            pagination_parameters=pagination_parameters,
+            item_count=item_count
         )
         return templates.TemplateResponse(
             'pages/article-recommendations-by-sciety-list-id.html', {
@@ -374,12 +370,10 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         )
 
         # Note: we don't know the page count unless this is the last page
-        url_pagination_state = get_url_pagination_state_for_url(
+        url_pagination_state = get_url_pagination_state_for_pagination_parameters(
             url=request.url,
-            page=pagination_parameters.page,
-            items_per_page=pagination_parameters.items_per_page,
-            remaining_item_iterable=article_mention_iterable,
-            enable_pagination=pagination_parameters.enable_pagination
+            pagination_parameters=pagination_parameters,
+            remaining_item_iterable=article_mention_iterable
         )
         return templates.TemplateResponse(
             'pages/list-by-twitter-handle.html', {
@@ -506,12 +500,10 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             article_recommendation_with_article_meta[:1]
         )
 
-        url_pagination_state = get_url_pagination_state_for_url(
+        url_pagination_state = get_url_pagination_state_for_pagination_parameters(
             url=request.url,
-            page=pagination_parameters.page,
-            items_per_page=pagination_parameters.items_per_page,
-            item_count=item_count,
-            enable_pagination=pagination_parameters.enable_pagination
+            pagination_parameters=pagination_parameters,
+            item_count=item_count
         )
         return templates.TemplateResponse(
             'pages/article-recommendations-by-article-doi.html', {
@@ -586,13 +578,11 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             status_code = exc.response.status_code
             search_result_list_with_article_meta = []
             search_result_iterator = iter([])
-        url_pagination_state = get_url_pagination_state_for_url(
+        url_pagination_state = get_url_pagination_state_for_pagination_parameters(
             url=request.url,
-            page=pagination_parameters.page,
+            pagination_parameters=pagination_parameters,
             is_this_page_empty=not search_result_list_with_article_meta,
-            items_per_page=pagination_parameters.items_per_page,
-            remaining_item_iterable=search_result_iterator,
-            enable_pagination=pagination_parameters.enable_pagination
+            remaining_item_iterable=search_result_iterator
         )
         return templates.TemplateResponse(
             'pages/search.html', {
