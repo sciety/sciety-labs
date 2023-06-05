@@ -2,6 +2,7 @@ from datetime import timedelta
 from pathlib import Path
 
 import requests_cache
+from sciety_labs.aggregators.article import ArticleAggregator
 
 from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
 
@@ -111,4 +112,10 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         self.google_sheet_list_image_provider = GoogleSheetListImageProvider(
             image_mapping_cache=list_image_mapping_cache,
             refresh_manually=True
+        )
+
+        self.article_aggregator = ArticleAggregator(
+            evaluation_stats_model=self.evaluation_stats_model,
+            crossref_metadata_provider=self.crossref_metadata_provider,
+            google_sheet_article_image_provider=self.google_sheet_article_image_provider
         )

@@ -25,7 +25,6 @@ from sciety_labs.app.utils.response import AtomResponse
 from sciety_labs.config.site_config import get_site_config_from_environment_variables
 
 from sciety_labs.models.article import (
-    ArticleMention,
     ArticleSearchResultItem,
     iter_preprint_article_mention
 )
@@ -42,7 +41,6 @@ from sciety_labs.utils.datetime import (
     get_timestamp_as_isoformat
 )
 from sciety_labs.utils.pagination import (
-    get_page_iterable,
     get_url_pagination_state_for_url
 )
 from sciety_labs.utils.text import remove_markup_or_none
@@ -78,6 +76,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     min_article_count = 2
 
     app_providers_and_models = AppProvidersAndModels()
+    article_aggregator = app_providers_and_models.article_aggregator
 
     app_update_manager = AppUpdateManager(
         app_providers_and_models=app_providers_and_models
@@ -155,37 +154,6 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             }
         )
 
-    def _get_page_article_mention_with_article_meta_for_article_mention_iterable(
-        article_mention_iterable: Iterable[ArticleMention],
-        page: int,
-        items_per_page: Optional[int]
-    ) -> Iterable[ArticleMention]:
-        article_mention_iterable = (
-            app_providers_and_models
-            .evaluation_stats_model.iter_article_mention_with_article_stats(
-                article_mention_iterable
-            )
-        )
-        article_mention_with_article_meta = (
-            app_providers_and_models
-            .crossref_metadata_provider.iter_article_mention_with_article_meta(
-                get_page_iterable(
-                    article_mention_iterable, page=page, items_per_page=items_per_page
-                )
-            )
-        )
-        article_mention_with_article_meta = (
-            app_providers_and_models
-            .google_sheet_article_image_provider.iter_article_mention_with_article_image_url(
-                article_mention_with_article_meta
-            )
-        )
-        article_mention_with_article_meta = list(article_mention_with_article_meta)
-        LOGGER.debug(
-            'article_mention_with_article_meta[:1]=%r', article_mention_with_article_meta[:1]
-        )
-        return article_mention_with_article_meta
-
     @app.get('/lists/by-id/{list_id}', response_class=HTMLResponse)
     def list_by_sciety_list_id(
         request: Request,
@@ -205,7 +173,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         LOGGER.info('list_images: %r', list_images)
         item_count = list_summary_data.article_count
         article_mention_with_article_meta = (
-            _get_page_article_mention_with_article_meta_for_article_mention_iterable(
+            article_aggregator.iter_page_article_mention_with_article_meta_and_stats(
                 app_providers_and_models.lists_model.iter_article_mentions_by_list_id(list_id),
                 page=page,
                 items_per_page=items_per_page
@@ -255,7 +223,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         )
         LOGGER.info('list_summary_data: %r', list_summary_data)
         article_mention_with_article_meta = (
-            _get_page_article_mention_with_article_meta_for_article_mention_iterable(
+            article_aggregator.iter_page_article_mention_with_article_meta_and_stats(
                 app_providers_and_models.lists_model.iter_article_mentions_by_list_id(list_id),
                 page=page,
                 items_per_page=items_per_page
@@ -301,7 +269,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         )
         item_count = len(all_article_recommendations)
         article_recommendation_with_article_meta = list(
-            _get_page_article_mention_with_article_meta_for_article_mention_iterable(
+            article_aggregator.iter_page_article_mention_with_article_meta_and_stats(
                 all_article_recommendations,
                 page=page,
                 items_per_page=items_per_page
@@ -373,7 +341,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             iter_preprint_article_mention(article_recommendation_list.recommendations)
         )
         article_recommendation_with_article_meta = list(
-            _get_page_article_mention_with_article_meta_for_article_mention_iterable(
+            article_aggregator.iter_page_article_mention_with_article_meta_and_stats(
                 all_article_recommendations,
                 page=page,
                 items_per_page=items_per_page
@@ -415,7 +383,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             )
         )
         article_mention_with_article_meta = list(
-            _get_page_article_mention_with_article_meta_for_article_mention_iterable(
+            article_aggregator.iter_page_article_mention_with_article_meta_and_stats(
                 article_mention_iterable, page=page, items_per_page=items_per_page
             )
         )
@@ -493,7 +461,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             LOGGER.warning('failed to get recommendations for %r due to %r', article_doi, exc)
             all_article_recommendations = []
         article_recommendation_with_article_meta = list(
-            _get_page_article_mention_with_article_meta_for_article_mention_iterable(
+            article_aggregator.iter_page_article_mention_with_article_meta_and_stats(
                 all_article_recommendations,
                 page=1,
                 items_per_page=3
@@ -547,7 +515,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         )
         item_count = len(all_article_recommendations)
         article_recommendation_with_article_meta = list(
-            _get_page_article_mention_with_article_meta_for_article_mention_iterable(
+            article_aggregator.iter_page_article_mention_with_article_meta_and_stats(
                 all_article_recommendations,
                 page=page,
                 items_per_page=items_per_page
@@ -623,7 +591,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 search_result_iterable = []
             search_result_iterator = iter(search_result_iterable)
             search_result_list_with_article_meta = list(
-                _get_page_article_mention_with_article_meta_for_article_mention_iterable(
+                article_aggregator.iter_page_article_mention_with_article_meta_and_stats(
                     iter_preprint_article_mention(
                         search_result_iterator
                     ),
