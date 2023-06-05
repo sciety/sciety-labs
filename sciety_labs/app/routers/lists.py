@@ -7,7 +7,10 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
-from sciety_labs.app.utils.common import get_page_title
+from sciety_labs.app.routers.list_by_id import create_list_by_id_router
+from sciety_labs.app.utils.common import (
+    get_page_title
+)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -19,6 +22,10 @@ def create_lists_router(
     templates: Jinja2Templates
 ):
     router = APIRouter()
+    router.include_router(create_list_by_id_router(
+        app_providers_and_models=app_providers_and_models,
+        templates=templates
+    ))
 
     def _render_lists(request: Request, page_title: str):
         user_list_summary_data_list = list(
