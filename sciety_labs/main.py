@@ -4,9 +4,6 @@ from typing import Iterable, Optional, Sequence
 
 import requests
 
-import starlette.responses
-import starlette.status
-
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -19,6 +16,7 @@ from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.app_update_manager import AppUpdateManager
 from sciety_labs.app.routers.lists import create_lists_router
 from sciety_labs.app.utils.common import get_page_title
+from sciety_labs.app.utils.response import AtomResponse
 from sciety_labs.config.site_config import get_site_config_from_environment_variables
 
 from sciety_labs.models.article import (
@@ -70,10 +68,6 @@ DEFAULT_ARTICLE_RECOMMENDATION_RSS_ITEM_COUNT = DEFAULT_SEMANTIC_SCHOLAR_MAX_REC
 class SearchProviders:
     SEMANTIC_SCHOLAR = 'semantic_scholar'
     EUROPE_PMC = 'europe_pmc'
-
-
-class AtomResponse(starlette.responses.Response):
-    media_type = "application/atom+xml;charset=utf-8"
 
 
 def get_owner_url(owner: OwnerMetaData) -> Optional[str]:
