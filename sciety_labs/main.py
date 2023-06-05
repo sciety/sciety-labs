@@ -17,6 +17,7 @@ from sciety_labs.app.app_update_manager import AppUpdateManager
 from sciety_labs.app.routers.lists import create_lists_router
 from sciety_labs.app.utils.common import get_page_title
 from sciety_labs.app.utils.common import get_owner_url
+from sciety_labs.app.utils.common import DEFAULT_ITEMS_PER_PAGE
 from sciety_labs.app.utils.response import AtomResponse
 from sciety_labs.config.site_config import get_site_config_from_environment_variables
 
@@ -56,8 +57,6 @@ ALLOWED_TAGS = [
     'section', 'sub', 'sup'
 ]
 
-
-DEFAULT_ITEMS_PER_PAGE = 10
 
 # Note: we are aiming to include all of the recommendations in the RSS
 #   because RSS clients may sort by publication date, whereas the recommendations

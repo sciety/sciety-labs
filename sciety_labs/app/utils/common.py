@@ -4,6 +4,9 @@ from sciety_labs.models.lists import OwnerMetaData, OwnerTypes
 from sciety_labs.utils.text import remove_markup
 
 
+DEFAULT_ITEMS_PER_PAGE = 10
+
+
 def get_page_title(text: str) -> str:
     return remove_markup(text)
 
