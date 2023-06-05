@@ -9,21 +9,9 @@ from sciety_labs import main as main_module
 from sciety_labs.main import create_app
 
 
-@pytest.fixture(name='sciety_event_provider_class_mock', autouse=True)
-def _sciety_event_provider_class_mock() -> Iterable[MagicMock]:
-    with patch.object(main_module, 'ScietyEventProvider') as mock:
-        yield mock
-
-
-@pytest.fixture(name='google_sheet_article_image_provider_class_mock', autouse=True)
-def _google_sheet_article_image_provider_class_mock() -> Iterable[MagicMock]:
-    with patch.object(main_module, 'GoogleSheetArticleImageProvider') as mock:
-        yield mock
-
-
-@pytest.fixture(name='google_sheet_list_image_provider_class_mock', autouse=True)
-def _google_sheet_list_image_provider_class_mock() -> Iterable[MagicMock]:
-    with patch.object(main_module, 'GoogleSheetListImageProvider') as mock:
+@pytest.fixture(name='app_providers_and_models_class_mock', autouse=True)
+def _app_providers_and_models_class_mock() -> Iterable[MagicMock]:
+    with patch.object(main_module, 'AppProvidersAndModels') as mock:
         yield mock
 
 

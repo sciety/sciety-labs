@@ -1,7 +1,5 @@
-from datetime import timedelta
 from http.client import HTTPException
 import logging
-from pathlib import Path
 from typing import Iterable, Optional, Sequence
 
 import requests
@@ -14,11 +12,10 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
-import requests_cache
-
 import markupsafe
 
 import bleach
+from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.config.site_config import get_site_config_from_environment_variables
 
 from sciety_labs.models.article import (
@@ -26,31 +23,13 @@ from sciety_labs.models.article import (
     ArticleSearchResultItem,
     iter_preprint_article_mention
 )
-from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
 
-from sciety_labs.models.lists import OwnerMetaData, OwnerTypes, ScietyEventListsModel
-from sciety_labs.providers.crossref import (
-    CrossrefMetaDataProvider
-)
-from sciety_labs.providers.europe_pmc import EUROPE_PMC_PREPRINT_SERVERS, EuropePmcProvider
-from sciety_labs.providers.google_sheet_image import (
-    GoogleSheetArticleImageProvider,
-    GoogleSheetListImageProvider
-)
-from sciety_labs.providers.sciety_event import ScietyEventProvider
+from sciety_labs.models.lists import OwnerMetaData, OwnerTypes
+from sciety_labs.providers.europe_pmc import EUROPE_PMC_PREPRINT_SERVERS
 from sciety_labs.providers.search import SearchDateRange, SearchParameters, SearchSortBy
 from sciety_labs.providers.semantic_scholar import (
     DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS,
-    SEMANTIC_SCHOLAR_SEARCH_VENUES,
-    SemanticScholarSearchProvider,
-    get_semantic_scholar_provider
-)
-from sciety_labs.providers.twitter import get_twitter_user_article_list_provider_or_none
-from sciety_labs.utils.bq_cache import BigQueryTableModifiedInMemorySingleObjectCache
-from sciety_labs.utils.cache import (
-    ChainedObjectCache,
-    DiskSingleObjectCache,
-    InMemorySingleObjectCache
+    SEMANTIC_SCHOLAR_SEARCH_VENUES
 )
 from sciety_labs.utils.datetime import (
     get_date_as_display_format,
@@ -115,98 +94,20 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     site_config = get_site_config_from_environment_variables()
     LOGGER.info('site_config: %r', site_config)
 
-    gcp_project_name = 'elife-data-pipeline'
-    sciety_event_table_id = f'{gcp_project_name}.de_proto.sciety_event_v1'
     update_interval_in_secs = 60 * 60  # 1 hour
-    max_age_in_seconds = 60 * 60  # 1 hour
     min_article_count = 2
 
-    cache_dir = Path('.cache')
-    cache_dir.mkdir(parents=True, exist_ok=True)
-
-    query_results_cache = ChainedObjectCache([
-        BigQueryTableModifiedInMemorySingleObjectCache(
-            gcp_project_name=gcp_project_name,
-            table_id=sciety_event_table_id
-        ),
-        DiskSingleObjectCache(
-            file_path=cache_dir / 'query_results_cache.pickle',
-            max_age_in_seconds=max_age_in_seconds
-        )
-    ])
-
-    cached_requests_session = requests_cache.CachedSession(
-        '.cache/requests_cache',
-        xpire_after=timedelta(days=1),
-        allowable_methods=('GET', 'HEAD', 'POST'),  # include POST for Semantic Scholar
-        match_headers=False
-    )
-
-    sciety_event_provider = ScietyEventProvider(
-        gcp_project_name=gcp_project_name,
-        query_results_cache=query_results_cache
-    )
-
-    lists_model = ScietyEventListsModel([])
-    evaluation_stats_model = ScietyEventEvaluationStatsModel([])
-
-    twitter_user_article_list_provider = get_twitter_user_article_list_provider_or_none(
-        requests_session=cached_requests_session
-    )
-
-    crossref_metadata_provider = CrossrefMetaDataProvider(
-        requests_session=cached_requests_session
-    )
-
-    semantic_scholar_provider = get_semantic_scholar_provider(
-        requests_session=cached_requests_session
-    )
-    semantic_scholar_search_provider = SemanticScholarSearchProvider(
-        semantic_scholar_provider=semantic_scholar_provider,
-        evaluation_stats_model=evaluation_stats_model
-    )
-
-    europe_pmc_provider = EuropePmcProvider(
-        requests_session=cached_requests_session
-    )
-
-    article_image_mapping_cache = ChainedObjectCache([
-        InMemorySingleObjectCache(
-            max_age_in_seconds=max_age_in_seconds
-        ),
-        DiskSingleObjectCache(
-            file_path=cache_dir / 'article_image_mapping_cache.pickle',
-            max_age_in_seconds=max_age_in_seconds
-        )
-    ])
-
-    google_sheet_article_image_provider = GoogleSheetArticleImageProvider(
-        image_mapping_cache=article_image_mapping_cache,
-        refresh_manually=True
-    )
-
-    list_image_mapping_cache = ChainedObjectCache([
-        InMemorySingleObjectCache(
-            max_age_in_seconds=max_age_in_seconds
-        ),
-        DiskSingleObjectCache(
-            file_path=cache_dir / 'list_image_mapping_cache.pickle',
-            max_age_in_seconds=max_age_in_seconds
-        )
-    ])
-
-    google_sheet_list_image_provider = GoogleSheetListImageProvider(
-        image_mapping_cache=list_image_mapping_cache,
-        refresh_manually=True
-    )
+    app_providers_and_models = AppProvidersAndModels()
 
     def check_or_reload_data():
         # Note: this may still use a cache
-        _sciety_event_dict_list = sciety_event_provider.get_sciety_event_dict_list()
-        lists_model.apply_events(_sciety_event_dict_list)
-        evaluation_stats_model.apply_events(_sciety_event_dict_list)
-        google_sheet_article_image_provider.refresh()
-        google_sheet_list_image_provider.refresh()
+        _sciety_event_dict_list = (
+            app_providers_and_models.sciety_event_provider.get_sciety_event_dict_list()
+        )
+        app_providers_and_models.lists_model.apply_events(_sciety_event_dict_list)
+        app_providers_and_models.evaluation_stats_model.apply_events(_sciety_event_dict_list)
+        app_providers_and_models.google_sheet_article_image_provider.refresh()
+        app_providers_and_models.google_sheet_list_image_provider.refresh()
 
     UpdateThread(
         update_interval_in_secs=update_interval_in_secs,
@@ -251,8 +152,9 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     @app.get('/', response_class=HTMLResponse)
     def index(request: Request):
         user_list_summary_data_list = list(
-            google_sheet_list_image_provider.iter_list_summary_data_with_list_image_url(
-                lists_model.get_most_active_user_lists(
+            app_providers_and_models
+            .google_sheet_list_image_provider.iter_list_summary_data_with_list_image_url(
+                app_providers_and_models.lists_model.get_most_active_user_lists(
                     top_n=3,
                     min_article_count=min_article_count
                 )
@@ -260,8 +162,9 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         )
         LOGGER.info('user_list_summary_data_list: %r', user_list_summary_data_list)
         group_list_summary_data_list = list(
-            google_sheet_list_image_provider.iter_list_summary_data_with_list_image_url(
-                lists_model.get_most_active_group_lists(
+            app_providers_and_models
+            .google_sheet_list_image_provider.iter_list_summary_data_with_list_image_url(
+                app_providers_and_models.lists_model.get_most_active_group_lists(
                     top_n=3,
                     min_article_count=min_article_count
                 )
@@ -278,16 +181,18 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
 
     def _render_lists(request: Request, page_title: str):
         user_list_summary_data_list = list(
-            google_sheet_list_image_provider.iter_list_summary_data_with_list_image_url(
-                lists_model.get_most_active_user_lists(
+            app_providers_and_models
+            .google_sheet_list_image_provider.iter_list_summary_data_with_list_image_url(
+                app_providers_and_models.lists_model.get_most_active_user_lists(
                     min_article_count=min_article_count
                 )
             )
         )
         LOGGER.info('user_list_summary_data_list[:1]=%r', user_list_summary_data_list[:1])
         group_list_summary_data_list = list(
-            google_sheet_list_image_provider.iter_list_summary_data_with_list_image_url(
-                lists_model.get_most_active_group_lists(
+            app_providers_and_models
+            .google_sheet_list_image_provider.iter_list_summary_data_with_list_image_url(
+                app_providers_and_models.lists_model.get_most_active_group_lists(
                     min_article_count=min_article_count
                 )
             )
@@ -320,19 +225,22 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         items_per_page: Optional[int]
     ) -> Iterable[ArticleMention]:
         article_mention_iterable = (
-            evaluation_stats_model.iter_article_mention_with_article_stats(
+            app_providers_and_models
+            .evaluation_stats_model.iter_article_mention_with_article_stats(
                 article_mention_iterable
             )
         )
         article_mention_with_article_meta = (
-            crossref_metadata_provider.iter_article_mention_with_article_meta(
+            app_providers_and_models
+            .crossref_metadata_provider.iter_article_mention_with_article_meta(
                 get_page_iterable(
                     article_mention_iterable, page=page, items_per_page=items_per_page
                 )
             )
         )
         article_mention_with_article_meta = (
-            google_sheet_article_image_provider.iter_article_mention_with_article_image_url(
+            app_providers_and_models
+            .google_sheet_article_image_provider.iter_article_mention_with_article_image_url(
                 article_mention_with_article_meta
             )
         )
@@ -350,14 +258,19 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         page: int = 1,
         enable_pagination: bool = True
     ):
-        list_summary_data = lists_model.get_list_summary_data_by_list_id(list_id)
+        list_summary_data = (
+            app_providers_and_models.lists_model.get_list_summary_data_by_list_id(list_id)
+        )
         LOGGER.info('list_summary_data: %r', list_summary_data)
-        list_images = google_sheet_list_image_provider.get_list_images_by_list_id(list_id)
+        list_images = (
+            app_providers_and_models
+            .google_sheet_list_image_provider.get_list_images_by_list_id(list_id)
+        )
         LOGGER.info('list_images: %r', list_images)
         item_count = list_summary_data.article_count
         article_mention_with_article_meta = (
             _get_page_article_mention_with_article_meta_for_article_mention_iterable(
-                lists_model.iter_article_mentions_by_list_id(list_id),
+                app_providers_and_models.lists_model.iter_article_mentions_by_list_id(list_id),
                 page=page,
                 items_per_page=items_per_page
             )
@@ -401,11 +314,13 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         items_per_page: Optional[int] = DEFAULT_ITEMS_PER_PAGE,
         page: int = 1
     ):
-        list_summary_data = lists_model.get_list_summary_data_by_list_id(list_id)
+        list_summary_data = (
+            app_providers_and_models.lists_model.get_list_summary_data_by_list_id(list_id)
+        )
         LOGGER.info('list_summary_data: %r', list_summary_data)
         article_mention_with_article_meta = (
             _get_page_article_mention_with_article_meta_for_article_mention_iterable(
-                lists_model.iter_article_mentions_by_list_id(list_id),
+                app_providers_and_models.lists_model.iter_article_mentions_by_list_id(list_id),
                 page=page,
                 items_per_page=items_per_page
             )
@@ -428,14 +343,20 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         max_recommendations: int = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS,
         enable_pagination: bool = True
     ):
-        list_summary_data = lists_model.get_list_summary_data_by_list_id(list_id)
+        list_summary_data = (
+            app_providers_and_models.lists_model.get_list_summary_data_by_list_id(list_id)
+        )
         all_article_recommendations = list(
             iter_preprint_article_mention(
-                semantic_scholar_provider.iter_article_recommendation_for_article_dois(
+                app_providers_and_models
+                .semantic_scholar_provider.iter_article_recommendation_for_article_dois(
                     (
                         article_mention.article_doi
-                        for article_mention in lists_model.iter_article_mentions_by_list_id(
-                            list_id
+                        for article_mention in (
+                            app_providers_and_models
+                            .lists_model.iter_article_mentions_by_list_id(
+                               list_id
+                            )
                         )
                     ),
                     max_recommendations=max_recommendations
@@ -492,14 +413,20 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         page: int = 1,
         max_recommendations: int = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
     ):
-        list_summary_data = lists_model.get_list_summary_data_by_list_id(list_id)
+        list_summary_data = (
+            app_providers_and_models.lists_model.get_list_summary_data_by_list_id(list_id)
+        )
         LOGGER.info('list_summary_data: %r', list_summary_data)
         article_recommendation_list = (
-            semantic_scholar_provider.get_article_recommendation_list_for_article_dois(
+            app_providers_and_models
+            .semantic_scholar_provider.get_article_recommendation_list_for_article_dois(
                 (
                     article_mention.article_doi
-                    for article_mention in lists_model.iter_article_mentions_by_list_id(
-                        list_id
+                    for article_mention in (
+                        app_providers_and_models
+                        .lists_model.iter_article_mentions_by_list_id(
+                            list_id
+                        )
                     )
                 ),
                 max_recommendations=max_recommendations
@@ -538,12 +465,16 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         page: int = 1,
         enable_pagination: bool = True
     ):
-        assert twitter_user_article_list_provider
-        twitter_user = twitter_user_article_list_provider.get_twitter_user_by_screen_name(
-            twitter_handle
+        assert app_providers_and_models.twitter_user_article_list_provider
+        twitter_user = (
+            app_providers_and_models
+            .twitter_user_article_list_provider.get_twitter_user_by_screen_name(
+                twitter_handle
+            )
         )
         article_mention_iterable = (
-            twitter_user_article_list_provider.iter_article_mentions_by_user_id(
+            app_providers_and_models
+            .twitter_user_article_list_provider.iter_article_mentions_by_user_id(
                 twitter_user.user_id
             )
         )
@@ -583,7 +514,10 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         article_doi: str
     ):
         try:
-            article_meta = crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
+            article_meta = (
+                app_providers_and_models
+                .crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
+            )
         except requests.exceptions.HTTPError as exception:
             status_code = exception.response.status_code
             LOGGER.info('Exception retrieving metadata (%r): %r', status_code, exception)
@@ -600,13 +534,20 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             )
         LOGGER.info('article_meta=%r', article_meta)
 
-        article_stats = evaluation_stats_model.get_article_stats_by_article_doi(article_doi)
-        article_images = google_sheet_article_image_provider.get_article_images_by_doi(article_doi)
+        article_stats = (
+            app_providers_and_models
+            .evaluation_stats_model.get_article_stats_by_article_doi(article_doi)
+        )
+        article_images = (
+            app_providers_and_models
+            .google_sheet_article_image_provider.get_article_images_by_doi(article_doi)
+        )
 
         try:
             all_article_recommendations = list(
                 iter_preprint_article_mention(
-                    semantic_scholar_provider.iter_article_recommendation_for_article_dois(
+                    app_providers_and_models
+                    .semantic_scholar_provider.iter_article_recommendation_for_article_dois(
                         [article_doi],
                         max_recommendations=DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
                     )
@@ -655,10 +596,14 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         max_recommendations: int = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS,
         enable_pagination: bool = True
     ):
-        article_meta = crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
+        article_meta = (
+            app_providers_and_models
+            .crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
+        )
         all_article_recommendations = list(
             iter_preprint_article_mention(
-                semantic_scholar_provider.iter_article_recommendation_for_article_dois(
+                app_providers_and_models
+                .semantic_scholar_provider.iter_article_recommendation_for_article_dois(
                     [article_doi],
                     max_recommendations=max_recommendations
                 )
@@ -723,13 +668,19 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             if not query:
                 search_result_iterable = []
             elif search_provider == SearchProviders.SEMANTIC_SCHOLAR:
-                search_result_iterable = semantic_scholar_search_provider.iter_search_result_item(
-                    search_parameters=search_parameters
+                search_result_iterable = (
+                    app_providers_and_models
+                    .semantic_scholar_search_provider.iter_search_result_item(
+                        search_parameters=search_parameters
+                    )
                 )
                 preprint_servers = SEMANTIC_SCHOLAR_SEARCH_VENUES
             elif search_provider == SearchProviders.EUROPE_PMC:
-                search_result_iterable = europe_pmc_provider.iter_search_result_item(
-                    search_parameters=search_parameters
+                search_result_iterable = (
+                    app_providers_and_models
+                    .europe_pmc_provider.iter_search_result_item(
+                        search_parameters=search_parameters
+                    )
                 )
                 preprint_servers = EUROPE_PMC_PREPRINT_SERVERS
             else:
