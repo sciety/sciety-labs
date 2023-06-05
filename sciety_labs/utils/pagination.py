@@ -13,6 +13,12 @@ LOGGER = logging.getLogger(__name__)
 T = TypeVar('T')
 
 
+class UrlPaginationParameters(NamedTuple):
+    page: int
+    items_per_page: int
+    enable_pagination: bool = True
+
+
 class UrlPaginationState(NamedTuple):
     page: int
     is_empty: Optional[bool] = None
@@ -89,4 +95,22 @@ def get_url_pagination_state_for_url(  # pylint: disable=too-many-arguments
         page_count=page_count,
         previous_page_url=previous_page_url,
         next_page_url=next_page_url
+    )
+
+
+def get_url_pagination_state_for_pagination_parameters(
+    url: starlette.datastructures.URL,
+    pagination_parameters: UrlPaginationParameters,
+    is_this_page_empty: bool = False,
+    item_count: Optional[int] = None,
+    remaining_item_iterable: Optional[SupportsNext[Any]] = None
+) -> UrlPaginationState:
+    return get_url_pagination_state_for_url(
+        url=url,
+        page=pagination_parameters.page,
+        items_per_page=pagination_parameters.items_per_page,
+        is_this_page_empty=is_this_page_empty,
+        item_count=item_count,
+        enable_pagination=pagination_parameters.enable_pagination,
+        remaining_item_iterable=remaining_item_iterable
     )
