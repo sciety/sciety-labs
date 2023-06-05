@@ -8,7 +8,7 @@ import starlette.responses
 import starlette.status
 
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
@@ -17,6 +17,7 @@ import markupsafe
 import bleach
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.app_update_manager import AppUpdateManager
+from sciety_labs.app.routers.lists import create_lists_router
 from sciety_labs.config.site_config import get_site_config_from_environment_variables
 
 from sciety_labs.models.article import (
@@ -117,6 +118,13 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     app = FastAPI()
     app.mount('/static', StaticFiles(directory='static', html=False), name='static')
 
+    app.include_router(create_lists_router(
+        app_providers_and_models=app_providers_and_models,
+        min_article_count=min_article_count,
+        templates=templates,
+        get_page_title=get_page_title
+    ))
+
     @app.exception_handler(404)
     async def not_found_exception_handler(request: Request, exception: HTTPException):
         return templates.TemplateResponse(
@@ -168,46 +176,6 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 'group_lists': group_list_summary_data_list
             }
         )
-
-    def _render_lists(request: Request, page_title: str):
-        user_list_summary_data_list = list(
-            app_providers_and_models
-            .google_sheet_list_image_provider.iter_list_summary_data_with_list_image_url(
-                app_providers_and_models.lists_model.get_most_active_user_lists(
-                    min_article_count=min_article_count
-                )
-            )
-        )
-        LOGGER.info('user_list_summary_data_list[:1]=%r', user_list_summary_data_list[:1])
-        group_list_summary_data_list = list(
-            app_providers_and_models
-            .google_sheet_list_image_provider.iter_list_summary_data_with_list_image_url(
-                app_providers_and_models.lists_model.get_most_active_group_lists(
-                    min_article_count=min_article_count
-                )
-            )
-        )
-        LOGGER.info('group_list_summary_data_list[:1]=%r', group_list_summary_data_list[:1])
-        return templates.TemplateResponse(
-            'pages/lists.html', {
-                'request': request,
-                'page_title': page_title,
-                'user_lists': user_list_summary_data_list,
-                'group_lists': group_list_summary_data_list
-            }
-        )
-
-    @app.get('/lists/user-lists', response_class=HTMLResponse)
-    def user_lists(request: Request):
-        return _render_lists(request, page_title=get_page_title('Most active user lists'))
-
-    @app.get('/lists/group-lists', response_class=HTMLResponse)
-    def group_lists(request: Request):
-        return _render_lists(request, page_title=get_page_title('Most active group lists'))
-
-    @app.get('/lists', response_class=RedirectResponse)
-    def lists():
-        return RedirectResponse('/lists/user-lists', status_code=starlette.status.HTTP_302_FOUND)
 
     def _get_page_article_mention_with_article_meta_for_article_mention_iterable(
         article_mention_iterable: Iterable[ArticleMention],
