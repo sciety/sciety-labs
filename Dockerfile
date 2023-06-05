@@ -22,4 +22,4 @@ COPY config ./config
 COPY tests ./tests
 COPY .pylintrc .flake8 mypy.ini ./
 
-CMD [ "python3", "-m", "uvicorn", "sciety_labs.main:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000", "--log-config=config/logging.yaml"]
+CMD [ "python3", "-m", "uvicorn", "sciety_labs.app.main:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000", "--log-config=config/logging.yaml"]

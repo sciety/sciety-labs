@@ -5,8 +5,8 @@ import pytest
 
 from fastapi.testclient import TestClient
 
-from sciety_labs import main as main_module
-from sciety_labs.main import create_app
+from sciety_labs.app import main as main_module
+from sciety_labs.app.main import create_app
 
 
 @pytest.fixture(name='app_providers_and_models_class_mock', autouse=True)

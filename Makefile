@@ -62,7 +62,7 @@ dev-test: dev-lint dev-unittest
 dev-start:
 	TWITTER_API_AUTHORIZATION_FILE_PATH=.secrets/twitter_api_authorization.txt \
 	$(PYTHON) -m uvicorn \
-		sciety_labs.main:create_app \
+		sciety_labs.app.main:create_app \
 		--reload \
 		--factory \
 		--host 127.0.0.1 \
