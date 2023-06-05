@@ -1,5 +1,7 @@
 from typing import Optional
 
+from fastapi import Request
+
 from sciety_labs.models.lists import OwnerMetaData, OwnerTypes
 from sciety_labs.providers.semantic_scholar import DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
 from sciety_labs.utils.text import remove_markup
@@ -14,6 +16,9 @@ DEFAULT_ITEMS_PER_PAGE = 10
 DEFAULT_ARTICLE_RECOMMENDATION_RSS_ITEM_COUNT = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
 
 
+ATOM_XML_PATH_SUFFIX = '/atom.xml'
+
+
 def get_page_title(text: str) -> str:
     return remove_markup(text)
 
@@ -24,3 +29,14 @@ def get_owner_url(owner: OwnerMetaData) -> Optional[str]:
     if owner.owner_type == OwnerTypes.GROUP and owner.slug:
         return f'https://sciety.org/groups/{owner.slug}'
     return None
+
+
+def get_rss_url(request: Request):
+    return (
+        request
+        .url
+        .remove_query_params(['page', 'items_per_page', 'enable_pagination'])
+        .replace(
+            path=request.url.path + ATOM_XML_PATH_SUFFIX
+        )
+    )
