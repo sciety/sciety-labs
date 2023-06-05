@@ -2,7 +2,6 @@ from http.client import HTTPException
 import logging
 
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
@@ -12,6 +11,7 @@ import bleach
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.app_update_manager import AppUpdateManager
 from sciety_labs.app.routers.articles import create_articles_router
+from sciety_labs.app.routers.home import create_home_router
 from sciety_labs.app.routers.lists import create_lists_router
 from sciety_labs.app.routers.search import create_search_router
 from sciety_labs.app.utils.common import (
@@ -70,6 +70,11 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     app = FastAPI()
     app.mount('/static', StaticFiles(directory='static', html=False), name='static')
 
+    app.include_router(create_home_router(
+        app_providers_and_models=app_providers_and_models,
+        min_article_count=min_article_count,
+        templates=templates
+    ))
     app.include_router(create_lists_router(
         app_providers_and_models=app_providers_and_models,
         min_article_count=min_article_count,
@@ -104,36 +109,6 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
                 'exception': exception
             },
             status_code=500
-        )
-
-    @app.get('/', response_class=HTMLResponse)
-    def index(request: Request):
-        user_list_summary_data_list = list(
-            app_providers_and_models
-            .google_sheet_list_image_provider.iter_list_summary_data_with_list_image_url(
-                app_providers_and_models.lists_model.get_most_active_user_lists(
-                    top_n=3,
-                    min_article_count=min_article_count
-                )
-            )
-        )
-        LOGGER.info('user_list_summary_data_list: %r', user_list_summary_data_list)
-        group_list_summary_data_list = list(
-            app_providers_and_models
-            .google_sheet_list_image_provider.iter_list_summary_data_with_list_image_url(
-                app_providers_and_models.lists_model.get_most_active_group_lists(
-                    top_n=3,
-                    min_article_count=min_article_count
-                )
-            )
-        )
-        LOGGER.info('group_list_summary_data_list: %r', group_list_summary_data_list)
-        return templates.TemplateResponse(
-            'pages/index.html', {
-                'request': request,
-                'user_lists': user_list_summary_data_list,
-                'group_lists': group_list_summary_data_list
-            }
         )
 
     return app
