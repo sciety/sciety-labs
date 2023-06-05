@@ -10,6 +10,9 @@ from sciety_labs.app.utils.common import (
     AnnotatedPaginationParameters,
     get_page_title
 )
+from sciety_labs.app.utils.recommendation import (
+    get_article_recommendation_page_and_item_count_for_article_dois
+)
 from sciety_labs.models.article import iter_preprint_article_mention
 from sciety_labs.providers.semantic_scholar import DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
 from sciety_labs.utils.pagination import get_url_pagination_state_for_pagination_parameters
@@ -117,26 +120,13 @@ def create_articles_router(
             app_providers_and_models
             .crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
         )
-        all_article_recommendations = list(
-            iter_preprint_article_mention(
-                app_providers_and_models
-                .semantic_scholar_provider.iter_article_recommendation_for_article_dois(
-                    [article_doi],
-                    max_recommendations=max_recommendations
-                )
+        article_recommendation_with_article_meta, item_count = (
+            get_article_recommendation_page_and_item_count_for_article_dois(
+                [article_doi],
+                app_providers_and_models=app_providers_and_models,
+                max_recommendations=max_recommendations,
+                pagination_parameters=pagination_parameters
             )
-        )
-        item_count = len(all_article_recommendations)
-        article_recommendation_with_article_meta = list(
-            article_aggregator.iter_page_article_mention_with_article_meta_and_stats(
-                all_article_recommendations,
-                page=pagination_parameters.page,
-                items_per_page=pagination_parameters.items_per_page
-            )
-        )
-        LOGGER.info(
-            'article_recommendation_with_article_meta[:1]=%r',
-            article_recommendation_with_article_meta[:1]
         )
 
         url_pagination_state = get_url_pagination_state_for_pagination_parameters(

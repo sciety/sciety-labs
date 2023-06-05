@@ -1,4 +1,3 @@
-# pylint: disable=duplicate-code
 import logging
 from typing import Optional
 
@@ -14,6 +13,9 @@ from sciety_labs.app.utils.common import (
     get_owner_url,
     get_page_title,
     get_rss_url
+)
+from sciety_labs.app.utils.recommendation import (
+    get_article_recommendation_page_and_item_count_for_article_dois
 )
 from sciety_labs.app.utils.response import AtomResponse
 from sciety_labs.models.article import iter_preprint_article_mention
@@ -105,6 +107,7 @@ def create_list_by_id_router(
             media_type=AtomResponse.media_type
         )
 
+    # pylint: disable=duplicate-code
     @router.get('/lists/by-id/{list_id}/article-recommendations', response_class=HTMLResponse)
     def article_recommendations_by_sciety_list_id(  # pylint: disable=too-many-arguments
         request: Request,
@@ -115,34 +118,19 @@ def create_list_by_id_router(
         list_summary_data = (
             app_providers_and_models.lists_model.get_list_summary_data_by_list_id(list_id)
         )
-        all_article_recommendations = list(
-            iter_preprint_article_mention(
-                app_providers_and_models
-                .semantic_scholar_provider.iter_article_recommendation_for_article_dois(
-                    (
-                        article_mention.article_doi
-                        for article_mention in (
-                            app_providers_and_models
-                            .lists_model.iter_article_mentions_by_list_id(
-                               list_id
-                            )
-                        )
-                    ),
-                    max_recommendations=max_recommendations
-                )
+        article_recommendation_with_article_meta, item_count = (
+            get_article_recommendation_page_and_item_count_for_article_dois(
+                (
+                    article_mention.article_doi
+                    for article_mention in (
+                        app_providers_and_models
+                        .lists_model.iter_article_mentions_by_list_id(list_id)
+                    )
+                ),
+                app_providers_and_models=app_providers_and_models,
+                max_recommendations=max_recommendations,
+                pagination_parameters=pagination_parameters
             )
-        )
-        item_count = len(all_article_recommendations)
-        article_recommendation_with_article_meta = list(
-            article_aggregator.iter_page_article_mention_with_article_meta_and_stats(
-                all_article_recommendations,
-                page=pagination_parameters.page,
-                items_per_page=pagination_parameters.items_per_page
-            )
-        )
-        LOGGER.info(
-            'article_recommendation_with_article_meta[:1]=%r',
-            article_recommendation_with_article_meta[:1]
         )
 
         url_pagination_state = get_url_pagination_state_for_pagination_parameters(
@@ -163,6 +151,7 @@ def create_list_by_id_router(
                 'pagination': url_pagination_state
             }
         )
+    # pylint: enable=duplicate-code
 
     @router.get(
         '/lists/by-id/{list_id}/article-recommendations/atom.xml',
