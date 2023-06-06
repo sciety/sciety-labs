@@ -190,7 +190,7 @@ def create_search_router(  # pylint: disable=too-many-statements
             remaining_item_iterable=search_result_iterator
         )
         return templates.TemplateResponse(
-            'pages/search_feed.html', {
+            'pages/search-feed.html', {
                 'request': request,
                 'page_title': (
                     f'Search feed for {query}' if query else 'Search feed'
@@ -289,7 +289,7 @@ def create_search_router(  # pylint: disable=too-many-statements
             remaining_item_iterable=search_result_iterator
         )
         return templates.TemplateResponse(
-            'pages/search_feed.atom.xml', {
+            'pages/search-feed.atom.xml', {
                 'request': request,
                 'page_title': (
                     f'Search feed for {query}' if query else 'Search feed'
