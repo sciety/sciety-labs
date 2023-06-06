@@ -126,7 +126,7 @@ def create_search_router(  # pylint: disable=too-many-statements
         query: str = '',
         evaluated_only: bool = False,
         search_provider: str = SearchProviders.SEMANTIC_SCHOLAR,
-        sort_by: str = SearchSortBy.RELEVANCE,
+        sort_by: str = SearchSortBy.PUBLICATION_DATE,
         date_range: str = SearchDateRange.LAST_90_DAYS
     ):
         search_result_iterable: Iterable[ArticleSearchResultItem]
