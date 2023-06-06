@@ -221,6 +221,7 @@ def create_search_router(  # pylint: disable=too-many-statements
                 request
                 .url
                 .remove_query_params('sort_by')
+                .include_query_params(sort_by=SearchSortBy.PUBLICATION_DATE)
                 .replace(path='/feeds/search')
             ),
             status_code=starlette.status.HTTP_302_FOUND
