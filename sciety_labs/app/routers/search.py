@@ -1,7 +1,7 @@
 import logging
-from typing import Iterable, Optional, Sequence
+from typing import Annotated, Iterable, NamedTuple, Optional, Sequence
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 import requests
@@ -28,6 +28,35 @@ class SearchProviders:
     EUROPE_PMC = 'europe_pmc'
 
 
+class UrlSearchParameters(NamedTuple):
+    query: str
+    evaluated_only: bool
+    search_provider: str
+    sort_by: str
+    date_range: str
+
+
+async def get_search_parameters(
+    query: str = '',
+    evaluated_only: bool = False,
+    search_provider: str = SearchProviders.SEMANTIC_SCHOLAR,
+    sort_by: str = SearchSortBy.RELEVANCE,
+    date_range: str = SearchDateRange.LAST_90_DAYS
+) -> UrlSearchParameters:
+    return UrlSearchParameters(
+        query=query,
+        evaluated_only=evaluated_only,
+        search_provider=search_provider,
+        sort_by=sort_by,
+        date_range=date_range
+    )
+
+
+AnnotatedSearchParameters = Annotated[
+    UrlSearchParameters, Depends(get_search_parameters)
+]
+
+
 def create_search_router(  # pylint: disable=too-many-statements
     app_providers_and_models: AppProvidersAndModels,
     templates: Jinja2Templates
@@ -39,12 +68,8 @@ def create_search_router(  # pylint: disable=too-many-statements
     @router.get('/search', response_class=HTMLResponse)
     def search(  # pylint: disable=too-many-arguments, too-many-locals
         request: Request,
-        pagination_parameters: AnnotatedPaginationParameters,
-        query: str = '',
-        evaluated_only: bool = False,
-        search_provider: str = SearchProviders.SEMANTIC_SCHOLAR,
-        sort_by: str = SearchSortBy.RELEVANCE,
-        date_range: str = SearchDateRange.LAST_90_DAYS
+        url_search_parameters: AnnotatedSearchParameters,
+        pagination_parameters: AnnotatedPaginationParameters
     ):
         search_result_iterable: Iterable[ArticleSearchResultItem]
         error_message: Optional[str] = None
@@ -52,15 +77,15 @@ def create_search_router(  # pylint: disable=too-many-statements
         try:
             preprint_servers: Optional[Sequence[str]] = None
             search_parameters = SearchParameters(
-                query=query,
-                is_evaluated_only=evaluated_only,
-                sort_by=sort_by,
-                date_range=date_range
+                query=url_search_parameters.query,
+                is_evaluated_only=url_search_parameters.evaluated_only,
+                sort_by=url_search_parameters.sort_by,
+                date_range=url_search_parameters.date_range
             )
             LOGGER.info('search_parameters: %r', search_parameters)
-            if not query:
+            if not search_parameters.query:
                 search_result_iterable = []
-            elif search_provider == SearchProviders.SEMANTIC_SCHOLAR:
+            elif url_search_parameters.search_provider == SearchProviders.SEMANTIC_SCHOLAR:
                 search_result_iterable = (
                     app_providers_and_models
                     .semantic_scholar_search_provider.iter_search_result_item(
@@ -68,7 +93,7 @@ def create_search_router(  # pylint: disable=too-many-statements
                     )
                 )
                 preprint_servers = SEMANTIC_SCHOLAR_SEARCH_VENUES
-            elif search_provider == SearchProviders.EUROPE_PMC:
+            elif url_search_parameters.search_provider == SearchProviders.EUROPE_PMC:
                 search_result_iterable = (
                     app_providers_and_models
                     .europe_pmc_provider.iter_search_result_item(
@@ -107,15 +132,16 @@ def create_search_router(  # pylint: disable=too-many-statements
             'pages/search.html', {
                 'request': request,
                 'page_title': (
-                    f'Search results for {query}' if query else 'Search'
+                    f'Search results for {search_parameters.query}'
+                    if search_parameters.query else 'Search'
                 ),
-                'query': query,
-                'is_search_evaluated_only': evaluated_only,
-                'sort_by': sort_by,
-                'date_range': date_range,
+                'query': search_parameters.query,
+                'is_search_evaluated_only': search_parameters.is_evaluated_only,
+                'sort_by': search_parameters.sort_by,
+                'date_range': search_parameters.date_range,
                 'preprint_servers': preprint_servers,
                 'error_message': error_message,
-                'search_provider': search_provider,
+                'search_provider': url_search_parameters.search_provider,
                 'search_results': search_result_list_with_article_meta,
                 'pagination': url_pagination_state
             },
