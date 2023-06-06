@@ -10,6 +10,12 @@
         <div class="sciety-grid-two-columns">
             <header class="page-header page-header--search-results">
                 <h1>{{ query }}</h1>
+                <div class="page-header__links">
+                    <ul>
+                        <li><span class="visually-hidden">This feed can be subscribed to via the </span><span><a
+                    href="{{ rss_url }}" type="application/atom+xml" rel="nofollow">RSS</a><span></li>
+                    </ul>
+                </div>
             </header>
 
             <header class="search-results__header">
