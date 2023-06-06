@@ -193,88 +193,27 @@ def create_search_router(  # pylint: disable=too-many-statements
     @router.get('/feeds/search', response_class=HTMLResponse)
     def search_feed(  # pylint: disable=too-many-arguments, too-many-locals
         request: Request,
-        pagination_parameters: AnnotatedPaginationParameters,
-        query: str = '',
-        evaluated_only: bool = False,
-        search_provider: str = SearchProviders.SEMANTIC_SCHOLAR,
-        sort_by: str = SearchSortBy.PUBLICATION_DATE,
-        date_range: str = SearchDateRange.LAST_90_DAYS
+        search_parameters: AnnotatedSearchParameters,
+        pagination_parameters: AnnotatedPaginationParameters
     ):
-        search_result_iterable: Iterable[ArticleSearchResultItem]
-        error_message: Optional[str] = None
-        status_code: int = 200
-        try:
-            preprint_servers: Optional[Sequence[str]] = None
-            search_parameters = SearchParameters(
-                query=query,
-                is_evaluated_only=evaluated_only,
-                sort_by=sort_by,
-                date_range=date_range
-            )
-            LOGGER.info('search_parameters: %r', search_parameters)
-            if not query:
-                search_result_iterable = []
-            elif search_provider == SearchProviders.SEMANTIC_SCHOLAR:
-                search_result_iterable = (
-                    app_providers_and_models
-                    .semantic_scholar_search_provider.iter_search_result_item(
-                        search_parameters=search_parameters
-                    )
-                )
-                preprint_servers = SEMANTIC_SCHOLAR_SEARCH_VENUES
-            elif search_provider == SearchProviders.EUROPE_PMC:
-                search_result_iterable = (
-                    app_providers_and_models
-                    .europe_pmc_provider.iter_search_result_item(
-                        search_parameters=search_parameters
-                    )
-                )
-                preprint_servers = EUROPE_PMC_PREPRINT_SERVERS
-            else:
-                search_result_iterable = []
-            search_result_iterator = iter(search_result_iterable)
-            search_result_list_with_article_meta = list(
-                article_aggregator.iter_page_article_mention_with_article_meta_and_stats(
-                    iter_preprint_article_mention(
-                        search_result_iterator
-                    ),
-                    page=pagination_parameters.page,
-                    items_per_page=pagination_parameters.items_per_page
-                )
-            )
-            LOGGER.info(
-                'search_result_list_with_article_meta[:1]=%r',
-                search_result_list_with_article_meta[:1]
-            )
-        except requests.exceptions.HTTPError as exc:
-            error_message = f'Error retrieving search results from provider: {exc}'
-            status_code = exc.response.status_code
-            search_result_list_with_article_meta = []
-            search_result_iterator = iter([])
-        url_pagination_state = get_url_pagination_state_for_pagination_parameters(
-            url=request.url,
-            pagination_parameters=pagination_parameters,
-            is_this_page_empty=not search_result_list_with_article_meta,
-            remaining_item_iterable=search_result_iterator
+        search_result_page = get_search_result_page(
+            app_providers_and_models=app_providers_and_models,
+            request=request,
+            search_parameters=search_parameters,
+            pagination_parameters=pagination_parameters
         )
         return templates.TemplateResponse(
             'pages/search-feed.html', {
+                **get_search_parameters_template_parameters(search_parameters),
+                **get_search_result_template_parameters(search_result_page),
                 'request': request,
                 'page_title': (
-                    f'Search feed for {query}' if query else 'Search feed'
+                    f'Search feed for {search_parameters.query}'
+                    if search_parameters.query else 'Search feed'
                 ),
-                'rss_url': get_rss_url(request),
-                'query': query,
-                'is_search_evaluated_only': evaluated_only,
-                'sort_by': sort_by,
-                'date_range': date_range,
-                'preprint_servers': preprint_servers,
-                'error_message': error_message,
-                'search_provider': search_provider,
-                'search_results': search_result_list_with_article_meta,
-                'pagination': url_pagination_state
+                'rss_url': get_rss_url(request)
             },
-            status_code=status_code
+            status_code=search_result_page.status_code
         )
 
     @router.get('/feeds/search/create', response_class=RedirectResponse)
