@@ -1,5 +1,6 @@
 import logging
-from typing import Annotated, Iterable, NamedTuple, Optional, Sequence
+from typing import Annotated, Iterable, Optional, Sequence
+from attr import dataclass
 
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -28,12 +29,9 @@ class SearchProviders:
     EUROPE_PMC = 'europe_pmc'
 
 
-class UrlSearchParameters(NamedTuple):
-    query: str
-    evaluated_only: bool
-    search_provider: str
-    sort_by: str
-    date_range: str
+@dataclass
+class UrlSearchParameters(SearchParameters):
+    search_provider: str = SearchProviders.SEMANTIC_SCHOLAR
 
 
 async def get_search_parameters(
@@ -45,7 +43,7 @@ async def get_search_parameters(
 ) -> UrlSearchParameters:
     return UrlSearchParameters(
         query=query,
-        evaluated_only=evaluated_only,
+        is_evaluated_only=evaluated_only,
         search_provider=search_provider,
         sort_by=sort_by,
         date_range=date_range
@@ -68,7 +66,7 @@ def create_search_router(  # pylint: disable=too-many-statements
     @router.get('/search', response_class=HTMLResponse)
     def search(  # pylint: disable=too-many-arguments, too-many-locals
         request: Request,
-        url_search_parameters: AnnotatedSearchParameters,
+        search_parameters: AnnotatedSearchParameters,
         pagination_parameters: AnnotatedPaginationParameters
     ):
         search_result_iterable: Iterable[ArticleSearchResultItem]
@@ -76,16 +74,10 @@ def create_search_router(  # pylint: disable=too-many-statements
         status_code: int = 200
         try:
             preprint_servers: Optional[Sequence[str]] = None
-            search_parameters = SearchParameters(
-                query=url_search_parameters.query,
-                is_evaluated_only=url_search_parameters.evaluated_only,
-                sort_by=url_search_parameters.sort_by,
-                date_range=url_search_parameters.date_range
-            )
             LOGGER.info('search_parameters: %r', search_parameters)
             if not search_parameters.query:
                 search_result_iterable = []
-            elif url_search_parameters.search_provider == SearchProviders.SEMANTIC_SCHOLAR:
+            elif search_parameters.search_provider == SearchProviders.SEMANTIC_SCHOLAR:
                 search_result_iterable = (
                     app_providers_and_models
                     .semantic_scholar_search_provider.iter_search_result_item(
@@ -93,7 +85,7 @@ def create_search_router(  # pylint: disable=too-many-statements
                     )
                 )
                 preprint_servers = SEMANTIC_SCHOLAR_SEARCH_VENUES
-            elif url_search_parameters.search_provider == SearchProviders.EUROPE_PMC:
+            elif search_parameters.search_provider == SearchProviders.EUROPE_PMC:
                 search_result_iterable = (
                     app_providers_and_models
                     .europe_pmc_provider.iter_search_result_item(
@@ -141,7 +133,7 @@ def create_search_router(  # pylint: disable=too-many-statements
                 'date_range': search_parameters.date_range,
                 'preprint_servers': preprint_servers,
                 'error_message': error_message,
-                'search_provider': url_search_parameters.search_provider,
+                'search_provider': search_parameters.search_provider,
                 'search_results': search_result_list_with_article_meta,
                 'pagination': url_pagination_state
             },
