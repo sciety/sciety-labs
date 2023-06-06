@@ -2,9 +2,10 @@ import logging
 from typing import Iterable, Optional, Sequence
 
 from fastapi import APIRouter, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 import requests
+import starlette
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.utils.common import (
@@ -203,6 +204,18 @@ def create_search_router(  # pylint: disable=too-many-statements
                 'pagination': url_pagination_state
             },
             status_code=status_code
+        )
+
+    @router.get('/feeds/search/create', response_class=RedirectResponse)
+    def create_search_feed(request: Request):
+        return RedirectResponse(
+            (
+                request
+                .url
+                .remove_query_params('sort_by')
+                .replace(path='/feeds/search')
+            ),
+            status_code=starlette.status.HTTP_302_FOUND
         )
 
     return router
