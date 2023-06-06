@@ -134,6 +134,29 @@ def get_search_result_page(
     )
 
 
+def get_search_parameters_template_parameters(
+    search_parameters: AnnotatedSearchParameters
+) -> dict:
+    return {
+        'query': search_parameters.query,
+        'is_search_evaluated_only': search_parameters.is_evaluated_only,
+        'sort_by': search_parameters.sort_by,
+        'date_range': search_parameters.date_range,
+        'search_provider': search_parameters.search_provider
+    }
+
+
+def get_search_result_template_parameters(
+    search_result_page: SearchResultPage
+) -> dict:
+    return {
+        'preprint_servers': search_result_page.preprint_servers,
+        'error_message': search_result_page.error_message,
+        'search_results': search_result_page.search_result_list_with_article_meta,
+        'pagination': search_result_page.url_pagination_state
+    }
+
+
 def create_search_router(  # pylint: disable=too-many-statements
     app_providers_and_models: AppProvidersAndModels,
     templates: Jinja2Templates
@@ -156,20 +179,13 @@ def create_search_router(  # pylint: disable=too-many-statements
         )
         return templates.TemplateResponse(
             'pages/search.html', {
+                **get_search_parameters_template_parameters(search_parameters),
+                **get_search_result_template_parameters(search_result_page),
                 'request': request,
                 'page_title': (
                     f'Search results for {search_parameters.query}'
                     if search_parameters.query else 'Search'
-                ),
-                'query': search_parameters.query,
-                'is_search_evaluated_only': search_parameters.is_evaluated_only,
-                'sort_by': search_parameters.sort_by,
-                'date_range': search_parameters.date_range,
-                'preprint_servers': search_result_page.preprint_servers,
-                'error_message': search_result_page.error_message,
-                'search_provider': search_parameters.search_provider,
-                'search_results': search_result_page.search_result_list_with_article_meta,
-                'pagination': search_result_page.url_pagination_state
+                )
             },
             status_code=search_result_page.status_code
         )
