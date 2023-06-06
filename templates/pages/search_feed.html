@@ -1,0 +1,85 @@
+{% from 'macros/page.html' import render_page with context %}
+{% from 'macros/article.html' import render_article_list_content with context %}
+{% from 'macros/pagination.html' import render_pagination_header, render_pagination %}
+{% from 'macros/radio-button.html' import render_radio_button %}
+{% from 'macros/checkbox.html' import render_checkbox_with_label %}
+{% from 'macros/select.html' import render_select_option %}
+
+{% call render_page() %}
+    <main class="page-content" id="mainContent">
+        <div class="sciety-grid-two-columns">
+            <header class="page-header page-header--search-results">
+                <h1>Search Feed</h1>
+            </header>
+
+            <form action="/search" method="get" class="search-form">
+                <input type="hidden" name="category" value="articles">
+                <label for="searchText" class="search-form__text_input_label">Find preprints and evaluating groups</label>
+                <div class="search-form__helper_text">
+                    Search articles by DOI, author or keyword
+                </div>
+                <div class="search-form__positioning_context">
+                    <input value="{{ query }}" id="searchText" name="query" class="search-form__text">
+                    <section class="search-form__section">
+                        {{ render_checkbox_with_label(name='evaluated_only', label='Search only evaluated articles', label_class='search-form__checkbox_label', is_checked=is_search_evaluated_only) }}
+                    </section>
+                    <section class="search-form__section">
+                        <label>Sort by:
+                            <select name="sort_by">
+                                {{ render_select_option(value='publication_date', label='Publication Date', selected_value=sort_by) }}
+                                {{ render_select_option(value='relevance', label='Relevance', selected_value=sort_by) }}
+                            </select>
+                        </label>,
+                        <label>published:
+                            <select name="date_range">
+                                {{ render_select_option(value='30d', label='Last 30 days', selected_value=date_range) }}
+                                {{ render_select_option(value='90d', label='Last 90 days', selected_value=date_range) }}
+                                {{ render_select_option(value='this_year', label='This year', selected_value=date_range) }}
+                                {{ render_select_option(value='since_2022', label='Since 2022', selected_value=date_range) }}
+                                {{ render_select_option(value='since_2021', label='Since 2021', selected_value=date_range) }}
+                            </select>
+                        </label>
+                    </section>
+                    <section class="search-form__section">
+                        <legend>Please select a search provider:</legend>
+                        <div>
+                            {{ render_radio_button(name='search_provider', value='semantic_scholar', label='Semantic Scholar', selected_value=search_provider) }}
+                            {{ render_radio_button(name='search_provider', value='europe_pmc', label='Europe PMC', selected_value=search_provider) }}
+                        </div>
+                    </section>
+                    <button type="submit" class="search-form__submit" aria-label="Run the search">Search</button>
+                    <button type="reset" id="clearSearchText" class="search-form__clear">
+                        <img src="/static/sciety/images/clear-search-text-icon.svg" class="search-form__clear_icon" alt="">
+                    </button>
+                </div>
+            </form>
+
+            <header class="search-results__header">
+                <div>
+                    {{ render_pagination_header(pagination, list_type_name='search results') }}
+                </div>
+                {%- if not pagination.is_empty %}
+                <div class="search-results__header_details">
+                    <div class="search-results__header_details_item">Results from
+                        {% for preprint_server in preprint_servers %}
+                            {% if not loop.first %}
+                                ,
+                            {% endif %}
+                            <b>{{ preprint_server }}</b>
+                        {% endfor -%}
+                    </div>
+                    <div class="search-results__header_details_item">Sorted by <b>{{ sort_by }}</b></div>
+                </div>
+                {%- endif %}
+            </header>
+
+            <section>
+                {%- if error_message %}
+                    <p class="error-message">{{ error_message }}</p>
+                {%- endif %}
+                {{ render_article_list_content(search_results) }}
+                {{ render_pagination(pagination) }}
+            </section>
+        </div>
+    </main>
+{% endcall %}
