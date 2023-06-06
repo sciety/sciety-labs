@@ -1,3 +1,4 @@
+import hashlib
 import logging
 from typing import Annotated, Iterable, Optional, Sequence
 from attr import dataclass
@@ -35,6 +36,14 @@ class SearchProviders:
 @dataclass
 class UrlSearchParameters(SearchParameters):
     search_provider: str = SearchProviders.SEMANTIC_SCHOLAR
+
+    def get_hash(self) -> str:
+        return hashlib.md5(
+            '|'.join([
+                self.query,
+                self.date_range
+            ]).encode('utf-8')
+        ).hexdigest()
 
 
 async def get_search_parameters(
@@ -244,6 +253,7 @@ def create_search_router(  # pylint: disable=too-many-statements
                 **get_search_parameters_template_parameters(search_parameters),
                 **get_search_result_template_parameters(search_result_page),
                 'request': request,
+                'search_parameters_hash': search_parameters.get_hash(),
                 'page_title': (
                     f'Search feed for {search_parameters.query}'
                     if search_parameters.query else 'Search feed'
