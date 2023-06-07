@@ -1,6 +1,7 @@
 import hashlib
 import logging
-from typing import Annotated, Iterable, Optional, Sequence
+from datetime import date, datetime
+from typing import Annotated, Iterable, Optional, Sequence, Union
 from attr import dataclass
 
 from fastapi import APIRouter, Depends, Request
@@ -19,6 +20,7 @@ from sciety_labs.models.article import ArticleSearchResultItem, iter_preprint_ar
 from sciety_labs.providers.europe_pmc import EUROPE_PMC_PREPRINT_SERVERS
 from sciety_labs.providers.search import SearchDateRange, SearchParameters, SearchSortBy
 from sciety_labs.providers.semantic_scholar import SEMANTIC_SCHOLAR_SEARCH_VENUES
+from sciety_labs.utils.datetime import get_date_as_utc_timestamp, get_utcnow
 from sciety_labs.utils.pagination import (
     UrlPaginationState,
     get_url_pagination_state_for_pagination_parameters
@@ -143,6 +145,19 @@ def get_search_result_page(
     )
 
 
+def get_rss_updated_timestamp(
+    search_result_list_with_article_meta: Sequence[ArticleSearchResultItem]
+) -> Union[date, datetime]:
+    publication_dates = [
+        article_mention.article_meta.published_date
+        for article_mention in search_result_list_with_article_meta
+        if article_mention.article_meta and article_mention.article_meta.published_date
+    ]
+    if not publication_dates:
+        return get_utcnow()
+    return get_date_as_utc_timestamp(max(publication_dates))
+
+
 def get_search_parameters_template_parameters(
     search_parameters: AnnotatedSearchParameters
 ) -> dict:
@@ -253,6 +268,9 @@ def create_search_router(  # pylint: disable=too-many-statements
                 **get_search_parameters_template_parameters(search_parameters),
                 **get_search_result_template_parameters(search_result_page),
                 'request': request,
+                'last_updated_timestamp': get_rss_updated_timestamp(
+                    search_result_page.search_result_list_with_article_meta
+                ),
                 'search_parameters_hash': search_parameters.get_hash(),
                 'page_title': (
                     f'Search feed for {search_parameters.query}'
