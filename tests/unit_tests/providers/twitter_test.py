@@ -118,7 +118,7 @@ class TestIterTwitterArticleListItemForUserTweetsResponse:
             }]
         }))
         assert [item.article_doi for item in result] == [DOI_1]
-        assert [item.comment for item in result] == ['Comment 1']
+        assert [item.comment_text for item in result] == ['Comment 1']
 
     def test_extract_tweet_id(self):
         result = list(iter_twitter_article_list_item_for_user_tweets_response({
@@ -153,7 +153,7 @@ class TestIterTwitterArticleListItemForUserTweetsResponse:
                 }
             }]
         }))
-        assert [item.comment for item in result] == [
+        assert [item.comment_text for item in result] == [
             f'Link to: {DOI_ORG_URL_1}'
         ]
 

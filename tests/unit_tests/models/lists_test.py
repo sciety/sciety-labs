@@ -306,7 +306,7 @@ class TestScietyEventListsModel:
         ])
         article_mentions = list(model.iter_article_mentions_by_list_id(LIST_ID_1))
         assert article_mentions
-        assert article_mentions[0].comment == ANNOTATION_CREATED_EVENT_1['content']
+        assert article_mentions[0].comment_text == ANNOTATION_CREATED_EVENT_1['content']
 
     def test_should_reverse_sort_article_list(self):
         model = ScietyEventListsModel([

@@ -105,7 +105,7 @@ def iter_twitter_article_list_item_for_user_tweets_response(
             created_at_timestamp=parse_timestamp(item['created_at']),
             article_doi=doi,
             external_reference_by_name={'tweet_id': item['id']},
-            comment=text
+            comment_text=text
         )
 
 

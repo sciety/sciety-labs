@@ -18,9 +18,9 @@
         {%- if item.article_meta.abstract %}
         <content type="xhtml">
             <div xmlns="http://www.w3.org/1999/xhtml">
-                {%- if item.comment %}
+                {%- if item.comment_text %}
                 <figure class="comment">
-                    <blockquote><p>{{ item.comment }}</p></blockquote>
+                    <blockquote><p>{{ item.comment_text }}</p></blockquote>
                     <figcaption>—{{ list_summary_data.owner.display_name }}</figcaption>
                 </figure>
                 {%- endif %}

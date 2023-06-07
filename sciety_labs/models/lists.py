@@ -261,7 +261,7 @@ class ScietyEventListsModel(ListsModel):
             )
             yield ArticleMention(
                 article_doi=article_doi,
-                comment=comment_text,
+                comment_text=comment_text,
                 created_at_timestamp=article_list_item.added_datetime
             )
 

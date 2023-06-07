@@ -107,7 +107,7 @@ class ArticleStats(NamedTuple):
 class ArticleMention:
     article_doi: str
     created_at_timestamp: Optional[datetime] = None
-    comment: Optional[str] = None
+    comment_text: Optional[str] = None
     external_reference_by_name: Mapping[str, str] = dataclasses.field(default_factory=dict)
     article_meta: Optional[ArticleMetaData] = None
     article_stats: Optional[ArticleStats] = None
