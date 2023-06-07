@@ -1,0 +1,9 @@
+{% macro render_atom_authors_for_article_meta(article_meta) -%}
+        {%- if article_meta.author_name_list %}
+        {%- for author_name in article_meta.author_name_list %}
+        <author>
+            <name>{{ author_name }}</name>
+        </author>
+        {%- endfor %}
+        {%- endif %}
+{%- endmacro %}

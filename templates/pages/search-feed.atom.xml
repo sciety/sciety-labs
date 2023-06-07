@@ -1,3 +1,5 @@
+{% from 'macros/atom.xml' import render_atom_authors_for_article_meta -%}
+
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <title type="html">Search feed for {{ query }}</title>
@@ -32,13 +34,7 @@
         </content>
         {%- endif %}
 
-        {%- if item.article_meta.author_name_list %}
-        {%- for author_name in item.article_meta.author_name_list %}
-        <author>
-            <name>{{ author_name }}</name>
-        </author>
-        {%- endfor %}
-        {%- endif %}
+        {{- render_atom_authors_for_article_meta(item.article_meta) }}
     </entry>
     {% endfor %}
 </feed>
