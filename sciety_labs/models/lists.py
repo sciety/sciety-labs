@@ -4,7 +4,12 @@ from datetime import datetime
 from threading import Lock
 from typing import Dict, Iterable, NamedTuple, Optional, Protocol, Sequence, Set, Sized, Tuple
 
-from sciety_labs.models.article import ArticleMention, get_doi_from_article_id_or_none
+from sciety_labs.models.article import (
+    ArticleAuthor,
+    ArticleComment,
+    ArticleMention,
+    get_doi_from_article_id_or_none
+)
 from sciety_labs.models.image import ObjectImages
 
 
@@ -249,19 +254,25 @@ class ScietyEventListsModel(ListsModel):
         self,
         list_id: str
     ) -> Iterable[ArticleMention]:
+        owner = self._owner_meta_by_list_id[list_id]
+        comment_author = ArticleAuthor(name=owner.display_name)
         article_list = self._article_list_by_list_id[list_id]
         for article_list_item in article_list.iter_article_list_item():
             article_doi = get_doi_from_article_id_or_none(article_list_item.article_id)
             if not article_doi:
                 continue
             comment_item = article_list.get_comment_by_article_id(article_list_item.article_id)
-            comment_text = (
-                comment_item.comment if comment_item
+            comment = (
+                ArticleComment(
+                    text=comment_item.comment,
+                    author=comment_author
+                )
+                if comment_item
                 else None
             )
             yield ArticleMention(
                 article_doi=article_doi,
-                comment_text=comment_text,
+                comment=comment,
                 created_at_timestamp=article_list_item.added_datetime
             )
 

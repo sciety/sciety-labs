@@ -41,8 +41,8 @@
                             </section>
 
                             <section class="article-card-annotation">
-                                <h4 class="visually-hidden">Annotation by {{ twitter_handle }}</h4>
-                                <p>{{ item.comment_text }}</p>
+                                <h4 class="visually-hidden">Annotation by {{ item.comment.author.name }}</h4>
+                                <p>{{ item.comment.text }}</p>
                                 <footer class="article-card__footer">
                                     <div class="article-card__meta">
                                         <span class="visually-hidden">This annotation was created via the </span><span><a

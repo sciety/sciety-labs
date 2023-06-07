@@ -19,10 +19,10 @@
         {%- if item.article_meta.abstract %}
         <content type="xhtml">
             <div xmlns="http://www.w3.org/1999/xhtml">
-                {%- if item.comment_text %}
+                {%- if item.comment %}
                 <figure class="comment">
-                    <blockquote><p>{{ item.comment_text }}</p></blockquote>
-                    <figcaption>—{{ list_summary_data.owner.display_name }}</figcaption>
+                    <blockquote><p>{{ item.comment.text }}</p></blockquote>
+                    <figcaption>—{{ item.comment.author.name }}</figcaption>
                 </figure>
                 {%- endif %}
                 <div class="article-abstract">

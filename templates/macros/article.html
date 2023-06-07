@@ -42,10 +42,10 @@
                 </footer>
             </section>
 
-            {% if item.comment_text %}
+            {% if item.comment %}
             <section class="article-card-annotation">
-                <h4 class="visually-hidden">Annotation by {{ list_summary_data.owner.display_name }}</h4>
-                <p>{{ item.comment_text }}</p>
+                <h4 class="visually-hidden">Annotation by {{ item.comment.author.name }}</h4>
+                <p>{{ item.comment.text }}</p>
             </section>
             {% endif %}
         </article>

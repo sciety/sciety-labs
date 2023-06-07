@@ -17,10 +17,10 @@
         <published>{{ item.article_meta.published_date | date_isoformat }}T00:00:00+00:00</published>
         <updated>{{ item.article_meta.published_date | date_isoformat }}T00:00:00+00:00</updated>
         <id>tag:sciety-labs,2023-04-20:doi={{ item.article_doi }}</id>
-        {%- if item.comment_text %}
+        {%- if item.comment %}
         <summary type="xhtml">
             <div xmlns="http://www.w3.org/1999/xhtml" class="comment">
-                <p>{{ item.comment_text }}</p>
+                <p>{{ item.comment.text }}</p>
             </div>
         </summary>
         {%- endif %}
