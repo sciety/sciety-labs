@@ -52,6 +52,17 @@ class UrlSearchParameters(SearchParameters):
         ).hexdigest()
 
 
+PLANT_SCIENCE_SEARCH_PARAMETERS = UrlSearchParameters(
+    query=(
+        '(Botany) OR (Plant biology) OR (Plant physiology) OR (Plant genetics) OR (Plant taxonomy) OR (Plant anatomy) OR (Plant ecology) OR (Plant evolution) OR (Plant biochemistry) OR (Plant molecular biology) OR (Plant biotechnology) OR (Plant growth and development) OR (Plant reproduction) OR (Plant nutrition) OR (Plant hormones) OR (Plant diseases) OR (Plant breeding) OR (Plant stress responses) OR (Plant symbiosis)'  # noqa pylint: disable=line-too-long
+    ),
+    is_evaluated_only=False,
+    sort_by=SearchSortBy.PUBLICATION_DATE,
+    date_range=SearchDateRange.LAST_90_DAYS,
+    search_provider=SearchProviders.EUROPE_PMC
+)
+
+
 async def get_search_parameters(
     query: str = '',
     evaluated_only: bool = False,
@@ -292,15 +303,7 @@ def create_search_router(  # pylint: disable=too-many-statements
         request: Request,
         pagination_parameters: AnnotatedPaginationParameters
     ):
-        search_parameters = UrlSearchParameters(
-            query=(
-                '(Botany) OR (Plant biology) OR (Plant physiology) OR (Plant genetics) OR (Plant taxonomy) OR (Plant anatomy) OR (Plant ecology) OR (Plant evolution) OR (Plant biochemistry) OR (Plant molecular biology) OR (Plant biotechnology) OR (Plant growth and development) OR (Plant reproduction) OR (Plant nutrition) OR (Plant hormones) OR (Plant diseases) OR (Plant breeding) OR (Plant stress responses) OR (Plant symbiosis)'  # noqa pylint: disable=line-too-long
-            ),
-            is_evaluated_only=False,
-            sort_by=SearchSortBy.PUBLICATION_DATE,
-            date_range=SearchDateRange.LAST_90_DAYS,
-            search_provider=SearchProviders.EUROPE_PMC
-        )
+        search_parameters = PLANT_SCIENCE_SEARCH_PARAMETERS
         search_result_page = get_search_result_page(
             app_providers_and_models=app_providers_and_models,
             request=request,
@@ -316,8 +319,37 @@ def create_search_router(  # pylint: disable=too-many-statements
                     'https://storage.googleapis.com/public-article-images/manually-uploaded/search-feeds/2023-06-08-plant%20science%2C%20water%20colour%20painting-2.jpeg'  # noqa pylint: disable=line-too-long
                 ),
                 'page_title': 'Plant Science',
+                'page_description': GENERIC_SEARCH_FEED_PAGE_DESCRIPTION,
+                'rss_url': get_rss_url(request)
+            },
+            status_code=search_result_page.status_code
+        )
+
+    @router.get('/feeds/by-name/plant-science/atom.xml', response_class=AtomResponse)
+    def search_feed_by_name_atom_feed(  # pylint: disable=too-many-arguments, too-many-locals
+        request: Request,
+        pagination_parameters: AnnotatedPaginationParameters
+    ):
+        search_parameters = PLANT_SCIENCE_SEARCH_PARAMETERS
+        search_result_page = get_search_result_page(
+            app_providers_and_models=app_providers_and_models,
+            request=request,
+            search_parameters=search_parameters,
+            pagination_parameters=pagination_parameters
+        )
+        return templates.TemplateResponse(
+            'pages/search-feed.atom.xml', {
+                **get_search_parameters_template_parameters(search_parameters),
+                **get_search_result_template_parameters(search_result_page),
+                'request': request,
+                'last_updated_timestamp': get_rss_updated_timestamp(
+                    search_result_page.search_result_list_with_article_meta
+                ),
+                'search_parameters_hash': search_parameters.get_hash(),
+                'page_title': 'Plant Science',
                 'page_description': GENERIC_SEARCH_FEED_PAGE_DESCRIPTION
             },
+            media_type=AtomResponse.media_type,
             status_code=search_result_page.status_code
         )
 
