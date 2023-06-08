@@ -82,7 +82,7 @@ PLANT_SCIENCE_SEARCH_FEED_PARAMETERS = SearchFeedParameters(
 
 def get_default_search_feed_parameters(
     search_parameters: UrlSearchParameters
-):
+) -> SearchFeedParameters:
     return SearchFeedParameters(
         search_parameters=search_parameters,
         page_title=(
