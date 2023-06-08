@@ -80,6 +80,18 @@ PLANT_SCIENCE_SEARCH_FEED_PARAMETERS = SearchFeedParameters(
 )
 
 
+def get_default_search_feed_parameters(
+    search_parameters: UrlSearchParameters
+):
+    return SearchFeedParameters(
+        search_parameters=search_parameters,
+        page_title=(
+            f'Search feed for {search_parameters.query}'
+            if search_parameters.query else 'Search feed'
+        )
+    )
+
+
 async def get_search_parameters(
     query: str = '',
     evaluated_only: bool = False,
@@ -307,13 +319,7 @@ def create_search_router(
     ):
         return _render_search_feed(
             request=request,
-            search_feed_parameters=SearchFeedParameters(
-                search_parameters=search_parameters,
-                page_title=(
-                    f'Search feed for {search_parameters.query}'
-                    if search_parameters.query else 'Search feed'
-                )
-            ),
+            search_feed_parameters=get_default_search_feed_parameters(search_parameters),
             pagination_parameters=pagination_parameters
         )
 
@@ -338,13 +344,7 @@ def create_search_router(
     ):
         return _render_search_feed_atom_xml(
             request=request,
-            search_feed_parameters=SearchFeedParameters(
-                search_parameters=search_parameters,
-                page_title=(
-                    f'Search feed for {search_parameters.query}'
-                    if search_parameters.query else 'Search feed'
-                )
-            ),
+            search_feed_parameters=get_default_search_feed_parameters(search_parameters),
             pagination_parameters=pagination_parameters
         )
 
