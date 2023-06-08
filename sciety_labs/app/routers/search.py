@@ -204,14 +204,14 @@ def get_search_result_template_parameters(
     }
 
 
-def create_search_router(  # pylint: disable=too-many-statements
+def create_search_router(
     app_providers_and_models: AppProvidersAndModels,
     templates: Jinja2Templates
 ):
     router = APIRouter()
 
     @router.get('/search', response_class=HTMLResponse)
-    def search(  # pylint: disable=too-many-arguments, too-many-locals
+    def search(
         request: Request,
         search_parameters: AnnotatedSearchParameters,
         pagination_parameters: AnnotatedPaginationParameters
