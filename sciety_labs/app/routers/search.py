@@ -233,6 +233,9 @@ def create_search_router(  # pylint: disable=too-many-statements
                     f'Search feed for {search_parameters.query}'
                     if search_parameters.query else 'Search feed'
                 ),
+                'page_description': (
+                    'Keep up to date with the latest preprint activity'
+                ),
                 'rss_url': get_rss_url(request)
             },
             status_code=search_result_page.status_code
