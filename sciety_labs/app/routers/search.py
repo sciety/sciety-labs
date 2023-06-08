@@ -286,4 +286,35 @@ def create_search_router(  # pylint: disable=too-many-statements
             status_code=search_result_page.status_code
         )
 
+    @router.get('/feeds/by-name/plant-science', response_class=HTMLResponse)
+    def search_feed_by_name(
+        request: Request,
+        pagination_parameters: AnnotatedPaginationParameters
+    ):
+        search_parameters = UrlSearchParameters(
+            query=(
+                '(Botany) OR (Plant biology) OR (Plant physiology) OR (Plant genetics) OR (Plant taxonomy) OR (Plant anatomy) OR (Plant ecology) OR (Plant evolution) OR (Plant biochemistry) OR (Plant molecular biology) OR (Plant biotechnology) OR (Plant growth and development) OR (Plant reproduction) OR (Plant nutrition) OR (Plant hormones) OR (Plant diseases) OR (Plant breeding) OR (Plant stress responses) OR (Plant symbiosis)'  # noqa pylint: disable=line-too-long
+            ),
+            is_evaluated_only=False,
+            sort_by=SearchSortBy.PUBLICATION_DATE,
+            date_range=SearchDateRange.LAST_90_DAYS,
+            search_provider=SearchProviders.EUROPE_PMC
+        )
+        search_result_page = get_search_result_page(
+            app_providers_and_models=app_providers_and_models,
+            request=request,
+            search_parameters=search_parameters,
+            pagination_parameters=pagination_parameters
+        )
+        return templates.TemplateResponse(
+            'pages/search-feed.html', {
+                **get_search_parameters_template_parameters(search_parameters),
+                **get_search_result_template_parameters(search_result_page),
+                'request': request,
+                'page_title': 'Plant Science feed',
+                'page_description': GENERIC_SEARCH_FEED_PAGE_DESCRIPTION
+            },
+            status_code=search_result_page.status_code
+        )
+
     return router
