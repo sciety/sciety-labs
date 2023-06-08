@@ -17,6 +17,7 @@ from sciety_labs.app.utils.common import (
 )
 from sciety_labs.app.utils.response import AtomResponse
 from sciety_labs.models.article import ArticleSearchResultItem, iter_preprint_article_mention
+from sciety_labs.models.image import ObjectImages
 from sciety_labs.providers.europe_pmc import EUROPE_PMC_PREPRINT_SERVERS
 from sciety_labs.providers.search import SearchDateRange, SearchParameters, SearchSortBy
 from sciety_labs.providers.semantic_scholar import SEMANTIC_SCHOLAR_SEARCH_VENUES
@@ -311,6 +312,9 @@ def create_search_router(  # pylint: disable=too-many-statements
                 **get_search_parameters_template_parameters(search_parameters),
                 **get_search_result_template_parameters(search_result_page),
                 'request': request,
+                'feed_images': ObjectImages(
+                    'https://storage.googleapis.com/public-article-images/manually-uploaded/search-feeds/2023-06-08-plant%20science%2C%20water%20colour%20painting-2.jpeg'  # noqa pylint: disable=line-too-long
+                ),
                 'page_title': 'Plant Science',
                 'page_description': GENERIC_SEARCH_FEED_PAGE_DESCRIPTION
             },
