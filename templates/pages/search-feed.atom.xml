@@ -3,6 +3,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <title type="html">Search feed for {{ query }}</title>
+    <subtitle type="html">{{ page_description }}</subtitle>
     <link href="{{ request.url }}" rel="self" />
     <updated>{{ last_updated_timestamp | timestamp_isoformat }}</updated>
     <id>tag:sciety-labs,2023-04-20:search-parameters-hash={{ search_parameters_hash }}</id>
