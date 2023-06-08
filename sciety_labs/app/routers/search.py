@@ -311,7 +311,7 @@ def create_search_router(  # pylint: disable=too-many-statements
                 **get_search_parameters_template_parameters(search_parameters),
                 **get_search_result_template_parameters(search_result_page),
                 'request': request,
-                'page_title': 'Plant Science feed',
+                'page_title': 'Plant Science',
                 'page_description': GENERIC_SEARCH_FEED_PAGE_DESCRIPTION
             },
             status_code=search_result_page.status_code
