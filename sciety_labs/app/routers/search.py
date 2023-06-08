@@ -30,6 +30,9 @@ from sciety_labs.utils.pagination import (
 LOGGER = logging.getLogger(__name__)
 
 
+GENERIC_SEARCH_FEED_PAGE_DESCRIPTION = 'Keep up to date with the latest preprint activity'
+
+
 class SearchProviders:
     SEMANTIC_SCHOLAR = 'semantic_scholar'
     EUROPE_PMC = 'europe_pmc'
@@ -233,9 +236,7 @@ def create_search_router(  # pylint: disable=too-many-statements
                     f'Search feed for {search_parameters.query}'
                     if search_parameters.query else 'Search feed'
                 ),
-                'page_description': (
-                    'Keep up to date with the latest preprint activity'
-                ),
+                'page_description': GENERIC_SEARCH_FEED_PAGE_DESCRIPTION,
                 'rss_url': get_rss_url(request)
             },
             status_code=search_result_page.status_code
@@ -279,9 +280,7 @@ def create_search_router(  # pylint: disable=too-many-statements
                     f'Search feed for {search_parameters.query}'
                     if search_parameters.query else 'Search feed'
                 ),
-                'page_description': (
-                    'Keep up to date with the latest preprint activity'
-                ),
+                'page_description': GENERIC_SEARCH_FEED_PAGE_DESCRIPTION
             },
             media_type=AtomResponse.media_type,
             status_code=search_result_page.status_code
