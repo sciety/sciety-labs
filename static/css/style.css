@@ -122,6 +122,61 @@
   text-decoration: none;
 }
 
+/* copied from logged-out-call-to-action */
+.secondary-action-button {
+  font-family: Ubuntu, sans-serif;
+  font-size: 1rem;
+  font-weight: bold;
+  line-height: 1;
+  border-radius: 6px;
+  border: 1px solid rgb(206, 72, 26);
+  padding: 0.5rem 0.6875rem;
+  display: inline-block;
+  border-color: rgb(49, 73, 82);
+  background-color: rgb(49, 73, 82);
+  color: rgb(255, 255, 255);
+}
+.secondary-action-button:link, .secondary-action-button:visited {
+  background-color: rgb(206, 72, 26);
+  color: rgb(255, 255, 255);
+}
+.secondary-action-button:link:active, .secondary-action-button:link:hover, .secondary-action-button:visited:active, .secondary-action-button:visited:hover {
+  border-color: rgb(155, 54, 19);
+  color: rgb(255, 255, 255);
+  text-decoration: none;
+}
+.secondary-action-button:link:active, .secondary-action-button:visited:active {
+  background-color: rgb(206, 72, 26);
+}
+.secondary-action-button:link:hover, .secondary-action-button:visited:hover {
+  background-color: rgb(155, 54, 19);
+}
+.secondary-action-button:link:focus, .secondary-action-button:visited:focus {
+  text-decoration: none;
+}
+.secondary-action-button:link:focus-visible {
+  outline-style: none;
+  box-shadow: 0 0 0 3px rgb(245, 218, 209);
+}
+.secondary-action-button:link:focus {
+  outline-style: none;
+  box-shadow: 0 0 0 3px rgb(245, 218, 209);
+}
+.secondary-action-button:link:focus:not(:focus-visible) {
+  box-shadow: none;
+}
+.secondary-action-button:link, .secondary-action-button:visited {
+  background-color: rgb(49, 73, 82);
+  color: rgb(255, 255, 255);
+}
+.secondary-action-button:link:active, .secondary-action-button:link:hover, .secondary-action-button:visited:active, .secondary-action-button:visited:hover {
+  border-color: rgb(49, 73, 82);
+  background-color: rgb(33, 33, 33);
+  color: rgb(255, 255, 255);
+  text-decoration: none;
+}
+
+
 .article-actions__external-links {
     margin-top: 1em;
 }
@@ -156,4 +211,8 @@
 
 section.article-stats {
     margin-top: 0.5em;
+}
+
+.search-form__submit {
+    display: inline-block;
 }

@@ -38,8 +38,8 @@ def create_list_by_twitter_handle_router(
         )
         article_mention_iterable = (
             app_providers_and_models
-            .twitter_user_article_list_provider.iter_article_mentions_by_user_id(
-                twitter_user.user_id
+            .twitter_user_article_list_provider.iter_article_mentions_by_user(
+                twitter_user
             )
         )
         article_mention_with_article_meta = list(

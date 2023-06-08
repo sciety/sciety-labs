@@ -1,5 +1,7 @@
 from datetime import date, timedelta
-from typing import Iterable, Mapping, NamedTuple, Optional, Protocol
+from typing import Iterable, Mapping, Optional, Protocol
+
+from attr import dataclass
 
 from sciety_labs.models.article import ArticleSearchResultItem
 
@@ -56,7 +58,8 @@ class SearchDateRange:
         return date.today()
 
 
-class SearchParameters(NamedTuple):
+@dataclass
+class SearchParameters:
     query: str
     is_evaluated_only: bool = False
     sort_by: str = SearchSortBy.RELEVANCE

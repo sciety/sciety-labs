@@ -103,11 +103,20 @@ class ArticleStats(NamedTuple):
     evaluation_count: int = 0
 
 
+class ArticleAuthor(NamedTuple):
+    name: str
+
+
+class ArticleComment(NamedTuple):
+    text: str
+    author: ArticleAuthor
+
+
 @dataclasses.dataclass(frozen=True)
 class ArticleMention:
     article_doi: str
     created_at_timestamp: Optional[datetime] = None
-    comment: Optional[str] = None
+    comment: Optional[ArticleComment] = None
     external_reference_by_name: Mapping[str, str] = dataclasses.field(default_factory=dict)
     article_meta: Optional[ArticleMetaData] = None
     article_stats: Optional[ArticleStats] = None

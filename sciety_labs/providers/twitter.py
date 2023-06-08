@@ -6,7 +6,7 @@ from typing import Iterable, NamedTuple, Optional
 
 import requests
 
-from sciety_labs.models.article import ArticleMention
+from sciety_labs.models.article import ArticleAuthor, ArticleComment, ArticleMention
 from sciety_labs.providers.requests_provider import RequestsProvider
 from sciety_labs.utils.datetime import parse_timestamp
 
@@ -87,8 +87,10 @@ def get_text_with_expanded_urls(text: str, url_entities: Iterable[dict]) -> str:
 
 
 def iter_twitter_article_list_item_for_user_tweets_response(
-    user_tweets_response: dict
+    user_tweets_response: dict,
+    twitter_user: TwitterUser
 ) -> Iterable[ArticleMention]:
+    comment_author = ArticleAuthor(name=twitter_user.name)
     for item in user_tweets_response['data']:
         LOGGER.debug('item: %r', item)
         dois = list(iter_dois_from_user_tweet_response_item(
@@ -101,11 +103,16 @@ def iter_twitter_article_list_item_for_user_tweets_response(
         text = item.get('text')
         if text:
             text = get_text_with_expanded_urls(text, item.get('entities', {}).get('urls', []))
+        comment = (
+            ArticleComment(text=text, author=comment_author)
+            if text
+            else None
+        )
         yield ArticleMention(
             created_at_timestamp=parse_timestamp(item['created_at']),
             article_doi=doi,
             external_reference_by_name={'tweet_id': item['id']},
-            comment=text
+            comment=comment
         )
 
 
@@ -186,13 +193,13 @@ class TwitterUserArticleListProvider(RequestsProvider):
             username=screen_name
         )
 
-    def iter_article_mentions_by_user_id(
+    def iter_article_mentions_by_user(
         self,
-        twitter_user_id: str
+        twitter_user: TwitterUser
     ) -> Iterable[ArticleMention]:
-        LOGGER.info('Making Twitter API request for %r', twitter_user_id)
+        LOGGER.info('Making Twitter API request for %r', twitter_user)
         response_json_iterable = iter_api_page_responses(
-            f'https://api.twitter.com/2/users/{twitter_user_id}/tweets',
+            f'https://api.twitter.com/2/users/{twitter_user.user_id}/tweets',
             params={
                 'tweet.fields': 'created_at,text,entities',
                 'max_results': '100'
@@ -203,7 +210,8 @@ class TwitterUserArticleListProvider(RequestsProvider):
         )
         for response_json in response_json_iterable:
             yield from iter_twitter_article_list_item_for_user_tweets_response(
-                response_json
+                response_json,
+                twitter_user=twitter_user
             )
 
 

@@ -1,0 +1,49 @@
+{% from 'macros/page.html' import render_page with context %}
+{% from 'macros/article.html' import render_article_list_content with context %}
+{% from 'macros/pagination.html' import render_pagination_header, render_pagination %}
+{% from 'macros/radio-button.html' import render_radio_button %}
+{% from 'macros/checkbox.html' import render_checkbox_with_label %}
+{% from 'macros/select.html' import render_select_option %}
+
+{% call render_page() %}
+    <main class="page-content" id="mainContent">
+        <div class="sciety-grid-two-columns">
+            <header class="page-header page-header--search-results">
+                <h1>{{ query }}</h1>
+                <div class="page-header__links">
+                    <ul>
+                        <li><span class="visually-hidden">This feed can be subscribed to via the </span><span><a
+                    href="{{ rss_url }}" type="application/atom+xml" rel="nofollow">RSS</a><span></li>
+                    </ul>
+                </div>
+            </header>
+
+            <header class="search-results__header">
+                <div>
+                    {{ render_pagination_header(pagination, list_type_name='search results') }}
+                </div>
+                {%- if not pagination.is_empty %}
+                <div class="search-results__header_details">
+                    <div class="search-results__header_details_item">Results from
+                        {% for preprint_server in preprint_servers %}
+                            {% if not loop.first %}
+                                ,
+                            {% endif %}
+                            <b>{{ preprint_server }}</b>
+                        {% endfor -%}
+                    </div>
+                    <div class="search-results__header_details_item">Sorted by <b>{{ sort_by }}</b></div>
+                </div>
+                {%- endif %}
+            </header>
+
+            <section>
+                {%- if error_message %}
+                    <p class="error-message">{{ error_message }}</p>
+                {%- endif %}
+                {{ render_article_list_content(search_results) }}
+                {{ render_pagination(pagination) }}
+            </section>
+        </div>
+    </main>
+{% endcall %}

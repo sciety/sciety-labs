@@ -40,3 +40,7 @@ def get_utc_timestamp_with_tzinfo(timestamp: datetime) -> datetime:
     if timestamp.tzinfo:
         return timestamp
     return timestamp.replace(tzinfo=timezone.utc)
+
+
+def get_date_as_utc_timestamp(date_: date) -> datetime:
+    return datetime.combine(date_, datetime.min.time(), tzinfo=timezone.utc)

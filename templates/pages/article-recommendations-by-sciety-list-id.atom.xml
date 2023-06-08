@@ -1,3 +1,5 @@
+{% from 'macros/atom.xml' import render_atom_content_for_article_mention, render_atom_authors_for_article_meta -%}
+
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <title type="html">{{ feed_title }}</title>
@@ -15,34 +17,8 @@
         <published>{{ item.article_meta.published_date | date_isoformat }}T00:00:00+00:00</published>
         <updated>{{ item.article_meta.published_date | date_isoformat }}T00:00:00+00:00</updated>
         <id>tag:sciety-labs,2023-04-20:doi={{ item.article_doi }}</id>
-        {%- if item.comment %}
-        <summary type="xhtml">
-            <div xmlns="http://www.w3.org/1999/xhtml" class="comment">
-                <p>{{ item.comment }}</p>
-            </div>
-        </summary>
-        {%- endif %}
-
-        {%- if item.article_meta.abstract %}
-        <content type="xhtml">
-            <div xmlns="http://www.w3.org/1999/xhtml">
-                <div class="article-abstract">
-                    <h2>Abstract</h2>
-                    <div>
-                        {{ item.article_meta.abstract | sanitize }}
-                    </div>
-                </div>
-            </div>
-        </content>
-        {%- endif %}
-
-        {%- if item.article_meta.author_name_list %}
-        {%- for author_name in item.article_meta.author_name_list %}
-        <author>
-            <name>{{ author_name }}</name>
-        </author>
-        {%- endfor %}
-        {%- endif %}
+        {{- render_atom_content_for_article_mention(item) }}
+        {{- render_atom_authors_for_article_meta(item.article_meta) }}
     </entry>
     {%- endfor %}
 </feed>

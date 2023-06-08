@@ -4,6 +4,7 @@ import pytest
 
 from sciety_labs.providers.twitter import (
     TWITTER_API_AUTHORIZATION_FILE_PATH_ENV_VAR,
+    TwitterUser,
     TwitterUserNotFound,
     get_doi_from_url_or_none,
     get_twitter_user_article_list_provider_or_none,
@@ -34,6 +35,14 @@ ARTICLE_TWEET_RESPONSE_1 = {
         }]
     }
 }
+
+
+TWITTER_USER_1 = TwitterUser(
+    user_id='user_1',
+    username='user_handle_1',
+    description='Description 1',
+    name='User 1'
+)
 
 
 class TestGetDoiFromUrlOrNone:
@@ -87,13 +96,13 @@ class TestIterTwitterArticleListItemForUserTweetsResponse:
     def test_return_empty_response_for_empty_timeline(self):
         result = list(iter_twitter_article_list_item_for_user_tweets_response({
             'data': []
-        }))
+        }, twitter_user=TWITTER_USER_1))
         assert not result
 
     def test_return_empty_response_for_item_without_entities_timeline(self):
         result = list(iter_twitter_article_list_item_for_user_tweets_response({
             'data': [{}]
-        }))
+        }, twitter_user=TWITTER_USER_1))
         assert not result
 
     def test_return_article_list_item_for_expanded_doi_org_url(self):
@@ -107,7 +116,7 @@ class TestIterTwitterArticleListItemForUserTweetsResponse:
                     }]
                 }
             }]
-        }))
+        }, twitter_user=TWITTER_USER_1))
         assert [item.article_doi for item in result] == [DOI_1]
 
     def test_return_article_list_item_for_expanded_doi_org_url_with_comment(self):
@@ -116,9 +125,9 @@ class TestIterTwitterArticleListItemForUserTweetsResponse:
                 **ARTICLE_TWEET_RESPONSE_1,
                 'text': 'Comment 1'
             }]
-        }))
+        }, twitter_user=TWITTER_USER_1))
         assert [item.article_doi for item in result] == [DOI_1]
-        assert [item.comment for item in result] == ['Comment 1']
+        assert [item.comment.text for item in result] == ['Comment 1']
 
     def test_extract_tweet_id(self):
         result = list(iter_twitter_article_list_item_for_user_tweets_response({
@@ -126,7 +135,7 @@ class TestIterTwitterArticleListItemForUserTweetsResponse:
                 **ARTICLE_TWEET_RESPONSE_1,
                 'id': TWEET_ID_1
             }]
-        }))
+        }, twitter_user=TWITTER_USER_1))
         assert [item.external_reference_by_name for item in result] == [{'tweet_id': TWEET_ID_1}]
 
     def test_extract_created_timestamp(self):
@@ -135,7 +144,7 @@ class TestIterTwitterArticleListItemForUserTweetsResponse:
                 **ARTICLE_TWEET_RESPONSE_1,
                 'created_at': TIMESTAMP_STR_1
             }]
-        }))
+        }, twitter_user=TWITTER_USER_1))
         assert [item.created_at_timestamp for item in result] == [
             parse_timestamp(TIMESTAMP_STR_1)
         ]
@@ -152,8 +161,8 @@ class TestIterTwitterArticleListItemForUserTweetsResponse:
                     }]
                 }
             }]
-        }))
-        assert [item.comment for item in result] == [
+        }, twitter_user=TWITTER_USER_1))
+        assert [item.comment.text for item in result] == [
             f'Link to: {DOI_ORG_URL_1}'
         ]
 

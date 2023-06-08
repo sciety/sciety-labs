@@ -2,18 +2,17 @@
 
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <title type="html">{{ list_summary_data.list_meta.list_name }}</title>
-    <subtitle type="html">{{ list_summary_data.list_meta.list_description }}</subtitle>
+    <title type="html">Search feed for {{ query }}</title>
     <link href="{{ request.url }}" rel="self" />
-    <updated>{{ list_summary_data.last_updated_datetime | timestamp_isoformat }}</updated>
-    <id>tag:sciety-labs,2023-04-20:list-id={{ list_summary_data.list_meta.list_id }}</id>
+    <updated>{{ last_updated_timestamp | timestamp_isoformat }}</updated>
+    <id>tag:sciety-labs,2023-04-20:search-parameters-hash={{ search_parameters_hash }}</id>
 
-    {%- for item in article_list_content %}
+    {%- for item in search_results %}
     <entry>
         <title type="html">{{ item.article_meta.article_title }}</title>
         <link href="https://sciety.org/articles/activity/{{ item.article_doi }}?utm_source=sciety_labs_atom_feed" />
-        <published>{{ item.created_at_timestamp | date_isoformat }}T00:00:00+00:00</published>
-        <updated>{{ item.created_at_timestamp | date_isoformat }}T00:00:00+00:00</updated>
+        <published>{{ item.article_meta.published_date | date_isoformat }}T00:00:00+00:00</published>
+        <updated>{{ item.article_meta.published_date | date_isoformat }}T00:00:00+00:00</updated>
         <id>tag:sciety-labs,2023-04-20:doi={{ item.article_doi }}</id>
         {{- render_atom_content_for_article_mention(item) }}
         {{- render_atom_authors_for_article_meta(item.article_meta) }}

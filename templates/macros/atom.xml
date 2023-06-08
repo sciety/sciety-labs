@@ -1,0 +1,31 @@
+{% macro render_atom_content_for_article_mention(article_mention) -%}
+        {%- if article_mention.article_meta.abstract %}
+        <content type="xhtml">
+            <div xmlns="http://www.w3.org/1999/xhtml">
+                {%- if article_mention.comment %}
+                <figure class="comment">
+                    <blockquote><p>{{ article_mention.comment.text }}</p></blockquote>
+                    <figcaption>—{{ article_mention.comment.author.name }}</figcaption>
+                </figure>
+                {%- endif %}
+                <div class="article-abstract">
+                    <h2>Abstract</h2>
+                    <div>
+                        {{ article_mention.article_meta.abstract | sanitize }}
+                    </div>
+                </div>
+            </div>
+        </content>
+        {%- endif %}
+{%- endmacro %}
+
+
+{% macro render_atom_authors_for_article_meta(article_meta) -%}
+        {%- if article_meta.author_name_list %}
+        {%- for author_name in article_meta.author_name_list %}
+        <author>
+            <name>{{ author_name }}</name>
+        </author>
+        {%- endfor %}
+        {%- endif %}
+{%- endmacro %}
