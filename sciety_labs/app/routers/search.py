@@ -71,6 +71,15 @@ PLANT_SCIENCE_SEARCH_PARAMETERS = UrlSearchParameters(
 )
 
 
+PLANT_SCIENCE_SEARCH_FEED_PARAMETERS = SearchFeedParameters(
+    search_parameters=PLANT_SCIENCE_SEARCH_PARAMETERS,
+    page_title='Plant Science',
+    feed_images=ObjectImages(
+        'https://storage.googleapis.com/public-article-images/manually-uploaded/search-feeds/2023-06-08-plant%20science%2C%20water%20colour%20painting-2.jpeg'  # noqa pylint: disable=line-too-long
+    )
+)
+
+
 async def get_search_parameters(
     query: str = '',
     evaluated_only: bool = False,
@@ -346,13 +355,7 @@ def create_search_router(
     ):
         return _render_search_feed(
             request=request,
-            search_feed_parameters=SearchFeedParameters(
-                search_parameters=PLANT_SCIENCE_SEARCH_PARAMETERS,
-                page_title='Plant Science',
-                feed_images=ObjectImages(
-                    'https://storage.googleapis.com/public-article-images/manually-uploaded/search-feeds/2023-06-08-plant%20science%2C%20water%20colour%20painting-2.jpeg'  # noqa pylint: disable=line-too-long
-                )
-            ),
+            search_feed_parameters=PLANT_SCIENCE_SEARCH_FEED_PARAMETERS,
             pagination_parameters=pagination_parameters
         )
 
@@ -363,10 +366,7 @@ def create_search_router(
     ):
         return _render_search_feed_atom_xml(
             request=request,
-            search_feed_parameters=SearchFeedParameters(
-                search_parameters=PLANT_SCIENCE_SEARCH_PARAMETERS,
-                page_title='Plant Science'
-            ),
+            search_feed_parameters=PLANT_SCIENCE_SEARCH_FEED_PARAMETERS,
             pagination_parameters=pagination_parameters
         )
 
