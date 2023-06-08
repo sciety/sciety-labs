@@ -52,6 +52,13 @@ class UrlSearchParameters(SearchParameters):
         ).hexdigest()
 
 
+@dataclass
+class SearchFeedParameters:
+    search_parameters: UrlSearchParameters
+    page_title: str
+    feed_images: Optional[ObjectImages] = None
+
+
 PLANT_SCIENCE_SEARCH_PARAMETERS = UrlSearchParameters(
     query=(
         '(Botany) OR (Plant biology) OR (Plant physiology) OR (Plant genetics) OR (Plant taxonomy) OR (Plant anatomy) OR (Plant ecology) OR (Plant evolution) OR (Plant biochemistry) OR (Plant molecular biology) OR (Plant biotechnology) OR (Plant growth and development) OR (Plant reproduction) OR (Plant nutrition) OR (Plant hormones) OR (Plant diseases) OR (Plant breeding) OR (Plant stress responses) OR (Plant symbiosis)'  # noqa pylint: disable=line-too-long
@@ -227,31 +234,48 @@ def create_search_router(  # pylint: disable=too-many-statements
             status_code=search_result_page.status_code
         )
 
+    def _render_search_feed(  # pylint: disable=too-many-arguments, too-many-locals
+        request: Request,
+        search_feed_parameters: SearchFeedParameters,
+        pagination_parameters: AnnotatedPaginationParameters
+    ):
+        search_result_page = get_search_result_page(
+            app_providers_and_models=app_providers_and_models,
+            request=request,
+            search_parameters=search_feed_parameters.search_parameters,
+            pagination_parameters=pagination_parameters
+        )
+        return templates.TemplateResponse(
+            'pages/search-feed.html', {
+                **get_search_parameters_template_parameters(
+                    search_feed_parameters.search_parameters
+                ),
+                **get_search_result_template_parameters(search_result_page),
+                'request': request,
+                'page_title': search_feed_parameters.page_title,
+                'page_description': GENERIC_SEARCH_FEED_PAGE_DESCRIPTION,
+                'feed_images': search_feed_parameters.feed_images,
+                'rss_url': get_rss_url(request)
+            },
+            status_code=search_result_page.status_code
+        )
+
     @router.get('/feeds/search', response_class=HTMLResponse)
     def search_feed(  # pylint: disable=too-many-arguments, too-many-locals
         request: Request,
         search_parameters: AnnotatedSearchParameters,
         pagination_parameters: AnnotatedPaginationParameters
     ):
-        search_result_page = get_search_result_page(
-            app_providers_and_models=app_providers_and_models,
+        return _render_search_feed(
             request=request,
-            search_parameters=search_parameters,
-            pagination_parameters=pagination_parameters
-        )
-        return templates.TemplateResponse(
-            'pages/search-feed.html', {
-                **get_search_parameters_template_parameters(search_parameters),
-                **get_search_result_template_parameters(search_result_page),
-                'request': request,
-                'page_title': (
+            search_feed_parameters=SearchFeedParameters(
+                search_parameters=search_parameters,
+                page_title=(
                     f'Search feed for {search_parameters.query}'
                     if search_parameters.query else 'Search feed'
-                ),
-                'page_description': GENERIC_SEARCH_FEED_PAGE_DESCRIPTION,
-                'rss_url': get_rss_url(request)
-            },
-            status_code=search_result_page.status_code
+                )
+            ),
+            pagination_parameters=pagination_parameters
         )
 
     @router.get('/feeds/search/create', response_class=RedirectResponse)
@@ -303,26 +327,16 @@ def create_search_router(  # pylint: disable=too-many-statements
         request: Request,
         pagination_parameters: AnnotatedPaginationParameters
     ):
-        search_parameters = PLANT_SCIENCE_SEARCH_PARAMETERS
-        search_result_page = get_search_result_page(
-            app_providers_and_models=app_providers_and_models,
+        return _render_search_feed(
             request=request,
-            search_parameters=search_parameters,
-            pagination_parameters=pagination_parameters
-        )
-        return templates.TemplateResponse(
-            'pages/search-feed.html', {
-                **get_search_parameters_template_parameters(search_parameters),
-                **get_search_result_template_parameters(search_result_page),
-                'request': request,
-                'feed_images': ObjectImages(
+            search_feed_parameters=SearchFeedParameters(
+                search_parameters=PLANT_SCIENCE_SEARCH_PARAMETERS,
+                page_title='Plant Science',
+                feed_images=ObjectImages(
                     'https://storage.googleapis.com/public-article-images/manually-uploaded/search-feeds/2023-06-08-plant%20science%2C%20water%20colour%20painting-2.jpeg'  # noqa pylint: disable=line-too-long
-                ),
-                'page_title': 'Plant Science',
-                'page_description': GENERIC_SEARCH_FEED_PAGE_DESCRIPTION,
-                'rss_url': get_rss_url(request)
-            },
-            status_code=search_result_page.status_code
+                )
+            ),
+            pagination_parameters=pagination_parameters
         )
 
     @router.get('/feeds/by-name/plant-science/atom.xml', response_class=AtomResponse)
