@@ -278,7 +278,10 @@ def create_search_router(  # pylint: disable=too-many-statements
                 'page_title': (
                     f'Search feed for {search_parameters.query}'
                     if search_parameters.query else 'Search feed'
-                )
+                ),
+                'page_description': (
+                    'Keep up to date with the latest preprint activity'
+                ),
             },
             media_type=AtomResponse.media_type,
             status_code=search_result_page.status_code
