@@ -34,7 +34,11 @@
     <meta property="og:description"
         content="Experiment with Sciety Discovery to explore alternative ways to navigate the preprint landscape">
     {% endif %}
+    {%- if page_images and page_images.image_url %}
+    <meta property="og:image" content="{{ page_images.image_url }}">
+    {%- else %}
     <meta property="og:image" content="/static/sciety/images/sciety-twitter-profile.png">
+    {%- endif %}
     <link rel="icon" type="image/svg+xml" href="/static/sciety/images/favicons/favicon.svg">
 
     <link rel="apple-touch-icon" sizes="180x180" href="/static/sciety/images/favicons/generated/apple-touch-icon.png">
