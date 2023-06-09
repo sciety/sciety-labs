@@ -1,4 +1,4 @@
-from typing import Mapping, NamedTuple
+from typing import Mapping, NamedTuple, Optional
 
 import yaml
 
@@ -8,6 +8,7 @@ class SearchFeedConfig(NamedTuple):
     description: str
     image_url: str
     query: str
+    wide_image_url: Optional[str] = None
 
 
 class SearchFeedsConfig(NamedTuple):
@@ -25,6 +26,7 @@ def load_search_feeds_config(
                 title=feed_dict['title'],
                 description=feed_dict['description'],
                 image_url=feed_dict['image_url'],
+                wide_image_url=feed_dict.get('wide_image_url'),
                 query=feed_dict['query']
             )
             for feed_dict in config_dict['feeds']

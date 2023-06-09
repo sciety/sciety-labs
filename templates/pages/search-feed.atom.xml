@@ -11,6 +11,9 @@
     {%- if page_images and page_images.image_url %}
     <icon>{{ page_images.image_url }}</icon>
     {%- endif %}
+    {%- if page_images and page_images.wide_image_url %}
+    <logo>{{ page_images.wide_image_url }}</logo>
+    {%- endif %}
 
     {%- for item in search_results %}
     <entry>

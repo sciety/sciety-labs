@@ -89,7 +89,8 @@ def get_search_feed_parameters_for_search_feed_config(
         page_title=search_feed_config.title,
         page_description=search_feed_config.description,
         feed_images=ObjectImages(
-            search_feed_config.image_url
+            image_url=search_feed_config.image_url,
+            wide_image_url=search_feed_config.wide_image_url
         )
     )
 
