@@ -8,13 +8,30 @@
 {% call render_page() %}
     <main class="page-content" id="mainContent">
         <div class="sciety-grid-two-columns">
+
             <header class="page-header page-header--search-results">
-                <h1>{{ query }}</h1>
-                <div class="page-header__links">
-                    <ul>
-                        <li><span class="visually-hidden">This feed can be subscribed to via the </span><span><a
-                    href="{{ rss_url }}" type="application/atom+xml" rel="nofollow">RSS</a><span></li>
-                    </ul>
+                {% if feed_images and feed_images.image_url %}
+                <img
+                    src="{{ feed_images.image_url }}"
+                    alt="Feed image for {{ page_title }}"
+                    class="page-header__list-image"
+                >
+                {% endif %}
+                <div>
+                    <h1>{{ page_title }}</h1>
+
+                    {%- if page_description %}
+                    <p class="page-header__description">{{ page_description }}</p>
+                    {%- endif %}
+
+                    {%- if rss_url %}
+                    <div class="page-header__links">
+                        <ul>
+                            <li><span class="visually-hidden">This feed can be subscribed to via the </span><span><a
+                        href="{{ rss_url }}" type="application/atom+xml" rel="nofollow">RSS</a><span></li>
+                        </ul>
+                    </div>
+                    {%- endif %}
                 </div>
             </header>
 
