@@ -280,7 +280,6 @@ def create_search_router(
                 'page_title': search_feed_parameters.page_title,
                 'page_description': search_feed_parameters.page_description,
                 'page_images': search_feed_parameters.feed_images,
-                'feed_images': search_feed_parameters.feed_images,
                 'rss_url': get_rss_url(request)
             },
             status_code=search_result_page.status_code
