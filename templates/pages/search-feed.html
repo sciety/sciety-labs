@@ -1,11 +1,11 @@
-{% from 'macros/page.html' import render_page with context %}
-{% from 'macros/article.html' import render_article_list_content with context %}
-{% from 'macros/pagination.html' import render_pagination_header, render_pagination %}
-{% from 'macros/radio-button.html' import render_radio_button %}
-{% from 'macros/checkbox.html' import render_checkbox_with_label %}
-{% from 'macros/select.html' import render_select_option %}
+{%- from 'macros/page.html' import render_page with context %}
+{%- from 'macros/article.html' import render_article_list_content with context %}
+{%- from 'macros/pagination.html' import render_pagination_header, render_pagination %}
+{%- from 'macros/radio-button.html' import render_radio_button %}
+{%- from 'macros/checkbox.html' import render_checkbox_with_label %}
+{%- from 'macros/select.html' import render_select_option %}
 
-{% call render_page() %}
+{%- call render_page() %}
     <main class="page-content" id="mainContent">
         <div class="sciety-grid-two-columns">
 
@@ -63,4 +63,4 @@
             </section>
         </div>
     </main>
-{% endcall %}
+{% endcall -%}
