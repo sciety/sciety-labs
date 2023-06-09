@@ -57,6 +57,7 @@ class UrlSearchParameters(SearchParameters):
 class SearchFeedParameters:
     search_parameters: UrlSearchParameters
     page_title: str
+    page_description: str
     feed_images: Optional[ObjectImages] = None
 
 
@@ -74,6 +75,7 @@ PLANT_SCIENCE_SEARCH_PARAMETERS = UrlSearchParameters(
 PLANT_SCIENCE_SEARCH_FEED_PARAMETERS = SearchFeedParameters(
     search_parameters=PLANT_SCIENCE_SEARCH_PARAMETERS,
     page_title='Plant Science',
+    page_description='Stay informed about the latest research in Plant Science through our feed of preprints. Discover cutting-edge studies on botany, plant biology, genetics, physiology, and more.',  # noqa pylint: disable=line-too-long
     feed_images=ObjectImages(
         'https://storage.googleapis.com/public-article-images/manually-uploaded/search-feeds/2023-06-08-plant%20science%2C%20water%20colour%20painting-2.jpeg'  # noqa pylint: disable=line-too-long
     )
@@ -88,7 +90,8 @@ def get_default_search_feed_parameters(
         page_title=(
             f'Search feed for {search_parameters.query}'
             if search_parameters.query else 'Search feed'
-        )
+        ),
+        page_description=GENERIC_SEARCH_FEED_PAGE_DESCRIPTION
     )
 
 
@@ -275,7 +278,7 @@ def create_search_router(
                 **get_search_result_template_parameters(search_result_page),
                 'request': request,
                 'page_title': search_feed_parameters.page_title,
-                'page_description': GENERIC_SEARCH_FEED_PAGE_DESCRIPTION,
+                'page_description': search_feed_parameters.page_description,
                 'feed_images': search_feed_parameters.feed_images,
                 'rss_url': get_rss_url(request)
             },
