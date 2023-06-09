@@ -4,7 +4,7 @@ from datetime import date, datetime
 from typing import Annotated, Iterable, Optional, Sequence, Union
 from attr import dataclass
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 import requests
@@ -360,7 +360,10 @@ def create_search_router(
         pagination_parameters: AnnotatedPaginationParameters,
         slug: str
     ):
-        search_feed_config = search_feeds_config.feeds_by_slug[slug]
+        try:
+            search_feed_config = search_feeds_config.feeds_by_slug[slug]
+        except KeyError as exc:
+            raise HTTPException(status_code=404, detail="Feed not found") from exc
         search_parameters = get_search_feed_parameters_for_search_feed_config(search_feed_config)
         return _render_search_feed(
             request=request,
@@ -374,7 +377,10 @@ def create_search_router(
         pagination_parameters: AnnotatedPaginationParameters,
         slug: str
     ):
-        search_feed_config = search_feeds_config.feeds_by_slug[slug]
+        try:
+            search_feed_config = search_feeds_config.feeds_by_slug[slug]
+        except KeyError as exc:
+            raise HTTPException(status_code=404, detail="Feed not found") from exc
         search_parameters = get_search_feed_parameters_for_search_feed_config(search_feed_config)
         return _render_search_feed_atom_xml(
             request=request,
