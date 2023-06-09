@@ -1,0 +1,11 @@
+feeds:
+  - slug: 'plant-science'
+    title: 'Plant Science'
+    description: 'Stay informed about the latest research in Plant Science through our feed of preprints. Discover cutting-edge studies on botany, plant biology, genetics, physiology, and more.'
+    image_url: https://storage.googleapis.com/public-article-images/manually-uploaded/search-feeds/2023-06-08-plant%20science%2C%20water%20colour%20painting-2.jpeg
+    query: '(Botany) OR (Plant biology) OR (Plant physiology) OR (Plant genetics) OR (Plant taxonomy) OR (Plant anatomy) OR (Plant ecology) OR (Plant evolution) OR (Plant biochemistry) OR (Plant molecular biology) OR (Plant biotechnology) OR (Plant growth and development) OR (Plant reproduction) OR (Plant nutrition) OR (Plant hormones) OR (Plant diseases) OR (Plant breeding) OR (Plant stress responses) OR (Plant symbiosis)'
+  - slug: 'neuroscience'
+    title: 'Neuroscience'
+    description: 'Stay up-to-date with the latest research in Neuroscience through our preprints feed. Access early-stage research manuscripts covering diverse areas such as neurobiology, neurophysiology, cognitive neuroscience, and more. Be at the forefront of emerging discoveries in the field.'
+    image_url: https://storage.googleapis.com/public-article-images/manually-uploaded/search-feeds/2023-06-09-neuroscience%2C%20water%20colour%20painting-2.jpeg
+    query: '(Neuroscience) OR (Brain science) OR (Neurobiology) OR (Neurophysiology) OR (Neuroanatomy) OR (Neurochemistry) OR (Neuroimaging) OR (Cognitive neuroscience) OR (Behavioral neuroscience) OR (Systems neuroscience) OR (Developmental neuroscience) OR (Computational neuroscience) OR (Neurological disorders) OR (Neurodegenerative diseases) OR (Neuropsychology) OR (Neuroplasticity) OR (Neuropharmacology) OR (Neurogenetics) OR (Neuroinformatics) OR (Neuroethics)'
