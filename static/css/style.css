@@ -122,6 +122,48 @@
   text-decoration: none;
 }
 
+/* copied from .primary-action-button */
+.primary-action-button {
+  font-family: Ubuntu, sans-serif;
+  font-size: 1rem;
+  font-weight: bold;
+  line-height: 1;
+  border-radius: 6px;
+  border: 1px solid rgb(206, 72, 26);
+  padding: 0.5rem 0.6875rem;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+.primary-action-button:link, .primary-action-button:visited {
+  background-color: rgb(206, 72, 26);
+  color: rgb(255, 255, 255);
+}
+.primary-action-button:link:active, .primary-action-button:link:hover, .primary-action-button:visited:active, .primary-action-button:visited:hover {
+  border-color: rgb(155, 54, 19);
+  color: rgb(255, 255, 255);
+  text-decoration: none;
+}
+.primary-action-button:link:active, .primary-action-button:visited:active {
+  background-color: rgb(206, 72, 26);
+}
+.primary-action-button:link:hover, .primary-action-button:visited:hover {
+  background-color: rgb(155, 54, 19);
+}
+.primary-action-button:link:focus, .primary-action-button:visited:focus {
+  text-decoration: none;
+}
+.primary-action-button:link:focus-visible {
+  outline-style: none;
+  box-shadow: 0 0 0 3px rgb(245, 218, 209);
+}
+.primary-action-button:link:focus {
+  outline-style: none;
+  box-shadow: 0 0 0 3px rgb(245, 218, 209);
+}
+.primary-action-button:link:focus:not(:focus-visible) {
+  box-shadow: none;
+}
+
 /* copied from logged-out-call-to-action */
 .secondary-action-button {
   font-family: Ubuntu, sans-serif;
