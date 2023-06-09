@@ -16,6 +16,7 @@ from sciety_labs.app.utils.common import (
     get_rss_url
 )
 from sciety_labs.app.utils.response import AtomResponse
+from sciety_labs.config.search_feed_config import SearchFeedConfig, load_search_feeds_config
 from sciety_labs.models.article import ArticleSearchResultItem, iter_preprint_article_mention
 from sciety_labs.models.image import ObjectImages
 from sciety_labs.providers.europe_pmc import EUROPE_PMC_PREPRINT_SERVERS
@@ -61,27 +62,6 @@ class SearchFeedParameters:
     feed_images: Optional[ObjectImages] = None
 
 
-PLANT_SCIENCE_SEARCH_PARAMETERS = UrlSearchParameters(
-    query=(
-        '(Botany) OR (Plant biology) OR (Plant physiology) OR (Plant genetics) OR (Plant taxonomy) OR (Plant anatomy) OR (Plant ecology) OR (Plant evolution) OR (Plant biochemistry) OR (Plant molecular biology) OR (Plant biotechnology) OR (Plant growth and development) OR (Plant reproduction) OR (Plant nutrition) OR (Plant hormones) OR (Plant diseases) OR (Plant breeding) OR (Plant stress responses) OR (Plant symbiosis)'  # noqa pylint: disable=line-too-long
-    ),
-    is_evaluated_only=False,
-    sort_by=SearchSortBy.PUBLICATION_DATE,
-    date_range=SearchDateRange.LAST_90_DAYS,
-    search_provider=SearchProviders.EUROPE_PMC
-)
-
-
-PLANT_SCIENCE_SEARCH_FEED_PARAMETERS = SearchFeedParameters(
-    search_parameters=PLANT_SCIENCE_SEARCH_PARAMETERS,
-    page_title='Plant Science',
-    page_description='Stay informed about the latest research in Plant Science through our feed of preprints. Discover cutting-edge studies on botany, plant biology, genetics, physiology, and more.',  # noqa pylint: disable=line-too-long
-    feed_images=ObjectImages(
-        'https://storage.googleapis.com/public-article-images/manually-uploaded/search-feeds/2023-06-08-plant%20science%2C%20water%20colour%20painting-2.jpeg'  # noqa pylint: disable=line-too-long
-    )
-)
-
-
 def get_default_search_feed_parameters(
     search_parameters: UrlSearchParameters
 ) -> SearchFeedParameters:
@@ -92,6 +72,25 @@ def get_default_search_feed_parameters(
             if search_parameters.query else 'Search feed'
         ),
         page_description=GENERIC_SEARCH_FEED_PAGE_DESCRIPTION
+    )
+
+
+def get_search_feed_parameters_for_search_feed_config(
+    search_feed_config: SearchFeedConfig
+) -> SearchFeedParameters:
+    return SearchFeedParameters(
+        search_parameters=UrlSearchParameters(
+            query=search_feed_config.query,
+            is_evaluated_only=False,
+            sort_by=SearchSortBy.PUBLICATION_DATE,
+            date_range=SearchDateRange.LAST_90_DAYS,
+            search_provider=SearchProviders.EUROPE_PMC
+        ),
+        page_title=search_feed_config.title,
+        page_description=search_feed_config.description,
+        feed_images=ObjectImages(
+            search_feed_config.image_url
+        )
     )
 
 
@@ -232,6 +231,9 @@ def create_search_router(
     app_providers_and_models: AppProvidersAndModels,
     templates: Jinja2Templates
 ):
+    search_feeds_config = load_search_feeds_config('config/search-feeds.yaml')
+    LOGGER.info('search_feeds_config: %r', search_feeds_config)
+
     router = APIRouter()
 
     @router.get('/search', response_class=HTMLResponse)
@@ -352,25 +354,31 @@ def create_search_router(
             pagination_parameters=pagination_parameters
         )
 
-    @router.get('/feeds/by-name/plant-science', response_class=HTMLResponse)
+    @router.get('/feeds/by-name/{slug}', response_class=HTMLResponse)
     def search_feed_by_name(
         request: Request,
-        pagination_parameters: AnnotatedPaginationParameters
+        pagination_parameters: AnnotatedPaginationParameters,
+        slug: str
     ):
+        search_feed_config = search_feeds_config.feeds_by_slug[slug]
+        search_parameters = get_search_feed_parameters_for_search_feed_config(search_feed_config)
         return _render_search_feed(
             request=request,
-            search_feed_parameters=PLANT_SCIENCE_SEARCH_FEED_PARAMETERS,
+            search_feed_parameters=search_parameters,
             pagination_parameters=pagination_parameters
         )
 
-    @router.get('/feeds/by-name/plant-science/atom.xml', response_class=AtomResponse)
+    @router.get('/feeds/by-name/{slug}/atom.xml', response_class=AtomResponse)
     def search_feed_by_name_atom_feed(
         request: Request,
-        pagination_parameters: AnnotatedPaginationParameters
+        pagination_parameters: AnnotatedPaginationParameters,
+        slug: str
     ):
+        search_feed_config = search_feeds_config.feeds_by_slug[slug]
+        search_parameters = get_search_feed_parameters_for_search_feed_config(search_feed_config)
         return _render_search_feed_atom_xml(
             request=request,
-            search_feed_parameters=PLANT_SCIENCE_SEARCH_FEED_PARAMETERS,
+            search_feed_parameters=search_parameters,
             pagination_parameters=pagination_parameters
         )
 

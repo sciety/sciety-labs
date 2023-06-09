@@ -1,0 +1,6 @@
+feeds:
+  - slug: 'plant-science'
+    title: 'Plant Science'
+    description: 'Stay informed about the latest research in Plant Science through our feed of preprints. Discover cutting-edge studies on botany, plant biology, genetics, physiology, and more.'
+    image_url: https://storage.googleapis.com/public-article-images/manually-uploaded/search-feeds/2023-06-08-plant%20science%2C%20water%20colour%20painting-2.jpeg
+    query: '(Botany) OR (Plant biology) OR (Plant physiology) OR (Plant genetics) OR (Plant taxonomy) OR (Plant anatomy) OR (Plant ecology) OR (Plant evolution) OR (Plant biochemistry) OR (Plant molecular biology) OR (Plant biotechnology) OR (Plant growth and development) OR (Plant reproduction) OR (Plant nutrition) OR (Plant hormones) OR (Plant diseases) OR (Plant breeding) OR (Plant stress responses) OR (Plant symbiosis)'
