@@ -8,6 +8,10 @@
     <updated>{{ last_updated_timestamp | timestamp_isoformat }}</updated>
     <id>tag:sciety-labs,2023-04-20:search-parameters-hash={{ search_parameters_hash }}</id>
 
+    {%- if page_images and page_images.image_url %}
+    <icon>{{ page_images.image_url }}</icon>
+    {%- endif %}
+
     {%- for item in search_results %}
     <entry>
         <title type="html">{{ item.article_meta.article_title }}</title>

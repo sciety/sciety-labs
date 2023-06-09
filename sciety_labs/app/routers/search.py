@@ -279,7 +279,7 @@ def create_search_router(
                 'request': request,
                 'page_title': search_feed_parameters.page_title,
                 'page_description': search_feed_parameters.page_description,
-                'feed_images': search_feed_parameters.feed_images,
+                'page_images': search_feed_parameters.feed_images,
                 'rss_url': get_rss_url(request)
             },
             status_code=search_result_page.status_code
@@ -308,7 +308,8 @@ def create_search_router(
                 ),
                 'search_parameters_hash': search_feed_parameters.search_parameters.get_hash(),
                 'page_title': search_feed_parameters.page_title,
-                'page_description': search_feed_parameters.page_description
+                'page_description': search_feed_parameters.page_description,
+                'page_images': search_feed_parameters.feed_images
             },
             media_type=AtomResponse.media_type,
             status_code=search_result_page.status_code
