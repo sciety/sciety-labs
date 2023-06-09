@@ -13,4 +13,5 @@ feeds:
     title: 'Aging Science'
     description: 'Stay updated with the latest advancements in Aging Science by subscribing to our preprints feed. Access cutting-edge research on aging mechanisms, genetics, biomarkers, interventions, and age-related diseases. Be at the forefront of emerging knowledge in the field.'
     image_url: https://storage.googleapis.com/public-article-images/manually-uploaded/search-feeds/2023-06-09-aging%20science%2C%20water%20colour%20painting-1.jpeg
+    wide_image_url: https://storage.googleapis.com/public-article-images/manually-uploaded/search-feeds/2023-06-09-aging%20science%2C%20water%20colour%20painting-1-outpainted-cropped.jpg
     query: '(Aging) OR (Aging process) OR (Aging biology) OR (Aging mechanisms) OR (Aging genetics) OR (Aging epigenetics) OR (Aging biomarkers) OR (Aging interventions) OR (Aging longevity) OR (Aging diseases) OR (Age-related diseases) OR (Aging and neurodegeneration) OR (Aging and cancer) OR (Aging and inflammation) OR (Aging and metabolism) OR (Aging and oxidative stress) OR (Aging and cellular senescence) OR (Aging and regenerative medicine) OR (Aging and nutrition) OR (Aging and exercise)'
