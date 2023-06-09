@@ -34,7 +34,9 @@
     <meta property="og:description"
         content="Experiment with Sciety Discovery to explore alternative ways to navigate the preprint landscape">
     {%- endif %}
-    {%- if page_images and page_images.image_url %}
+    {%- if page_images and page_images.wide_image_url %}
+    <meta property="og:image" content="{{ page_images.wide_image_url }}">
+    {%- elif page_images and page_images.image_url %}
     <meta property="og:image" content="{{ page_images.image_url }}">
     {%- else %}
     <meta property="og:image" content="/static/sciety/images/sciety-twitter-profile.png">
