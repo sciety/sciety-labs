@@ -308,7 +308,7 @@ def create_search_router(
                 ),
                 'search_parameters_hash': search_feed_parameters.search_parameters.get_hash(),
                 'page_title': search_feed_parameters.page_title,
-                'page_description': GENERIC_SEARCH_FEED_PAGE_DESCRIPTION
+                'page_description': search_feed_parameters.page_description
             },
             media_type=AtomResponse.media_type,
             status_code=search_result_page.status_code
