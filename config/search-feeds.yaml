@@ -15,3 +15,8 @@ feeds:
     image_url: https://storage.googleapis.com/public-article-images/manually-uploaded/search-feeds/2023-06-09-aging%20science%2C%20water%20colour%20painting-1.jpeg
     wide_image_url: https://storage.googleapis.com/public-article-images/manually-uploaded/search-feeds/2023-06-09-aging%20science%2C%20water%20colour%20painting-1-outpainted-cropped.jpg
     query: '(Aging) OR (Aging process) OR (Aging biology) OR (Aging mechanisms) OR (Aging genetics) OR (Aging epigenetics) OR (Aging biomarkers) OR (Aging interventions) OR (Aging longevity) OR (Aging diseases) OR (Age-related diseases) OR (Aging and neurodegeneration) OR (Aging and cancer) OR (Aging and inflammation) OR (Aging and metabolism) OR (Aging and oxidative stress) OR (Aging and cellular senescence) OR (Aging and regenerative medicine) OR (Aging and nutrition) OR (Aging and exercise)'
+  - slug: 'microbiology'
+    title: 'Microbiology'
+    description: 'Explore the latest research in Microbiology through our feed of preprints on microorganisms, virology, bacteriology, mycology, and more.'
+    image_url: https://storage.googleapis.com/public-article-images/manually-uploaded/search-feeds/2023-06-14-Microbiology%2C%20water%20colour-1.jpeg
+    query: '(Microbiology) OR (Microorganisms) OR (Bacteriology) OR (Virology) OR (Mycology) OR (Parasitology) OR (Microbial genetics) OR (Microbial ecology) OR (Microbial physiology) OR (Microbial pathogenesis) OR (Microbial diversity) OR (Microbial biofilms) OR (Microbial interactions) OR (Antimicrobial agents) OR (Microbial diseases) OR (Microbial diagnostics) OR (Industrial microbiology) OR (Environmental microbiology) OR (Food microbiology) OR (Microbial biotechnology) OR (Microbial fermentation)'
