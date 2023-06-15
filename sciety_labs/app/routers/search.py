@@ -13,6 +13,7 @@ import starlette
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.utils.common import (
     AnnotatedPaginationParameters,
+    get_page_title,
     get_rss_url
 )
 from sciety_labs.app.utils.response import AtomResponse
@@ -314,6 +315,18 @@ def create_search_router(
             },
             media_type=AtomResponse.media_type,
             status_code=search_result_page.status_code
+        )
+
+    @router.get('/feeds', response_class=HTMLResponse)
+    def search_feeds(
+        request: Request
+    ):
+        return templates.TemplateResponse(
+            'pages/search-feeds.html', {
+                'request': request,
+                'page_title': get_page_title('Feeds'),
+                'search_feeds': search_feeds_config.feeds_by_slug.values()
+            }
         )
 
     @router.get('/feeds/search', response_class=HTMLResponse)

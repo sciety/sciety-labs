@@ -1,0 +1,42 @@
+{%- from 'macros/page.html' import render_page with context %}
+{%- from 'macros/tabs.html' import render_tab, render_tab_content with context %}
+{%- from 'macros/date.html' import render_optional_date_value_with_label %}
+
+{%- macro render_list_cards(lists) -%}
+    {%- for item in lists %}
+    <article class="list-card">
+        {%- if item.list_images.image_url %}
+        <img class="list-card__list-image" src="{{ item.list_images.image_url }}" alt="" />
+        {%- endif %}
+        <img class="list-card__avatar" src="{{ item.owner.avatar_url }}" alt="" />
+        <h3 class="list-card__title"><a href="/lists/by-id/{{ item.list_meta.list_id }}" class="list-card__link">{{ item.list_meta.list_name }}</a></h3>
+        <p>{{ item.list_meta.list_description }}</p>
+        <div class="list-card__meta">
+            <span class="visually-hidden">This list contains </span><span>{{ item.article_count }} articles</span>{{ render_optional_date_value_with_label('Last updated', item.last_updated_datetime) }}
+        </div>
+    </article>
+    {%- endfor %}
+{%- endmacro %}
+
+{%- call render_page() %}
+
+    <main class="page-content" id="mainContent">
+        <div class="sciety-grid-two-columns">
+            <header class="page-header page-header--list">
+                <div>
+                    <h1>{{ page_title }}</h1>
+                </div>
+            </header>
+
+            <section>
+                {%- for item in search_feeds %}
+                <article class="list-card">
+                    <img class="list-card__list-image" src="{{ item.image_url }}" alt="" />
+                    <h3 class="list-card__title"><a href="/feeds/by-name/{{ item.slug }}" class="list-card__link">{{ item.title }}</a></h3>
+                    <p>{{ item.description }}</p>
+                </article>
+                {%- endfor %}
+            </section>
+        </div>
+    </main>
+{%- endcall %}
