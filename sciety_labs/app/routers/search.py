@@ -16,7 +16,7 @@ from sciety_labs.app.utils.common import (
     get_rss_url
 )
 from sciety_labs.app.utils.response import AtomResponse
-from sciety_labs.config.search_feed_config import SearchFeedConfig, load_search_feeds_config
+from sciety_labs.config.search_feed_config import SearchFeedConfig, SearchFeedsConfig
 from sciety_labs.models.article import ArticleSearchResultItem, iter_preprint_article_mention
 from sciety_labs.models.image import ObjectImages
 from sciety_labs.providers.europe_pmc import EUROPE_PMC_PREPRINT_SERVERS
@@ -230,11 +230,9 @@ def get_search_result_template_parameters(
 
 def create_search_router(
     app_providers_and_models: AppProvidersAndModels,
-    templates: Jinja2Templates
+    templates: Jinja2Templates,
+    search_feeds_config: SearchFeedsConfig
 ):
-    search_feeds_config = load_search_feeds_config('config/search-feeds.yaml')
-    LOGGER.info('search_feeds_config: %r', search_feeds_config)
-
     router = APIRouter()
 
     @router.get('/search', response_class=HTMLResponse)

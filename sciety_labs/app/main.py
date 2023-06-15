@@ -17,6 +17,7 @@ from sciety_labs.app.routers.search import create_search_router
 from sciety_labs.app.utils.common import (
     get_page_title
 )
+from sciety_labs.config.search_feed_config import load_search_feeds_config
 from sciety_labs.config.site_config import get_site_config_from_environment_variables
 
 from sciety_labs.utils.datetime import (
@@ -46,6 +47,9 @@ def get_sanitized_string_as_safe_markup(text: str) -> markupsafe.Markup:
 def create_app():  # pylint: disable=too-many-locals, too-many-statements
     site_config = get_site_config_from_environment_variables()
     LOGGER.info('site_config: %r', site_config)
+
+    search_feeds_config = load_search_feeds_config('config/search-feeds.yaml')
+    LOGGER.info('search_feeds_config: %r', search_feeds_config)
 
     update_interval_in_secs = 60 * 60  # 1 hour
     min_article_count = 2
@@ -86,7 +90,8 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     ))
     app.include_router(create_search_router(
         app_providers_and_models=app_providers_and_models,
-        templates=templates
+        templates=templates,
+        search_feeds_config=search_feeds_config
     ))
 
     @app.exception_handler(404)
