@@ -1,32 +1,32 @@
-{% from 'macros/page.html' import render_page with context %}
-{% from 'macros/article.html' import render_article_list_content with context %}
-{% from 'macros/pagination.html' import render_pagination_header, render_pagination %}
-{% from 'macros/date.html' import render_optional_date_value_with_label %}
+{%- from 'macros/page.html' import render_page with context %}
+{%- from 'macros/article.html' import render_article_list_content with context %}
+{%- from 'macros/pagination.html' import render_pagination_header, render_pagination %}
+{%- from 'macros/date.html' import render_optional_date_value_with_label %}
 
-{% call render_page() %}
+{%- call render_page() %}
     <main class="page-content" id="mainContent">
         <div class="sciety-grid-two-columns">
             <header class="page-header page-header--list">
-                {% if list_images and list_images.image_url %}
+                {%- if list_images and list_images.image_url %}
                 <img
                     src="{{ list_images.image_url }}"
                     alt="List image (AI generated)"
                     class="page-header__list-image"
                 >
-                {% endif %}
+                {%- endif %}
 
                 <div>
                     <h1>{{ list_summary_data.list_meta.list_name }}</h1>
 
                     <p class="page-header__subheading">
-                        {% if list_summary_data.owner.avatar_url %}
+                        {%- if list_summary_data.owner.avatar_url %}
                         <img src="{{ list_summary_data.owner.avatar_url }}" alt="" class="page-header__avatar">
-                        {% endif %}
-                        {% if owner_url %}
+                        {%- endif %}
+                        {%- if owner_url %}
                         <span>A list by <a href="{{ owner_url }}">{{ list_summary_data.owner.display_name }}</a></span>
-                        {% else %}
+                        {%- else %}
                         <span>A list by {{ list_summary_data.owner.display_name }}</span>
-                        {% endif %}
+                        {%- endif %}
                     </p>
 
                     <p class="page-header__description">{{ list_summary_data.list_meta.list_description }}</p>
@@ -55,4 +55,4 @@
             </section>
         </div>
     </main>
-{% endcall %}
+{%- endcall %}
