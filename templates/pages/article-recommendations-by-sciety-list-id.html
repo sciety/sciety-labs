@@ -1,7 +1,8 @@
-{% from 'macros/page.html' import render_page with context %}
-{% from 'macros/article.html' import render_article_list_content with context %}
-{% from 'macros/pagination.html' import render_pagination_header, render_pagination %}
-{% call render_page() %}
+{%- from 'macros/page.html' import render_page with context %}
+{%- from 'macros/article.html' import render_article_list_content with context %}
+{%- from 'macros/pagination.html' import render_pagination_header, render_pagination %}
+
+{%- call render_page() %}
     <main class="page-content" id="mainContent">
         <div class="sciety-grid-two-columns">
             <header class="page-header page-header--list">
@@ -40,4 +41,4 @@
             </section>
         </div>
     </main>
-{% endcall %}
+{%- endcall %}
