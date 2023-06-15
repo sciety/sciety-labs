@@ -1,6 +1,7 @@
-{% from 'macros/page.html' import render_page with context %}
-{% from 'macros/date.html' import render_optional_date_value_with_label %}
-{% macro render_list_cards(lists) -%}
+{%- from 'macros/page.html' import render_page with context %}
+{%- from 'macros/date.html' import render_optional_date_value_with_label %}
+
+{%- macro render_list_cards(lists) -%}
             <ul class="home-page-cards__cards">
                 {% for item in lists %}
                 <li>
@@ -27,7 +28,8 @@
                 {% endfor %}
             </ul>
 {%- endmacro %}
-{% call render_page(page_container_class='home-page-container') %}
+
+{%- call render_page(page_container_class='home-page-container') %}
 
     <main id="mainContent">
         
