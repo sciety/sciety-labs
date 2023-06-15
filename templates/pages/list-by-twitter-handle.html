@@ -1,7 +1,8 @@
-{% from 'macros/page.html' import render_page with context %}
-{% from 'macros/pagination.html' import render_pagination_header, render_pagination %}
-{% from 'macros/date.html' import render_date_value %}
-{% call render_page() %}
+{%- from 'macros/page.html' import render_page with context %}
+{%- from 'macros/pagination.html' import render_pagination_header, render_pagination %}
+{%- from 'macros/date.html' import render_date_value %}
+
+{%- call render_page() %}
     <main class="page-content" id="mainContent">
         <div class="sciety-grid-two-columns">
             <header class="page-header page-header--list">
@@ -14,7 +15,8 @@
             </header>
             <section>
                 {{ render_pagination_header(pagination) }}
-                <ul class="articles-list" role="list">{% for item in article_list_content %}
+                <ul class="articles-list" role="list">
+                    {%- for item in article_list_content %}
                     <li class="articles-list__item">
                         <article>
                             <section class="article-card">
@@ -28,9 +30,9 @@
                                     role="list"
                                     aria-describedby="article-card-author-list-{{ item.article_doi }}"
                                 >
-                                    {% for author_name in item.article_meta.author_name_list %}
+                                    {%- for author_name in item.article_meta.author_name_list %}
                                     <li class="card-authors__author">{{ author_name }}</li>
-                                    {% endfor %}
+                                    {%- endfor %}
                                 </ol>
 
                                 <footer class="article-card__footer">
@@ -53,11 +55,11 @@
                             </section>
                         </article>
                     </li>
-                    {% endfor %}
+                    {%- endfor %}
                 </ul>
 
                 {{ render_pagination(pagination) }}
             </section>
         </div>
     </main>
-{% endcall %}
+{%- endcall %}
