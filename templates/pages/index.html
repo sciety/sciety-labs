@@ -57,5 +57,26 @@
             <a href="/lists/group-lists">More</a>
         </section>
 
+        <section class="home-page-cards">
+            <h2 class="home-page-cards__title">Feeds</h2>
+            <ul class="home-page-cards__cards">
+                {% for item in search_feeds %}
+                <li>
+                    <a href="/feeds/by-name/{{ item.slug }}" class="user-list-card__link">
+                        <article class="user-list-card">
+                            <div class="user-list-card__body">
+                                <div>
+                                    <img class="user-list-card__list-image" src="{{ item.image_url }}" alt="" />
+                                    <h3 class="user-list-card__title">{{ item.title }}</h3>
+                                    <p>{{ item.description }}</p>
+                                </div>
+                            </div>
+                        </article>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </section>
+
     </main>
 {% endcall %}

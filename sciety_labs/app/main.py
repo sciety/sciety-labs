@@ -77,7 +77,8 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     app.include_router(create_home_router(
         app_providers_and_models=app_providers_and_models,
         min_article_count=min_article_count,
-        templates=templates
+        templates=templates,
+        search_feeds_config=search_feeds_config
     ))
     app.include_router(create_lists_router(
         app_providers_and_models=app_providers_and_models,
