@@ -46,7 +46,7 @@ def create_home_router(
                 'request': request,
                 'user_lists': user_list_summary_data_list,
                 'group_lists': group_list_summary_data_list,
-                'search_feeds': search_feeds_config.feeds_by_slug.values()
+                'search_feeds': list(search_feeds_config.feeds_by_slug.values())[:3]
             }
         )
 
