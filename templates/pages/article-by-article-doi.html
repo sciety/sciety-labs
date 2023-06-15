@@ -1,34 +1,35 @@
-{% from 'macros/page.html' import render_page with context %}
-{% from 'macros/article.html' import render_article_list_content with context %}
-{% from 'macros/date.html' import render_optional_date_value_with_label %}
-{% call render_page() %}
+{%- from 'macros/page.html' import render_page with context %}
+{%- from 'macros/article.html' import render_article_list_content with context %}
+{%- from 'macros/date.html' import render_optional_date_value_with_label %}
+
+{%- call render_page() %}
     <main class="page-content" id="mainContent">
       
         <div class="sciety-grid-two-columns">
             <header class="page-header page-header--article">
-                {% if article_images and article_images.image_url %}
+                {%- if article_images and article_images.image_url %}
                 <img
                     src="{{ article_images.image_url }}"
                     alt="Striking image (AI generated)"
                     class="article__striking_image"
                 >
-                {% endif %}
+                {%- endif %}
 
                 <h1>{{ article_meta.article_title | sanitize }}</h1>
 
-                {% if article_meta.author_name_list %}
+                {%- if article_meta.author_name_list %}
                 <ol aria-label="Authors of this article" class="article-author-list" role="list">
-                    {% for author_name in article_meta.author_name_list %}
+                    {%- for author_name in article_meta.author_name_list %}
                     <li>{{ author_name }}</li>
-                    {% endfor %}
+                    {%- endfor %}
                 </ol>
-                {% endif %}
+                {%- endif %}
 
                 <section class="article-stats">
                     <div class="article-card__meta">
-                    {% if article_stats %}
+                    {%- if article_stats %}
                     <span class="visually-hidden">This article has </span><span>{{ article_stats.evaluation_count }} evaluations</span>
-                    {% endif %}
+                    {%- endif %}
                     {{ render_optional_date_value_with_label('Published on', article_meta.published_date) }}
                     {{ render_optional_date_value_with_label('Added on', created_at_timestamp) }}
                     </div>
@@ -43,29 +44,29 @@
                 </div>
             </div>
 
-            {% if article_meta.abstract %}
+            {%- if article_meta.abstract %}
             <section role="doc-abstract" class="article-abstract">
                 <h2>Abstract</h2>
                 <div>
                     {{ article_meta.abstract | sanitize }}
                 </div>
             </section>
-            {% endif %}
+            {%- endif %}
 
-            {% if article_recommendation_list %}
+            {%- if article_recommendation_list %}
             <section id="article-recommendations">
                 <h2><a href="{{ article_recommendation_url }}">Related articles</a></h2>
                 {{ render_article_list_content(article_recommendation_list) }}
                 <a href="{{ article_recommendation_url }}">More</a>
             </section>
-            {% else %}
+            {%- else %}
             <section id="article-recommendations">
                 <h2>Related articles</h2>
                 <p>Related articles are currently not available for this article.</p>  
             </section>
-            {% endif %}
+            {%- endif %}
 
         </div>
 
     </main>
-{% endcall %}
+{%- endcall %}

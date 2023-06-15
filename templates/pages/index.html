@@ -1,6 +1,7 @@
-{% from 'macros/page.html' import render_page with context %}
-{% from 'macros/date.html' import render_optional_date_value_with_label %}
-{% macro render_list_cards(lists) -%}
+{%- from 'macros/page.html' import render_page with context %}
+{%- from 'macros/date.html' import render_optional_date_value_with_label %}
+
+{%- macro render_list_cards(lists) -%}
             <ul class="home-page-cards__cards">
                 {% for item in lists %}
                 <li>
@@ -27,7 +28,8 @@
                 {% endfor %}
             </ul>
 {%- endmacro %}
-{% call render_page(page_container_class='home-page-container') %}
+
+{%- call render_page(page_container_class='home-page-container') %}
 
     <main id="mainContent">
         
@@ -55,6 +57,28 @@
             <h2 class="home-page-cards__title"><a href="/lists/group-lists">Most active group lists</a></h2>
             {{ render_list_cards(group_lists) }}
             <a href="/lists/group-lists">More</a>
+        </section>
+
+        <section class="home-page-cards">
+            <h2 class="home-page-cards__title"><a href="/feeds">Top feeds</a></h2>
+            <ul class="home-page-cards__cards">
+                {% for item in search_feeds %}
+                <li>
+                    <a href="/feeds/by-name/{{ item.slug }}" class="user-list-card__link">
+                        <article class="user-list-card">
+                            <div class="user-list-card__body">
+                                <div>
+                                    <img class="user-list-card__list-image" src="{{ item.image_url }}" alt="" />
+                                    <h3 class="user-list-card__title">{{ item.title }}</h3>
+                                    <p>{{ item.description }}</p>
+                                </div>
+                            </div>
+                        </article>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+            <a href="/feeds">More</a>
         </section>
 
     </main>

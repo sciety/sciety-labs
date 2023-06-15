@@ -4,6 +4,7 @@ import yaml
 
 
 class SearchFeedConfig(NamedTuple):
+    slug: str
     title: str
     description: str
     image_url: str
@@ -23,6 +24,7 @@ def load_search_feeds_config(
     return SearchFeedsConfig(
         feeds_by_slug={
             feed_dict['slug']: SearchFeedConfig(
+                slug=feed_dict['slug'],
                 title=feed_dict['title'],
                 description=feed_dict['description'],
                 image_url=feed_dict['image_url'],

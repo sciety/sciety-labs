@@ -22,25 +22,21 @@
 
     <main class="page-content" id="mainContent">
         <div class="sciety-grid-two-columns">
-            <div class="main-content">
-                <ul class="tab-list" role="tablist">
-                    {%- call render_tab('/lists/user-lists') %}
-                        Most active user lists ({{ user_lists | length }})
-                    {%- endcall %}
-                    {%- call render_tab('/lists/group-lists') %}
-                        Most active group lists ({{ group_lists | length }})
-                    {%- endcall %}
-                </ul>
+            <header class="page-header page-header--list">
+                <div>
+                    <h1>{{ page_title }}</h1>
+                </div>
+            </header>
 
-                <section class="tab-panel" role="tabpanel" aria-labelledby="active-tab">
-                    {%- call render_tab_content('/lists/user-lists') %}
-                        {{ render_list_cards(user_lists) }}
-                    {%- endcall %}
-                    {%- call render_tab_content('/lists/group-lists') %}
-                        {{ render_list_cards(group_lists) }}
-                    {%- endcall %}
-                </section>
-            </div>
+            <section>
+                {%- for item in search_feeds %}
+                <article class="list-card">
+                    <img class="list-card__list-image" src="{{ item.image_url }}" alt="" />
+                    <h3 class="list-card__title"><a href="/feeds/by-name/{{ item.slug }}" class="list-card__link">{{ item.title }}</a></h3>
+                    <p>{{ item.description }}</p>
+                </article>
+                {%- endfor %}
+            </section>
         </div>
     </main>
 {%- endcall %}

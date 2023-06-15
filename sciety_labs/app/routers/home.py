@@ -5,6 +5,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
+from sciety_labs.config.search_feed_config import SearchFeedsConfig
 
 
 LOGGER = logging.getLogger(__name__)
@@ -13,7 +14,8 @@ LOGGER = logging.getLogger(__name__)
 def create_home_router(
     app_providers_and_models: AppProvidersAndModels,
     templates: Jinja2Templates,
-    min_article_count: int
+    min_article_count: int,
+    search_feeds_config: SearchFeedsConfig
 ):
     router = APIRouter()
 
@@ -43,7 +45,8 @@ def create_home_router(
             'pages/index.html', {
                 'request': request,
                 'user_lists': user_list_summary_data_list,
-                'group_lists': group_list_summary_data_list
+                'group_lists': group_list_summary_data_list,
+                'search_feeds': list(search_feeds_config.feeds_by_slug.values())[:3]
             }
         )
 
