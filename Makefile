@@ -70,6 +70,13 @@ dev-start:
 		--log-config=config/logging.yaml
 
 
+check-or-reload-data:
+	curl \
+		--fail-with-body \
+		--request POST \
+		http://localhost:8000/api/check-or-reload-data
+
+
 build:
 	$(DOCKER_COMPOSE) build sciety-labs
 
