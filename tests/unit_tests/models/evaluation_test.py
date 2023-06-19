@@ -76,3 +76,12 @@ class TestScietyEventEvaluationStatsModel:
             'article_id': None
         }])
         assert model.get_evaluation_count_by_article_id(ARTICLE_ID_1) == 0
+
+    def test_should_not_count_evaluation_twice_on_apply_events(self):
+        sciety_events = [EVALUATION_RECORDED_EVENT_1]
+        model = ScietyEventEvaluationStatsModel([])
+        model.apply_events(sciety_events)
+        model.apply_events(sciety_events)
+        assert model.get_evaluation_count_by_article_id(
+            EVALUATION_RECORDED_EVENT_1['article_id']
+        ) == 1
