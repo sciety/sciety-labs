@@ -52,8 +52,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     search_feeds_config = load_search_feeds_config('config/search-feeds.yaml')
     LOGGER.info('search_feeds_config: %r', search_feeds_config)
 
-    # update_interval_in_secs = 60 * 60  # 1 hour
-    update_interval_in_secs = 1 * 60  # 1 hour
+    update_interval_in_secs = 60 * 60  # 1 hour
     min_article_count = 2
 
     app_providers_and_models = AppProvidersAndModels()
