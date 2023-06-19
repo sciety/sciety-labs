@@ -53,6 +53,8 @@ class ScietyEventEvaluationStatsModel:
         )
 
     def _do_apply_events(self, sciety_events: Sequence[dict]):
+        self._evaluation_reference_by_article_id.clear()
+        self._evaluation_reference_by_evaluation_locator.clear()
         for event in sciety_events:
             event_name = event['event_name']
             if event_name == 'EvaluationRecorded':
