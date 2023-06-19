@@ -22,7 +22,7 @@ def get_normalized_article_id(article_id: str) -> str:
 
 class ScietyEventEvaluationStatsModel:
     def __init__(self, sciety_events: Sequence[dict]):
-        self._evaluation_reference_by_article_id: Dict[str, List[EvaluationReference]] = {}
+        self._evaluation_references_by_article_id: Dict[str, List[EvaluationReference]] = {}
         self._evaluation_reference_by_evaluation_locator: Dict[str, EvaluationReference] = {}
         self._lock = Lock()
         self.apply_events(sciety_events)
@@ -35,7 +35,7 @@ class ScietyEventEvaluationStatsModel:
             article_id=article_id,
             evaluation_locator=evaluation_locator
         )
-        self._evaluation_reference_by_article_id.setdefault(normalized_article_id, []).append(
+        self._evaluation_references_by_article_id.setdefault(normalized_article_id, []).append(
             evaluation_reference
         )
         self._evaluation_reference_by_evaluation_locator[evaluation_locator] = (
@@ -48,12 +48,12 @@ class ScietyEventEvaluationStatsModel:
         evaluation_reference = self._evaluation_reference_by_evaluation_locator[evaluation_locator]
         LOGGER.debug('removing evaluation: %r', evaluation_reference)
         normalized_article_id = get_normalized_article_id(evaluation_reference.article_id)
-        self._evaluation_reference_by_article_id[normalized_article_id].remove(
+        self._evaluation_references_by_article_id[normalized_article_id].remove(
             evaluation_reference
         )
 
     def _do_apply_events(self, sciety_events: Sequence[dict]):
-        self._evaluation_reference_by_article_id.clear()
+        self._evaluation_references_by_article_id.clear()
         self._evaluation_reference_by_evaluation_locator.clear()
         for event in sciety_events:
             event_name = event['event_name']
@@ -68,7 +68,7 @@ class ScietyEventEvaluationStatsModel:
 
     def get_evaluation_count_by_article_id(self, article_id: str) -> int:
         return len(
-            self._evaluation_reference_by_article_id.get(
+            self._evaluation_references_by_article_id.get(
                 get_normalized_article_id(article_id),
                 []
             )
