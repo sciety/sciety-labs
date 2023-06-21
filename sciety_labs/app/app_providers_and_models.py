@@ -20,6 +20,9 @@ from sciety_labs.providers.semantic_scholar import (
     SemanticScholarSearchProvider,
     get_semantic_scholar_provider
 )
+from sciety_labs.providers.semantic_scholar_bigquery_mapping import (
+    SemanticScholarBigQueryMappingProvider
+)
 from sciety_labs.providers.twitter import get_twitter_user_article_list_provider_or_none
 from sciety_labs.utils.arrow_cache import ArrowTableDiskSingleObjectCache
 from sciety_labs.utils.bq_cache import BigQueryTableModifiedInMemorySingleObjectCache
@@ -34,6 +37,9 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
     def __init__(self):
         gcp_project_name = 'elife-data-pipeline'
         sciety_event_table_id = f'{gcp_project_name}.de_proto.sciety_event_v1'
+        semantic_scholar_response_table_id = (
+            f'{gcp_project_name}.prod.semantic_scholar_responses_v1'
+        )
         max_age_in_seconds = 60 * 60  # 1 hour
 
         cache_dir = Path('.cache')
@@ -50,6 +56,17 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
             )
         ])
 
+        semantic_scholar_mapping_query_results_cache = ChainedObjectCache([
+            BigQueryTableModifiedInMemorySingleObjectCache(
+                gcp_project_name=gcp_project_name,
+                table_id=semantic_scholar_response_table_id
+            ),
+            ArrowTableDiskSingleObjectCache(
+                file_path=cache_dir / 'semantic_scholar_mapping_query_results_cache.parquet',
+                max_age_in_seconds=max_age_in_seconds
+            )
+        ])
+
         cached_requests_session = requests_cache.CachedSession(
             '.cache/requests_cache',
             xpire_after=timedelta(days=1),
@@ -60,6 +77,11 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         self.sciety_event_provider = ScietyEventProvider(
             gcp_project_name=gcp_project_name,
             query_results_cache=query_results_cache
+        )
+
+        self.semantic_scholar_mapping_provider = SemanticScholarBigQueryMappingProvider(
+            gcp_project_name=gcp_project_name,
+            query_results_cache=semantic_scholar_mapping_query_results_cache
         )
 
         self.lists_model = ScietyEventListsModel([])
