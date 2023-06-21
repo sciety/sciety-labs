@@ -3,6 +3,7 @@ from pathlib import Path
 from time import monotonic
 from typing import Optional, Sequence
 
+import objsize
 import pyarrow
 
 from sciety_labs.utils.bigquery import get_arrow_table_from_bq_query
@@ -36,14 +37,25 @@ class ScietyEventProvider:
         )
         end_time = monotonic()
         LOGGER.info(
-            'Loaded query results from BigQuery, rows=%d, time=%.3f seconds',
+            'Loaded query results from BigQuery, rows=%d, approx_size=%.3fMB, time=%.3f seconds',
             len(arrow_table),
+            objsize.get_deep_size(arrow_table) / 1024 / 1024,
             (end_time - start_time)
         )
         return arrow_table
 
     def _load_query_results_from_bq(self) -> Sequence[dict]:
-        query_results = self._load_query_results_from_bq_as_arrow_table().to_pylist()
+        arrow_table = self._load_query_results_from_bq_as_arrow_table()
+        start_time = monotonic()
+        # Note: to_pylist is quite slow, e.g. 20 seconds vs 1.6 seconds
+        query_results = arrow_table.to_pandas().to_dict(orient='records')
+        end_time = monotonic()
+        LOGGER.info(
+            'Query results as list, rows=%d, approx_size=%.3fMB, time=%.3f seconds',
+            len(query_results),
+            objsize.get_deep_size(query_results) / 1024 / 1024,
+            (end_time - start_time)
+        )
         return query_results
 
     def get_sciety_event_dict_list(self) -> Sequence[dict]:
