@@ -21,6 +21,7 @@ from sciety_labs.providers.semantic_scholar import (
     get_semantic_scholar_provider
 )
 from sciety_labs.providers.twitter import get_twitter_user_article_list_provider_or_none
+from sciety_labs.utils.arrow_cache import ArrowTableDiskSingleObjectCache
 from sciety_labs.utils.bq_cache import BigQueryTableModifiedInMemorySingleObjectCache
 from sciety_labs.utils.cache import (
     ChainedObjectCache,
@@ -43,8 +44,8 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
                 gcp_project_name=gcp_project_name,
                 table_id=sciety_event_table_id
             ),
-            DiskSingleObjectCache(
-                file_path=cache_dir / 'query_results_cache.pickle',
+            ArrowTableDiskSingleObjectCache(
+                file_path=cache_dir / 'query_results_cache.parquet',
                 max_age_in_seconds=max_age_in_seconds
             )
         ])

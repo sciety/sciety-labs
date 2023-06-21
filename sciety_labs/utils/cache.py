@@ -6,7 +6,7 @@ import time
 from pathlib import Path
 from time import monotonic
 from threading import Lock
-from typing import IO, Callable, Optional,  Protocol, Sequence, TypeVar
+from typing import Callable, Optional,  Protocol, Sequence, TypeVar
 
 
 LOGGER = logging.getLogger(__name__)
@@ -104,17 +104,22 @@ class DiskSingleObjectCache(BaseSingleObjectCache[T]):
     def __init__(
         self,
         file_path: Path,
-        max_age_in_seconds: float,
-        serialize_fn: Callable[[T, IO], None] = pickle.dump,
-        deserialize_fn: Callable[[IO], T] = pickle.load
+        max_age_in_seconds: float
     ) -> None:
         self.file_path = file_path
         self.max_age_in_seconds = max_age_in_seconds
-        self.serialize_fn = serialize_fn
-        self.deserialize_fn = deserialize_fn
         self._lock = Lock()
         self._value: Optional[T] = None
         self._last_updated_time: Optional[float] = None
+
+    def serialize_to_file(self, obj: T, file_path: str) -> T:
+        with open(file_path, 'wb') as file_fp:
+            pickle.dump(obj, file_fp)
+        return obj
+
+    def deserialize_from_file(self, file_path: str) -> T:
+        with open(file_path, 'rb') as file_fp:
+            return pickle.load(file_fp)
 
     def _is_max_age_reached(self) -> bool:
         modified_time = os.path.getmtime(self.file_path)
@@ -129,13 +134,10 @@ class DiskSingleObjectCache(BaseSingleObjectCache[T]):
                 and self.file_path.exists()
                 and not self._is_max_age_reached()
             ):
-                with self.file_path.open('rb') as file_fp:
-                    return self.deserialize_fn(file_fp)
+                return self.deserialize_from_file(str(self.file_path))
             result = load_fn()
             assert result is not None
-            with self.file_path.open('wb') as file_fp:
-                self.serialize_fn(result, file_fp)
-            return result
+            return self.serialize_to_file(result, str(self.file_path))
 
     def clear(self):
         with self._lock:

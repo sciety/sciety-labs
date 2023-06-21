@@ -2,6 +2,8 @@ from datetime import datetime
 import logging
 from typing import Any, Iterable, Optional, Sequence
 
+import pyarrow
+
 from google.cloud import bigquery
 from google.cloud.bigquery.table import RowIterator
 
@@ -38,6 +40,19 @@ def iter_dict_from_bq_query(
     for row in bq_result:
         LOGGER.debug('row: %r', row)
         yield dict(row.items())
+
+
+def get_arrow_table_from_bq_query(
+    project_name: str,
+    query: str,
+    query_parameters: Optional[Sequence[Any]] = tuple()
+) -> pyarrow.Table:
+    bq_result = get_bq_result_from_bq_query(
+        project_name=project_name,
+        query=query,
+        query_parameters=query_parameters
+    )
+    return bq_result.to_arrow()
 
 
 def get_bq_table_modified_datetime(
