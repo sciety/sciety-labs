@@ -8,8 +8,9 @@ class ArrowTableDiskSingleObjectCache(DiskSingleObjectCache[pyarrow.Table]):
     compression: str = 'GZIP'
     memory_map: bool = True
 
-    def serialize_to_file(self, obj: pyarrow.Table, file_path: str):
+    def serialize_to_file(self, obj: pyarrow.Table, file_path: str) -> pyarrow.Table:
         pq.write_table(obj, file_path, compression=self.compression)
+        return self.deserialize_from_file(file_path)
 
     def deserialize_from_file(self, file_path: str) -> pyarrow.Table:
         return pq.read_table(file_path, memory_map=self.memory_map)

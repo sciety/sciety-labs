@@ -112,9 +112,10 @@ class DiskSingleObjectCache(BaseSingleObjectCache[T]):
         self._value: Optional[T] = None
         self._last_updated_time: Optional[float] = None
 
-    def serialize_to_file(self, obj: T, file_path: str):
+    def serialize_to_file(self, obj: T, file_path: str) -> T:
         with open(file_path, 'wb') as file_fp:
             pickle.dump(obj, file_fp)
+        return obj
 
     def deserialize_from_file(self, file_path: str) -> T:
         with open(file_path, 'rb') as file_fp:
@@ -136,8 +137,7 @@ class DiskSingleObjectCache(BaseSingleObjectCache[T]):
                 return self.deserialize_from_file(str(self.file_path))
             result = load_fn()
             assert result is not None
-            self.serialize_to_file(result, str(self.file_path))
-            return result
+            return self.serialize_to_file(result, str(self.file_path))
 
     def clear(self):
         with self._lock:
