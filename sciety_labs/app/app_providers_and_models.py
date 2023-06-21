@@ -45,13 +45,13 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         cache_dir = Path('.cache')
         cache_dir.mkdir(parents=True, exist_ok=True)
 
-        query_results_cache = ChainedObjectCache([
+        sciety_event_query_results_cache = ChainedObjectCache([
             BigQueryTableModifiedInMemorySingleObjectCache(
                 gcp_project_name=gcp_project_name,
                 table_id=sciety_event_table_id
             ),
             ArrowTableDiskSingleObjectCache(
-                file_path=cache_dir / 'query_results_cache.parquet',
+                file_path=cache_dir / 'sciety_event_query_results_cache.parquet',
                 max_age_in_seconds=max_age_in_seconds
             )
         ])
@@ -76,7 +76,7 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
 
         self.sciety_event_provider = ScietyEventProvider(
             gcp_project_name=gcp_project_name,
-            query_results_cache=query_results_cache
+            query_results_cache=sciety_event_query_results_cache
         )
 
         self.semantic_scholar_mapping_provider = SemanticScholarBigQueryMappingProvider(

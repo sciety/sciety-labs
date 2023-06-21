@@ -14,7 +14,7 @@ LOGGER = logging.getLogger(__name__)
 class SemanticScholarBigQueryMappingProvider(BigQueryArrowTableProvider):
     def __init__(self, **kwargs):
         super().__init__(
-            name='Semantic Scholar',
+            name='Semantic Scholar Mapping',
             query_file_name='get_semantic_scholar_mapping.sql',
             **kwargs
         )
