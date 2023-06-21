@@ -192,13 +192,14 @@ class SemanticScholarProvider(RequestsProvider):
 
     def iter_paper_ids_or_external_ids_for_article_dois(
         self,
-        article_dois: Iterable[str]
+        article_dois: Sequence[str]
     ) -> Iterable[str]:
+        paper_ids_by_article_dois_map = (
+            self.semantic_scholar_mapping_provider
+            .get_semantic_scholar_paper_ids_by_article_dois_map(article_dois)
+        )
         for doi in article_dois:
-            paper_id = (
-                self.semantic_scholar_mapping_provider
-                .get_semantic_scholar_paper_id_by_article_doi(doi)
-            )
+            paper_id = paper_ids_by_article_dois_map.get(doi)
             if paper_id:
                 yield paper_id
             else:
@@ -211,7 +212,10 @@ class SemanticScholarProvider(RequestsProvider):
     ) -> ArticleRecommendationList:
         request_json = _get_recommendation_request_payload_for_paper_ids_or_external_ids(
             paper_ids_or_external_ids=self.iter_paper_ids_or_external_ids_for_article_dois(
-                article_dois
+                article_dois=list(itertools.islice(
+                    article_dois,
+                    MAX_SEMANTIC_SCHOLAR_RECOMMENDATION_REQUEST_PAPER_IDS
+                ))
             )
         )
         LOGGER.info('Semantic Scholar, request_json=%r', request_json)
