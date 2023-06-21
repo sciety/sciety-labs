@@ -25,7 +25,7 @@ class SemanticScholarBigQueryMappingProvider(BigQueryArrowTableProvider):
     ) -> Optional[str]:
         arrow_table = self.get_arrow_table()
         start_time = monotonic()
-        filtered_arrow_table = arrow_table.filter(pc.field('article_doi') == 'article_doi')
+        filtered_arrow_table = arrow_table.filter(pc.field('article_doi') == article_doi)
         paper_id: Optional[str] = None
         if filtered_arrow_table:
             paper_id = str(filtered_arrow_table['paper_id'][0])

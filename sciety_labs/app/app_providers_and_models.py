@@ -96,7 +96,8 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         )
 
         self.semantic_scholar_provider = get_semantic_scholar_provider(
-            requests_session=cached_requests_session
+            requests_session=cached_requests_session,
+            semantic_scholar_mapping_provider=self.semantic_scholar_mapping_provider
         )
         self.semantic_scholar_search_provider = SemanticScholarSearchProvider(
             semantic_scholar_provider=self.semantic_scholar_provider,

@@ -18,6 +18,9 @@ from sciety_labs.providers.search import (
     SearchProvider,
     SearchSortBy
 )
+from sciety_labs.providers.semantic_scholar_bigquery_mapping import (
+    SemanticScholarBigQueryMappingProvider
+)
 from sciety_labs.utils.datetime import get_utc_timestamp_with_tzinfo, get_utcnow, parse_date_or_none
 
 
@@ -81,17 +84,14 @@ class ArticleSearchResultList:
     next_offset: Optional[int] = None
 
 
-def _get_recommendation_request_payload_for_article_dois(
-    article_dois: Iterable[str]
+def _get_recommendation_request_payload_for_paper_ids_or_external_ids(
+    paper_ids_or_external_ids: Iterable[str]
 ) -> dict:
     return {
-        'positivePaperIds': [
-            f'DOI:{doi}'
-            for doi in itertools.islice(
-                article_dois,
-                MAX_SEMANTIC_SCHOLAR_RECOMMENDATION_REQUEST_PAPER_IDS
-            )
-        ],
+        'positivePaperIds': list(itertools.islice(
+            paper_ids_or_external_ids,
+            MAX_SEMANTIC_SCHOLAR_RECOMMENDATION_REQUEST_PAPER_IDS
+        )),
         'negativePaperIds': []
     }
 
@@ -181,20 +181,38 @@ class SemanticScholarProvider(RequestsProvider):
     def __init__(
         self,
         api_key_file_path: Optional[str],
+        semantic_scholar_mapping_provider: SemanticScholarBigQueryMappingProvider,
         **kwargs
     ) -> None:
         super().__init__(**kwargs)
+        self.semantic_scholar_mapping_provider = semantic_scholar_mapping_provider
         if api_key_file_path:
             api_key = Path(api_key_file_path).read_text(encoding='utf-8')
             self.headers['x-api-key'] = api_key
+
+    def iter_paper_ids_or_external_ids_for_article_dois(
+        self,
+        article_dois: Iterable[str]
+    ) -> Iterable[str]:
+        for doi in article_dois:
+            paper_id = (
+                self.semantic_scholar_mapping_provider
+                .get_semantic_scholar_paper_id_by_article_doi(doi)
+            )
+            if paper_id:
+                yield paper_id
+            else:
+                yield f'DOI:{doi}'
 
     def get_article_recommendation_list_for_article_dois(
         self,
         article_dois: Iterable[str],
         max_recommendations: int = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
     ) -> ArticleRecommendationList:
-        request_json = _get_recommendation_request_payload_for_article_dois(
-            article_dois=article_dois
+        request_json = _get_recommendation_request_payload_for_paper_ids_or_external_ids(
+            paper_ids_or_external_ids=self.iter_paper_ids_or_external_ids_for_article_dois(
+                article_dois
+            )
         )
         LOGGER.info('Semantic Scholar, request_json=%r', request_json)
         response = self.requests_session.post(
