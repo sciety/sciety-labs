@@ -19,10 +19,12 @@ class BigQueryTableModifiedInMemorySingleObjectCache(SingleObjectCache[T]):
     def __init__(
         self,
         gcp_project_name: str,
-        table_id: str
+        table_id: str,
+        ignore_reload: bool = True
     ) -> None:
         self.gcp_project_name = gcp_project_name
         self.table_id = table_id
+        self.ignore_reload = ignore_reload
         self._lock = Lock()
         self._value: Optional[T] = None
         self._last_table_modified_datetime: Optional[datetime] = None
@@ -37,7 +39,7 @@ class BigQueryTableModifiedInMemorySingleObjectCache(SingleObjectCache[T]):
         with self._lock:
             last_modified_datetime = self.get_table_last_modified_datetime()
             if (
-                not reload
+                (not reload or self.ignore_reload)
                 and self._last_table_modified_datetime
                 and last_modified_datetime >= self._last_table_modified_datetime
             ):
