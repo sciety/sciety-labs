@@ -63,7 +63,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     app_update_manager.start(update_interval_in_secs=update_interval_in_secs)
 
     LOGGER.info('Preloading data')
-    app_update_manager.check_or_reload_data()
+    app_update_manager.check_or_reload_data(preload_only=True)
 
     templates = Jinja2Templates(directory='templates')
     templates.env.filters['sanitize'] = get_sanitized_string_as_safe_markup

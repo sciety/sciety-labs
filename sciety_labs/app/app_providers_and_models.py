@@ -40,7 +40,9 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         semantic_scholar_response_table_id = (
             f'{gcp_project_name}.prod.semantic_scholar_responses_v1'
         )
-        max_age_in_seconds = 60 * 60  # 1 hour
+        # Note: we allow for a longer max age.
+        #   The update manager will request an update at an hourly rate.
+        max_age_in_seconds = 24 * 60 * 60  # 1 day
 
         cache_dir = Path('.cache')
         cache_dir.mkdir(parents=True, exist_ok=True)

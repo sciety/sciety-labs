@@ -11,7 +11,10 @@ class AppUpdateManager:
     def __init__(self, app_providers_and_models: AppProvidersAndModels):
         self.app_providers_and_models = app_providers_and_models
 
-    def check_or_reload_data(self):
+    def check_or_reload_data(self, preload_only: bool = False):
+        if not preload_only:
+            self.app_providers_and_models.sciety_event_provider.refresh()
+            self.app_providers_and_models.semantic_scholar_mapping_provider.refresh()
         # Note: this may still use a cache
         _sciety_event_dict_list = (
             self.app_providers_and_models.sciety_event_provider.get_sciety_event_dict_list()

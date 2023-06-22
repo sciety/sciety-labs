@@ -58,3 +58,8 @@ class BigQueryArrowTableProvider:
 
     def preload(self):
         self.get_arrow_table()
+
+    def refresh(self):
+        self._query_results_cache.reload(
+            load_fn=self._load_query_results_from_bq_as_arrow_table
+        )
