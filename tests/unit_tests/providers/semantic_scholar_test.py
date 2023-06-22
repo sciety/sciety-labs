@@ -1,7 +1,7 @@
 from datetime import date
 from sciety_labs.providers.semantic_scholar import (
     SEMANTIC_SCHOLAR_PAPER_ID_EXT_REF_ID,
-    _get_recommendation_request_payload_for_article_dois,
+    _get_recommendation_request_payload_for_paper_ids_or_external_ids,
     _iter_article_recommendation_from_recommendation_response_json
 )
 
@@ -16,19 +16,19 @@ AUTHOR_NAME_2 = 'Author 2'
 PAPER_ID_1 = 'paper1'
 
 
-class TestGetRecommendationRequestPayloadForArticleDois:
-    def test_should_return_request_with_prefixed_article_ids(self):
-        assert _get_recommendation_request_payload_for_article_dois(
-            [DOI_1]
+class TestGetRecommendationRequestPayloadForPaperIdsOrExternalIds:
+    def test_should_return_request_with_paper_ids(self):
+        assert _get_recommendation_request_payload_for_paper_ids_or_external_ids(
+            [PAPER_ID_1]
         ) == {
-            'positivePaperIds': [f'DOI:{DOI_1}'],
+            'positivePaperIds': [PAPER_ID_1],
             'negativePaperIds': []
         }
 
     def test_should_truncate_article_doi_list_to_100(self):
-        long_list_of_article_dois = [f'{DOI_1}_{_}' for _ in range(200)]
-        assert len(_get_recommendation_request_payload_for_article_dois(
-            long_list_of_article_dois
+        long_list_of_paper_ids = [f'{PAPER_ID_1}_{_}' for _ in range(200)]
+        assert len(_get_recommendation_request_payload_for_paper_ids_or_external_ids(
+            long_list_of_paper_ids
         )['positivePaperIds']) == 100
 
 

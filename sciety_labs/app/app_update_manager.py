@@ -20,6 +20,7 @@ class AppUpdateManager:
         self.app_providers_and_models.evaluation_stats_model.apply_events(_sciety_event_dict_list)
         self.app_providers_and_models.google_sheet_article_image_provider.refresh()
         self.app_providers_and_models.google_sheet_list_image_provider.refresh()
+        self.app_providers_and_models.semantic_scholar_mapping_provider.preload()
 
     def check_or_reload_data_no_fail(self):
         try:
