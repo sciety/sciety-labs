@@ -1,6 +1,6 @@
 bleach==6.0.0
 fastapi==0.97.0
-google-api-python-client==2.81.0
+google-api-python-client==2.90.0
 google-cloud-bigquery==3.11.1
 Jinja2==3.1.2
 lxml==4.9.2
