@@ -113,6 +113,7 @@ def create_list_by_id_router(
         request: Request,
         list_id: str,
         pagination_parameters: AnnotatedPaginationParameters,
+        from_sciety: bool = False,
         max_recommendations: int = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
     ):
         list_summary_data = (
@@ -147,6 +148,7 @@ def create_list_by_id_router(
                 'rss_url': get_rss_url(request),
                 'owner_url': get_owner_url(list_summary_data.owner),
                 'list_summary_data': list_summary_data,
+                'from_sciety': from_sciety,
                 'article_list_content': article_recommendation_with_article_meta,
                 'pagination': url_pagination_state
             }

@@ -12,6 +12,7 @@
                         by <a href="{{ owner_url }}">{{ list_summary_data.owner.display_name }}</a>
                     </h1>
 
+                    {%- if not from_sciety %}
                     <p class="page-header__description">
                         <span>The following articles have been recommended by
                             <a href="https://www.semanticscholar.org">Semantic Scholar</a>'s
@@ -28,6 +29,7 @@
                         href="{{ rss_url }}" type="application/atom+xml" rel="nofollow">RSS</a><span></li>
                         </ul>
                     </div>
+                    {%- endif %}
 
                     <section>
                         {{ render_pagination_header(pagination, list_type_name='article recommendations') }}
