@@ -7,11 +7,19 @@
         <div class="sciety-grid-two-columns">
             <header class="page-header page-header--list">
                 <div>
+                    {%- if not from_sciety %}
                     <h1>Article Recommendations for
                         <a href="/lists/by-id/{{ list_summary_data.list_meta.list_id }}">{{ list_summary_data.list_meta.list_name }}</a>
                         by <a href="{{ owner_url }}">{{ list_summary_data.owner.display_name }}</a>
                     </h1>
+                    {%- else %}
+                    <h1>Article Recommendations for
+                        <a href="https://sciety.org/lists/{{ list_summary_data.list_meta.list_id }}">{{ list_summary_data.list_meta.list_name }}</a>
+                        by <a href="{{ owner_url }}">{{ list_summary_data.owner.display_name }}</a>
+                    </h1>
+                    {%- endif %}
 
+                    {%- if not from_sciety %}
                     <p class="page-header__description">
                         <span>The following articles have been recommended by
                             <a href="https://www.semanticscholar.org">Semantic Scholar</a>'s
@@ -28,6 +36,7 @@
                         href="{{ rss_url }}" type="application/atom+xml" rel="nofollow">RSS</a><span></li>
                         </ul>
                     </div>
+                    {%- endif %}
 
                     <section>
                         {{ render_pagination_header(pagination, list_type_name='article recommendations') }}

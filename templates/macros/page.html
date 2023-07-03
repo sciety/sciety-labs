@@ -65,7 +65,7 @@
     {{ render_gtm_script_block(site_config.google_tag_manager_id) }}
 </head>
 
-<body>
+<body class="{{ '' if not from_sciety else 'from-sciety' }}">
     {{ render_gtm_noscript_block(site_config.google_tag_manager_id) }}
     <div class="{{ page_container_class }}">
         <header class="site-header">
@@ -74,7 +74,7 @@
             <nav class="site-header__white_box">
                 <ul class="site-header__white_box_list">
                     <li class="site-header__white_box_list_item--logo">
-                        <a href="/" class="site-header__logo_link">
+                        <a href="{{ '/' if not from_sciety else '' }}" class="site-header__logo_link">
                             <img src="/static/sciety/images/sciety-logo-navigation-link-colour-text.svg " alt="Sciety"
                                 class="site-header__logo">
                             <span class="site-header__logo_link__labs">Labs 🧪</span>
@@ -86,12 +86,14 @@
                             <img src="/static/sciety/images/menu-icon.svg" alt="" />
                         </a>
                     </li>
+                    {%- if not from_sciety %}
                     <li>
                         <a href="/search?evaluated_only=true" class="site-header__search_link">
                             <img src="/static/sciety/images/search-icon.svg" alt="" class="site-header__search_icon"><span
                                 class="site-header__search_label">Search</span>
                         </a>
                     </li>
+                    {%- endif %}
                 </ul>
             </nav>
             <div class="site-header__grey_box">

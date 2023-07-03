@@ -3,6 +3,10 @@
     width: 30em;
 }
 
+.from-sciety a.site-header__logo_link {
+    pointer-events: none;
+}
+
 .site-header__logo_link__labs {
     font-size: 1.5em;
     font-weight: bold;

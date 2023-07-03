@@ -1,7 +1,7 @@
 import logging
 from typing import Optional
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Query, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
@@ -113,6 +113,8 @@ def create_list_by_id_router(
         request: Request,
         list_id: str,
         pagination_parameters: AnnotatedPaginationParameters,
+        from_sciety: bool = False,
+        from_sciety_alias: bool = Query(False, alias='from-sciety'),
         max_recommendations: int = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
     ):
         list_summary_data = (
@@ -147,6 +149,7 @@ def create_list_by_id_router(
                 'rss_url': get_rss_url(request),
                 'owner_url': get_owner_url(list_summary_data.owner),
                 'list_summary_data': list_summary_data,
+                'from_sciety': from_sciety or from_sciety_alias,
                 'article_list_content': article_recommendation_with_article_meta,
                 'pagination': url_pagination_state
             }
