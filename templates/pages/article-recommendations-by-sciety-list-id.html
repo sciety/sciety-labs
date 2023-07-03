@@ -7,10 +7,17 @@
         <div class="sciety-grid-two-columns">
             <header class="page-header page-header--list">
                 <div>
+                    {%- if not from_sciety %}
                     <h1>Article Recommendations for
                         <a href="/lists/by-id/{{ list_summary_data.list_meta.list_id }}">{{ list_summary_data.list_meta.list_name }}</a>
                         by <a href="{{ owner_url }}">{{ list_summary_data.owner.display_name }}</a>
                     </h1>
+                    {%- else %}
+                    <h1>Article Recommendations for
+                        <a href="https://sciety.org/lists/{{ list_summary_data.list_meta.list_id }}">{{ list_summary_data.list_meta.list_name }}</a>
+                        by <a href="{{ owner_url }}">{{ list_summary_data.owner.display_name }}</a>
+                    </h1>
+                    {%- endif %}
 
                     {%- if not from_sciety %}
                     <p class="page-header__description">
