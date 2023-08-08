@@ -4,6 +4,6 @@ pytest==7.4.0
 pytest-watch==4.2.0
 mypy==1.4.1
 httpx==0.24.1
-types-bleach==6.0.0.3
+types-bleach==6.0.0.4
 types-PyYAML==6.0.12.10
 types-requests==2.31.0.1
