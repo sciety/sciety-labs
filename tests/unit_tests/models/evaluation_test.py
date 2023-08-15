@@ -1,4 +1,5 @@
 from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
+from sciety_labs.models.sciety_event import ScietyEventNames
 
 
 ARTICLE_ID_1 = 'doi:10.1234/doi_1'
@@ -10,7 +11,7 @@ EVALUATION_LOCATOR_3 = 'test:evaluation_3'
 
 
 EVALUATION_RECORDED_EVENT_1 = {
-    'event_name': 'EvaluationRecorded',
+    'event_name': ScietyEventNames.EVALUATION_PUBLICATION_RECORDED,
     'article_id': ARTICLE_ID_1,
     'evaluation_locator': EVALUATION_LOCATOR_1
 }
