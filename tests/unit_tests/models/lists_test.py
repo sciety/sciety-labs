@@ -5,6 +5,7 @@ from sciety_labs.models.lists import (
     OwnerMetaData,
     OwnerTypes,
     ScietyEventListsModel,
+    get_avatar_url_for_avatar_path_or_url,
     get_sorted_list_summary_list_by_most_active
 )
 
@@ -95,6 +96,23 @@ LIST_SUMMARY_DATA_1 = ListSummaryData(
     article_count=10,
     last_updated_datetime=TIMESTAMP_1
 )
+
+
+class TestGetAvatarUrlForAvatarPathOrUrl:
+    def test_should_return_none_if_passed_in_value_is_none(self):
+        assert get_avatar_url_for_avatar_path_or_url(None) is None
+
+    def test_should_return_sciety_url_if_passed_in_value_is_a_path(self):
+        assert (
+            get_avatar_url_for_avatar_path_or_url('/static/something')
+            == 'https://sciety.org/static/something'
+        )
+
+    def test_should_return_url_if_passed_in_value_is_a_url(self):
+        assert (
+            get_avatar_url_for_avatar_path_or_url('https://example.test/something')
+            == 'https://example.test/something'
+        )
 
 
 class TestGetSortedListSummaryListByMostActive:
