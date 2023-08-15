@@ -1,5 +1,4 @@
 import logging
-from typing import Iterable, Set
 
 import starlette.status
 
@@ -13,24 +12,9 @@ from sciety_labs.app.routers.list_by_twitter_handle import create_list_by_twitte
 from sciety_labs.app.utils.common import (
     get_page_title
 )
-from sciety_labs.models.lists import ListSummaryData
 
 
 LOGGER = logging.getLogger(__name__)
-
-# exclude some lists of users who's avatar no longer resolves
-HIDDEN_LIST_IDS: Set[str] = set()
-
-
-def iter_list_summary_data_not_matching_list_ids(
-    list_summary_data_iterable: Iterable[ListSummaryData],
-    exclude_list_ids: Set[str]
-) -> Iterable[ListSummaryData]:
-    return (
-        list_summary_data
-        for list_summary_data in list_summary_data_iterable
-        if list_summary_data.list_meta.list_id not in exclude_list_ids
-    )
 
 
 def create_lists_router(
@@ -52,11 +36,8 @@ def create_lists_router(
         user_list_summary_data_list = list(
             app_providers_and_models
             .google_sheet_list_image_provider.iter_list_summary_data_with_list_image_url(
-                iter_list_summary_data_not_matching_list_ids(
-                    app_providers_and_models.lists_model.get_most_active_user_lists(
-                        min_article_count=min_article_count
-                    ),
-                    HIDDEN_LIST_IDS
+                app_providers_and_models.lists_model.get_most_active_user_lists(
+                    min_article_count=min_article_count
                 )
             )
         )
