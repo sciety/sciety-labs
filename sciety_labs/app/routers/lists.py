@@ -1,4 +1,5 @@
 import logging
+from typing import Iterable, Set
 
 import starlette.status
 
@@ -12,9 +13,36 @@ from sciety_labs.app.routers.list_by_twitter_handle import create_list_by_twitte
 from sciety_labs.app.utils.common import (
     get_page_title
 )
+from sciety_labs.models.lists import ListSummaryData
 
 
 LOGGER = logging.getLogger(__name__)
+
+# exclude some lists of users who's avatar no longer resolves
+HIDDEN_LIST_IDS = {
+    'c145fb46-9487-4910-ae25-aa3e9f3fa5e8',
+    'b8b1abc5-9b8e-42b7-bc10-e01572d1d5d4',
+    '8f612ad9-fb88-461a-ab38-4b7f681e8ffe',
+    '36c8bff1-f5f2-4c8a-b2b2-190af01ad9e6',
+    'e89549c2-6dc6-4d31-a72f-e6b90a496458',
+    '7223b4bf-2163-4f45-9457-7bd9524cf779',
+    'a9bf8053-032d-421e-ab5c-4a9cb88b91b4',
+    '78fc6d8c-8bca-49e8-86cc-8a676688d476',
+    'c8ccd202-b62f-4c92-897c-3c1fb6275401',
+    '55b5810b-d255-46d1-8372-7cf4f16595b9',
+    '0e634779-68fa-4209-87f7-8cb5046a3c94'
+}
+
+
+def iter_list_summary_data_not_matching_list_ids(
+    list_summary_data_iterable: Iterable[ListSummaryData],
+    exclude_list_ids: Set[str]
+) -> Iterable[ListSummaryData]:
+    return (
+        list_summary_data
+        for list_summary_data in list_summary_data_iterable
+        if list_summary_data.list_meta.list_id not in exclude_list_ids
+    )
 
 
 def create_lists_router(
@@ -36,8 +64,11 @@ def create_lists_router(
         user_list_summary_data_list = list(
             app_providers_and_models
             .google_sheet_list_image_provider.iter_list_summary_data_with_list_image_url(
-                app_providers_and_models.lists_model.get_most_active_user_lists(
-                    min_article_count=min_article_count
+                iter_list_summary_data_not_matching_list_ids(
+                    app_providers_and_models.lists_model.get_most_active_user_lists(
+                        min_article_count=min_article_count
+                    ),
+                    HIDDEN_LIST_IDS
                 )
             )
         )
