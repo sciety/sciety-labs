@@ -53,7 +53,9 @@ class OwnerMetaData(NamedTuple):
         return OwnerMetaData(
             owner_type=OwnerTypes.USER,
             display_name=sciety_event_user_meta['user_display_name'],
-            avatar_url=sciety_event_user_meta['avatar_url'],
+            avatar_url=get_avatar_url_for_avatar_path_or_url(
+                sciety_event_user_meta['avatar_url']
+            ),
             twitter_handle=sciety_event_user_meta.get('twitter_handle')
         )
 
