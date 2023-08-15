@@ -47,7 +47,19 @@ class TestScietyEventEvaluationStatsModel:
             'evaluation_locator': EVALUATION_LOCATOR_1
         }, {
             **EVALUATION_RECORDED_EVENT_1,
-            'event_name': 'IncorrectlyRecordedEvaluationErased',
+            'event_name': ScietyEventNames.INCORRECTLY_RECORDED_EVALUATION_ERASED,
+            'evaluation_locator': EVALUATION_LOCATOR_1,
+            'article_id': None
+        }])
+        assert model.get_evaluation_count_by_article_id(ARTICLE_ID_1) == 0
+
+    def test_should_not_count_removed_evaluations(self):
+        model = ScietyEventEvaluationStatsModel([{
+            **EVALUATION_RECORDED_EVENT_1,
+            'evaluation_locator': EVALUATION_LOCATOR_1
+        }, {
+            **EVALUATION_RECORDED_EVENT_1,
+            'event_name': ScietyEventNames.EVALUATION_REMOVAL_RECORDED,
             'evaluation_locator': EVALUATION_LOCATOR_1,
             'article_id': None
         }])
@@ -72,7 +84,7 @@ class TestScietyEventEvaluationStatsModel:
             'evaluation_locator': EVALUATION_LOCATOR_1
         }, {
             **EVALUATION_RECORDED_EVENT_1,
-            'event_name': 'IncorrectlyRecordedEvaluationErased',
+            'event_name': ScietyEventNames.INCORRECTLY_RECORDED_EVALUATION_ERASED,
             'evaluation_locator': EVALUATION_LOCATOR_1,
             'article_id': None
         }])

@@ -3,7 +3,10 @@ from threading import Lock
 from typing import Dict, Iterable, List, NamedTuple, Sequence, cast
 
 from sciety_labs.models.article import ArticleMentionT, ArticleStats
-from sciety_labs.models.sciety_event import ALTERNATIVE_EVALUATION_RECORDED_EVENT_NAMES
+from sciety_labs.models.sciety_event import (
+    ALTERNATIVE_EVALUATION_RECORDED_EVENT_NAMES,
+    ALTERNATIVE_EVALUATION_REMOVED_EVENT_NAMES
+)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -60,7 +63,7 @@ class ScietyEventEvaluationStatsModel:
             event_name = event['event_name']
             if event_name in ALTERNATIVE_EVALUATION_RECORDED_EVENT_NAMES:
                 self._do_apply_evaluation_recorded_event(event)
-            if event_name == 'IncorrectlyRecordedEvaluationErased':
+            if event_name in ALTERNATIVE_EVALUATION_REMOVED_EVENT_NAMES:
                 self._do_apply_incorrectly_recorded_evaluation_erased_event(event)
 
     def apply_events(self, sciety_events: Sequence[dict]):
