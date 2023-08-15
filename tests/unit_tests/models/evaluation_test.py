@@ -1,4 +1,5 @@
 from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
+from sciety_labs.models.sciety_event import ScietyEventNames
 
 
 ARTICLE_ID_1 = 'doi:10.1234/doi_1'
@@ -10,7 +11,7 @@ EVALUATION_LOCATOR_3 = 'test:evaluation_3'
 
 
 EVALUATION_RECORDED_EVENT_1 = {
-    'event_name': 'EvaluationRecorded',
+    'event_name': ScietyEventNames.EVALUATION_PUBLICATION_RECORDED,
     'article_id': ARTICLE_ID_1,
     'evaluation_locator': EVALUATION_LOCATOR_1
 }
@@ -46,7 +47,19 @@ class TestScietyEventEvaluationStatsModel:
             'evaluation_locator': EVALUATION_LOCATOR_1
         }, {
             **EVALUATION_RECORDED_EVENT_1,
-            'event_name': 'IncorrectlyRecordedEvaluationErased',
+            'event_name': ScietyEventNames.INCORRECTLY_RECORDED_EVALUATION_ERASED,
+            'evaluation_locator': EVALUATION_LOCATOR_1,
+            'article_id': None
+        }])
+        assert model.get_evaluation_count_by_article_id(ARTICLE_ID_1) == 0
+
+    def test_should_not_count_removed_evaluations(self):
+        model = ScietyEventEvaluationStatsModel([{
+            **EVALUATION_RECORDED_EVENT_1,
+            'evaluation_locator': EVALUATION_LOCATOR_1
+        }, {
+            **EVALUATION_RECORDED_EVENT_1,
+            'event_name': ScietyEventNames.EVALUATION_REMOVAL_RECORDED,
             'evaluation_locator': EVALUATION_LOCATOR_1,
             'article_id': None
         }])
@@ -71,7 +84,7 @@ class TestScietyEventEvaluationStatsModel:
             'evaluation_locator': EVALUATION_LOCATOR_1
         }, {
             **EVALUATION_RECORDED_EVENT_1,
-            'event_name': 'IncorrectlyRecordedEvaluationErased',
+            'event_name': ScietyEventNames.INCORRECTLY_RECORDED_EVALUATION_ERASED,
             'evaluation_locator': EVALUATION_LOCATOR_1,
             'article_id': None
         }])

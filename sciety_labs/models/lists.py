@@ -11,6 +11,7 @@ from sciety_labs.models.article import (
     get_doi_from_article_id_or_none
 )
 from sciety_labs.models.image import ObjectImages
+from sciety_labs.models.sciety_event import ScietyEventNames
 
 
 class ListMetaData(NamedTuple):
@@ -115,12 +116,6 @@ class ListSummaryData(NamedTuple):
         if not self.last_updated_datetime:
             return (0, -self.article_count)
         return (-self.last_updated_datetime.timestamp(), -self.article_count)
-
-
-class ScietyEventNames:
-    ARTICLE_ADDED_TO_LIST = 'ArticleAddedToList'
-    ARTICLE_REMOVED_FROM_LIST = 'ArticleRemovedFromList'
-    ANNOTATION_CREATED = 'AnnotationCreated'
 
 
 class ListsModel(Protocol):
