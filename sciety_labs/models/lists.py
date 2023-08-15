@@ -28,10 +28,12 @@ class ListMetaData(NamedTuple):
         )
 
 
-def get_avatar_url_for_avatar_path(avatar_path: Optional[str]) -> Optional[str]:
-    if not avatar_path:
-        return avatar_path
-    return f'https://sciety.org{avatar_path}'
+def get_avatar_url_for_avatar_path_or_url(avatar_path_or_url: Optional[str]) -> Optional[str]:
+    if not avatar_path_or_url:
+        return avatar_path_or_url
+    if '://' in avatar_path_or_url:
+        return avatar_path_or_url
+    return f'https://sciety.org{avatar_path_or_url}'
 
 
 class OwnerTypes:
@@ -60,7 +62,7 @@ class OwnerMetaData(NamedTuple):
         return OwnerMetaData(
             owner_type=OwnerTypes.GROUP,
             display_name=sciety_event_group_meta['group_name'],
-            avatar_url=get_avatar_url_for_avatar_path(
+            avatar_url=get_avatar_url_for_avatar_path_or_url(
                 sciety_event_group_meta.get('avatar_path')
             ),
             slug=sciety_event_group_meta.get('slug')
