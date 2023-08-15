@@ -7,7 +7,7 @@ SELECT
   event.article_id,
   event.evaluation_locator,
   event.content
-FROM `elife-data-pipeline.de_proto.v_sciety_event` AS event
+FROM `elife-data-pipeline.prod.v_sciety_event` AS event
 WHERE
   (
     event.normalized_event_name IN ('ArticleAddedToList', 'ArticleRemovedFromList', 'AnnotationCreated')
