@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta
 from pathlib import Path
 
@@ -14,6 +15,10 @@ from sciety_labs.providers.europe_pmc import EuropePmcProvider
 from sciety_labs.providers.google_sheet_image import (
     GoogleSheetArticleImageProvider,
     GoogleSheetListImageProvider
+)
+from sciety_labs.providers.opensearch import (
+    OpenSearchConnectionConfig,
+    get_opensearch_client_or_none
 )
 from sciety_labs.providers.sciety_event import ScietyEventProvider
 from sciety_labs.providers.semantic_scholar import (
@@ -32,6 +37,9 @@ from sciety_labs.utils.cache import (
     DiskSingleObjectCache,
     InMemorySingleObjectCache
 )
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 def get_semantic_scholar_mapping_provider(
@@ -87,6 +95,11 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
             allowable_methods=('GET', 'HEAD', 'POST'),  # include POST for Semantic Scholar
             match_headers=False
         )
+
+        self.opensearch_client = get_opensearch_client_or_none(
+            OpenSearchConnectionConfig.from_env()
+        )
+        LOGGER.info('opensearch_client: %r', self.opensearch_client)
 
         self.sciety_event_provider = ScietyEventProvider(
             gcp_project_name=gcp_project_name,
