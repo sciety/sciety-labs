@@ -318,14 +318,15 @@ class SemanticScholarProvider(RequestsProvider):
             )
 
 
-def get_years_for_date_range(
+def get_year_request_parameter_for_date_range(
     from_date: date,
     to_date: date
-) -> Sequence[int]:
-    years = [from_date.year]
-    while years[-1] < to_date.year:
-        years.append(years[-1] + 1)
-    return years
+) -> str:
+    from_year = from_date.year
+    to_year = to_date.year
+    if to_year == from_year:
+        return str(from_year)
+    return f'{from_year}-{to_year}'
 
 
 def iter_search_results_published_within_date_range(
@@ -363,10 +364,10 @@ class SemanticScholarSearchProvider(SearchProvider):
             query=search_parameters.query,
             additional_search_parameters={
                 **SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITH_VENUES,
-                'year': ','.join([str(year) for year in get_years_for_date_range(
+                'year': get_year_request_parameter_for_date_range(
                     from_date=from_date,
                     to_date=to_date
-                )])
+                )
             }
         )
         if search_parameters.is_evaluated_only:
