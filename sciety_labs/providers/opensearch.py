@@ -82,3 +82,11 @@ def get_opensearch_client(config: OpenSearchConnectionConfig) -> OpenSearch:
         verify_certs=config.verify_certificates,
         ssl_show_warn=config.verify_certificates
     )
+
+
+def get_opensearch_client_or_none(
+    config: Optional[OpenSearchConnectionConfig]
+) -> Optional[OpenSearch]:
+    if not config:
+        return None
+    return get_opensearch_client(config)
