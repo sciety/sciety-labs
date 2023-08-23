@@ -1,7 +1,12 @@
+import logging
 from datetime import timedelta
 from pathlib import Path
+from typing import Optional
 
 import requests_cache
+
+from opensearchpy import OpenSearch
+
 from sciety_labs.aggregators.article import ArticleAggregator
 
 from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
@@ -15,6 +20,10 @@ from sciety_labs.providers.google_sheet_image import (
     GoogleSheetArticleImageProvider,
     GoogleSheetListImageProvider
 )
+from sciety_labs.providers.opensearch import (
+    OpenSearchConnectionConfig,
+    get_opensearch_client_or_none
+)
 from sciety_labs.providers.sciety_event import ScietyEventProvider
 from sciety_labs.providers.semantic_scholar import (
     SemanticScholarSearchProvider,
@@ -22,6 +31,10 @@ from sciety_labs.providers.semantic_scholar import (
 )
 from sciety_labs.providers.semantic_scholar_bigquery_mapping import (
     SemanticScholarBigQueryMappingProvider
+)
+from sciety_labs.providers.semantic_scholar_mapping import SemanticScholarMappingProvider
+from sciety_labs.providers.semantic_scholar_opensearch_mapping import (
+    SemanticScholarOpenSearchMappingProvider
 )
 from sciety_labs.providers.twitter import get_twitter_user_article_list_provider_or_none
 from sciety_labs.utils.arrow_cache import ArrowTableDiskSingleObjectCache
@@ -33,13 +46,62 @@ from sciety_labs.utils.cache import (
 )
 
 
+LOGGER = logging.getLogger(__name__)
+
+
+def get_semantic_scholar_bigquery_mapping_provider(
+    gcp_project_name: str,
+    cache_dir: Path,
+    max_age_in_seconds: int
+) -> SemanticScholarMappingProvider:
+    semantic_scholar_response_table_id = (
+        f'{gcp_project_name}.prod.semantic_scholar_responses_v1'
+    )
+    semantic_scholar_mapping_query_results_cache = ChainedObjectCache([
+        BigQueryTableModifiedInMemorySingleObjectCache(
+            gcp_project_name=gcp_project_name,
+            table_id=semantic_scholar_response_table_id
+        ),
+        ArrowTableDiskSingleObjectCache(
+            file_path=cache_dir / 'semantic_scholar_mapping_query_results_cache.parquet',
+            max_age_in_seconds=max_age_in_seconds
+        )
+    ])
+
+    return SemanticScholarBigQueryMappingProvider(
+        gcp_project_name=gcp_project_name,
+        query_results_cache=semantic_scholar_mapping_query_results_cache
+    )
+
+
+def get_semantic_scholar_opensearch_mapping_provider(
+    opensearch_client: OpenSearch
+) -> SemanticScholarMappingProvider:
+    return SemanticScholarOpenSearchMappingProvider(
+        opensearch_client=opensearch_client,
+        index_name='preprints_v1'
+    )
+
+
+def get_semantic_scholar_mapping_provider(
+    opensearch_client: Optional[OpenSearch],
+    gcp_project_name: str,
+    cache_dir: Path,
+    max_age_in_seconds: int
+) -> SemanticScholarMappingProvider:
+    if opensearch_client:
+        return get_semantic_scholar_opensearch_mapping_provider(opensearch_client)
+    return get_semantic_scholar_bigquery_mapping_provider(
+        gcp_project_name=gcp_project_name,
+        cache_dir=cache_dir,
+        max_age_in_seconds=max_age_in_seconds
+    )
+
+
 class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
     def __init__(self):
         gcp_project_name = 'elife-data-pipeline'
         sciety_event_table_id = f'{gcp_project_name}.de_proto.sciety_event_v1'
-        semantic_scholar_response_table_id = (
-            f'{gcp_project_name}.prod.semantic_scholar_responses_v1'
-        )
         # Note: we allow for a longer max age.
         #   The update manager will request an update at an hourly rate.
         max_age_in_seconds = 24 * 60 * 60  # 1 day
@@ -58,17 +120,6 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
             )
         ])
 
-        semantic_scholar_mapping_query_results_cache = ChainedObjectCache([
-            BigQueryTableModifiedInMemorySingleObjectCache(
-                gcp_project_name=gcp_project_name,
-                table_id=semantic_scholar_response_table_id
-            ),
-            ArrowTableDiskSingleObjectCache(
-                file_path=cache_dir / 'semantic_scholar_mapping_query_results_cache.parquet',
-                max_age_in_seconds=max_age_in_seconds
-            )
-        ])
-
         cached_requests_session = requests_cache.CachedSession(
             '.cache/requests_cache',
             xpire_after=timedelta(days=1),
@@ -76,15 +127,23 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
             match_headers=False
         )
 
+        opensearch_client = get_opensearch_client_or_none(
+            OpenSearchConnectionConfig.from_env()
+        )
+        LOGGER.info('opensearch_client: %r', opensearch_client)
+
         self.sciety_event_provider = ScietyEventProvider(
             gcp_project_name=gcp_project_name,
             query_results_cache=sciety_event_query_results_cache
         )
 
-        self.semantic_scholar_mapping_provider = SemanticScholarBigQueryMappingProvider(
+        self.semantic_scholar_mapping_provider = get_semantic_scholar_mapping_provider(
+            opensearch_client=opensearch_client,
             gcp_project_name=gcp_project_name,
-            query_results_cache=semantic_scholar_mapping_query_results_cache
+            cache_dir=cache_dir,
+            max_age_in_seconds=max_age_in_seconds
         )
+        LOGGER.info('semantic_scholar_mapping_provider: %r', self.semantic_scholar_mapping_provider)
 
         self.lists_model = ScietyEventListsModel([])
         self.evaluation_stats_model = ScietyEventEvaluationStatsModel([])
