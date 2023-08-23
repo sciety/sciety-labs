@@ -6,6 +6,7 @@ import pyarrow.compute as pc
 
 
 from sciety_labs.providers.bigquery_provider import BigQueryArrowTableProvider
+from sciety_labs.providers.semantic_scholar_mapping import SemanticScholarMappingProvider
 
 
 LOGGER = logging.getLogger(__name__)
@@ -15,7 +16,10 @@ def _to_str_list(list_: Sequence[Any]) -> Sequence[str]:
     return [str(value) for value in list_]
 
 
-class SemanticScholarBigQueryMappingProvider(BigQueryArrowTableProvider):
+class SemanticScholarBigQueryMappingProvider(
+    BigQueryArrowTableProvider,
+    SemanticScholarMappingProvider
+):
     def __init__(self, **kwargs):
         super().__init__(
             name='Semantic Scholar Mapping',
