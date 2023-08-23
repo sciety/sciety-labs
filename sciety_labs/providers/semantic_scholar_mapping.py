@@ -13,3 +13,6 @@ class SemanticScholarMappingProvider(Protocol):
         article_doi: str
     ) -> Optional[str]:
         pass
+
+    def preload(self):
+        pass
