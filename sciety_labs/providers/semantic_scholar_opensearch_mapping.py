@@ -1,5 +1,4 @@
 import logging
-from time import monotonic
 from typing import Mapping, Sequence
 
 from opensearchpy import OpenSearch
@@ -22,28 +21,19 @@ class SemanticScholarOpenSearchMappingProvider(
         self.opensearch_client = opensearch_client
         self.index_name = index_name
 
-    def get_semantic_scholar_paper_ids_by_article_dois_map(
+    def do_get_semantic_scholar_paper_ids_by_article_dois_map(
         self,
         article_dois: Sequence[str]
     ) -> Mapping[str, str]:
-        start_time = monotonic()
         mget_response = self.opensearch_client.mget(
             index=self.index_name,
             body={'ids': article_dois}
         )
-        paper_ids_by_article_dois_map = {
+        return {
             doc['_id']: doc['_source']['paper_id']
             for doc in mget_response['docs']
             if doc.get('_source', {}).get('paper_id')
         }
-        end_time = monotonic()
-        LOGGER.info(
-            'Looked up paper ids, article_dois=%r, map=%r, time=%.3f seconds',
-            article_dois,
-            paper_ids_by_article_dois_map,
-            (end_time - start_time)
-        )
-        return paper_ids_by_article_dois_map
 
     def preload(self):
         pass
