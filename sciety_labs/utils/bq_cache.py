@@ -5,7 +5,7 @@ from typing import Callable, Optional, TypeVar
 from sciety_labs.utils.bigquery import get_bq_table_modified_datetime
 
 from sciety_labs.utils.cache import (
-    SingleObjectCache
+    BaseSingleObjectCache
 )
 
 
@@ -15,7 +15,7 @@ LOGGER = logging.getLogger(__name__)
 T = TypeVar('T')
 
 
-class BigQueryTableModifiedInMemorySingleObjectCache(SingleObjectCache[T]):
+class BigQueryTableModifiedInMemorySingleObjectCache(BaseSingleObjectCache[T]):
     def __init__(
         self,
         gcp_project_name: str,
