@@ -37,6 +37,17 @@ Bearer <Twitter API token>
 
 If the file is not present, the app will still start but the Twitter related endpoint will not work.
 
+### OpenSearch
+
+When configured, it will use OpenSearch instead of BigQuery to look up Semantic Scholar paper ids.
+
+| name | description |
+| ---- | ----------- |
+| OPENSEARCH_HOST | Hostname to OpenSearch |
+| OPENSEARCH_PORT | Port to OpenSearch, e.g. 9200 |
+| OPENSEARCH_USERNAME_FILE_PATH | File path to file containing the username |
+| OPENSEARCH_PASSWORD_FILE_PATH | File path to file containing the password |
+
 ## Configuration
 
 The following environment variables can be used to configure the site:
