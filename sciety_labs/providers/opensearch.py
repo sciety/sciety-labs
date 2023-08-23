@@ -5,6 +5,9 @@ from pathlib import Path
 from typing import Optional
 
 
+from opensearchpy import OpenSearch
+
+
 LOGGER = logging.getLogger(__name__)
 
 
@@ -42,6 +45,7 @@ class OpenSearchConnectionConfig:
     port: int
     username: str = dataclasses.field(repr=False)
     password: str = dataclasses.field(repr=False)
+    verify_certificates: bool = False
 
     @staticmethod
     def from_env() -> Optional['OpenSearchConnectionConfig']:
@@ -65,3 +69,16 @@ class OpenSearchConnectionConfig:
             username=username,
             password=password
         )
+
+
+def get_opensearch_client(config: OpenSearchConnectionConfig) -> OpenSearch:
+    return OpenSearch(
+        hosts=[{
+            'host': config.hostname,
+            'port': config.port
+        }],
+        http_auth=(config.username, config.password),
+        use_ssl=True,
+        verify_certs=config.verify_certificates,
+        ssl_show_warn=config.verify_certificates
+    )
