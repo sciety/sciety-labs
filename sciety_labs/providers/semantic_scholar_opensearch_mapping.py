@@ -1,18 +1,18 @@
 import logging
 from time import monotonic
-from typing import Mapping, Optional, Sequence
+from typing import Mapping, Sequence
 
 from opensearchpy import OpenSearch
 
 
-from sciety_labs.providers.semantic_scholar_mapping import SemanticScholarMappingProvider
+from sciety_labs.providers.semantic_scholar_mapping import BaseSemanticScholarMappingProvider
 
 
 LOGGER = logging.getLogger(__name__)
 
 
 class SemanticScholarOpenSearchMappingProvider(
-    SemanticScholarMappingProvider
+    BaseSemanticScholarMappingProvider
 ):
     def __init__(
         self,
@@ -44,15 +44,6 @@ class SemanticScholarOpenSearchMappingProvider(
             (end_time - start_time)
         )
         return paper_ids_by_article_dois_map
-
-    def get_semantic_scholar_paper_id_by_article_doi(
-        self,
-        article_doi: str
-    ) -> Optional[str]:
-        paper_ids_by_article_dois_map = self.get_semantic_scholar_paper_ids_by_article_dois_map(
-            article_dois=[article_doi]
-        )
-        return paper_ids_by_article_dois_map.get(article_doi)
 
     def preload(self):
         pass

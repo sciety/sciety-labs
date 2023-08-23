@@ -1,12 +1,12 @@
 import logging
 from time import monotonic
-from typing import Any, Mapping, Optional, Sequence
+from typing import Any, Mapping, Sequence
 
 import pyarrow.compute as pc
 
 
 from sciety_labs.providers.bigquery_provider import BigQueryArrowTableProvider
-from sciety_labs.providers.semantic_scholar_mapping import SemanticScholarMappingProvider
+from sciety_labs.providers.semantic_scholar_mapping import BaseSemanticScholarMappingProvider
 
 
 LOGGER = logging.getLogger(__name__)
@@ -18,7 +18,7 @@ def _to_str_list(list_: Sequence[Any]) -> Sequence[str]:
 
 class SemanticScholarBigQueryMappingProvider(
     BigQueryArrowTableProvider,
-    SemanticScholarMappingProvider
+    BaseSemanticScholarMappingProvider
 ):
     def __init__(self, **kwargs):
         super().__init__(
@@ -48,12 +48,3 @@ class SemanticScholarBigQueryMappingProvider(
             (end_time - start_time)
         )
         return paper_ids_by_article_dois_map
-
-    def get_semantic_scholar_paper_id_by_article_doi(
-        self,
-        article_doi: str
-    ) -> Optional[str]:
-        paper_ids_by_article_dois_map = self.get_semantic_scholar_paper_ids_by_article_dois_map(
-            article_dois=[article_doi]
-        )
-        return paper_ids_by_article_dois_map.get(article_doi)
