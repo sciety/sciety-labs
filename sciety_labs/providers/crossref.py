@@ -94,18 +94,22 @@ def get_article_metadata_from_crossref_metadata(
     doi: str,
     crossref_metadata: dict
 ) -> ArticleMetaData:
-    return ArticleMetaData(
-        article_doi=doi,
-        article_title='\n'.join(crossref_metadata['title']),
-        abstract=get_cleaned_abstract_html(crossref_metadata.get('abstract')),
-        author_name_list=[
-            get_author_name_from_crossref_metadata_author_dict(author_dict)
-            for author_dict in crossref_metadata.get('author', [])
-        ],
-        published_date=get_published_date_from_crossref_metadata(
-            crossref_metadata
+    try:
+        return ArticleMetaData(
+            article_doi=doi,
+            article_title='\n'.join(crossref_metadata['title']),
+            abstract=get_cleaned_abstract_html(crossref_metadata.get('abstract')),
+            author_name_list=[
+                get_author_name_from_crossref_metadata_author_dict(author_dict)
+                for author_dict in crossref_metadata.get('author', [])
+            ],
+            published_date=get_published_date_from_crossref_metadata(
+                crossref_metadata
+            )
         )
-    )
+    except Exception as exc:
+        LOGGER.error('Error parsing metadata for DOI %r due to %r', doi, exc)
+        raise
 
 
 def get_filter_parameter_for_dois(dois: Iterable[str]) -> str:
