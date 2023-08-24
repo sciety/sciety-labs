@@ -29,6 +29,7 @@ class SemanticScholarOpenSearchMappingProvider(
             index=self.index_name,
             body={'ids': article_dois}
         )
+        LOGGER.info('mget_response: %r', mget_response)
         return {
             doc['_id']: doc['_source']['paper_id']
             for doc in mget_response['docs']
