@@ -16,6 +16,7 @@ class OpenSearchEnvVariables:
     OPENSEARCH_PORT = 'OPENSEARCH_PORT'
     OPENSEARCH_USERNAME_FILE_PATH = 'OPENSEARCH_USERNAME_FILE_PATH'
     OPENSEARCH_PASSWORD_FILE_PATH = 'OPENSEARCH_PASSWORD_FILE_PATH'
+    OPENSEARCH_INDEX_NAME = 'OPENSEARCH_INDEX_NAME'
 
 
 def get_optional_secret_file_path_from_env_var_file_path(env_var_name: str) -> Optional[str]:
@@ -45,6 +46,7 @@ class OpenSearchConnectionConfig:
     port: int
     username: str = dataclasses.field(repr=False)
     password: str = dataclasses.field(repr=False)
+    index_name: str
     verify_certificates: bool = False
 
     @staticmethod
@@ -53,6 +55,10 @@ class OpenSearchConnectionConfig:
         port_str = os.getenv(OpenSearchEnvVariables.OPENSEARCH_PORT)
         if not hostname or not port_str:
             LOGGER.info('no OpenSearch hostname or port configured')
+            return None
+        index_name = os.getenv(OpenSearchEnvVariables.OPENSEARCH_INDEX_NAME)
+        if not index_name:
+            LOGGER.info('no OpenSearch index name configured')
             return None
         username = get_optional_secret_from_env_var_file_path(
             OpenSearchEnvVariables.OPENSEARCH_USERNAME_FILE_PATH
@@ -67,7 +73,8 @@ class OpenSearchConnectionConfig:
             hostname=hostname,
             port=int(port_str),
             username=username,
-            password=password
+            password=password,
+            index_name=index_name
         )
 
 

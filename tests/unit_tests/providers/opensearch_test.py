@@ -25,10 +25,12 @@ class TestOpenSearchConnectionConfig:
         env_mock[OpenSearchEnvVariables.OPENSEARCH_PORT] = '1234'
         env_mock[OpenSearchEnvVariables.OPENSEARCH_USERNAME_FILE_PATH] = str(username_file_path)
         env_mock[OpenSearchEnvVariables.OPENSEARCH_PASSWORD_FILE_PATH] = str(password_file_path)
+        env_mock[OpenSearchEnvVariables.OPENSEARCH_INDEX_NAME] = 'index1'
         config = OpenSearchConnectionConfig.from_env()
         assert config == OpenSearchConnectionConfig(
             hostname='hostname1',
             port=1234,
             username='username1',
-            password='password1'
+            password='password1',
+            index_name='index1'
         )
