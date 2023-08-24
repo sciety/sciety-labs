@@ -75,22 +75,29 @@ def get_semantic_scholar_bigquery_mapping_provider(
 
 
 def get_semantic_scholar_opensearch_mapping_provider(
-    opensearch_client: OpenSearch
+    opensearch_client: OpenSearch,
+    opensearch_config: OpenSearchConnectionConfig
 ) -> SemanticScholarMappingProvider:
+    LOGGER.info('Using OpenSearch index: %r', opensearch_config.index_name)
     return SemanticScholarOpenSearchMappingProvider(
         opensearch_client=opensearch_client,
-        index_name='preprints_v1'
+        index_name=opensearch_config.index_name
     )
 
 
 def get_semantic_scholar_mapping_provider(
     opensearch_client: Optional[OpenSearch],
+    opensearch_config: Optional[OpenSearchConnectionConfig],
     gcp_project_name: str,
     cache_dir: Path,
     max_age_in_seconds: int
 ) -> SemanticScholarMappingProvider:
     if opensearch_client:
-        return get_semantic_scholar_opensearch_mapping_provider(opensearch_client)
+        assert opensearch_config is not None
+        return get_semantic_scholar_opensearch_mapping_provider(
+            opensearch_client=opensearch_client,
+            opensearch_config=opensearch_config
+        )
     return get_semantic_scholar_bigquery_mapping_provider(
         gcp_project_name=gcp_project_name,
         cache_dir=cache_dir,
@@ -127,9 +134,8 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
             match_headers=False
         )
 
-        opensearch_client = get_opensearch_client_or_none(
-            OpenSearchConnectionConfig.from_env()
-        )
+        opensearch_config = OpenSearchConnectionConfig.from_env()
+        opensearch_client = get_opensearch_client_or_none(opensearch_config)
         LOGGER.info('opensearch_client: %r', opensearch_client)
 
         self.sciety_event_provider = ScietyEventProvider(
@@ -139,6 +145,7 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
 
         self.semantic_scholar_mapping_provider = get_semantic_scholar_mapping_provider(
             opensearch_client=opensearch_client,
+            opensearch_config=opensearch_config,
             gcp_project_name=gcp_project_name,
             cache_dir=cache_dir,
             max_age_in_seconds=max_age_in_seconds

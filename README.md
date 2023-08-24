@@ -47,6 +47,7 @@ When configured, it will use OpenSearch instead of BigQuery to look up Semantic 
 | OPENSEARCH_PORT | Port to OpenSearch, e.g. 9200 |
 | OPENSEARCH_USERNAME_FILE_PATH | File path to file containing the username |
 | OPENSEARCH_PASSWORD_FILE_PATH | File path to file containing the password |
+| OPENSEARCH_INDEX_NAME | The index to use |
 
 ## Configuration
 
