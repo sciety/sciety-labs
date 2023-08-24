@@ -32,9 +32,9 @@ class SemanticScholarOpenSearchMappingProvider(
         )
         LOGGER.info('mget_response: %r', mget_response)
         return {
-            doc['_id']: doc['_source']['paper_id']
+            doc['_id']: doc['_source']['s2_paper_id']
             for doc in mget_response['docs']
-            if doc.get('_source', {}).get('paper_id')
+            if doc.get('_source', {}).get('s2_paper_id')
         }
 
     def preload(self):
