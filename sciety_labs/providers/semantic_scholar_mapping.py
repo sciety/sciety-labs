@@ -26,6 +26,10 @@ class SemanticScholarMappingProvider(Protocol):
     def preload(self):
         pass
 
+    @abstractmethod
+    def refresh(self):
+        pass
+
 
 class BaseSemanticScholarMappingProvider(ABC, SemanticScholarMappingProvider):
     @abstractmethod

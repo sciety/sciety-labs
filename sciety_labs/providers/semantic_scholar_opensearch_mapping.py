@@ -37,3 +37,6 @@ class SemanticScholarOpenSearchMappingProvider(
 
     def preload(self):
         pass
+
+    def refresh(self):
+        pass
