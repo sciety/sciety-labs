@@ -72,6 +72,9 @@ def get_optional_date_from_date_parts(
     if not date_parts:
         return None
     assert len(date_parts) == 1
+    if len(date_parts[0]) != 3:
+        LOGGER.warning('incomplete date pars: %r', date_parts[0])
+        return None
     year, month, day = date_parts[0]
     return date(year, month, day)
 
