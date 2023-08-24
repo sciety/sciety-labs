@@ -27,7 +27,8 @@ class SemanticScholarOpenSearchMappingProvider(
     ) -> Mapping[str, str]:
         mget_response = self.opensearch_client.mget(
             index=self.index_name,
-            body={'ids': article_dois}
+            body={'ids': article_dois},
+            _source_includes=['s2_paper_id']
         )
         LOGGER.info('mget_response: %r', mget_response)
         return {
