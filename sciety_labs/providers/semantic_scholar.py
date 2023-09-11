@@ -11,6 +11,10 @@ from requests_cache import CachedResponse
 
 from sciety_labs.models.article import ArticleMention, ArticleMetaData, ArticleSearchResultItem
 from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
+from sciety_labs.providers.article_recommendation import (
+    ArticleRecommendation,
+    ArticleRecommendationList
+)
 from sciety_labs.providers.requests_provider import RequestsProvider
 from sciety_labs.providers.search import (
     SearchDateRange,
@@ -63,17 +67,6 @@ SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITH_VENUES: dict = {
     **SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITHOUT_VENUES,
     'venue': ','.join(SEMANTIC_SCHOLAR_SEARCH_VENUES)
 }
-
-
-@dataclasses.dataclass(frozen=True)
-class ArticleRecommendation(ArticleMention):
-    pass
-
-
-@dataclasses.dataclass(frozen=True)
-class ArticleRecommendationList:
-    recommendations: Sequence[ArticleRecommendation]
-    recommendation_timestamp: datetime
 
 
 @dataclasses.dataclass(frozen=True)
