@@ -12,6 +12,7 @@ from sciety_labs.aggregators.article import ArticleAggregator
 from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
 
 from sciety_labs.models.lists import ScietyEventListsModel
+from sciety_labs.providers.article_recommendation import ArticleRecommendationProvider
 from sciety_labs.providers.crossref import (
     CrossrefMetaDataProvider
 )
@@ -26,6 +27,7 @@ from sciety_labs.providers.opensearch import (
 )
 from sciety_labs.providers.sciety_event import ScietyEventProvider
 from sciety_labs.providers.semantic_scholar import (
+    SemanticScholarProvider,
     SemanticScholarSearchProvider,
     get_semantic_scholar_provider
 )
@@ -105,6 +107,12 @@ def get_semantic_scholar_mapping_provider(
     )
 
 
+def get_article_recommendation_provider(
+    semantic_scholar_provider: SemanticScholarProvider
+) -> ArticleRecommendationProvider:
+    return semantic_scholar_provider
+
+
 class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
     def __init__(self):
         gcp_project_name = 'elife-data-pipeline'
@@ -170,6 +178,9 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         self.semantic_scholar_search_provider = SemanticScholarSearchProvider(
             semantic_scholar_provider=self.semantic_scholar_provider,
             evaluation_stats_model=self.evaluation_stats_model
+        )
+        self.article_recommendation_provider = get_article_recommendation_provider(
+            self.semantic_scholar_provider
         )
 
         self.europe_pmc_provider = EuropePmcProvider(
