@@ -1,6 +1,6 @@
 import dataclasses
 from datetime import datetime
-from typing import Sequence
+from typing import Iterable, Optional, Protocol, Sequence
 
 from sciety_labs.models.article import ArticleMention
 
@@ -14,3 +14,12 @@ class ArticleRecommendation(ArticleMention):
 class ArticleRecommendationList:
     recommendations: Sequence[ArticleRecommendation]
     recommendation_timestamp: datetime
+
+
+class ArticleRecommendationProvider(Protocol):
+    def get_article_recommendation_list_for_article_dois(
+        self,
+        article_dois: Iterable[str],
+        max_recommendations: Optional[int] = None
+    ) -> ArticleRecommendationList:
+        pass
