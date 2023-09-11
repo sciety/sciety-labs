@@ -233,16 +233,6 @@ class SemanticScholarProvider(RequestsProvider):
             recommendation_timestamp=recommendation_timestamp
         )
 
-    def iter_article_recommendation_for_article_dois(
-        self,
-        article_dois: Iterable[str],
-        max_recommendations: int = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
-    ) -> Iterable[ArticleRecommendation]:
-        return self.get_article_recommendation_list_for_article_dois(
-            article_dois=article_dois,
-            max_recommendations=max_recommendations
-        ).recommendations
-
     def get_search_result_list(
         self,
         query: str,

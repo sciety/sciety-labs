@@ -69,10 +69,10 @@ def create_articles_router(
             all_article_recommendations = list(
                 iter_preprint_article_mention(
                     app_providers_and_models
-                    .semantic_scholar_provider.iter_article_recommendation_for_article_dois(
+                    .semantic_scholar_provider.get_article_recommendation_list_for_article_dois(
                         [article_doi],
                         max_recommendations=DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
-                    )
+                    ).recommendations
                 )
             )
         except requests.exceptions.HTTPError as exc:

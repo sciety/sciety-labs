@@ -18,10 +18,10 @@ def get_article_recommendation_page_and_item_count_for_article_dois(
     all_article_recommendations = list(
         iter_preprint_article_mention(
             app_providers_and_models
-            .semantic_scholar_provider.iter_article_recommendation_for_article_dois(
+            .semantic_scholar_provider.get_article_recommendation_list_for_article_dois(
                 article_dois,
                 max_recommendations=max_recommendations
-            )
+            ).recommendations
         )
     )
     item_count = len(all_article_recommendations)
