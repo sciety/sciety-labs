@@ -47,6 +47,24 @@ def iter_article_recommendation_from_opensearch_hits(
         )
 
 
+def get_vector_search_query(
+    query_vector: npt.ArrayLike,
+    embedding_vector_mapping_name: str,
+    max_results: int
+) -> dict:
+    search_query = {
+        'query': {
+            'knn': {
+                embedding_vector_mapping_name: {
+                    'vector': query_vector,
+                    'k': max_results
+                }
+            }
+        }
+    }
+    return search_query
+
+
 class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
     def __init__(
         self,
@@ -66,17 +84,11 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
         source_includes: Sequence[str],
         max_results: int
     ) -> Sequence[dict]:
-        search_query = {
-            'query': {
-                'knn': {
-                    embedding_vector_mapping_name: {
-                        'vector': query_vector,
-                        'k': max_results
-                    }
-                }
-            }
-        }
-
+        search_query = get_vector_search_query(
+            query_vector=query_vector,
+            embedding_vector_mapping_name=embedding_vector_mapping_name,
+            max_results=max_results
+        )
         client_search_results = (
             self.opensearch_client.search(  # pylint: disable=unexpected-keyword-arg
                 body=search_query,

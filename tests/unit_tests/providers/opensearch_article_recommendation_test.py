@@ -1,7 +1,11 @@
 from sciety_labs.providers.opensearch_article_recommendation import (
     get_article_meta_from_document,
+    get_vector_search_query,
     iter_article_recommendation_from_opensearch_hits
 )
+
+
+VECTOR_1 = [1, 1, 1]
 
 
 class TestGetArticleMetaFromDocument:
@@ -34,3 +38,22 @@ class TestIterArticleRecommendationFromOpenSearchHits:
             }
         }], exclude_article_dois={'doi1'}))
         assert not recommendations
+
+
+class TestGetVectorSearchQuery:
+    def test_should_include_query_vector(self):
+        search_query = get_vector_search_query(
+            query_vector=VECTOR_1,
+            embedding_vector_mapping_name='embedding1',
+            max_results=3
+        )
+        assert search_query == {
+            'query': {
+                'knn': {
+                    'embedding1': {
+                        'vector': VECTOR_1,
+                        'k': 3
+                    }
+                }
+            }
+        }
