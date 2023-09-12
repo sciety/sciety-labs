@@ -1,3 +1,4 @@
+from datetime import date, timedelta
 import logging
 from typing import Iterable, Optional, Sequence, Set
 
@@ -50,15 +51,30 @@ def iter_article_recommendation_from_opensearch_hits(
 def get_vector_search_query(
     query_vector: npt.ArrayLike,
     embedding_vector_mapping_name: str,
-    max_results: int
+    max_results: int,
+    from_publication_date: Optional[date] = None
 ) -> dict:
+    vector_query_part: dict = {
+        'vector': query_vector,
+        'k': max_results
+    }
+    if from_publication_date:
+        vector_query_part = {
+            **vector_query_part,
+            'filter': {
+                'bool': {
+                    'must': [{
+                        'range': {
+                            'publication_date': {'gte': from_publication_date.isoformat()}
+                        }
+                    }]
+                }
+            }
+        }
     search_query = {
         'query': {
             'knn': {
-                embedding_vector_mapping_name: {
-                    'vector': query_vector,
-                    'k': max_results
-                }
+                embedding_vector_mapping_name: vector_query_part
             }
         }
     }
@@ -82,12 +98,14 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
         index: str,
         embedding_vector_mapping_name: str,
         source_includes: Sequence[str],
-        max_results: int
+        max_results: int,
+        from_publication_date: Optional[date] = None
     ) -> Sequence[dict]:
         search_query = get_vector_search_query(
             query_vector=query_vector,
             embedding_vector_mapping_name=embedding_vector_mapping_name,
-            max_results=max_results
+            max_results=max_results,
+            from_publication_date=from_publication_date
         )
         client_search_results = (
             self.opensearch_client.search(  # pylint: disable=unexpected-keyword-arg
@@ -121,18 +139,20 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
             LOGGER.info('Article has no embedding vector in OpenSearch index: %r', article_doi)
             return ArticleRecommendationList([], get_utcnow())
         LOGGER.info('Found embedding vector: %d', len(embedding_vector))
+        from_publication_date = date.today() - timedelta(days=60)
         hits = self._run_vector_search_and_get_hits(
             embedding_vector,
             index=self.index_name,
             embedding_vector_mapping_name=self.embedding_vector_mapping_name,
             source_includes=['doi', 'title'],
-            max_results=1 + max_recommendations
+            max_results=1 + max_recommendations,
+            from_publication_date=from_publication_date
         )
         LOGGER.info('hits: %r', hits)
         return ArticleRecommendationList(
             list(iter_article_recommendation_from_opensearch_hits(
                 hits,
                 exclude_article_dois={article_doi}
-            )),
+            ))[:max_recommendations],
             get_utcnow()
         )

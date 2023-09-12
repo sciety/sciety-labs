@@ -1,3 +1,4 @@
+from datetime import date
 from sciety_labs.providers.opensearch_article_recommendation import (
     get_article_meta_from_document,
     get_vector_search_query,
@@ -53,6 +54,33 @@ class TestGetVectorSearchQuery:
                     'embedding1': {
                         'vector': VECTOR_1,
                         'k': 3
+                    }
+                }
+            }
+        }
+
+    def test_should_add_from_publication_date_filter(self):
+        search_query = get_vector_search_query(
+            query_vector=VECTOR_1,
+            embedding_vector_mapping_name='embedding1',
+            max_results=3,
+            from_publication_date=date.fromisoformat('2001-02-03')
+        )
+        assert search_query == {
+            'query': {
+                'knn': {
+                    'embedding1': {
+                        'vector': VECTOR_1,
+                        'k': 3,
+                        'filter': {
+                            'bool': {
+                                'must': [{
+                                    'range': {
+                                        'publication_date': {'gte': '2001-02-03'}
+                                    }
+                                }]
+                            }
+                        }
                     }
                 }
             }
