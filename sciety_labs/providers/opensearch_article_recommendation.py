@@ -18,7 +18,7 @@ from sciety_labs.utils.datetime import get_utcnow
 LOGGER = logging.getLogger(__name__)
 
 
-DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS = 5
+DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS = 50
 
 
 def get_article_meta_from_document(
