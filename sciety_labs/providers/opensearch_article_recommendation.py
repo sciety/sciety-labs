@@ -89,6 +89,8 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
         article_doi: str,
         max_recommendations: Optional[int] = None
     ) -> ArticleRecommendationList:
+        if not max_recommendations:
+            max_recommendations = DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS
         get_result = self.opensearch_client.get(
             index=self.index_name,
             id=article_doi,
@@ -108,7 +110,7 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
             index=self.index_name,
             embedding_vector_mapping_name=self.embedding_vector_mapping_name,
             source_includes=['doi', 'title'],
-            max_results=3
+            max_results=max_recommendations
         )
         LOGGER.info('hits: %r', hits)
         return ArticleRecommendationList(
