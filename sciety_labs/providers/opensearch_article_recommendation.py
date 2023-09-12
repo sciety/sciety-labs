@@ -1,11 +1,13 @@
 import logging
-from typing import Optional, Sequence
+from typing import Iterable, Optional, Sequence
 
 import numpy.typing as npt
 
 from opensearchpy import OpenSearch
+from sciety_labs.models.article import ArticleMetaData
 
 from sciety_labs.providers.article_recommendation import (
+    ArticleRecommendation,
     ArticleRecommendationList,
     SingleArticleRecommendationProvider
 )
@@ -16,6 +18,30 @@ LOGGER = logging.getLogger(__name__)
 
 
 DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS = 50
+
+
+def get_article_meta_from_document(
+    document: dict
+) -> ArticleMetaData:
+    article_doi = document['doi']
+    assert article_doi
+    return ArticleMetaData(
+        article_doi=article_doi,
+        article_title=document['title'],
+        published_date=None,
+        author_name_list=None
+    )
+
+
+def iter_article_recommendation_from_opensearch_hits(
+    hits: Iterable[dict]
+) -> Iterable[ArticleRecommendation]:
+    for hit in hits:
+        article_meta = get_article_meta_from_document(hit['_source'])
+        yield ArticleRecommendation(
+            article_doi=article_meta.article_doi,
+            article_meta=article_meta
+        )
 
 
 class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
@@ -81,8 +107,11 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
             embedding_vector,
             index=self.index_name,
             embedding_vector_mapping_name=self.embedding_vector_mapping_name,
-            source_includes=['doi'],
+            source_includes=['doi', 'title'],
             max_results=3
         )
         LOGGER.info('hits: %r', hits)
-        return ArticleRecommendationList([], get_utcnow())
+        return ArticleRecommendationList(
+            list(iter_article_recommendation_from_opensearch_hits(hits)),
+            get_utcnow()
+        )
