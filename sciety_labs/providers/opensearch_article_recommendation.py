@@ -140,6 +140,7 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
             return ArticleRecommendationList([], get_utcnow())
         LOGGER.info('Found embedding vector: %d', len(embedding_vector))
         from_publication_date = date.today() - timedelta(days=60)
+        LOGGER.info('from_publication_date: %r', from_publication_date)
         hits = self._run_vector_search_and_get_hits(
             embedding_vector,
             index=self.index_name,
