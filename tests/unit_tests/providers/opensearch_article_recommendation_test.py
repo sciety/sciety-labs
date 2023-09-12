@@ -21,7 +21,16 @@ class TestIterArticleRecommendationFromOpenSearchHits:
                 'doi': 'doi1',
                 'title': 'Title 1'
             }
-        }]))
+        }], exclude_article_dois={}))
         assert len(recommendations) == 1
         assert recommendations[0].article_doi == 'doi1'
         assert recommendations[0].article_meta.article_doi == 'doi1'
+
+    def test_should_exclude_selected_article_dois(self):
+        recommendations = list(iter_article_recommendation_from_opensearch_hits([{
+            '_source': {
+                'doi': 'doi1',
+                'title': 'Title 1'
+            }
+        }], exclude_article_dois={'doi1'}))
+        assert not recommendations

@@ -1,5 +1,5 @@
 import logging
-from typing import Iterable, Optional, Sequence
+from typing import Iterable, Optional, Sequence, Set
 
 import numpy.typing as npt
 
@@ -34,10 +34,13 @@ def get_article_meta_from_document(
 
 
 def iter_article_recommendation_from_opensearch_hits(
-    hits: Iterable[dict]
+    hits: Iterable[dict],
+    exclude_article_dois: Set[str]
 ) -> Iterable[ArticleRecommendation]:
     for hit in hits:
         article_meta = get_article_meta_from_document(hit['_source'])
+        if article_meta.article_doi in exclude_article_dois:
+            continue
         yield ArticleRecommendation(
             article_doi=article_meta.article_doi,
             article_meta=article_meta
@@ -111,10 +114,13 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
             index=self.index_name,
             embedding_vector_mapping_name=self.embedding_vector_mapping_name,
             source_includes=['doi', 'title'],
-            max_results=max_recommendations
+            max_results=1 + max_recommendations
         )
         LOGGER.info('hits: %r', hits)
         return ArticleRecommendationList(
-            list(iter_article_recommendation_from_opensearch_hits(hits)),
+            list(iter_article_recommendation_from_opensearch_hits(
+                hits,
+                exclude_article_dois={article_doi}
+            )),
             get_utcnow()
         )
