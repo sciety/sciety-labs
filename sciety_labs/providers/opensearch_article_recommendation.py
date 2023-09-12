@@ -149,10 +149,9 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
             from_publication_date=from_publication_date
         )
         LOGGER.debug('hits: %r', hits)
-        return ArticleRecommendationList(
-            list(iter_article_recommendation_from_opensearch_hits(
-                hits,
-                exclude_article_dois={article_doi}
-            ))[:max_recommendations],
-            get_utcnow()
-        )
+        recommendations = list(iter_article_recommendation_from_opensearch_hits(
+            hits,
+            exclude_article_dois={article_doi}
+        ))[:max_recommendations]
+        LOGGER.info('hits: %d, recommendations: %d', len(hits), len(recommendations))
+        return ArticleRecommendationList(recommendations, get_utcnow())
