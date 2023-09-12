@@ -23,3 +23,12 @@ class ArticleRecommendationProvider(Protocol):
         max_recommendations: Optional[int] = None
     ) -> ArticleRecommendationList:
         pass
+
+
+class SingleArticleRecommendationProvider(Protocol):
+    def get_article_recommendation_list_for_article_doi(
+        self,
+        article_doi: str,
+        max_recommendations: Optional[int] = None
+    ) -> ArticleRecommendationList:
+        pass

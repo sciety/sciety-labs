@@ -122,13 +122,13 @@ def create_list_by_id_router(
         )
         article_recommendation_with_article_meta, item_count = (
             get_article_recommendation_page_and_item_count_for_article_dois(
-                (
+                [
                     article_mention.article_doi
                     for article_mention in (
                         app_providers_and_models
                         .lists_model.iter_article_mentions_by_list_id(list_id)
                     )
-                ),
+                ],
                 app_providers_and_models=app_providers_and_models,
                 max_recommendations=max_recommendations,
                 pagination_parameters=pagination_parameters

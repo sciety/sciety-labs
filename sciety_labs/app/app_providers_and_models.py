@@ -12,7 +12,10 @@ from sciety_labs.aggregators.article import ArticleAggregator
 from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
 
 from sciety_labs.models.lists import ScietyEventListsModel
-from sciety_labs.providers.article_recommendation import ArticleRecommendationProvider
+from sciety_labs.providers.article_recommendation import (
+    ArticleRecommendationProvider,
+    SingleArticleRecommendationProvider
+)
 from sciety_labs.providers.crossref import (
     CrossrefMetaDataProvider
 )
@@ -25,6 +28,7 @@ from sciety_labs.providers.opensearch import (
     OpenSearchConnectionConfig,
     get_opensearch_client_or_none
 )
+from sciety_labs.providers.opensearch_article_recommendation import OpenSearchArticleRecommendation
 from sciety_labs.providers.sciety_event import ScietyEventProvider
 from sciety_labs.providers.semantic_scholar import (
     SemanticScholarProvider,
@@ -113,6 +117,15 @@ def get_article_recommendation_provider(
     return semantic_scholar_provider
 
 
+def get_single_article_recommendation_provider(
+    opensearch_client: Optional[OpenSearch],
+    opensearch_config: Optional[OpenSearchConnectionConfig]
+) -> Optional[SingleArticleRecommendationProvider]:
+    if not opensearch_client or not opensearch_config:
+        return None
+    return OpenSearchArticleRecommendation()
+
+
 class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
     def __init__(self):
         gcp_project_name = 'elife-data-pipeline'
@@ -180,7 +193,15 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
             evaluation_stats_model=self.evaluation_stats_model
         )
         self.article_recommendation_provider = get_article_recommendation_provider(
-            self.semantic_scholar_provider
+            semantic_scholar_provider=self.semantic_scholar_provider
+        )
+        self.single_article_recommendation_provider = get_single_article_recommendation_provider(
+            opensearch_client=opensearch_client,
+            opensearch_config=opensearch_config
+        )
+        LOGGER.info(
+            'single_article_recommendation_provider: %r',
+            self.single_article_recommendation_provider
         )
 
         self.europe_pmc_provider = EuropePmcProvider(
