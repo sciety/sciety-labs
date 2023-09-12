@@ -148,7 +148,7 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
             max_results=1 + max_recommendations,
             from_publication_date=from_publication_date
         )
-        LOGGER.info('hits: %r', hits)
+        LOGGER.debug('hits: %r', hits)
         return ArticleRecommendationList(
             list(iter_article_recommendation_from_opensearch_hits(
                 hits,
