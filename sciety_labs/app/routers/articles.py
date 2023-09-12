@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
@@ -114,7 +115,7 @@ def create_articles_router(
         request: Request,
         article_doi: str,
         pagination_parameters: AnnotatedPaginationParameters,
-        max_recommendations: int = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
+        max_recommendations: Optional[int] = None
     ):
         article_meta = (
             app_providers_and_models

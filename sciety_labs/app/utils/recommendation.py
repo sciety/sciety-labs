@@ -1,5 +1,5 @@
 import logging
-from typing import Sequence, Tuple
+from typing import Optional, Sequence, Tuple
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.models.article import ArticleMention, iter_preprint_article_mention
@@ -12,7 +12,7 @@ LOGGER = logging.getLogger(__name__)
 def get_article_recommendation_page_and_item_count_for_article_dois(
     article_dois: Sequence[str],
     app_providers_and_models: AppProvidersAndModels,
-    max_recommendations: int,
+    max_recommendations: Optional[int],
     pagination_parameters: UrlPaginationParameters
 ) -> Tuple[Sequence[ArticleMention], int]:
     if len(article_dois) == 1 and app_providers_and_models.single_article_recommendation_provider:
