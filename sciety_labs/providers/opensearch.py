@@ -48,6 +48,7 @@ class OpenSearchConnectionConfig:
     password: str = dataclasses.field(repr=False)
     index_name: str
     verify_certificates: bool = False
+    timeout: float = 60
 
     @staticmethod
     def from_env() -> Optional['OpenSearchConnectionConfig']:
@@ -87,7 +88,8 @@ def get_opensearch_client(config: OpenSearchConnectionConfig) -> OpenSearch:
         http_auth=(config.username, config.password),
         use_ssl=True,
         verify_certs=config.verify_certificates,
-        ssl_show_warn=config.verify_certificates
+        ssl_show_warn=config.verify_certificates,
+        timeout=config.timeout
     )
 
 
