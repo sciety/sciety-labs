@@ -17,7 +17,7 @@ from sciety_labs.utils.datetime import get_utcnow
 LOGGER = logging.getLogger(__name__)
 
 
-DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS = 50
+DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS = 5
 
 
 def get_article_meta_from_document(
@@ -91,6 +91,7 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
     ) -> ArticleRecommendationList:
         if not max_recommendations:
             max_recommendations = DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS
+        LOGGER.info('max_recommendations: %r', max_recommendations)
         get_result = self.opensearch_client.get(
             index=self.index_name,
             id=article_doi,
