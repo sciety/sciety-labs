@@ -1,3 +1,4 @@
+import logging
 from datetime import date
 from sciety_labs.providers.opensearch_article_recommendation import (
     get_article_meta_from_document,
@@ -5,6 +6,8 @@ from sciety_labs.providers.opensearch_article_recommendation import (
     iter_article_recommendation_from_opensearch_hits
 )
 
+
+LOGGER = logging.getLogger(__name__)
 
 DOI_1 = "10.00000/doi_1"
 
@@ -60,6 +63,7 @@ class TestGetVectorSearchQuery:
             max_results=3,
             exclude_article_dois={DOI_1}
         )
+        LOGGER.debug('search_query: %r', search_query)
         assert search_query == {
             'size': 3,
             'query': {
@@ -70,7 +74,7 @@ class TestGetVectorSearchQuery:
                         'filter': {
                             'bool': {
                                 'must_not': [{
-                                    'term': {'doi': {'value': DOI_1}}
+                                    'ids': {'values': [DOI_1]}
                                 }]
                             }
                         }

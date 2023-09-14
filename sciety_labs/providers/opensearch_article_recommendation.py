@@ -59,10 +59,9 @@ def get_vector_search_query(
     }
     bool_filter: dict = {}
     if exclude_article_dois:
-        for doi in exclude_article_dois:
-            bool_filter.setdefault('must_not', []).append({
-                'term': {'doi': {'value': doi}}
-            })
+        bool_filter.setdefault('must_not', []).append({
+            'ids': {'values': sorted(exclude_article_dois)}
+        })
     if from_publication_date:
         bool_filter.setdefault('must', []).append({
             'range': {
