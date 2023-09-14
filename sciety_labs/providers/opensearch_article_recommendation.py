@@ -36,13 +36,10 @@ def get_article_meta_from_document(
 
 
 def iter_article_recommendation_from_opensearch_hits(
-    hits: Iterable[dict],
-    exclude_article_dois: Set[str]
+    hits: Iterable[dict]
 ) -> Iterable[ArticleRecommendation]:
     for hit in hits:
         article_meta = get_article_meta_from_document(hit['_source'])
-        if article_meta.article_doi in exclude_article_dois:
-            continue
         yield ArticleRecommendation(
             article_doi=article_meta.article_doi,
             article_meta=article_meta
@@ -53,23 +50,30 @@ def get_vector_search_query(
     query_vector: npt.ArrayLike,
     embedding_vector_mapping_name: str,
     max_results: int,
+    exclude_article_dois: Optional[Set[str]] = None,
     from_publication_date: Optional[date] = None
 ) -> dict:
     vector_query_part: dict = {
         'vector': query_vector,
         'k': max_results
     }
+    bool_filter: dict = {}
+    if exclude_article_dois:
+        for doi in exclude_article_dois:
+            bool_filter.setdefault('must_not', []).append({
+                'match': {'doi': doi}
+            })
     if from_publication_date:
+        bool_filter.setdefault('must', []).append({
+            'range': {
+                'publication_date': {'gte': from_publication_date.isoformat()}
+            }
+        })
+    if bool_filter:
         vector_query_part = {
             **vector_query_part,
             'filter': {
-                'bool': {
-                    'must': [{
-                        'range': {
-                            'publication_date': {'gte': from_publication_date.isoformat()}
-                        }
-                    }]
-                }
+                'bool': bool_filter
             }
         }
     search_query = {
@@ -101,12 +105,14 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
         embedding_vector_mapping_name: str,
         source_includes: Sequence[str],
         max_results: int,
+        exclude_article_dois: Optional[Set[str]] = None,
         from_publication_date: Optional[date] = None
     ) -> Sequence[dict]:
         search_query = get_vector_search_query(
             query_vector=query_vector,
             embedding_vector_mapping_name=embedding_vector_mapping_name,
             max_results=max_results,
+            exclude_article_dois=exclude_article_dois,
             from_publication_date=from_publication_date
         )
         LOGGER.info('search_query JSON: %s', json.dumps(search_query))
@@ -149,13 +155,13 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
             index=self.index_name,
             embedding_vector_mapping_name=self.embedding_vector_mapping_name,
             source_includes=['doi', 'title'],
-            max_results=1 + max_recommendations,
+            max_results=max_recommendations,
+            exclude_article_dois={article_doi},
             from_publication_date=from_publication_date
         )
         LOGGER.debug('hits: %r', hits)
         recommendations = list(iter_article_recommendation_from_opensearch_hits(
-            hits,
-            exclude_article_dois={article_doi}
+            hits
         ))[:max_recommendations]
         LOGGER.info('hits: %d, recommendations: %d', len(hits), len(recommendations))
         return ArticleRecommendationList(recommendations, get_utcnow())

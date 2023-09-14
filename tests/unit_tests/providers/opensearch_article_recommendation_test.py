@@ -6,6 +6,8 @@ from sciety_labs.providers.opensearch_article_recommendation import (
 )
 
 
+DOI_1 = "10.00000/doi_1"
+
 VECTOR_1 = [1, 1, 1]
 
 
@@ -26,19 +28,10 @@ class TestIterArticleRecommendationFromOpenSearchHits:
                 'doi': 'doi1',
                 'title': 'Title 1'
             }
-        }], exclude_article_dois={}))
+        }]))
         assert len(recommendations) == 1
         assert recommendations[0].article_doi == 'doi1'
         assert recommendations[0].article_meta.article_doi == 'doi1'
-
-    def test_should_exclude_selected_article_dois(self):
-        recommendations = list(iter_article_recommendation_from_opensearch_hits([{
-            '_source': {
-                'doi': 'doi1',
-                'title': 'Title 1'
-            }
-        }], exclude_article_dois={'doi1'}))
-        assert not recommendations
 
 
 class TestGetVectorSearchQuery:
@@ -55,6 +48,32 @@ class TestGetVectorSearchQuery:
                     'embedding1': {
                         'vector': VECTOR_1,
                         'k': 3
+                    }
+                }
+            }
+        }
+
+    def test_should_add_doi_filter(self):
+        search_query = get_vector_search_query(
+            query_vector=VECTOR_1,
+            embedding_vector_mapping_name='embedding1',
+            max_results=3,
+            exclude_article_dois={DOI_1}
+        )
+        assert search_query == {
+            'size': 3,
+            'query': {
+                'knn': {
+                    'embedding1': {
+                        'vector': VECTOR_1,
+                        'k': 3,
+                        'filter': {
+                            'bool': {
+                                'must_not': [{
+                                    'match': {'doi': DOI_1}
+                                }]
+                            }
+                        }
                     }
                 }
             }
