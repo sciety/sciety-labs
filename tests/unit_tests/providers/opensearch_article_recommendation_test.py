@@ -49,6 +49,7 @@ class TestGetVectorSearchQuery:
             max_results=3
         )
         assert search_query == {
+            'size': 3,
             'query': {
                 'knn': {
                     'embedding1': {
@@ -67,6 +68,7 @@ class TestGetVectorSearchQuery:
             from_publication_date=date.fromisoformat('2001-02-03')
         )
         assert search_query == {
+            'size': 3,
             'query': {
                 'knn': {
                     'embedding1': {

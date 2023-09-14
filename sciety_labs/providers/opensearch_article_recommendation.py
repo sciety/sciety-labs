@@ -73,6 +73,7 @@ def get_vector_search_query(
             }
         }
     search_query = {
+        'size': max_results,
         'query': {
             'knn': {
                 embedding_vector_mapping_name: vector_query_part
