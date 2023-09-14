@@ -70,7 +70,7 @@ class TestGetVectorSearchQuery:
                         'filter': {
                             'bool': {
                                 'must_not': [{
-                                    'match': {'doi': DOI_1}
+                                    'term': {'doi': {'value': DOI_1}}
                                 }]
                             }
                         }

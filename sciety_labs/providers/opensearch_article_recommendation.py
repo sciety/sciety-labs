@@ -61,7 +61,7 @@ def get_vector_search_query(
     if exclude_article_dois:
         for doi in exclude_article_dois:
             bool_filter.setdefault('must_not', []).append({
-                'match': {'doi': doi}
+                'term': {'doi': {'value': doi}}
             })
     if from_publication_date:
         bool_filter.setdefault('must', []).append({
