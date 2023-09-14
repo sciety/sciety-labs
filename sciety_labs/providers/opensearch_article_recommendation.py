@@ -1,5 +1,6 @@
-from datetime import date, timedelta
+import json
 import logging
+from datetime import date, timedelta
 from typing import Iterable, Optional, Sequence, Set
 
 import numpy.typing as npt
@@ -107,6 +108,7 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
             max_results=max_results,
             from_publication_date=from_publication_date
         )
+        LOGGER.info('search_query JSON: %s', json.dumps(search_query))
         client_search_results = (
             self.opensearch_client.search(  # pylint: disable=unexpected-keyword-arg
                 body=search_query,
