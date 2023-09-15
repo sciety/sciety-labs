@@ -3,18 +3,18 @@ from typing import Optional, Sequence, Tuple
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.models.article import ArticleMention, iter_preprint_article_mention
+from sciety_labs.providers.article_recommendation import ArticleRecommendationList
 from sciety_labs.utils.pagination import UrlPaginationParameters
 
 
 LOGGER = logging.getLogger(__name__)
 
 
-def get_article_recommendation_page_and_item_count_for_article_dois(
+def get_article_recommendation_list_for_article_dois(
     article_dois: Sequence[str],
     app_providers_and_models: AppProvidersAndModels,
-    max_recommendations: Optional[int],
-    pagination_parameters: UrlPaginationParameters
-) -> Tuple[Sequence[ArticleMention], int]:
+    max_recommendations: Optional[int]
+) -> ArticleRecommendationList:
     if len(article_dois) == 1 and app_providers_and_models.single_article_recommendation_provider:
         LOGGER.info('Retrieving single article recommendation')
         article_recommendation_list = (
@@ -33,6 +33,20 @@ def get_article_recommendation_page_and_item_count_for_article_dois(
                 max_recommendations=max_recommendations
             )
         )
+    return article_recommendation_list
+
+
+def get_article_recommendation_page_and_item_count_for_article_dois(
+    article_dois: Sequence[str],
+    app_providers_and_models: AppProvidersAndModels,
+    max_recommendations: Optional[int],
+    pagination_parameters: UrlPaginationParameters
+) -> Tuple[Sequence[ArticleMention], int]:
+    article_recommendation_list = get_article_recommendation_list_for_article_dois(
+        article_dois,
+        app_providers_and_models=app_providers_and_models,
+        max_recommendations=max_recommendations
+    )
     all_article_recommendations = list(
         iter_preprint_article_mention(article_recommendation_list.recommendations)
     )
