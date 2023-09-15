@@ -33,6 +33,7 @@ from sciety_labs.providers.sciety_event import ScietyEventProvider
 from sciety_labs.providers.semantic_scholar import (
     SemanticScholarProvider,
     SemanticScholarSearchProvider,
+    SemanticScholarTitleAbstractEmbeddingVectorProvider,
     get_semantic_scholar_provider
 )
 from sciety_labs.providers.semantic_scholar_bigquery_mapping import (
@@ -119,24 +120,32 @@ def get_article_recommendation_provider(
 
 def get_opensearch_single_article_recommendation_provider(
     opensearch_client: OpenSearch,
-    opensearch_config: OpenSearchConnectionConfig
+    opensearch_config: OpenSearchConnectionConfig,
+    crossref_metadata_provider: CrossrefMetaDataProvider,
+    title_abstract_embedding_vector_provider: SemanticScholarTitleAbstractEmbeddingVectorProvider
 ) -> Optional[SingleArticleRecommendationProvider]:
     assert opensearch_config.embedding_vector_mapping_name
     return OpenSearchArticleRecommendation(
         opensearch_client=opensearch_client,
         index_name=opensearch_config.index_name,
-        embedding_vector_mapping_name=opensearch_config.embedding_vector_mapping_name
+        embedding_vector_mapping_name=opensearch_config.embedding_vector_mapping_name,
+        crossref_metadata_provider=crossref_metadata_provider,
+        title_abstract_embedding_vector_provider=title_abstract_embedding_vector_provider
     )
 
 
 def get_single_article_recommendation_provider(
     opensearch_client: Optional[OpenSearch],
-    opensearch_config: Optional[OpenSearchConnectionConfig]
+    opensearch_config: Optional[OpenSearchConnectionConfig],
+    crossref_metadata_provider: CrossrefMetaDataProvider,
+    title_abstract_embedding_vector_provider: SemanticScholarTitleAbstractEmbeddingVectorProvider
 ) -> Optional[SingleArticleRecommendationProvider]:
     if opensearch_client and opensearch_config and opensearch_config.embedding_vector_mapping_name:
         return get_opensearch_single_article_recommendation_provider(
             opensearch_client=opensearch_client,
-            opensearch_config=opensearch_config
+            opensearch_config=opensearch_config,
+            crossref_metadata_provider=crossref_metadata_provider,
+            title_abstract_embedding_vector_provider=title_abstract_embedding_vector_provider
         )
     return None
 
@@ -207,12 +216,19 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
             semantic_scholar_provider=self.semantic_scholar_provider,
             evaluation_stats_model=self.evaluation_stats_model
         )
+        title_abstract_embedding_vector_provider = (
+            SemanticScholarTitleAbstractEmbeddingVectorProvider(
+                requests_session=cached_requests_session
+            )
+        )
         self.article_recommendation_provider = get_article_recommendation_provider(
             semantic_scholar_provider=self.semantic_scholar_provider
         )
         self.single_article_recommendation_provider = get_single_article_recommendation_provider(
             opensearch_client=opensearch_client,
-            opensearch_config=opensearch_config
+            opensearch_config=opensearch_config,
+            crossref_metadata_provider=self.crossref_metadata_provider,
+            title_abstract_embedding_vector_provider=title_abstract_embedding_vector_provider
         )
         LOGGER.info(
             'single_article_recommendation_provider: %r',
