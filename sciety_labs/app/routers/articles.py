@@ -6,6 +6,8 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 import requests
 
+import opensearchpy.exceptions
+
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.utils.common import (
     AnnotatedPaginationParameters,
@@ -76,7 +78,7 @@ def create_articles_router(
                     ).recommendations
                 )
             )
-        except requests.exceptions.HTTPError as exc:
+        except (requests.exceptions.HTTPError, opensearchpy.exceptions.TransportError) as exc:
             LOGGER.warning('failed to get recommendations for %r due to %r', article_doi, exc)
             all_article_recommendations = []
         article_recommendation_with_article_meta = list(
