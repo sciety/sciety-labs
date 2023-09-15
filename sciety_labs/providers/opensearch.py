@@ -49,6 +49,7 @@ class OpenSearchConnectionConfig:
     index_name: str
     verify_certificates: bool = False
     timeout: float = 60
+    embedding_vector_mapping_name: str = 's2_specter_embedding_v1'
 
     @staticmethod
     def from_env() -> Optional['OpenSearchConnectionConfig']:
