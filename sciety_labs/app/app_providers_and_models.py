@@ -123,7 +123,8 @@ def get_opensearch_single_article_recommendation_provider(
 ) -> Optional[SingleArticleRecommendationProvider]:
     return OpenSearchArticleRecommendation(
         opensearch_client=opensearch_client,
-        index_name=opensearch_config.index_name
+        index_name=opensearch_config.index_name,
+        embedding_vector_mapping_name='s2_specter_embedding_v1'
     )
 
 

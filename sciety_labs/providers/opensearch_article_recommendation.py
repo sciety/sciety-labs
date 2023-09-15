@@ -91,7 +91,7 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
         self,
         opensearch_client: OpenSearch,
         index_name: str,
-        embedding_vector_mapping_name: str = 's2_specter_embedding_v1'
+        embedding_vector_mapping_name: str
     ):
         self.opensearch_client = opensearch_client
         self.index_name = index_name
