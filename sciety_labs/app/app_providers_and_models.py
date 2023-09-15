@@ -121,6 +121,7 @@ def get_opensearch_single_article_recommendation_provider(
     opensearch_client: OpenSearch,
     opensearch_config: OpenSearchConnectionConfig
 ) -> Optional[SingleArticleRecommendationProvider]:
+    assert opensearch_config.embedding_vector_mapping_name
     return OpenSearchArticleRecommendation(
         opensearch_client=opensearch_client,
         index_name=opensearch_config.index_name,
@@ -132,7 +133,7 @@ def get_single_article_recommendation_provider(
     opensearch_client: Optional[OpenSearch],
     opensearch_config: Optional[OpenSearchConnectionConfig]
 ) -> Optional[SingleArticleRecommendationProvider]:
-    if opensearch_client and opensearch_config:
+    if opensearch_client and opensearch_config and opensearch_config.embedding_vector_mapping_name:
         return get_opensearch_single_article_recommendation_provider(
             opensearch_client=opensearch_client,
             opensearch_config=opensearch_config
