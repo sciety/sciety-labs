@@ -12,6 +12,10 @@ from sciety_labs.aggregators.article import ArticleAggregator
 from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
 
 from sciety_labs.models.lists import ScietyEventListsModel
+from sciety_labs.providers.article_recommendation import (
+    ArticleRecommendationProvider,
+    SingleArticleRecommendationProvider
+)
 from sciety_labs.providers.crossref import (
     CrossrefMetaDataProvider
 )
@@ -24,8 +28,10 @@ from sciety_labs.providers.opensearch import (
     OpenSearchConnectionConfig,
     get_opensearch_client_or_none
 )
+from sciety_labs.providers.opensearch_article_recommendation import OpenSearchArticleRecommendation
 from sciety_labs.providers.sciety_event import ScietyEventProvider
 from sciety_labs.providers.semantic_scholar import (
+    SemanticScholarProvider,
     SemanticScholarSearchProvider,
     get_semantic_scholar_provider
 )
@@ -105,6 +111,36 @@ def get_semantic_scholar_mapping_provider(
     )
 
 
+def get_article_recommendation_provider(
+    semantic_scholar_provider: SemanticScholarProvider
+) -> ArticleRecommendationProvider:
+    return semantic_scholar_provider
+
+
+def get_opensearch_single_article_recommendation_provider(
+    opensearch_client: OpenSearch,
+    opensearch_config: OpenSearchConnectionConfig
+) -> Optional[SingleArticleRecommendationProvider]:
+    assert opensearch_config.embedding_vector_mapping_name
+    return OpenSearchArticleRecommendation(
+        opensearch_client=opensearch_client,
+        index_name=opensearch_config.index_name,
+        embedding_vector_mapping_name=opensearch_config.embedding_vector_mapping_name
+    )
+
+
+def get_single_article_recommendation_provider(
+    opensearch_client: Optional[OpenSearch],
+    opensearch_config: Optional[OpenSearchConnectionConfig]
+) -> Optional[SingleArticleRecommendationProvider]:
+    if opensearch_client and opensearch_config and opensearch_config.embedding_vector_mapping_name:
+        return get_opensearch_single_article_recommendation_provider(
+            opensearch_client=opensearch_client,
+            opensearch_config=opensearch_config
+        )
+    return None
+
+
 class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
     def __init__(self):
         gcp_project_name = 'elife-data-pipeline'
@@ -170,6 +206,17 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         self.semantic_scholar_search_provider = SemanticScholarSearchProvider(
             semantic_scholar_provider=self.semantic_scholar_provider,
             evaluation_stats_model=self.evaluation_stats_model
+        )
+        self.article_recommendation_provider = get_article_recommendation_provider(
+            semantic_scholar_provider=self.semantic_scholar_provider
+        )
+        self.single_article_recommendation_provider = get_single_article_recommendation_provider(
+            opensearch_client=opensearch_client,
+            opensearch_config=opensearch_config
+        )
+        LOGGER.info(
+            'single_article_recommendation_provider: %r',
+            self.single_article_recommendation_provider
         )
 
         self.europe_pmc_provider = EuropePmcProvider(

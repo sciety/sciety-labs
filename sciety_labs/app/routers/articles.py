@@ -1,9 +1,12 @@
 import logging
+from typing import Optional
 
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 import requests
+
+import opensearchpy.exceptions
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.utils.common import (
@@ -11,10 +14,10 @@ from sciety_labs.app.utils.common import (
     get_page_title
 )
 from sciety_labs.app.utils.recommendation import (
+    get_article_recommendation_list_for_article_dois,
     get_article_recommendation_page_and_item_count_for_article_dois
 )
 from sciety_labs.models.article import iter_preprint_article_mention
-from sciety_labs.providers.semantic_scholar import DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
 from sciety_labs.utils.pagination import get_url_pagination_state_for_pagination_parameters
 from sciety_labs.utils.text import remove_markup_or_none
 
@@ -68,14 +71,13 @@ def create_articles_router(
         try:
             all_article_recommendations = list(
                 iter_preprint_article_mention(
-                    app_providers_and_models
-                    .semantic_scholar_provider.iter_article_recommendation_for_article_dois(
+                    get_article_recommendation_list_for_article_dois(
                         [article_doi],
-                        max_recommendations=DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
-                    )
+                        app_providers_and_models=app_providers_and_models
+                    ).recommendations
                 )
             )
-        except requests.exceptions.HTTPError as exc:
+        except (requests.exceptions.HTTPError, opensearchpy.exceptions.TransportError) as exc:
             LOGGER.warning('failed to get recommendations for %r due to %r', article_doi, exc)
             all_article_recommendations = []
         article_recommendation_with_article_meta = list(
@@ -114,7 +116,7 @@ def create_articles_router(
         request: Request,
         article_doi: str,
         pagination_parameters: AnnotatedPaginationParameters,
-        max_recommendations: int = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
+        max_recommendations: Optional[int] = None
     ):
         article_meta = (
             app_providers_and_models

@@ -11,6 +11,11 @@ from requests_cache import CachedResponse
 
 from sciety_labs.models.article import ArticleMention, ArticleMetaData, ArticleSearchResultItem
 from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
+from sciety_labs.providers.article_recommendation import (
+    ArticleRecommendation,
+    ArticleRecommendationList,
+    ArticleRecommendationProvider
+)
 from sciety_labs.providers.requests_provider import RequestsProvider
 from sciety_labs.providers.search import (
     SearchDateRange,
@@ -63,17 +68,6 @@ SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITH_VENUES: dict = {
     **SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITHOUT_VENUES,
     'venue': ','.join(SEMANTIC_SCHOLAR_SEARCH_VENUES)
 }
-
-
-@dataclasses.dataclass(frozen=True)
-class ArticleRecommendation(ArticleMention):
-    pass
-
-
-@dataclasses.dataclass(frozen=True)
-class ArticleRecommendationList:
-    recommendations: Sequence[ArticleRecommendation]
-    recommendation_timestamp: datetime
 
 
 @dataclasses.dataclass(frozen=True)
@@ -177,7 +171,7 @@ def is_data_for_limit_or_offset_not_available_error(response: requests.Response)
         return False
 
 
-class SemanticScholarProvider(RequestsProvider):
+class SemanticScholarProvider(RequestsProvider, ArticleRecommendationProvider):
     def __init__(
         self,
         api_key_file_path: Optional[str],
@@ -208,8 +202,10 @@ class SemanticScholarProvider(RequestsProvider):
     def get_article_recommendation_list_for_article_dois(
         self,
         article_dois: Iterable[str],
-        max_recommendations: int = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
+        max_recommendations: Optional[int] = None
     ) -> ArticleRecommendationList:
+        if not max_recommendations:
+            max_recommendations = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
         request_json = _get_recommendation_request_payload_for_paper_ids_or_external_ids(
             paper_ids_or_external_ids=self.iter_paper_ids_or_external_ids_for_article_dois(
                 article_dois=list(itertools.islice(
@@ -239,16 +235,6 @@ class SemanticScholarProvider(RequestsProvider):
             )),
             recommendation_timestamp=recommendation_timestamp
         )
-
-    def iter_article_recommendation_for_article_dois(
-        self,
-        article_dois: Iterable[str],
-        max_recommendations: int = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
-    ) -> Iterable[ArticleRecommendation]:
-        return self.get_article_recommendation_list_for_article_dois(
-            article_dois=article_dois,
-            max_recommendations=max_recommendations
-        ).recommendations
 
     def get_search_result_list(
         self,
