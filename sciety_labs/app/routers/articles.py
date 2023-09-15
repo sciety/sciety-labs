@@ -18,7 +18,6 @@ from sciety_labs.app.utils.recommendation import (
     get_article_recommendation_page_and_item_count_for_article_dois
 )
 from sciety_labs.models.article import iter_preprint_article_mention
-from sciety_labs.providers.semantic_scholar import DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
 from sciety_labs.utils.pagination import get_url_pagination_state_for_pagination_parameters
 from sciety_labs.utils.text import remove_markup_or_none
 
@@ -74,8 +73,7 @@ def create_articles_router(
                 iter_preprint_article_mention(
                     get_article_recommendation_list_for_article_dois(
                         [article_doi],
-                        app_providers_and_models=app_providers_and_models,
-                        max_recommendations=DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
+                        app_providers_and_models=app_providers_and_models
                     ).recommendations
                 )
             )

@@ -13,7 +13,7 @@ LOGGER = logging.getLogger(__name__)
 def get_article_recommendation_list_for_article_dois(
     article_dois: Sequence[str],
     app_providers_and_models: AppProvidersAndModels,
-    max_recommendations: Optional[int]
+    max_recommendations: Optional[int] = None
 ) -> ArticleRecommendationList:
     if len(article_dois) == 1 and app_providers_and_models.single_article_recommendation_provider:
         LOGGER.info('Retrieving single article recommendation')
