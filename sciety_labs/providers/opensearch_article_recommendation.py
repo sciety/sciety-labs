@@ -125,14 +125,10 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
         hits = client_search_results['hits']['hits'][:max_results]
         return hits
 
-    def get_article_recommendation_list_for_article_doi(
+    def get_embedding_vector_for_article_doi(
         self,
-        article_doi: str,
-        max_recommendations: Optional[int] = None
-    ) -> ArticleRecommendationList:
-        if not max_recommendations:
-            max_recommendations = DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS
-        LOGGER.info('max_recommendations: %r', max_recommendations)
+        article_doi: str
+    ) -> Optional[Sequence[float]]:
         get_result = self.opensearch_client.get(
             index=self.index_name,
             id=article_doi,
@@ -141,10 +137,23 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
         doc = get_result.get('_source')
         if not doc:
             LOGGER.info('Article not found in OpenSearch index: %r', article_doi)
-            return ArticleRecommendationList([], get_utcnow())
+            return None
         embedding_vector = doc.get(self.embedding_vector_mapping_name)
         if not embedding_vector or len(embedding_vector) == 0:
             LOGGER.info('Article has no embedding vector in OpenSearch index: %r', article_doi)
+            return None
+        return embedding_vector
+
+    def get_article_recommendation_list_for_article_doi(
+        self,
+        article_doi: str,
+        max_recommendations: Optional[int] = None
+    ) -> ArticleRecommendationList:
+        if not max_recommendations:
+            max_recommendations = DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS
+        LOGGER.info('max_recommendations: %r', max_recommendations)
+        embedding_vector = self.get_embedding_vector_for_article_doi(article_doi)
+        if embedding_vector is None:
             return ArticleRecommendationList([], get_utcnow())
         LOGGER.info('Found embedding vector: %d', len(embedding_vector))
         from_publication_date = date.today() - timedelta(days=60)
