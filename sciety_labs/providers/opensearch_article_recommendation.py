@@ -32,6 +32,12 @@ class DocumentAuthor(TypedDict):
     s2_author_id: Optional[str]
 
 
+class DocumentDict(TypedDict):
+    doi: str
+    title: str
+    authors: Optional[Sequence[DocumentAuthor]]
+
+
 def get_author_names_for_document_authors(
     authors: Optional[Sequence[DocumentAuthor]]
 ) -> Optional[Sequence[str]]:
@@ -41,7 +47,7 @@ def get_author_names_for_document_authors(
 
 
 def get_article_meta_from_document(
-    document: dict
+    document: DocumentDict
 ) -> ArticleMetaData:
     article_doi = document['doi']
     assert article_doi
