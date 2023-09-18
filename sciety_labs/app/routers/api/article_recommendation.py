@@ -82,7 +82,7 @@ def create_api_article_recommendation_router(
             if status_code != 404:
                 raise
             response.status_code = 404
-            return {'error': 'Paper with id DOI:{DOI_1} not found'}
+            return {'error': f'Paper with id DOI:{article_doi} not found'}
         return get_s2_recommended_papers_response_for_article_recommendation_list(
             article_recommendation_list
         )

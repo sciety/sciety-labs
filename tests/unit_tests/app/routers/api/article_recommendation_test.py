@@ -170,4 +170,4 @@ class TestArticleRecommendationApi:
             f'/api/like/s2/recommendations/v1/papers/forpaper/DOI:{DOI_1}'
         )
         assert response.status_code == 404
-        assert response.json() == {'error': 'Paper with id DOI:{DOI_1} not found'}
+        assert response.json() == {'error': f'Paper with id DOI:{DOI_1} not found'}
