@@ -62,7 +62,7 @@ def create_api_article_recommendation_router(
 ):
     router = APIRouter()
 
-    @router.get('/api/like/s2/recommendations/v1/papers/forpaper/DOI:{article_doi}')
+    @router.get('/api/like/s2/recommendations/v1/papers/forpaper/DOI:{article_doi:path}')
     def like_s2_recommendations_for_paper(
         article_doi: str,
         limit: Optional[int] = None

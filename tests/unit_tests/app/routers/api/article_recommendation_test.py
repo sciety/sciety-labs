@@ -19,7 +19,7 @@ from sciety_labs.providers.article_recommendation import (
 from sciety_labs.utils.datetime import get_utcnow
 
 
-DOI_1 = 'doi1'
+DOI_1 = '10.12345/doi1'
 
 
 @pytest.fixture(name='get_article_recommendation_list_for_article_dois_mock', autouse=True)
