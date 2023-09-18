@@ -23,6 +23,17 @@ class TestGetArticleMetaFromDocument:
         assert article_meta.article_doi == 'doi1'
         assert article_meta.article_title == 'Title 1'
 
+    def test_should_create_article_meta_with_authors(self):
+        article_meta = get_article_meta_from_document({
+            'doi': 'doi1',
+            'title': 'Title 1',
+            'authors': [
+                {'name': 'Author 1'},
+                {'name': 'Author 2'}
+            ]
+        })
+        assert article_meta.author_name_list == ['Author 1', 'Author 2']
+
 
 class TestIterArticleRecommendationFromOpenSearchHits:
     def test_should_yield_items_with_article_meta(self):

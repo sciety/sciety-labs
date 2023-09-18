@@ -1,7 +1,7 @@
 import json
 import logging
 from datetime import date, timedelta
-from typing import Iterable, Optional, Sequence, Set
+from typing import Iterable, Optional, Sequence, Set, TypedDict
 
 import numpy.typing as npt
 
@@ -27,6 +27,19 @@ LOGGER = logging.getLogger(__name__)
 DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS = 50
 
 
+class DocumentAuthor(TypedDict):
+    name: str
+    s2_author_id: Optional[str]
+
+
+def get_author_names_for_document_authors(
+    authors: Optional[Sequence[DocumentAuthor]]
+) -> Optional[Sequence[str]]:
+    if authors is None:
+        return None
+    return [author['name'] for author in authors]
+
+
 def get_article_meta_from_document(
     document: dict
 ) -> ArticleMetaData:
@@ -36,7 +49,7 @@ def get_article_meta_from_document(
         article_doi=article_doi,
         article_title=document['title'],
         published_date=None,
-        author_name_list=None
+        author_name_list=get_author_names_for_document_authors(document.get('authors'))
     )
 
 
@@ -195,7 +208,7 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
             embedding_vector,
             index=self.index_name,
             embedding_vector_mapping_name=self.embedding_vector_mapping_name,
-            source_includes=['doi', 'title'],
+            source_includes=['doi', 'title', 'authors'],
             max_results=max_recommendations,
             exclude_article_dois={article_doi},
             from_publication_date=from_publication_date
