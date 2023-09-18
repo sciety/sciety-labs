@@ -146,9 +146,6 @@ class TestArticleRecommendationApi:
         get_article_recommendation_list_for_article_dois_mock.return_value = (
             article_recommendation_list
         )
-        get_s2_recommended_papers_response_for_article_recommendation_list(
-            article_recommendation_list
-        )
         response = test_client.get(
             f'/api/like/s2/recommendations/v1/papers/forpaper/DOI:{DOI_1}'
         )
