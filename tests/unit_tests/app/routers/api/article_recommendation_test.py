@@ -9,6 +9,7 @@ import requests
 
 from sciety_labs.app.routers.api import article_recommendation as module_under_test
 from sciety_labs.app.routers.api.article_recommendation import (
+    DEFAULT_LIKE_S2_RECOMMENDATION_FIELDS,
     create_api_article_recommendation_router,
     get_s2_recommended_paper_response_for_article_recommendation,
     get_s2_recommended_papers_response_for_article_recommendation_list
@@ -22,6 +23,17 @@ from sciety_labs.utils.datetime import get_utcnow
 
 
 DOI_1 = '10.12345/doi1'
+
+
+ARTICLE_RECOMMENDATION_1 = ArticleRecommendation(
+    article_doi=DOI_1,
+    article_meta=ArticleMetaData(
+        article_doi=DOI_1,
+        article_title='Title 1',
+        author_name_list=['Author 1', 'Author 2'],
+        published_date=date(2001, 2, 3)
+    )
+)
 
 
 @pytest.fixture(name='get_article_recommendation_list_for_article_dois_mock', autouse=True)
@@ -77,7 +89,24 @@ class TestGetS2RecommendedPaperResponseForArticleRecommendation:
             'authors': [
                 {'name': 'Author 1'},
                 {'name': 'Author 2'}
-            ],
+            ]
+        }
+
+    def test_should_be_able_to_select_fields(self):
+        result = get_s2_recommended_paper_response_for_article_recommendation(
+            ArticleRecommendation(
+                article_doi=DOI_1,
+                article_meta=ArticleMetaData(
+                    article_doi=DOI_1,
+                    article_title='Title 1',
+                    author_name_list=['Author 1', 'Author 2'],
+                    published_date=date(2001, 2, 3)
+                )
+            ),
+            fields=['externalIds']
+        )
+        assert result == {
+            'externalIds': {'DOI': DOI_1},
         }
 
 
@@ -140,7 +169,7 @@ class TestArticleRecommendationApi:
         get_article_recommendation_list_for_article_dois_mock: MagicMock
     ):
         article_recommendation_list = ArticleRecommendationList(
-            recommendations=[],
+            recommendations=[ARTICLE_RECOMMENDATION_1],
             recommendation_timestamp=get_utcnow()
         )
         get_article_recommendation_list_for_article_dois_mock.return_value = (
@@ -152,7 +181,8 @@ class TestArticleRecommendationApi:
         assert response.status_code == 200
         assert response.json() == (
             get_s2_recommended_papers_response_for_article_recommendation_list(
-                article_recommendation_list
+                article_recommendation_list,
+                fields=DEFAULT_LIKE_S2_RECOMMENDATION_FIELDS
             )
         )
 
