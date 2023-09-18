@@ -11,6 +11,7 @@ from sciety_labs.app.routers.api.article_recommendation import (
     get_s2_recommended_paper_response_for_article_recommendation,
     get_s2_recommended_papers_response_for_article_recommendation_list
 )
+from sciety_labs.models.article import ArticleMetaData
 from sciety_labs.providers.article_recommendation import (
     ArticleRecommendation,
     ArticleRecommendationList
@@ -53,6 +54,21 @@ class TestGetS2RecommendedPaperResponseForArticleRecommendation:
         )
         assert result == {
             'externalIds': {'DOI': DOI_1}
+        }
+
+    def test_should_return_response_for_paper_with_metadata(self):
+        result = get_s2_recommended_paper_response_for_article_recommendation(
+            ArticleRecommendation(
+                article_doi=DOI_1,
+                article_meta=ArticleMetaData(
+                    article_doi=DOI_1,
+                    article_title='Title 1'
+                )
+            )
+        )
+        assert result == {
+            'externalIds': {'DOI': DOI_1},
+            'title': 'Title 1'
         }
 
 

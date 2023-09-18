@@ -19,11 +19,18 @@ LOGGER = logging.getLogger(__name__)
 def get_s2_recommended_paper_response_for_article_recommendation(
     article_recommendation: ArticleRecommendation
 ) -> dict:
-    return {
+    response: dict = {
         'externalIds': {
             'DOI': article_recommendation.article_doi
         }
     }
+    article_meta = article_recommendation.article_meta
+    if article_meta:
+        response = {
+            **response,
+            'title': article_meta.article_title
+        }
+    return response
 
 
 def get_s2_recommended_papers_response_for_article_recommendation_list(
