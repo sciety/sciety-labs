@@ -2,6 +2,8 @@ import logging
 from typing import Optional, Sequence
 
 from fastapi import APIRouter
+import fastapi
+import requests
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.utils.recommendation import (
@@ -65,13 +67,22 @@ def create_api_article_recommendation_router(
     @router.get('/api/like/s2/recommendations/v1/papers/forpaper/DOI:{article_doi:path}')
     def like_s2_recommendations_for_paper(
         article_doi: str,
+        response: fastapi.Response,
         limit: Optional[int] = None
     ):
-        article_recommendation_list = get_article_recommendation_list_for_article_dois(
-            [article_doi],
-            app_providers_and_models=app_providers_and_models,
-            max_recommendations=limit
-        )
+        try:
+            article_recommendation_list = get_article_recommendation_list_for_article_dois(
+                [article_doi],
+                app_providers_and_models=app_providers_and_models,
+                max_recommendations=limit
+            )
+        except requests.exceptions.HTTPError as exception:
+            status_code = exception.response.status_code
+            LOGGER.info('Exception retrieving metadata (%r): %r', status_code, exception)
+            if status_code != 404:
+                raise
+            response.status_code = 404
+            return {'error': 'Paper with id DOI:{DOI_1} not found'}
         return get_s2_recommended_papers_response_for_article_recommendation_list(
             article_recommendation_list
         )

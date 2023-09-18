@@ -4,6 +4,7 @@ import pytest
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
+import requests
 
 from sciety_labs.app.routers.api import article_recommendation as module_under_test
 from sciety_labs.app.routers.api.article_recommendation import (
@@ -154,3 +155,19 @@ class TestArticleRecommendationApi:
                 article_recommendation_list
             )
         )
+
+    def test_should_return_404_if_not_found(
+        self,
+        test_client: TestClient,
+        get_article_recommendation_list_for_article_dois_mock: MagicMock
+    ):
+        response_mock = MagicMock(name='response')
+        response_mock.status_code = 404
+        get_article_recommendation_list_for_article_dois_mock.side_effect = (
+            requests.exceptions.HTTPError(response=response_mock)
+        )
+        response = test_client.get(
+            f'/api/like/s2/recommendations/v1/papers/forpaper/DOI:{DOI_1}'
+        )
+        assert response.status_code == 404
+        assert response.json() == {'error': 'Paper with id DOI:{DOI_1} not found'}
