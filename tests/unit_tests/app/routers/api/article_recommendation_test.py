@@ -62,13 +62,18 @@ class TestGetS2RecommendedPaperResponseForArticleRecommendation:
                 article_doi=DOI_1,
                 article_meta=ArticleMetaData(
                     article_doi=DOI_1,
-                    article_title='Title 1'
+                    article_title='Title 1',
+                    author_name_list=['Author 1', 'Author 2']
                 )
             )
         )
         assert result == {
             'externalIds': {'DOI': DOI_1},
-            'title': 'Title 1'
+            'title': 'Title 1',
+            'authors': [
+                {'name': 'Author 1'},
+                {'name': 'Author 2'}
+            ]
         }
 
 

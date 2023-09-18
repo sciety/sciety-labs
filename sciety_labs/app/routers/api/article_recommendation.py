@@ -1,5 +1,5 @@
 import logging
-from typing import Optional
+from typing import Optional, Sequence
 
 from fastapi import APIRouter
 
@@ -16,6 +16,14 @@ from sciety_labs.providers.article_recommendation import (
 LOGGER = logging.getLogger(__name__)
 
 
+def get_s2_recommended_author_list_for_author_names(
+    author_name_list: Optional[Sequence[str]]
+) -> Optional[Sequence[dict]]:
+    if not author_name_list:
+        return None
+    return [{'name': name} for name in author_name_list]
+
+
 def get_s2_recommended_paper_response_for_article_recommendation(
     article_recommendation: ArticleRecommendation
 ) -> dict:
@@ -28,7 +36,10 @@ def get_s2_recommended_paper_response_for_article_recommendation(
     if article_meta:
         response = {
             **response,
-            'title': article_meta.article_title
+            'title': article_meta.article_title,
+            'authors': get_s2_recommended_author_list_for_author_names(
+                article_meta.author_name_list
+            )
         }
     return response
 
