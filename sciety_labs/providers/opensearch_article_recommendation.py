@@ -27,7 +27,7 @@ LOGGER = logging.getLogger(__name__)
 DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS = 50
 
 
-class DocumentAuthor(TypedDict):
+class DocumentAuthorDict(TypedDict):
     name: str
     s2_author_id: Optional[str]
 
@@ -35,11 +35,11 @@ class DocumentAuthor(TypedDict):
 class DocumentDict(TypedDict):
     doi: str
     title: str
-    authors: Optional[Sequence[DocumentAuthor]]
+    authors: Optional[Sequence[DocumentAuthorDict]]
 
 
 def get_author_names_for_document_authors(
-    authors: Optional[Sequence[DocumentAuthor]]
+    authors: Optional[Sequence[DocumentAuthorDict]]
 ) -> Optional[Sequence[str]]:
     if authors is None:
         return None
