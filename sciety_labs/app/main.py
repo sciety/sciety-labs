@@ -81,7 +81,9 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     app.include_router(create_api_maintenance_router(
         app_update_manager=app_update_manager
     ))
-    app.include_router(create_api_article_recommendation_router())
+    app.include_router(create_api_article_recommendation_router(
+        app_providers_and_models=app_providers_and_models
+    ))
     app.include_router(create_home_router(
         app_providers_and_models=app_providers_and_models,
         min_article_count=min_article_count,
