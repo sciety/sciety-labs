@@ -36,6 +36,7 @@ class DocumentDict(TypedDict):
     doi: str
     title: str
     authors: Optional[Sequence[DocumentAuthorDict]]
+    publication_date: Optional[str]
 
 
 def get_author_names_for_document_authors(
@@ -46,6 +47,12 @@ def get_author_names_for_document_authors(
     return [author['name'] for author in authors]
 
 
+def get_optional_date_from_str(date_str: Optional[str]) -> Optional[date]:
+    if not date_str:
+        return None
+    return date.fromisoformat(date_str)
+
+
 def get_article_meta_from_document(
     document: DocumentDict
 ) -> ArticleMetaData:
@@ -54,7 +61,7 @@ def get_article_meta_from_document(
     return ArticleMetaData(
         article_doi=article_doi,
         article_title=document['title'],
-        published_date=None,
+        published_date=get_optional_date_from_str(document.get('publication_date')),
         author_name_list=get_author_names_for_document_authors(document.get('authors'))
     )
 
@@ -214,7 +221,7 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
             embedding_vector,
             index=self.index_name,
             embedding_vector_mapping_name=self.embedding_vector_mapping_name,
-            source_includes=['doi', 'title', 'authors'],
+            source_includes=['doi', 'title', 'authors', 'publication_date'],
             max_results=max_recommendations,
             exclude_article_dois={article_doi},
             from_publication_date=from_publication_date

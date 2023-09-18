@@ -13,6 +13,7 @@ from sciety_labs.providers.article_recommendation import (
     ArticleRecommendation,
     ArticleRecommendationList
 )
+from sciety_labs.utils.datetime import get_date_as_isoformat
 
 
 LOGGER = logging.getLogger(__name__)
@@ -39,6 +40,7 @@ def get_s2_recommended_paper_response_for_article_recommendation(
         response = {
             **response,
             'title': article_meta.article_title,
+            'publicationDate': get_date_as_isoformat(article_meta.published_date),
             'authors': get_s2_recommended_author_list_for_author_names(
                 article_meta.author_name_list
             )

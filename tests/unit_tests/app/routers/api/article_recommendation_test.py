@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Iterable
 from unittest.mock import MagicMock, patch
 import pytest
@@ -64,17 +65,19 @@ class TestGetS2RecommendedPaperResponseForArticleRecommendation:
                 article_meta=ArticleMetaData(
                     article_doi=DOI_1,
                     article_title='Title 1',
-                    author_name_list=['Author 1', 'Author 2']
+                    author_name_list=['Author 1', 'Author 2'],
+                    published_date=date(2001, 2, 3)
                 )
             )
         )
         assert result == {
             'externalIds': {'DOI': DOI_1},
             'title': 'Title 1',
+            'publicationDate': '2001-02-03',
             'authors': [
                 {'name': 'Author 1'},
                 {'name': 'Author 2'}
-            ]
+            ],
         }
 
 

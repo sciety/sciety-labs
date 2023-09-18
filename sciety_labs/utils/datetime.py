@@ -14,7 +14,7 @@ def parse_date_or_none(date_str: Optional[str]) -> Optional[date]:
     return date.fromisoformat(date_str)
 
 
-def get_date_as_isoformat(date_value: Union[date, datetime]) -> Optional[str]:
+def get_date_as_isoformat(date_value: Optional[Union[date, datetime]]) -> Optional[str]:
     if not date_value:
         return None
     return date_value.strftime(r'%Y-%m-%d')
