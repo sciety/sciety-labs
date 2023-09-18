@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 from sciety_labs.app.routers.api import article_recommendation as module_under_test
 from sciety_labs.app.routers.api.article_recommendation import (
     create_api_article_recommendation_router,
+    get_s2_recommended_paper_response_for_article_recommendation,
     get_s2_recommended_papers_response_for_article_recommendation_list
 )
 from sciety_labs.providers.article_recommendation import (
@@ -43,6 +44,18 @@ def _test_client(app_providers_and_models_mock: MagicMock) -> TestClient:
     return TestClient(app)
 
 
+class TestGetS2RecommendedPaperResponseForArticleRecommendation:
+    def test_should_return_response_for_paper_without_metadata(self):
+        result = get_s2_recommended_paper_response_for_article_recommendation(
+            ArticleRecommendation(
+                article_doi=DOI_1
+            )
+        )
+        assert result == {
+            'externalIds': {'DOI': DOI_1}
+        }
+
+
 class TestGetS2RecommendedPapersResponseForArticleRecommendationList:
     def test_should_return_empty_papers_list(self):
         result = get_s2_recommended_papers_response_for_article_recommendation_list(
@@ -54,17 +67,20 @@ class TestGetS2RecommendedPapersResponseForArticleRecommendationList:
         assert result == {'recommendedPapers': []}
 
     def test_should_return_single_recommended_paper_without_metadata(self):
+        article_recommendation = ArticleRecommendation(
+            article_doi=DOI_1
+        )
         result = get_s2_recommended_papers_response_for_article_recommendation_list(
             ArticleRecommendationList(
-                recommendations=[ArticleRecommendation(
-                    article_doi=DOI_1
-                )],
+                recommendations=[article_recommendation],
                 recommendation_timestamp=get_utcnow()
             )
         )
-        assert result == {'recommendedPapers': [{
-            'externalIds': {'DOI': DOI_1}
-        }]}
+        assert result == {'recommendedPapers': [
+            get_s2_recommended_paper_response_for_article_recommendation(
+                article_recommendation
+            )
+        ]}
 
 
 class TestArticleRecommendationApi:

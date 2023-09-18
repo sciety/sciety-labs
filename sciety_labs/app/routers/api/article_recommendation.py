@@ -7,10 +7,23 @@ from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.utils.recommendation import (
     get_article_recommendation_list_for_article_dois
 )
-from sciety_labs.providers.article_recommendation import ArticleRecommendationList
+from sciety_labs.providers.article_recommendation import (
+    ArticleRecommendation,
+    ArticleRecommendationList
+)
 
 
 LOGGER = logging.getLogger(__name__)
+
+
+def get_s2_recommended_paper_response_for_article_recommendation(
+    article_recommendation: ArticleRecommendation
+) -> dict:
+    return {
+        'externalIds': {
+            'DOI': article_recommendation.article_doi
+        }
+    }
 
 
 def get_s2_recommended_papers_response_for_article_recommendation_list(
@@ -18,11 +31,9 @@ def get_s2_recommended_papers_response_for_article_recommendation_list(
 ) -> dict:
     return {
         'recommendedPapers': [
-            {
-                'externalIds': {
-                    'DOI': article_recommendation.article_doi
-                }
-            }
+            get_s2_recommended_paper_response_for_article_recommendation(
+                article_recommendation
+            )
             for article_recommendation in article_recommendation_list.recommendations
         ]
     }
