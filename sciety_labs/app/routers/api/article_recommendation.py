@@ -89,11 +89,15 @@ def create_api_article_recommendation_router(
             '''
             API endpoint similar to S2\'s [Get recommended papers for a single positive example paper](https://api.semanticscholar.org/api-docs/recommendations#tag/Paper-Recommendations/operation/get_papers_for_paper).
 
-            Only DOIs accepted.
+            Only DOIs are accepted.
 
             It will use the underlying functionality to provide related articles within Sciety Labs.
-            When using OpenSearch, this then also provides the improvements made there.
-            In that case OpenSearch will be the bottleneck.
+
+            When using OpenSearch, this then also provides the improvements made there. e.g.:
+
+            - Only preprints are returned
+            - Related articles can be provided for almost any DOI with title and abstract in Crossref
+            - The publication date is more accurate
             '''  # noqa pylint: disable=line-too-long
         )
     )
