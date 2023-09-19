@@ -97,21 +97,22 @@ def create_api_article_recommendation_router(
     def like_s2_recommendations_for_paper(
         article_doi: str,
         response: fastapi.Response,
-        fields: Optional[str] = fastapi.Query(None, description=textwrap.dedent(
-            '''
-            Comma separated list of fields. The following fields can be retrieved:
+        fields: str = fastapi.Query(
+            default=','.join(sorted(DEFAULT_LIKE_S2_RECOMMENDATION_FIELDS)),
+            description=textwrap.dedent(
+                '''
+                Comma separated list of fields. The following fields can be retrieved:
 
-            - `externalIds` (only containing `DOI`)
-            - `title`
-            - `publicationDate`
-            - `authors` (only containing `name`)
-
-            By default, only `externalIds` will be returned.
-            '''
-        )),
+                - `externalIds` (only containing `DOI`)
+                - `title`
+                - `publicationDate`
+                - `authors` (only containing `name`)
+                '''
+            )
+        ),
         limit: Optional[int] = None
     ):
-        fields_set = set(fields.split(',')) if fields else DEFAULT_LIKE_S2_RECOMMENDATION_FIELDS
+        fields_set = set(fields.split(','))
         try:
             article_recommendation_list = get_article_recommendation_list_for_article_dois(
                 [article_doi],
