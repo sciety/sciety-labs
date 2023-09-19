@@ -1,4 +1,5 @@
 import logging
+import textwrap
 from typing import Optional, Sequence, Set
 
 from fastapi import APIRouter
@@ -12,6 +13,9 @@ from sciety_labs.app.utils.recommendation import (
 from sciety_labs.providers.article_recommendation import (
     ArticleRecommendation,
     ArticleRecommendationList
+)
+from sciety_labs.providers.opensearch_article_recommendation import (
+    DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS
 )
 from sciety_labs.utils.datetime import get_date_as_isoformat
 
@@ -74,14 +78,65 @@ def create_api_article_recommendation_router(
 ):
     router = APIRouter()
 
-    @router.get('/like/s2/recommendations/v1/papers/forpaper/DOI:{article_doi:path}')
+    @router.get(
+        '/like/s2/recommendations/v1/papers/forpaper/DOI:{DOI:path}',
+        summary=(
+            '''
+            Preprint recommendation API endpoint similar to the one provided by S2
+            '''
+        ),
+        description=textwrap.dedent(
+            '''
+            API endpoint similar to S2\'s [Get recommended papers for a single positive example paper](https://api.semanticscholar.org/api-docs/recommendations#tag/Paper-Recommendations/operation/get_papers_for_paper).
+
+            Only DOIs are accepted.
+
+            It will use the underlying functionality to provide related articles within Sciety Labs.
+
+            When using OpenSearch, this then also provides the improvements made there. e.g.:
+
+            - Only preprints are returned
+            - Related articles can be provided for almost any DOI with title and abstract in Crossref
+            - The publication date is more accurate
+            '''  # noqa pylint: disable=line-too-long
+        )
+    )
     def like_s2_recommendations_for_paper(
-        article_doi: str,
         response: fastapi.Response,
-        fields: Optional[str] = None,
-        limit: Optional[int] = None
+        article_doi: str = fastapi.Path(
+            alias='DOI',
+            description=textwrap.dedent(
+                '''
+                The DOI to provide paper recommendations for.
+                '''
+            )
+        ),
+        fields: str = fastapi.Query(
+            default=','.join(sorted(DEFAULT_LIKE_S2_RECOMMENDATION_FIELDS)),
+            description=textwrap.dedent(
+                '''
+                Comma separated list of fields. The following fields can be retrieved:
+
+                - `externalIds` (only containing `DOI`)
+                - `title`
+                - `publicationDate`
+                - `authors` (only containing `name`)
+                '''
+            )
+        ),
+        limit: Optional[int] = fastapi.Query(
+            default=None,
+            description=textwrap.dedent(
+                f'''
+                Maximimum number of papers returned.
+                The default will be implementation specific.
+                When the OpenSearch backend is used, it will be
+                `{DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS}`.
+                '''
+            )
+        )
     ):
-        fields_set = set(fields.split(',')) if fields else DEFAULT_LIKE_S2_RECOMMENDATION_FIELDS
+        fields_set = set(fields.split(','))
         try:
             article_recommendation_list = get_article_recommendation_list_for_article_dois(
                 [article_doi],
