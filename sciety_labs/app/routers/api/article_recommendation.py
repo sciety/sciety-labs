@@ -99,7 +99,28 @@ def create_api_article_recommendation_router(
             - Related articles can be provided for almost any DOI with title and abstract in Crossref
             - The publication date is more accurate
             '''  # noqa pylint: disable=line-too-long
-        )
+        ),
+        responses={
+            200: {
+                'content': {
+                    'application/json': {
+                        'example': {
+                            'recommendedPapers': [{
+                                'externalIds': {'DOI': '10.12345/doi1'},
+                                'title': 'Title 1',
+                                'publicationDate': '2001-02-03',
+                                'authors': [{'name': 'Author 1'}, {'name': 'Author 2'}]
+                            }, {
+                                'externalIds': {'DOI': '10.12345/doi2'},
+                                'title': 'Title 2',
+                                'publicationDate': '2001-02-03',
+                                'authors': None
+                            }]
+                        }
+                    }
+                }
+            }
+        }
     )
     def like_s2_recommendations_for_paper(
         response: fastapi.Response,
