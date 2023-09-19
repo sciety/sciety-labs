@@ -1,7 +1,7 @@
 import json
 import logging
 from datetime import date, timedelta
-from typing import Iterable, Optional, Sequence, Set
+from typing import Iterable, Optional, Sequence, Set, TypedDict
 
 import numpy.typing as npt
 
@@ -27,16 +27,42 @@ LOGGER = logging.getLogger(__name__)
 DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS = 50
 
 
+class DocumentAuthorDict(TypedDict):
+    name: str
+    s2_author_id: Optional[str]
+
+
+class DocumentDict(TypedDict):
+    doi: str
+    title: str
+    authors: Optional[Sequence[DocumentAuthorDict]]
+    publication_date: Optional[str]
+
+
+def get_author_names_for_document_authors(
+    authors: Optional[Sequence[DocumentAuthorDict]]
+) -> Optional[Sequence[str]]:
+    if authors is None:
+        return None
+    return [author['name'] for author in authors]
+
+
+def get_optional_date_from_str(date_str: Optional[str]) -> Optional[date]:
+    if not date_str:
+        return None
+    return date.fromisoformat(date_str)
+
+
 def get_article_meta_from_document(
-    document: dict
+    document: DocumentDict
 ) -> ArticleMetaData:
     article_doi = document['doi']
     assert article_doi
     return ArticleMetaData(
         article_doi=article_doi,
         article_title=document['title'],
-        published_date=None,
-        author_name_list=None
+        published_date=get_optional_date_from_str(document.get('publication_date')),
+        author_name_list=get_author_names_for_document_authors(document.get('authors'))
     )
 
 
@@ -195,7 +221,7 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
             embedding_vector,
             index=self.index_name,
             embedding_vector_mapping_name=self.embedding_vector_mapping_name,
-            source_includes=['doi', 'title'],
+            source_includes=['doi', 'title', 'authors', 'publication_date'],
             max_results=max_recommendations,
             exclude_article_dois={article_doi},
             from_publication_date=from_publication_date

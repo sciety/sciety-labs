@@ -14,14 +14,34 @@ DOI_1 = "10.00000/doi_1"
 VECTOR_1 = [1, 1, 1]
 
 
+MINIMAL_DOCUMENT_DICT_1 = {
+    'doi': 'doi1',
+    'title': 'Title 1'
+}
+
+
 class TestGetArticleMetaFromDocument:
     def test_should_create_article_meta_with_minimal_fields(self):
+        article_meta = get_article_meta_from_document(MINIMAL_DOCUMENT_DICT_1)
+        assert article_meta.article_doi == MINIMAL_DOCUMENT_DICT_1['doi']
+        assert article_meta.article_title == MINIMAL_DOCUMENT_DICT_1['title']
+
+    def test_should_create_article_meta_with_authors(self):
         article_meta = get_article_meta_from_document({
-            'doi': 'doi1',
-            'title': 'Title 1'
+            **MINIMAL_DOCUMENT_DICT_1,
+            'authors': [
+                {'name': 'Author 1'},
+                {'name': 'Author 2'}
+            ]
         })
-        assert article_meta.article_doi == 'doi1'
-        assert article_meta.article_title == 'Title 1'
+        assert article_meta.author_name_list == ['Author 1', 'Author 2']
+
+    def test_should_create_article_meta_with_publication_date(self):
+        article_meta = get_article_meta_from_document({
+            **MINIMAL_DOCUMENT_DICT_1,
+            'publication_date': '2001-02-03'
+        })
+        assert article_meta.published_date == date(2001, 2, 3)
 
 
 class TestIterArticleRecommendationFromOpenSearchHits:
