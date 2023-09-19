@@ -88,13 +88,6 @@ def create_api_article_recommendation_router(
 
             Only DOIs accepted.
 
-            Only the following fields can be retrieved:
-
-            - `externalIds` (only containing `DOI`)
-            - `title`
-            - `publicationDate`
-            - `authors` (only containing `name`)
-
             It will use the underlying functionality to provide related articles within Sciety Labs.
             When using OpenSearch, this then also provides the improvements made there.
             In that case OpenSearch will be the bottleneck.
@@ -104,7 +97,18 @@ def create_api_article_recommendation_router(
     def like_s2_recommendations_for_paper(
         article_doi: str,
         response: fastapi.Response,
-        fields: Optional[str] = None,
+        fields: Optional[str] = fastapi.Query(None, description=textwrap.dedent(
+            '''
+            Comma separated list of fields. The following fields can be retrieved:
+
+            - `externalIds` (only containing `DOI`)
+            - `title`
+            - `publicationDate`
+            - `authors` (only containing `name`)
+
+            By default, only `externalIds` will be returned.
+            '''
+        )),
         limit: Optional[int] = None
     ):
         fields_set = set(fields.split(',')) if fields else DEFAULT_LIKE_S2_RECOMMENDATION_FIELDS
