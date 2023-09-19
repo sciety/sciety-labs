@@ -1,4 +1,5 @@
 import logging
+import textwrap
 from typing import Optional, Sequence, Set
 
 from fastapi import APIRouter
@@ -74,7 +75,32 @@ def create_api_article_recommendation_router(
 ):
     router = APIRouter()
 
-    @router.get('/like/s2/recommendations/v1/papers/forpaper/DOI:{article_doi:path}')
+    @router.get(
+        '/like/s2/recommendations/v1/papers/forpaper/DOI:{article_doi:path}',
+        summary=(
+            '''
+            Preprint recommendation API endpoint similar to the one provided by S2
+            '''
+        ),
+        description=textwrap.dedent(
+            '''
+            API endpoint similar to S2\'s [Get recommended papers for a single positive example paper](https://api.semanticscholar.org/api-docs/recommendations#tag/Paper-Recommendations/operation/get_papers_for_paper).
+
+            Only DOIs accepted.
+
+            Only the following fields can be retrieved:
+
+            - `externalIds` (only containing `DOI`)
+            - `title`
+            - `publicationDate`
+            - `authors` (only containing `name`)
+
+            It will use the underlying functionality to provide related articles within Sciety Labs.
+            When using OpenSearch, this then also provides the improvements made there.
+            In that case OpenSearch will be the bottleneck.
+            '''  # noqa pylint: disable=line-too-long
+        )
+    )
     def like_s2_recommendations_for_paper(
         article_doi: str,
         response: fastapi.Response,
