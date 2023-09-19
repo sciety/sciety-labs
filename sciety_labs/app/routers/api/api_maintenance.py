@@ -13,7 +13,7 @@ def create_api_maintenance_router(
 ):
     router = APIRouter()
 
-    @router.post('/api/check-or-reload-data')
+    @router.post('/check-or-reload-data')
     def check_or_reload_data():
         app_update_manager.check_or_reload_data()
         return {'status': 'OK'}
