@@ -79,7 +79,7 @@ def create_api_article_recommendation_router(
     router = APIRouter()
 
     @router.get(
-        '/like/s2/recommendations/v1/papers/forpaper/DOI:{article_doi:path}',
+        '/like/s2/recommendations/v1/papers/forpaper/DOI:{DOI:path}',
         summary=(
             '''
             Preprint recommendation API endpoint similar to the one provided by S2
@@ -98,8 +98,15 @@ def create_api_article_recommendation_router(
         )
     )
     def like_s2_recommendations_for_paper(
-        article_doi: str,
         response: fastapi.Response,
+        article_doi: str = fastapi.Path(
+            alias='DOI',
+            description=textwrap.dedent(
+                '''
+                The DOI to provide paper recommendations for.
+                '''
+            )
+        ),
         fields: str = fastapi.Query(
             default=','.join(sorted(DEFAULT_LIKE_S2_RECOMMENDATION_FIELDS)),
             description=textwrap.dedent(
