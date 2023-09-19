@@ -72,7 +72,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     templates.env.filters['timestamp_isoformat'] = get_timestamp_as_isoformat
     templates.env.globals['site_config'] = site_config
 
-    app = FastAPI()
+    app = FastAPI(docs_url=None, redoc_url=None)
     app.mount('/static', StaticFiles(directory='static', html=False), name='static')
     app.mount('/api', create_api_app(
         app_providers_and_models=app_providers_and_models,
