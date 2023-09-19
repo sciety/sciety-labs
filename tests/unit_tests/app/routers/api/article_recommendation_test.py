@@ -139,15 +139,15 @@ class TestGetS2RecommendedPapersResponseForArticleRecommendationList:
 
 class TestArticleRecommendationApi:
     def test_should_return_404_if_paper_id_was_missing(self, test_client: TestClient):
-        response = test_client.get('/api/like/s2/recommendations/v1/papers/forpaper')
+        response = test_client.get('/like/s2/recommendations/v1/papers/forpaper')
         assert response.status_code == 404
 
     def test_should_return_404_if_paper_id_is_not_starting_with_doi(self, test_client: TestClient):
-        response = test_client.get('/api/like/s2/recommendations/v1/papers/forpaper/123456')
+        response = test_client.get('/like/s2/recommendations/v1/papers/forpaper/123456')
         assert response.status_code == 404
 
     def test_should_return_200_if_doi_was_specified(self, test_client: TestClient):
-        response = test_client.get(f'/api/like/s2/recommendations/v1/papers/forpaper/DOI:{DOI_1}')
+        response = test_client.get(f'/like/s2/recommendations/v1/papers/forpaper/DOI:{DOI_1}')
         assert response.status_code == 200
 
     def test_should_pass_article_doi_to_get_article_recommendation_list_for_article_dois(
@@ -156,7 +156,7 @@ class TestArticleRecommendationApi:
         app_providers_and_models_mock: MagicMock,
         get_article_recommendation_list_for_article_dois_mock: MagicMock
     ):
-        test_client.get(f'/api/like/s2/recommendations/v1/papers/forpaper/DOI:{DOI_1}')
+        test_client.get(f'/like/s2/recommendations/v1/papers/forpaper/DOI:{DOI_1}')
         get_article_recommendation_list_for_article_dois_mock.assert_called_with(
             [DOI_1],
             app_providers_and_models=app_providers_and_models_mock,
@@ -176,7 +176,7 @@ class TestArticleRecommendationApi:
             article_recommendation_list
         )
         response = test_client.get(
-            f'/api/like/s2/recommendations/v1/papers/forpaper/DOI:{DOI_1}'
+            f'/like/s2/recommendations/v1/papers/forpaper/DOI:{DOI_1}'
         )
         assert response.status_code == 200
         assert response.json() == (
@@ -197,7 +197,7 @@ class TestArticleRecommendationApi:
             requests.exceptions.HTTPError(response=response_mock)
         )
         response = test_client.get(
-            f'/api/like/s2/recommendations/v1/papers/forpaper/DOI:{DOI_1}'
+            f'/like/s2/recommendations/v1/papers/forpaper/DOI:{DOI_1}'
         )
         assert response.status_code == 404
         assert response.json() == {'error': f'Paper with id DOI:{DOI_1} not found'}
