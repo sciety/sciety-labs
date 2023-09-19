@@ -14,6 +14,9 @@ from sciety_labs.providers.article_recommendation import (
     ArticleRecommendation,
     ArticleRecommendationList
 )
+from sciety_labs.providers.opensearch_article_recommendation import (
+    DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS
+)
 from sciety_labs.utils.datetime import get_date_as_isoformat
 
 
@@ -110,7 +113,17 @@ def create_api_article_recommendation_router(
                 '''
             )
         ),
-        limit: Optional[int] = None
+        limit: Optional[int] = fastapi.Query(
+            default=None,
+            description=textwrap.dedent(
+                f'''
+                Maximimum number of papers returned.
+                The default will be implementation specific.
+                When the OpenSearch backend is used, it will be
+                `{DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS}`.
+                '''
+            )
+        )
     ):
         fields_set = set(fields.split(','))
         try:
