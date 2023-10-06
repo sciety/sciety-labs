@@ -1,9 +1,12 @@
 import logging
 import textwrap
-from typing import Optional, Sequence, Set
+from typing import Optional, Sequence, Set, cast
+
+from typing_extensions import NotRequired, TypedDict
 
 from fastapi import APIRouter
 import fastapi
+from pydantic import BaseModel
 import requests
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
@@ -26,9 +29,32 @@ LOGGER = logging.getLogger(__name__)
 DEFAULT_LIKE_S2_RECOMMENDATION_FIELDS = {'externalIds'}
 
 
+class ExternalIdsDict(TypedDict):
+    DOI: str
+
+
+class AuthorDict(TypedDict):
+    name: str
+
+
+class PaperDict(TypedDict):
+    externalIds: NotRequired[Optional[ExternalIdsDict]]
+    title: NotRequired[Optional[str]]
+    publicationDate: NotRequired[Optional[str]]
+    authors: NotRequired[Optional[Sequence[AuthorDict]]]
+
+
+class RecommendationResponseDict(TypedDict):
+    recommendedPapers: Sequence[PaperDict]
+
+
+class ErrorMessage(BaseModel):
+    error: str
+
+
 def get_s2_recommended_author_list_for_author_names(
     author_name_list: Optional[Sequence[str]]
-) -> Optional[Sequence[dict]]:
+) -> Optional[Sequence[AuthorDict]]:
     if not author_name_list:
         return None
     return [{'name': name} for name in author_name_list]
@@ -37,8 +63,8 @@ def get_s2_recommended_author_list_for_author_names(
 def get_s2_recommended_paper_response_for_article_recommendation(
     article_recommendation: ArticleRecommendation,
     fields: Optional[Set[str]] = None
-) -> dict:
-    response: dict = {
+) -> PaperDict:
+    response: PaperDict = {
         'externalIds': {
             'DOI': article_recommendation.article_doi
         }
@@ -54,14 +80,17 @@ def get_s2_recommended_paper_response_for_article_recommendation(
             )
         }
     if fields:
-        response = {key: value for key, value in response.items() if key in fields}
+        response = cast(
+            PaperDict,
+            {key: value for key, value in response.items() if key in fields}
+        )
     return response
 
 
 def get_s2_recommended_papers_response_for_article_recommendation_list(
     article_recommendation_list: ArticleRecommendationList,
     fields: Optional[Set[str]] = None
-) -> dict:
+) -> RecommendationResponseDict:
     return {
         'recommendedPapers': [
             get_s2_recommended_paper_response_for_article_recommendation(
@@ -100,6 +129,7 @@ def create_api_article_recommendation_router(
             - The publication date is more accurate
             '''  # noqa pylint: disable=line-too-long
         ),
+        response_model=RecommendationResponseDict,
         responses={
             200: {
                 'content': {
@@ -119,11 +149,20 @@ def create_api_article_recommendation_router(
                         }
                     }
                 }
+            },
+            404: {
+                'model': ErrorMessage,
+                'content': {
+                    'application/json': {
+                        'example': {
+                            'error': 'Paper with id DOI:invalid-doi not found'
+                        }
+                    }
+                }
             }
         }
     )
     def like_s2_recommendations_for_paper(
-        response: fastapi.Response,
         article_doi: str = fastapi.Path(
             alias='DOI',
             description=textwrap.dedent(
@@ -169,8 +208,10 @@ def create_api_article_recommendation_router(
             LOGGER.info('Exception retrieving metadata (%r): %r', status_code, exception)
             if status_code != 404:
                 raise
-            response.status_code = 404
-            return {'error': f'Paper with id DOI:{article_doi} not found'}
+            return fastapi.responses.JSONResponse(
+                {'error': f'Paper with id DOI:{article_doi} not found'},
+                status_code=404
+            )
         return get_s2_recommended_papers_response_for_article_recommendation_list(
             article_recommendation_list,
             fields=fields_set
