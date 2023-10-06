@@ -221,8 +221,7 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
         if filter_parameters is None:
             filter_parameters = ArticleRecommendationFilterParameters(
                 exclude_article_dois={article_doi},
-                from_publication_date=date.today() - timedelta(days=60),
-                evaluated_only=True
+                from_publication_date=date.today() - timedelta(days=60)
             )
         LOGGER.info('filter_parameters: %r', filter_parameters)
         hits = self._run_vector_search_and_get_hits(
