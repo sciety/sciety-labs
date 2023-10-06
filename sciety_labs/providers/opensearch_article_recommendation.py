@@ -77,12 +77,13 @@ def iter_article_recommendation_from_opensearch_hits(
         )
 
 
-def get_vector_search_query(
+def get_vector_search_query(  # pylint: disable=too-many-arguments
     query_vector: npt.ArrayLike,
     embedding_vector_mapping_name: str,
     max_results: int,
     exclude_article_dois: Optional[Set[str]] = None,
-    from_publication_date: Optional[date] = None
+    from_publication_date: Optional[date] = None,
+    evaluated_only: bool = False
 ) -> dict:
     vector_query_part: dict = {
         'vector': query_vector,
@@ -98,6 +99,10 @@ def get_vector_search_query(
             'range': {
                 'publication_date': {'gte': from_publication_date.isoformat()}
             }
+        })
+    if evaluated_only:
+        bool_filter.setdefault('must', []).append({
+            'range': {'evaluation_count': {'gte': 1}}
         })
     if bool_filter:
         vector_query_part = {

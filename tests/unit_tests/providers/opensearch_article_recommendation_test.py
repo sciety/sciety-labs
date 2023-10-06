@@ -120,9 +120,62 @@ class TestGetVectorSearchQuery:
                         'filter': {
                             'bool': {
                                 'must': [{
-                                    'range': {
-                                        'publication_date': {'gte': '2001-02-03'}
-                                    }
+                                    'range': {'publication_date': {'gte': '2001-02-03'}}
+                                }]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    def test_should_add_evaluated_only_filter(self):
+        search_query = get_vector_search_query(
+            query_vector=VECTOR_1,
+            embedding_vector_mapping_name='embedding1',
+            max_results=3,
+            evaluated_only=True
+        )
+        assert search_query == {
+            'size': 3,
+            'query': {
+                'knn': {
+                    'embedding1': {
+                        'vector': VECTOR_1,
+                        'k': 3,
+                        'filter': {
+                            'bool': {
+                                'must': [{
+                                    'range': {'evaluation_count': {'gte': 1}}
+                                }]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    def test_should_add_from_publication_date_and_evaluated_only_filter(self):
+        search_query = get_vector_search_query(
+            query_vector=VECTOR_1,
+            embedding_vector_mapping_name='embedding1',
+            max_results=3,
+            from_publication_date=date.fromisoformat('2001-02-03'),
+            evaluated_only=True
+        )
+        assert search_query == {
+            'size': 3,
+            'query': {
+                'knn': {
+                    'embedding1': {
+                        'vector': VECTOR_1,
+                        'k': 3,
+                        'filter': {
+                            'bool': {
+                                'must': [{
+                                    'range': {'publication_date': {'gte': '2001-02-03'}}
+                                }, {
+                                    'range': {'evaluation_count': {'gte': 1}}
                                 }]
                             }
                         }
