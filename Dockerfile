@@ -6,13 +6,19 @@ WORKDIR /app/sciety-labs
 
 ENV PIP_NO_CACHE_DIR=1
 COPY requirements.build.txt ./
-RUN pip install --disable-pip-version-check -r requirements.build.txt
+RUN pip install --disable-pip-version-check \
+    -r requirements.build.txt
 
 COPY requirements.txt ./
-RUN pip install --disable-pip-version-check -r requirements.txt
+RUN pip install --disable-pip-version-check \
+    -r requirements.build.txt \
+    -r requirements.txt
 
 COPY requirements.dev.txt ./
-RUN pip install --disable-pip-version-check -r requirements.dev.txt
+RUN pip install --disable-pip-version-check \
+    -r requirements.build.txt \
+    -r requirements.txt \
+    -r requirements.dev.txt
 
 COPY sciety_labs ./sciety_labs
 COPY static ./static
