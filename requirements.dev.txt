@@ -6,4 +6,4 @@ mypy==1.5.1
 httpx==0.25.0
 types-bleach==6.0.0.5
 types-PyYAML==6.0.12.12
-types-requests==2.31.0.8
+types-requests==2.30.0.0
