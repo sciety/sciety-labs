@@ -36,6 +36,7 @@ class SingleArticleRecommendationProvider(Protocol):
     def get_article_recommendation_list_for_article_doi(
         self,
         article_doi: str,
-        max_recommendations: Optional[int] = None
+        max_recommendations: Optional[int] = None,
+        filter_parameters: Optional[ArticleRecommendationFilterParameters] = None
     ) -> ArticleRecommendationList:
         pass

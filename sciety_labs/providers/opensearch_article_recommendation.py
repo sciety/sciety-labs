@@ -202,7 +202,8 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
     def get_article_recommendation_list_for_article_doi(
         self,
         article_doi: str,
-        max_recommendations: Optional[int] = None
+        max_recommendations: Optional[int] = None,
+        filter_parameters: Optional[ArticleRecommendationFilterParameters] = None
     ) -> ArticleRecommendationList:
         if not max_recommendations:
             max_recommendations = DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS
@@ -217,11 +218,12 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
         if embedding_vector is None:
             return ArticleRecommendationList([], get_utcnow())
         LOGGER.info('Found embedding vector: %d', len(embedding_vector))
-        filter_parameters = ArticleRecommendationFilterParameters(
-            exclude_article_dois={article_doi},
-            from_publication_date=date.today() - timedelta(days=60),
-            evaluated_only=True
-        )
+        if filter_parameters is None:
+            filter_parameters = ArticleRecommendationFilterParameters(
+                exclude_article_dois={article_doi},
+                from_publication_date=date.today() - timedelta(days=60),
+                evaluated_only=True
+            )
         LOGGER.info('filter_parameters: %r', filter_parameters)
         hits = self._run_vector_search_and_get_hits(
             embedding_vector,
