@@ -1,5 +1,6 @@
 import logging
 from datetime import date
+from sciety_labs.providers.article_recommendation import ArticleRecommendationFilterParameters
 from sciety_labs.providers.opensearch_article_recommendation import (
     get_article_meta_from_document,
     get_vector_search_query,
@@ -63,7 +64,9 @@ class TestGetVectorSearchQuery:
             query_vector=VECTOR_1,
             embedding_vector_mapping_name='embedding1',
             max_results=3,
-            evaluated_only=False
+            filter_parameters=ArticleRecommendationFilterParameters(
+                evaluated_only=False
+            )
         )
         assert search_query == {
             'size': 3,
@@ -82,8 +85,10 @@ class TestGetVectorSearchQuery:
             query_vector=VECTOR_1,
             embedding_vector_mapping_name='embedding1',
             max_results=3,
-            exclude_article_dois={DOI_1},
-            evaluated_only=False
+            filter_parameters=ArticleRecommendationFilterParameters(
+                exclude_article_dois={DOI_1},
+                evaluated_only=False
+            )
         )
         LOGGER.debug('search_query: %r', search_query)
         assert search_query == {
@@ -110,8 +115,10 @@ class TestGetVectorSearchQuery:
             query_vector=VECTOR_1,
             embedding_vector_mapping_name='embedding1',
             max_results=3,
-            from_publication_date=date.fromisoformat('2001-02-03'),
-            evaluated_only=False
+            filter_parameters=ArticleRecommendationFilterParameters(
+                from_publication_date=date.fromisoformat('2001-02-03'),
+                evaluated_only=False
+            )
         )
         assert search_query == {
             'size': 3,
@@ -137,7 +144,9 @@ class TestGetVectorSearchQuery:
             query_vector=VECTOR_1,
             embedding_vector_mapping_name='embedding1',
             max_results=3,
-            evaluated_only=True
+            filter_parameters=ArticleRecommendationFilterParameters(
+                evaluated_only=True
+            )
         )
         assert search_query == {
             'size': 3,
@@ -163,8 +172,10 @@ class TestGetVectorSearchQuery:
             query_vector=VECTOR_1,
             embedding_vector_mapping_name='embedding1',
             max_results=3,
-            from_publication_date=date.fromisoformat('2001-02-03'),
-            evaluated_only=True
+            filter_parameters=ArticleRecommendationFilterParameters(
+                from_publication_date=date.fromisoformat('2001-02-03'),
+                evaluated_only=True
+            )
         )
         assert search_query == {
             'size': 3,

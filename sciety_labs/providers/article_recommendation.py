@@ -1,6 +1,6 @@
 import dataclasses
-from datetime import datetime
-from typing import Iterable, Optional, Protocol, Sequence
+from datetime import date, datetime
+from typing import Iterable, Optional, Protocol, Sequence, Set
 
 from sciety_labs.models.article import ArticleMention
 
@@ -8,6 +8,13 @@ from sciety_labs.models.article import ArticleMention
 @dataclasses.dataclass(frozen=True)
 class ArticleRecommendation(ArticleMention):
     pass
+
+
+@dataclasses.dataclass(frozen=True)
+class ArticleRecommendationFilterParameters:
+    from_publication_date: Optional[date] = None
+    evaluated_only: bool = False
+    exclude_article_dois: Optional[Set[str]] = None
 
 
 @dataclasses.dataclass(frozen=True)
