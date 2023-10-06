@@ -83,7 +83,7 @@ def get_vector_search_query(  # pylint: disable=too-many-arguments
     max_results: int,
     exclude_article_dois: Optional[Set[str]] = None,
     from_publication_date: Optional[date] = None,
-    evaluated_only: bool = False
+    evaluated_only: bool = True
 ) -> dict:
     vector_query_part: dict = {
         'vector': query_vector,
