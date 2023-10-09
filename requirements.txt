@@ -1,4 +1,4 @@
-bleach==6.0.0
+bleach==6.1.0
 fastapi==0.103.2
 google-api-python-client==2.102.0
 google-cloud-bigquery==3.12.0
