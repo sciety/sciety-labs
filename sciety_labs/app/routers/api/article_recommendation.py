@@ -1,3 +1,4 @@
+from datetime import date, timedelta
 import logging
 import textwrap
 from typing import Optional, Sequence, Set, cast
@@ -15,6 +16,7 @@ from sciety_labs.app.utils.recommendation import (
 )
 from sciety_labs.providers.article_recommendation import (
     ArticleRecommendation,
+    ArticleRecommendationFilterParameters,
     ArticleRecommendationList
 )
 from sciety_labs.providers.opensearch_article_recommendation import (
@@ -194,13 +196,29 @@ def create_api_article_recommendation_router(
                 `{DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS}`.
                 '''
             )
+        ),
+        evaluated_only: bool = fastapi.Query(
+            alias='_evaluated_only',
+            default=False,
+            description=textwrap.dedent(
+                '''
+                If true, only evaluated articles will be recommended.
+                Not part of S2, and only working with OpenSearch.
+                '''
+            )
         )
     ):
         fields_set = set(fields.split(','))
+        filter_parameters = ArticleRecommendationFilterParameters(
+            exclude_article_dois={article_doi},
+            from_publication_date=date.today() - timedelta(days=60),
+            evaluated_only=evaluated_only
+        )
         try:
             article_recommendation_list = get_article_recommendation_list_for_article_dois(
                 [article_doi],
                 app_providers_and_models=app_providers_and_models,
+                filter_parameters=filter_parameters,
                 max_recommendations=limit
             )
         except requests.exceptions.HTTPError as exception:
