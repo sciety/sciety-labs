@@ -1,6 +1,6 @@
 from datetime import date
 from typing import Iterable
-from unittest.mock import MagicMock, patch
+from unittest.mock import ANY, MagicMock, patch
 import pytest
 
 from fastapi import FastAPI
@@ -14,7 +14,7 @@ from sciety_labs.app.routers.api.article_recommendation import (
     get_s2_recommended_paper_response_for_article_recommendation,
     get_s2_recommended_papers_response_for_article_recommendation_list
 )
-from sciety_labs.models.article import ArticleMetaData
+from sciety_labs.models.article import ArticleMetaData, ArticleStats
 from sciety_labs.providers.article_recommendation import (
     ArticleRecommendation,
     ArticleRecommendationList
@@ -79,6 +79,9 @@ class TestGetS2RecommendedPaperResponseForArticleRecommendation:
                     article_title='Title 1',
                     author_name_list=['Author 1', 'Author 2'],
                     published_date=date(2001, 2, 3)
+                ),
+                article_stats=ArticleStats(
+                    evaluation_count=123
                 )
             )
         )
@@ -89,7 +92,8 @@ class TestGetS2RecommendedPaperResponseForArticleRecommendation:
             'authors': [
                 {'name': 'Author 1'},
                 {'name': 'Author 2'}
-            ]
+            ],
+            '_evaluationCount': 123
         }
 
     def test_should_be_able_to_select_fields(self):
@@ -160,6 +164,7 @@ class TestArticleRecommendationApi:
         get_article_recommendation_list_for_article_dois_mock.assert_called_with(
             [DOI_1],
             app_providers_and_models=app_providers_and_models_mock,
+            filter_parameters=ANY,
             max_recommendations=None
         )
 

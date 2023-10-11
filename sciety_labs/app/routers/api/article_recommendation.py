@@ -44,6 +44,7 @@ class PaperDict(TypedDict):
     title: NotRequired[Optional[str]]
     publicationDate: NotRequired[Optional[str]]
     authors: NotRequired[Optional[Sequence[AuthorDict]]]
+    _evaluationCount: NotRequired[Optional[int]]
 
 
 class RecommendationResponseDict(TypedDict):
@@ -80,6 +81,12 @@ def get_s2_recommended_paper_response_for_article_recommendation(
             'authors': get_s2_recommended_author_list_for_author_names(
                 article_meta.author_name_list
             )
+        }
+    article_stats = article_recommendation.article_stats
+    if article_stats:
+        response = {
+            **response,
+            '_evaluationCount': article_stats.evaluation_count
         }
     if fields:
         response = cast(
@@ -129,6 +136,8 @@ def create_api_article_recommendation_router(
             - Only preprints are returned
             - Related articles can be provided for almost any DOI with title and abstract in Crossref
             - The publication date is more accurate
+
+            Parameters and fields starting with underscore are specific to this API (not like S2).
             '''  # noqa pylint: disable=line-too-long
         ),
         response_model=RecommendationResponseDict,
@@ -183,6 +192,7 @@ def create_api_article_recommendation_router(
                 - `title`
                 - `publicationDate`
                 - `authors` (only containing `name`)
+                - `_evaluationCount`
                 '''
             )
         ),

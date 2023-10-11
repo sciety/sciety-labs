@@ -7,7 +7,7 @@ import numpy.typing as npt
 
 from opensearchpy import OpenSearch
 import opensearchpy
-from sciety_labs.models.article import ArticleMetaData
+from sciety_labs.models.article import ArticleMetaData, ArticleStats
 
 from sciety_labs.providers.article_recommendation import (
     ArticleRecommendation,
@@ -38,6 +38,7 @@ class DocumentDict(TypedDict):
     title: str
     authors: Optional[Sequence[DocumentAuthorDict]]
     publication_date: Optional[str]
+    evaluation_count: Optional[int]
 
 
 def get_author_names_for_document_authors(
@@ -67,14 +68,29 @@ def get_article_meta_from_document(
     )
 
 
+def get_article_recommendation_from_document(
+    document: DocumentDict
+) -> ArticleRecommendation:
+    article_meta = get_article_meta_from_document(document)
+    evaluation_count = document.get('evaluation_count')
+    article_stats = (
+        ArticleStats(evaluation_count=evaluation_count)
+        if evaluation_count is not None
+        else None
+    )
+    return ArticleRecommendation(
+        article_doi=article_meta.article_doi,
+        article_meta=article_meta,
+        article_stats=article_stats
+    )
+
+
 def iter_article_recommendation_from_opensearch_hits(
     hits: Iterable[dict]
 ) -> Iterable[ArticleRecommendation]:
     for hit in hits:
-        article_meta = get_article_meta_from_document(hit['_source'])
-        yield ArticleRecommendation(
-            article_doi=article_meta.article_doi,
-            article_meta=article_meta
+        yield get_article_recommendation_from_document(
+            hit['_source']
         )
 
 
@@ -228,7 +244,10 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
             embedding_vector,
             index=self.index_name,
             embedding_vector_mapping_name=self.embedding_vector_mapping_name,
-            source_includes=['doi', 'title', 'authors', 'publication_date'],
+            source_includes=[
+                'doi', 'title', 'authors', 'publication_date',
+                'evaluation_count'
+            ],
             max_results=max_recommendations,
             filter_parameters=filter_parameters
         )

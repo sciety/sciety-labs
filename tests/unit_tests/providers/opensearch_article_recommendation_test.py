@@ -3,6 +3,7 @@ from datetime import date
 from sciety_labs.providers.article_recommendation import ArticleRecommendationFilterParameters
 from sciety_labs.providers.opensearch_article_recommendation import (
     get_article_meta_from_document,
+    get_article_recommendation_from_document,
     get_vector_search_query,
     iter_article_recommendation_from_opensearch_hits
 )
@@ -43,6 +44,22 @@ class TestGetArticleMetaFromDocument:
             'publication_date': '2001-02-03'
         })
         assert article_meta.published_date == date(2001, 2, 3)
+
+
+class TestGetArticleRecommendationFromDocument:
+    def test_should_not_include_stats_without_evaluation_count(self):
+        recommendation = get_article_recommendation_from_document({
+            **MINIMAL_DOCUMENT_DICT_1
+        })
+        assert recommendation.article_stats is None
+
+    def test_should_include_evaluation_count_as_stats(self):
+        recommendation = get_article_recommendation_from_document({
+            **MINIMAL_DOCUMENT_DICT_1,
+            'evaluation_count': 123
+        })
+        assert recommendation.article_stats
+        assert recommendation.article_stats.evaluation_count == 123
 
 
 class TestIterArticleRecommendationFromOpenSearchHits:
