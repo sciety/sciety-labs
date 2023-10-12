@@ -45,6 +45,7 @@ class PaperDict(TypedDict):
     publicationDate: NotRequired[Optional[str]]
     authors: NotRequired[Optional[Sequence[AuthorDict]]]
     _evaluationCount: NotRequired[Optional[int]]
+    _score: NotRequired[Optional[float]]
 
 
 class RecommendationResponseDict(TypedDict):
@@ -70,7 +71,8 @@ def get_s2_recommended_paper_response_for_article_recommendation(
     response: PaperDict = {
         'externalIds': {
             'DOI': article_recommendation.article_doi
-        }
+        },
+        '_score': article_recommendation.score
     }
     article_meta = article_recommendation.article_meta
     if article_meta:
@@ -193,6 +195,7 @@ def create_api_article_recommendation_router(
                 - `publicationDate`
                 - `authors` (only containing `name`)
                 - `_evaluationCount`
+                - `_score`
                 '''
             )
         ),

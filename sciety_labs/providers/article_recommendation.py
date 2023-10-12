@@ -7,7 +7,7 @@ from sciety_labs.models.article import ArticleMention
 
 @dataclasses.dataclass(frozen=True)
 class ArticleRecommendation(ArticleMention):
-    pass
+    score: Optional[float] = None
 
 
 @dataclasses.dataclass(frozen=True)

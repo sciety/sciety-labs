@@ -1,5 +1,6 @@
 import logging
 from datetime import date
+
 from sciety_labs.providers.article_recommendation import ArticleRecommendationFilterParameters
 from sciety_labs.providers.opensearch_article_recommendation import (
     get_article_meta_from_document,
@@ -61,6 +62,20 @@ class TestGetArticleRecommendationFromDocument:
         assert recommendation.article_stats
         assert recommendation.article_stats.evaluation_count == 123
 
+    def test_should_include_score_for_exactly_matching_vector(self):
+        recommendation = get_article_recommendation_from_document({
+            **MINIMAL_DOCUMENT_DICT_1,
+            'embedding': [1, 1, 1]
+        }, embedding_vector_mapping_name='embedding', query_vector=[1, 1, 1])
+        assert round(recommendation.score, 2) == 1.0
+
+    def test_should_include_score_for_not_exactly_matching_vector(self):
+        recommendation = get_article_recommendation_from_document({
+            **MINIMAL_DOCUMENT_DICT_1,
+            'embedding': [0, 0, 1]
+        }, embedding_vector_mapping_name='embedding', query_vector=[1, 1, 1])
+        assert recommendation.score < 1.0
+
 
 class TestIterArticleRecommendationFromOpenSearchHits:
     def test_should_yield_items_with_article_meta(self):
@@ -73,6 +88,17 @@ class TestIterArticleRecommendationFromOpenSearchHits:
         assert len(recommendations) == 1
         assert recommendations[0].article_doi == 'doi1'
         assert recommendations[0].article_meta.article_doi == 'doi1'
+
+    def test_should_include_score_for_exactly_matching_vector(self):
+        recommendations = list(iter_article_recommendation_from_opensearch_hits([{
+            '_source': {
+                **MINIMAL_DOCUMENT_DICT_1,
+                'embedding': [1, 1, 1]
+            }
+        }], embedding_vector_mapping_name='embedding', query_vector=[1, 1, 1]))
+        assert len(recommendations) == 1
+        recommendation = recommendations[0]
+        assert round(recommendation.score, 2) == 1.0
 
 
 class TestGetVectorSearchQuery:

@@ -1,7 +1,7 @@
 import json
 import logging
 from datetime import date, timedelta
-from typing import Iterable, Optional, Sequence, TypedDict
+from typing import Iterable, Optional, Sequence, TypedDict, cast
 
 import numpy.typing as npt
 
@@ -20,6 +20,7 @@ from sciety_labs.providers.semantic_scholar import (
     SemanticScholarTitleAbstractEmbeddingVectorProvider
 )
 from sciety_labs.utils.datetime import get_utcnow
+from sciety_labs.utils.distance import cosine_similarity
 
 
 LOGGER = logging.getLogger(__name__)
@@ -68,8 +69,22 @@ def get_article_meta_from_document(
     )
 
 
+def _get_article_recommendation_score_or_none(
+    document: DocumentDict,
+    embedding_vector_mapping_name: Optional[str] = None,
+    query_vector: Optional[npt.ArrayLike] = None
+) -> Optional[float]:
+    if embedding_vector_mapping_name and query_vector is not None:
+        embedding_vector = cast(npt.ArrayLike, document.get(embedding_vector_mapping_name))
+        if embedding_vector is not None:
+            return cosine_similarity(embedding_vector, query_vector)
+    return None
+
+
 def get_article_recommendation_from_document(
-    document: DocumentDict
+    document: DocumentDict,
+    embedding_vector_mapping_name: Optional[str] = None,
+    query_vector: Optional[npt.ArrayLike] = None
 ) -> ArticleRecommendation:
     article_meta = get_article_meta_from_document(document)
     evaluation_count = document.get('evaluation_count')
@@ -81,16 +96,25 @@ def get_article_recommendation_from_document(
     return ArticleRecommendation(
         article_doi=article_meta.article_doi,
         article_meta=article_meta,
-        article_stats=article_stats
+        article_stats=article_stats,
+        score=_get_article_recommendation_score_or_none(
+            document,
+            embedding_vector_mapping_name=embedding_vector_mapping_name,
+            query_vector=query_vector
+        )
     )
 
 
 def iter_article_recommendation_from_opensearch_hits(
-    hits: Iterable[dict]
+    hits: Iterable[dict],
+    embedding_vector_mapping_name: Optional[str] = None,
+    query_vector: Optional[npt.ArrayLike] = None
 ) -> Iterable[ArticleRecommendation]:
     for hit in hits:
         yield get_article_recommendation_from_document(
-            hit['_source']
+            hit['_source'],
+            embedding_vector_mapping_name=embedding_vector_mapping_name,
+            query_vector=query_vector
         )
 
 
@@ -246,14 +270,16 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
             embedding_vector_mapping_name=self.embedding_vector_mapping_name,
             source_includes=[
                 'doi', 'title', 'authors', 'publication_date',
-                'evaluation_count'
+                'evaluation_count', self.embedding_vector_mapping_name,
             ],
             max_results=max_recommendations,
             filter_parameters=filter_parameters
         )
         LOGGER.debug('hits: %r', hits)
         recommendations = list(iter_article_recommendation_from_opensearch_hits(
-            hits
+            hits,
+            embedding_vector_mapping_name=self.embedding_vector_mapping_name,
+            query_vector=embedding_vector
         ))[:max_recommendations]
         LOGGER.info('hits: %d, recommendations: %d', len(hits), len(recommendations))
         return ArticleRecommendationList(recommendations, get_utcnow())

@@ -67,7 +67,8 @@ class TestGetS2RecommendedPaperResponseForArticleRecommendation:
             )
         )
         assert result == {
-            'externalIds': {'DOI': DOI_1}
+            'externalIds': {'DOI': DOI_1},
+            '_score': None
         }
 
     def test_should_return_response_for_paper_with_metadata(self):
@@ -82,7 +83,8 @@ class TestGetS2RecommendedPaperResponseForArticleRecommendation:
                 ),
                 article_stats=ArticleStats(
                     evaluation_count=123
-                )
+                ),
+                score=0.9
             )
         )
         assert result == {
@@ -93,7 +95,8 @@ class TestGetS2RecommendedPaperResponseForArticleRecommendation:
                 {'name': 'Author 1'},
                 {'name': 'Author 2'}
             ],
-            '_evaluationCount': 123
+            '_evaluationCount': 123,
+            '_score': 0.9
         }
 
     def test_should_be_able_to_select_fields(self):
