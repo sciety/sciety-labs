@@ -216,12 +216,21 @@ def create_api_article_recommendation_router(
                 Not part of S2, and only working with OpenSearch.
                 '''
             )
+        ),
+        published_within_last_n_days: int = fastapi.Query(
+            alias='_published_within_last_n_days',
+            default=60,
+            description=textwrap.dedent(
+                '''
+                Only consider papers published within the last *n* days.
+                '''
+            )
         )
     ):
         fields_set = set(fields.split(','))
         filter_parameters = ArticleRecommendationFilterParameters(
             exclude_article_dois={article_doi},
-            from_publication_date=date.today() - timedelta(days=60),
+            from_publication_date=date.today() - timedelta(days=published_within_last_n_days),
             evaluated_only=evaluated_only
         )
         try:
