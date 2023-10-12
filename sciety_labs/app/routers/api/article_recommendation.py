@@ -182,7 +182,8 @@ def create_api_article_recommendation_router(
                 '''
                 The DOI to provide paper recommendations for.
                 '''
-            )
+            ),
+            example='10.1101/2022.08.08.502889'
         ),
         fields: str = fastapi.Query(
             default=','.join(sorted(DEFAULT_LIKE_S2_RECOMMENDATION_FIELDS)),
