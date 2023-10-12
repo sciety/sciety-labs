@@ -12,6 +12,7 @@ import requests
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.utils.recommendation import (
+    DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY,
     get_article_recommendation_list_for_article_dois
 )
 from sciety_labs.providers.article_recommendation import (
@@ -29,12 +30,6 @@ LOGGER = logging.getLogger(__name__)
 
 
 DEFAULT_LIKE_S2_RECOMMENDATION_FIELDS = {'externalIds'}
-
-
-DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY = {
-    False: 60,
-    True: 365
-}
 
 
 class ExternalIdsDict(TypedDict):

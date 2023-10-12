@@ -13,6 +13,12 @@ from sciety_labs.utils.pagination import UrlPaginationParameters
 LOGGER = logging.getLogger(__name__)
 
 
+DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY = {
+    False: 60,
+    True: 365
+}
+
+
 def get_article_recommendation_list_for_article_dois(
     article_dois: Sequence[str],
     app_providers_and_models: AppProvidersAndModels,
