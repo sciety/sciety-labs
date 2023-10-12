@@ -31,6 +31,12 @@ LOGGER = logging.getLogger(__name__)
 DEFAULT_LIKE_S2_RECOMMENDATION_FIELDS = {'externalIds'}
 
 
+DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY = {
+    False: 60,
+    True: 365
+}
+
+
 class ExternalIdsDict(TypedDict):
     DOI: str
 
@@ -226,17 +232,28 @@ def create_api_article_recommendation_router(
                 '''
             )
         ),
-        published_within_last_n_days: int = fastapi.Query(
+        published_within_last_n_days: Optional[int] = fastapi.Query(
             alias='_published_within_last_n_days',
-            default=60,
+            default=None,
+            example=60,
             description=textwrap.dedent(
-                '''
+                f'''
                 Only consider papers published within the last *n* days.
+
+                The default will be
+                `{DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY[False]}`,
+                or
+                `{DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY[True]}`
+                when `evaluated_only` is `true`.
                 '''
             )
         )
     ):
         fields_set = set(fields.split(','))
+        if not published_within_last_n_days:
+            published_within_last_n_days = DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY[
+                evaluated_only
+            ]
         filter_parameters = ArticleRecommendationFilterParameters(
             exclude_article_dois={article_doi},
             from_publication_date=date.today() - timedelta(days=published_within_last_n_days),
