@@ -32,7 +32,7 @@ def get_article_recommendation_filter_parameters(
 ) -> ArticleRecommendationFilterParameters:
     return ArticleRecommendationFilterParameters(
         exclude_article_dois={article_doi},
-        from_publication_date=date.today() - timedelta(days=120),
+        from_publication_date=date.today() - timedelta(days=365),
         evaluated_only=True
     )
 
