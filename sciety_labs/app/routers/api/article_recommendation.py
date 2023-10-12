@@ -183,7 +183,7 @@ def create_api_article_recommendation_router(
                 The DOI to provide paper recommendations for.
                 '''
             ),
-            example='10.1101/2022.08.08.502889'
+            example='10.1101/2022.08.08.502889'  # Note: deprecated but appears in /docs and /redoc
         ),
         fields: str = fastapi.Query(
             default=','.join(sorted(DEFAULT_LIKE_S2_RECOMMENDATION_FIELDS)),
@@ -198,7 +198,12 @@ def create_api_article_recommendation_router(
                 - `_evaluationCount`
                 - `_score`
                 '''
-            )
+            ),
+            examples=[  # Note: These only seem to appear in /redoc
+                'externalIds',
+                'externalIds,title,publicationDate,authors',
+                'externalIds,title,publicationDate,authors,_evaluationCount,_score'
+            ]
         ),
         limit: Optional[int] = fastapi.Query(
             default=None,
