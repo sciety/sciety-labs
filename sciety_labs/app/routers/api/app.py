@@ -13,7 +13,7 @@ def create_api_app(
     app_providers_and_models: AppProvidersAndModels,
     app_update_manager: AppUpdateManager
 ) -> fastapi.FastAPI:
-    app = fastapi.FastAPI()
+    app = fastapi.FastAPI(title='Sciety Labs API', version='1.0.0')
 
     app.include_router(create_api_maintenance_router(
         app_update_manager=app_update_manager
