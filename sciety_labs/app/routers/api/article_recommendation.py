@@ -139,6 +139,8 @@ def create_api_article_recommendation_router(
             - Only preprints are returned
             - Related articles can be provided for almost any DOI with title and abstract in Crossref
             - The publication date is more accurate
+            - Ability filter by evaluated preprints
+            - Ability to increase the date range
 
             Parameters and fields starting with underscore are specific to this API (not like S2).
             '''  # noqa pylint: disable=line-too-long
