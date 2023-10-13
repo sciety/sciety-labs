@@ -1,3 +1,4 @@
+from datetime import date, timedelta
 import logging
 import textwrap
 from typing import Optional, Sequence, Set, cast
@@ -11,10 +12,12 @@ import requests
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.utils.recommendation import (
+    DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY,
     get_article_recommendation_list_for_article_dois
 )
 from sciety_labs.providers.article_recommendation import (
     ArticleRecommendation,
+    ArticleRecommendationFilterParameters,
     ArticleRecommendationList
 )
 from sciety_labs.providers.opensearch_article_recommendation import (
@@ -42,6 +45,8 @@ class PaperDict(TypedDict):
     title: NotRequired[Optional[str]]
     publicationDate: NotRequired[Optional[str]]
     authors: NotRequired[Optional[Sequence[AuthorDict]]]
+    _evaluationCount: NotRequired[Optional[int]]
+    _score: NotRequired[Optional[float]]
 
 
 class RecommendationResponseDict(TypedDict):
@@ -67,7 +72,8 @@ def get_s2_recommended_paper_response_for_article_recommendation(
     response: PaperDict = {
         'externalIds': {
             'DOI': article_recommendation.article_doi
-        }
+        },
+        '_score': article_recommendation.score
     }
     article_meta = article_recommendation.article_meta
     if article_meta:
@@ -78,6 +84,12 @@ def get_s2_recommended_paper_response_for_article_recommendation(
             'authors': get_s2_recommended_author_list_for_author_names(
                 article_meta.author_name_list
             )
+        }
+    article_stats = article_recommendation.article_stats
+    if article_stats:
+        response = {
+            **response,
+            '_evaluationCount': article_stats.evaluation_count
         }
     if fields:
         response = cast(
@@ -127,6 +139,10 @@ def create_api_article_recommendation_router(
             - Only preprints are returned
             - Related articles can be provided for almost any DOI with title and abstract in Crossref
             - The publication date is more accurate
+            - Ability filter by evaluated preprints
+            - Ability to increase the date range
+
+            Parameters and fields starting with underscore are specific to this API (not like S2).
             '''  # noqa pylint: disable=line-too-long
         ),
         response_model=RecommendationResponseDict,
@@ -169,7 +185,8 @@ def create_api_article_recommendation_router(
                 '''
                 The DOI to provide paper recommendations for.
                 '''
-            )
+            ),
+            example='10.1101/2022.08.08.502889'  # Note: deprecated but appears in /docs and /redoc
         ),
         fields: str = fastapi.Query(
             default=','.join(sorted(DEFAULT_LIKE_S2_RECOMMENDATION_FIELDS)),
@@ -181,8 +198,15 @@ def create_api_article_recommendation_router(
                 - `title`
                 - `publicationDate`
                 - `authors` (only containing `name`)
+                - `_evaluationCount`
+                - `_score`
                 '''
-            )
+            ),
+            examples=[  # Note: These only seem to appear in /redoc
+                'externalIds',
+                'externalIds,title,publicationDate,authors',
+                'externalIds,title,publicationDate,authors,_evaluationCount,_score'
+            ]
         ),
         limit: Optional[int] = fastapi.Query(
             default=None,
@@ -194,13 +218,49 @@ def create_api_article_recommendation_router(
                 `{DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS}`.
                 '''
             )
+        ),
+        evaluated_only: bool = fastapi.Query(
+            alias='_evaluated_only',
+            default=False,
+            description=textwrap.dedent(
+                '''
+                If true, only evaluated articles will be recommended.
+                Not part of S2, and only working with OpenSearch.
+                '''
+            )
+        ),
+        published_within_last_n_days: Optional[int] = fastapi.Query(
+            alias='_published_within_last_n_days',
+            default=None,
+            example=60,
+            description=textwrap.dedent(
+                f'''
+                Only consider papers published within the last *n* days.
+
+                The default will be
+                `{DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY[False]}`,
+                or
+                `{DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY[True]}`
+                when `evaluated_only` is `true`.
+                '''
+            )
         )
     ):
         fields_set = set(fields.split(','))
+        if not published_within_last_n_days:
+            published_within_last_n_days = DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY[
+                evaluated_only
+            ]
+        filter_parameters = ArticleRecommendationFilterParameters(
+            exclude_article_dois={article_doi},
+            from_publication_date=date.today() - timedelta(days=published_within_last_n_days),
+            evaluated_only=evaluated_only
+        )
         try:
             article_recommendation_list = get_article_recommendation_list_for_article_dois(
                 [article_doi],
                 app_providers_and_models=app_providers_and_models,
+                filter_parameters=filter_parameters,
                 max_recommendations=limit
             )
         except requests.exceptions.HTTPError as exception:

@@ -1,7 +1,10 @@
 import logging
 from datetime import date
+
+from sciety_labs.providers.article_recommendation import ArticleRecommendationFilterParameters
 from sciety_labs.providers.opensearch_article_recommendation import (
     get_article_meta_from_document,
+    get_article_recommendation_from_document,
     get_vector_search_query,
     iter_article_recommendation_from_opensearch_hits
 )
@@ -44,6 +47,36 @@ class TestGetArticleMetaFromDocument:
         assert article_meta.published_date == date(2001, 2, 3)
 
 
+class TestGetArticleRecommendationFromDocument:
+    def test_should_not_include_stats_without_evaluation_count(self):
+        recommendation = get_article_recommendation_from_document({
+            **MINIMAL_DOCUMENT_DICT_1
+        })
+        assert recommendation.article_stats is None
+
+    def test_should_include_evaluation_count_as_stats(self):
+        recommendation = get_article_recommendation_from_document({
+            **MINIMAL_DOCUMENT_DICT_1,
+            'evaluation_count': 123
+        })
+        assert recommendation.article_stats
+        assert recommendation.article_stats.evaluation_count == 123
+
+    def test_should_include_score_for_exactly_matching_vector(self):
+        recommendation = get_article_recommendation_from_document({
+            **MINIMAL_DOCUMENT_DICT_1,
+            'embedding': [1, 1, 1]
+        }, embedding_vector_mapping_name='embedding', query_vector=[1, 1, 1])
+        assert round(recommendation.score, 2) == 1.0
+
+    def test_should_include_score_for_not_exactly_matching_vector(self):
+        recommendation = get_article_recommendation_from_document({
+            **MINIMAL_DOCUMENT_DICT_1,
+            'embedding': [0, 0, 1]
+        }, embedding_vector_mapping_name='embedding', query_vector=[1, 1, 1])
+        assert recommendation.score < 1.0
+
+
 class TestIterArticleRecommendationFromOpenSearchHits:
     def test_should_yield_items_with_article_meta(self):
         recommendations = list(iter_article_recommendation_from_opensearch_hits([{
@@ -56,13 +89,27 @@ class TestIterArticleRecommendationFromOpenSearchHits:
         assert recommendations[0].article_doi == 'doi1'
         assert recommendations[0].article_meta.article_doi == 'doi1'
 
+    def test_should_include_score_for_exactly_matching_vector(self):
+        recommendations = list(iter_article_recommendation_from_opensearch_hits([{
+            '_source': {
+                **MINIMAL_DOCUMENT_DICT_1,
+                'embedding': [1, 1, 1]
+            }
+        }], embedding_vector_mapping_name='embedding', query_vector=[1, 1, 1]))
+        assert len(recommendations) == 1
+        recommendation = recommendations[0]
+        assert round(recommendation.score, 2) == 1.0
+
 
 class TestGetVectorSearchQuery:
     def test_should_include_query_vector(self):
         search_query = get_vector_search_query(
             query_vector=VECTOR_1,
             embedding_vector_mapping_name='embedding1',
-            max_results=3
+            max_results=3,
+            filter_parameters=ArticleRecommendationFilterParameters(
+                evaluated_only=False
+            )
         )
         assert search_query == {
             'size': 3,
@@ -81,7 +128,10 @@ class TestGetVectorSearchQuery:
             query_vector=VECTOR_1,
             embedding_vector_mapping_name='embedding1',
             max_results=3,
-            exclude_article_dois={DOI_1}
+            filter_parameters=ArticleRecommendationFilterParameters(
+                exclude_article_dois={DOI_1},
+                evaluated_only=False
+            )
         )
         LOGGER.debug('search_query: %r', search_query)
         assert search_query == {
@@ -108,7 +158,10 @@ class TestGetVectorSearchQuery:
             query_vector=VECTOR_1,
             embedding_vector_mapping_name='embedding1',
             max_results=3,
-            from_publication_date=date.fromisoformat('2001-02-03')
+            filter_parameters=ArticleRecommendationFilterParameters(
+                from_publication_date=date.fromisoformat('2001-02-03'),
+                evaluated_only=False
+            )
         )
         assert search_query == {
             'size': 3,
@@ -120,9 +173,66 @@ class TestGetVectorSearchQuery:
                         'filter': {
                             'bool': {
                                 'must': [{
-                                    'range': {
-                                        'publication_date': {'gte': '2001-02-03'}
-                                    }
+                                    'range': {'publication_date': {'gte': '2001-02-03'}}
+                                }]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    def test_should_add_evaluated_only_filter(self):
+        search_query = get_vector_search_query(
+            query_vector=VECTOR_1,
+            embedding_vector_mapping_name='embedding1',
+            max_results=3,
+            filter_parameters=ArticleRecommendationFilterParameters(
+                evaluated_only=True
+            )
+        )
+        assert search_query == {
+            'size': 3,
+            'query': {
+                'knn': {
+                    'embedding1': {
+                        'vector': VECTOR_1,
+                        'k': 3,
+                        'filter': {
+                            'bool': {
+                                'must': [{
+                                    'range': {'evaluation_count': {'gte': 1}}
+                                }]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    def test_should_add_from_publication_date_and_evaluated_only_filter(self):
+        search_query = get_vector_search_query(
+            query_vector=VECTOR_1,
+            embedding_vector_mapping_name='embedding1',
+            max_results=3,
+            filter_parameters=ArticleRecommendationFilterParameters(
+                from_publication_date=date.fromisoformat('2001-02-03'),
+                evaluated_only=True
+            )
+        )
+        assert search_query == {
+            'size': 3,
+            'query': {
+                'knn': {
+                    'embedding1': {
+                        'vector': VECTOR_1,
+                        'k': 3,
+                        'filter': {
+                            'bool': {
+                                'must': [{
+                                    'range': {'publication_date': {'gte': '2001-02-03'}}
+                                }, {
+                                    'range': {'evaluation_count': {'gte': 1}}
                                 }]
                             }
                         }

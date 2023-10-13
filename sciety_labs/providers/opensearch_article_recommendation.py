@@ -1,16 +1,17 @@
 import json
 import logging
 from datetime import date, timedelta
-from typing import Iterable, Optional, Sequence, Set, TypedDict
+from typing import Iterable, Optional, Sequence, TypedDict, cast
 
 import numpy.typing as npt
 
 from opensearchpy import OpenSearch
 import opensearchpy
-from sciety_labs.models.article import ArticleMetaData
+from sciety_labs.models.article import ArticleMetaData, ArticleStats
 
 from sciety_labs.providers.article_recommendation import (
     ArticleRecommendation,
+    ArticleRecommendationFilterParameters,
     ArticleRecommendationList,
     SingleArticleRecommendationProvider
 )
@@ -19,6 +20,7 @@ from sciety_labs.providers.semantic_scholar import (
     SemanticScholarTitleAbstractEmbeddingVectorProvider
 )
 from sciety_labs.utils.datetime import get_utcnow
+from sciety_labs.utils.distance import cosine_similarity
 
 
 LOGGER = logging.getLogger(__name__)
@@ -37,6 +39,7 @@ class DocumentDict(TypedDict):
     title: str
     authors: Optional[Sequence[DocumentAuthorDict]]
     publication_date: Optional[str]
+    evaluation_count: Optional[int]
 
 
 def get_author_names_for_document_authors(
@@ -66,38 +69,79 @@ def get_article_meta_from_document(
     )
 
 
+def _get_article_recommendation_score_or_none(
+    document: DocumentDict,
+    embedding_vector_mapping_name: Optional[str] = None,
+    query_vector: Optional[npt.ArrayLike] = None
+) -> Optional[float]:
+    if embedding_vector_mapping_name and query_vector is not None:
+        embedding_vector = cast(npt.ArrayLike, document.get(embedding_vector_mapping_name))
+        if embedding_vector is not None:
+            return cosine_similarity(embedding_vector, query_vector)
+    return None
+
+
+def get_article_recommendation_from_document(
+    document: DocumentDict,
+    embedding_vector_mapping_name: Optional[str] = None,
+    query_vector: Optional[npt.ArrayLike] = None
+) -> ArticleRecommendation:
+    article_meta = get_article_meta_from_document(document)
+    evaluation_count = document.get('evaluation_count')
+    article_stats = (
+        ArticleStats(evaluation_count=evaluation_count)
+        if evaluation_count is not None
+        else None
+    )
+    return ArticleRecommendation(
+        article_doi=article_meta.article_doi,
+        article_meta=article_meta,
+        article_stats=article_stats,
+        score=_get_article_recommendation_score_or_none(
+            document,
+            embedding_vector_mapping_name=embedding_vector_mapping_name,
+            query_vector=query_vector
+        )
+    )
+
+
 def iter_article_recommendation_from_opensearch_hits(
-    hits: Iterable[dict]
+    hits: Iterable[dict],
+    embedding_vector_mapping_name: Optional[str] = None,
+    query_vector: Optional[npt.ArrayLike] = None
 ) -> Iterable[ArticleRecommendation]:
     for hit in hits:
-        article_meta = get_article_meta_from_document(hit['_source'])
-        yield ArticleRecommendation(
-            article_doi=article_meta.article_doi,
-            article_meta=article_meta
+        yield get_article_recommendation_from_document(
+            hit['_source'],
+            embedding_vector_mapping_name=embedding_vector_mapping_name,
+            query_vector=query_vector
         )
 
 
-def get_vector_search_query(
+def get_vector_search_query(  # pylint: disable=too-many-arguments
     query_vector: npt.ArrayLike,
     embedding_vector_mapping_name: str,
     max_results: int,
-    exclude_article_dois: Optional[Set[str]] = None,
-    from_publication_date: Optional[date] = None
+    filter_parameters: ArticleRecommendationFilterParameters
 ) -> dict:
     vector_query_part: dict = {
         'vector': query_vector,
         'k': max_results
     }
     bool_filter: dict = {}
-    if exclude_article_dois:
+    if filter_parameters.exclude_article_dois:
         bool_filter.setdefault('must_not', []).append({
-            'ids': {'values': sorted(exclude_article_dois)}
+            'ids': {'values': sorted(filter_parameters.exclude_article_dois)}
         })
-    if from_publication_date:
+    if filter_parameters.from_publication_date:
         bool_filter.setdefault('must', []).append({
             'range': {
-                'publication_date': {'gte': from_publication_date.isoformat()}
+                'publication_date': {'gte': filter_parameters.from_publication_date.isoformat()}
             }
+        })
+    if filter_parameters.evaluated_only:
+        bool_filter.setdefault('must', []).append({
+            'range': {'evaluation_count': {'gte': 1}}
         })
     if bool_filter:
         vector_query_part = {
@@ -141,15 +185,13 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
         embedding_vector_mapping_name: str,
         source_includes: Sequence[str],
         max_results: int,
-        exclude_article_dois: Optional[Set[str]] = None,
-        from_publication_date: Optional[date] = None
+        filter_parameters: ArticleRecommendationFilterParameters
     ) -> Sequence[dict]:
         search_query = get_vector_search_query(
             query_vector=query_vector,
             embedding_vector_mapping_name=embedding_vector_mapping_name,
             max_results=max_results,
-            exclude_article_dois=exclude_article_dois,
-            from_publication_date=from_publication_date
+            filter_parameters=filter_parameters
         )
         LOGGER.info('search_query JSON: %s', json.dumps(search_query))
         client_search_results = (
@@ -200,7 +242,8 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
     def get_article_recommendation_list_for_article_doi(
         self,
         article_doi: str,
-        max_recommendations: Optional[int] = None
+        max_recommendations: Optional[int] = None,
+        filter_parameters: Optional[ArticleRecommendationFilterParameters] = None
     ) -> ArticleRecommendationList:
         if not max_recommendations:
             max_recommendations = DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS
@@ -215,20 +258,28 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
         if embedding_vector is None:
             return ArticleRecommendationList([], get_utcnow())
         LOGGER.info('Found embedding vector: %d', len(embedding_vector))
-        from_publication_date = date.today() - timedelta(days=60)
-        LOGGER.info('from_publication_date: %r', from_publication_date)
+        if filter_parameters is None:
+            filter_parameters = ArticleRecommendationFilterParameters(
+                exclude_article_dois={article_doi},
+                from_publication_date=date.today() - timedelta(days=60)
+            )
+        LOGGER.info('filter_parameters: %r', filter_parameters)
         hits = self._run_vector_search_and_get_hits(
             embedding_vector,
             index=self.index_name,
             embedding_vector_mapping_name=self.embedding_vector_mapping_name,
-            source_includes=['doi', 'title', 'authors', 'publication_date'],
+            source_includes=[
+                'doi', 'title', 'authors', 'publication_date',
+                'evaluation_count', self.embedding_vector_mapping_name,
+            ],
             max_results=max_recommendations,
-            exclude_article_dois={article_doi},
-            from_publication_date=from_publication_date
+            filter_parameters=filter_parameters
         )
         LOGGER.debug('hits: %r', hits)
         recommendations = list(iter_article_recommendation_from_opensearch_hits(
-            hits
+            hits,
+            embedding_vector_mapping_name=self.embedding_vector_mapping_name,
+            query_vector=embedding_vector
         ))[:max_recommendations]
         LOGGER.info('hits: %d, recommendations: %d', len(hits), len(recommendations))
         return ArticleRecommendationList(recommendations, get_utcnow())

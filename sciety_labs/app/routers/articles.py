@@ -1,3 +1,4 @@
+from datetime import date, timedelta
 import logging
 from typing import Optional
 
@@ -14,15 +15,32 @@ from sciety_labs.app.utils.common import (
     get_page_title
 )
 from sciety_labs.app.utils.recommendation import (
+    DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY,
     get_article_recommendation_list_for_article_dois,
     get_article_recommendation_page_and_item_count_for_article_dois
 )
-from sciety_labs.models.article import iter_preprint_article_mention
+from sciety_labs.models.article import ArticleStats, iter_preprint_article_mention
+from sciety_labs.providers.article_recommendation import ArticleRecommendationFilterParameters
 from sciety_labs.utils.pagination import get_url_pagination_state_for_pagination_parameters
 from sciety_labs.utils.text import remove_markup_or_none
 
 
 LOGGER = logging.getLogger(__name__)
+
+
+def get_article_recommendation_filter_parameters(
+    article_doi: str,
+    article_stats: Optional[ArticleStats]
+) -> ArticleRecommendationFilterParameters:
+    evaluated_only = bool(article_stats and article_stats.evaluation_count)
+    published_within_last_n_days = (
+        DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY[evaluated_only]
+    )
+    return ArticleRecommendationFilterParameters(
+        exclude_article_dois={article_doi},
+        from_publication_date=date.today() - timedelta(days=published_within_last_n_days),
+        evaluated_only=evaluated_only
+    )
 
 
 def create_articles_router(
@@ -68,12 +86,17 @@ def create_articles_router(
             .google_sheet_article_image_provider.get_article_images_by_doi(article_doi)
         )
 
+        filter_parameters = get_article_recommendation_filter_parameters(
+            article_doi,
+            article_stats=article_stats
+        )
         try:
             all_article_recommendations = list(
                 iter_preprint_article_mention(
                     get_article_recommendation_list_for_article_dois(
                         [article_doi],
-                        app_providers_and_models=app_providers_and_models
+                        app_providers_and_models=app_providers_and_models,
+                        filter_parameters=filter_parameters
                     ).recommendations
                 )
             )
@@ -122,12 +145,21 @@ def create_articles_router(
             app_providers_and_models
             .crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
         )
+        article_stats = (
+            app_providers_and_models
+            .evaluation_stats_model.get_article_stats_by_article_doi(article_doi)
+        )
+        filter_parameters = get_article_recommendation_filter_parameters(
+            article_doi,
+            article_stats=article_stats
+        )
         article_recommendation_with_article_meta, item_count = (
             get_article_recommendation_page_and_item_count_for_article_dois(
                 [article_doi],
                 app_providers_and_models=app_providers_and_models,
                 max_recommendations=max_recommendations,
-                pagination_parameters=pagination_parameters
+                pagination_parameters=pagination_parameters,
+                filter_parameters=filter_parameters
             )
         )
 
