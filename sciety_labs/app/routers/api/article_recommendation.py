@@ -186,7 +186,9 @@ def create_api_article_recommendation_router(
                 The DOI to provide paper recommendations for.
                 '''
             ),
-            example='10.1101/2022.08.08.502889'  # Note: deprecated but appears in /docs and /redoc
+            examples=[  # Note: These only seem to appear in /redoc
+                '10.1101/2022.08.08.502889'
+            ]
         ),
         fields: str = fastapi.Query(
             default=','.join(sorted(DEFAULT_LIKE_S2_RECOMMENDATION_FIELDS)),
@@ -232,7 +234,9 @@ def create_api_article_recommendation_router(
         published_within_last_n_days: Optional[int] = fastapi.Query(
             alias='_published_within_last_n_days',
             default=None,
-            example=60,
+            examples=list(
+                DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY.values()
+            ),
             description=textwrap.dedent(
                 f'''
                 Only consider papers published within the last *n* days.
