@@ -16,7 +16,7 @@ class OpenSearchEnvVariables:
     OPENSEARCH_PORT = 'OPENSEARCH_PORT'
     OPENSEARCH_USERNAME_FILE_PATH = 'OPENSEARCH_USERNAME_FILE_PATH'
     OPENSEARCH_PASSWORD_FILE_PATH = 'OPENSEARCH_PASSWORD_FILE_PATH'
-    OPENSEARCH_INDEX_NAME = 'OPENSEARCH_INDEX_NAME'
+    OPENSEARCH_INDEX_V2_NAME = 'OPENSEARCH_INDEX_V2_NAME'
     OPENSEARCH_EMBEDDING_VECTOR_MAPPING_NAME = 'OPENSEARCH_EMBEDDING_VECTOR_MAPPING_NAME'
 
 
@@ -59,7 +59,7 @@ class OpenSearchConnectionConfig:  # pylint: disable=too-many-instance-attribute
         if not hostname or not port_str:
             LOGGER.info('no OpenSearch hostname or port configured')
             return None
-        index_name = os.getenv(OpenSearchEnvVariables.OPENSEARCH_INDEX_NAME)
+        index_name = os.getenv(OpenSearchEnvVariables.OPENSEARCH_INDEX_V2_NAME)
         if not index_name:
             LOGGER.info('no OpenSearch index name configured')
             return None
