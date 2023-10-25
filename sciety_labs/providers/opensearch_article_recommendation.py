@@ -1,7 +1,7 @@
 import json
 import logging
 from datetime import date, timedelta
-from typing import Iterable, Optional, Sequence, TypedDict, cast
+from typing import Any, Iterable, Optional, Sequence, TypedDict, cast
 
 import numpy.typing as npt
 
@@ -29,21 +29,33 @@ LOGGER = logging.getLogger(__name__)
 DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS = 50
 
 
-class DocumentAuthorDict(TypedDict):
+class DocumentS2AuthorDict(TypedDict):
     name: str
     s2_author_id: Optional[str]
 
 
-class DocumentDict(TypedDict):
-    doi: str
+class DocumentS2Dict(TypedDict):
     title: str
-    authors: Optional[Sequence[DocumentAuthorDict]]
-    publication_date: Optional[str]
+    author_list: Optional[Sequence[DocumentS2AuthorDict]]
+
+
+class DocumentEuropePmcDict(TypedDict):
+    first_publication_date: Optional[str]
+
+
+class DocumentScietyDict(TypedDict):
     evaluation_count: Optional[int]
 
 
-def get_author_names_for_document_authors(
-    authors: Optional[Sequence[DocumentAuthorDict]]
+class DocumentDict(TypedDict):
+    doi: str
+    s2: Optional[DocumentS2Dict]
+    europepmc: Optional[DocumentEuropePmcDict]
+    sciety: Optional[DocumentScietyDict]
+
+
+def get_author_names_for_document_s2_authors(
+    authors: Optional[Sequence[DocumentS2AuthorDict]]
 ) -> Optional[Sequence[str]]:
     if authors is None:
         return None
@@ -61,12 +73,27 @@ def get_article_meta_from_document(
 ) -> ArticleMetaData:
     article_doi = document['doi']
     assert article_doi
+    s2_data: Optional[DocumentS2Dict] = document.get('s2')
+    article_title = s2_data and s2_data.get('title')
+    assert article_title is not None
+    europepmc_data: Optional[DocumentEuropePmcDict] = document.get('europepmc')
     return ArticleMetaData(
         article_doi=article_doi,
-        article_title=document['title'],
-        published_date=get_optional_date_from_str(document.get('publication_date')),
-        author_name_list=get_author_names_for_document_authors(document.get('authors'))
+        article_title=article_title,
+        published_date=get_optional_date_from_str(
+            europepmc_data and europepmc_data.get('first_publication_date')
+        ),
+        author_name_list=get_author_names_for_document_s2_authors(
+            s2_data and s2_data.get('author_list')
+        )
     )
+
+
+def get_value_for_key_path(parent: dict, key_path: Sequence[str]) -> Optional[Any]:
+    result: Any = parent
+    for key in key_path:
+        result = result.get(key)
+    return result
 
 
 def _get_article_recommendation_score_or_none(
@@ -75,7 +102,14 @@ def _get_article_recommendation_score_or_none(
     query_vector: Optional[npt.ArrayLike] = None
 ) -> Optional[float]:
     if embedding_vector_mapping_name and query_vector is not None:
-        embedding_vector = cast(npt.ArrayLike, document.get(embedding_vector_mapping_name))
+        embedding_vector_mapping_path = embedding_vector_mapping_name.split('.')
+        embedding_vector = cast(
+            npt.ArrayLike,
+            get_value_for_key_path(
+                cast(dict, document),
+                embedding_vector_mapping_path
+            )
+        )
         if embedding_vector is not None:
             return cosine_similarity(embedding_vector, query_vector)
     return None
@@ -87,7 +121,8 @@ def get_article_recommendation_from_document(
     query_vector: Optional[npt.ArrayLike] = None
 ) -> ArticleRecommendation:
     article_meta = get_article_meta_from_document(document)
-    evaluation_count = document.get('evaluation_count')
+    sciety_data: Optional[DocumentScietyDict] = document.get('sciety')
+    evaluation_count = sciety_data and sciety_data.get('evaluation_count')
     article_stats = (
         ArticleStats(evaluation_count=evaluation_count)
         if evaluation_count is not None
@@ -136,12 +171,14 @@ def get_vector_search_query(  # pylint: disable=too-many-arguments
     if filter_parameters.from_publication_date:
         bool_filter.setdefault('must', []).append({
             'range': {
-                'publication_date': {'gte': filter_parameters.from_publication_date.isoformat()}
+                'europepmc.first_publication_date': {
+                    'gte': filter_parameters.from_publication_date.isoformat()
+                }
             }
         })
     if filter_parameters.evaluated_only:
         bool_filter.setdefault('must', []).append({
-            'range': {'evaluation_count': {'gte': 1}}
+            'range': {'sciety.evaluation_count': {'gte': 1}}
         })
     if bool_filter:
         vector_query_part = {
@@ -269,8 +306,8 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
             index=self.index_name,
             embedding_vector_mapping_name=self.embedding_vector_mapping_name,
             source_includes=[
-                'doi', 'title', 'authors', 'publication_date',
-                'evaluation_count', self.embedding_vector_mapping_name,
+                'doi', 's2.title', 's2.author_list', 'europepmc.first_publication_date',
+                'sciety.evaluation_count', self.embedding_vector_mapping_name,
             ],
             max_results=max_recommendations,
             filter_parameters=filter_parameters

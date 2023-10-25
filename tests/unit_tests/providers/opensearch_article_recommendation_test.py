@@ -19,7 +19,9 @@ VECTOR_1 = [1, 1, 1]
 
 MINIMAL_DOCUMENT_DICT_1 = {
     'doi': 'doi1',
-    'title': 'Title 1'
+    's2': {
+        'title': 'Title 1'
+    }
 }
 
 
@@ -27,22 +29,27 @@ class TestGetArticleMetaFromDocument:
     def test_should_create_article_meta_with_minimal_fields(self):
         article_meta = get_article_meta_from_document(MINIMAL_DOCUMENT_DICT_1)
         assert article_meta.article_doi == MINIMAL_DOCUMENT_DICT_1['doi']
-        assert article_meta.article_title == MINIMAL_DOCUMENT_DICT_1['title']
+        assert article_meta.article_title == MINIMAL_DOCUMENT_DICT_1['s2']['title']
 
     def test_should_create_article_meta_with_authors(self):
         article_meta = get_article_meta_from_document({
             **MINIMAL_DOCUMENT_DICT_1,
-            'authors': [
-                {'name': 'Author 1'},
-                {'name': 'Author 2'}
-            ]
+            's2': {
+                **MINIMAL_DOCUMENT_DICT_1['s2'],
+                'author_list': [
+                    {'name': 'Author 1'},
+                    {'name': 'Author 2'}
+                ]
+            }
         })
         assert article_meta.author_name_list == ['Author 1', 'Author 2']
 
     def test_should_create_article_meta_with_publication_date(self):
         article_meta = get_article_meta_from_document({
             **MINIMAL_DOCUMENT_DICT_1,
-            'publication_date': '2001-02-03'
+            'europepmc': {
+                'first_publication_date': '2001-02-03'
+            }
         })
         assert article_meta.published_date == date(2001, 2, 3)
 
@@ -57,7 +64,9 @@ class TestGetArticleRecommendationFromDocument:
     def test_should_include_evaluation_count_as_stats(self):
         recommendation = get_article_recommendation_from_document({
             **MINIMAL_DOCUMENT_DICT_1,
-            'evaluation_count': 123
+            'sciety': {
+                'evaluation_count': 123
+            }
         })
         assert recommendation.article_stats
         assert recommendation.article_stats.evaluation_count == 123
@@ -65,15 +74,21 @@ class TestGetArticleRecommendationFromDocument:
     def test_should_include_score_for_exactly_matching_vector(self):
         recommendation = get_article_recommendation_from_document({
             **MINIMAL_DOCUMENT_DICT_1,
-            'embedding': [1, 1, 1]
-        }, embedding_vector_mapping_name='embedding', query_vector=[1, 1, 1])
+            's2': {
+                **MINIMAL_DOCUMENT_DICT_1['s2'],
+                'embedding': [1, 1, 1]
+            }
+        }, embedding_vector_mapping_name='s2.embedding', query_vector=[1, 1, 1])
         assert round(recommendation.score, 2) == 1.0
 
     def test_should_include_score_for_not_exactly_matching_vector(self):
         recommendation = get_article_recommendation_from_document({
             **MINIMAL_DOCUMENT_DICT_1,
-            'embedding': [0, 0, 1]
-        }, embedding_vector_mapping_name='embedding', query_vector=[1, 1, 1])
+            's2': {
+                **MINIMAL_DOCUMENT_DICT_1['s2'],
+                'embedding': [0, 0, 1]
+            }
+        }, embedding_vector_mapping_name='s2.embedding', query_vector=[1, 1, 1])
         assert recommendation.score < 1.0
 
 
@@ -82,7 +97,9 @@ class TestIterArticleRecommendationFromOpenSearchHits:
         recommendations = list(iter_article_recommendation_from_opensearch_hits([{
             '_source': {
                 'doi': 'doi1',
-                'title': 'Title 1'
+                's2': {
+                    'title': 'Title 1'
+                }
             }
         }]))
         assert len(recommendations) == 1
@@ -173,7 +190,9 @@ class TestGetVectorSearchQuery:
                         'filter': {
                             'bool': {
                                 'must': [{
-                                    'range': {'publication_date': {'gte': '2001-02-03'}}
+                                    'range': {
+                                        'europepmc.first_publication_date': {'gte': '2001-02-03'}
+                                    }
                                 }]
                             }
                         }
@@ -201,7 +220,7 @@ class TestGetVectorSearchQuery:
                         'filter': {
                             'bool': {
                                 'must': [{
-                                    'range': {'evaluation_count': {'gte': 1}}
+                                    'range': {'sciety.evaluation_count': {'gte': 1}}
                                 }]
                             }
                         }
@@ -230,9 +249,11 @@ class TestGetVectorSearchQuery:
                         'filter': {
                             'bool': {
                                 'must': [{
-                                    'range': {'publication_date': {'gte': '2001-02-03'}}
+                                    'range': {
+                                        'europepmc.first_publication_date': {'gte': '2001-02-03'}
+                                    }
                                 }, {
-                                    'range': {'evaluation_count': {'gte': 1}}
+                                    'range': {'sciety.evaluation_count': {'gte': 1}}
                                 }]
                             }
                         }
