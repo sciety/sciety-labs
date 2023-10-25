@@ -17,7 +17,9 @@ class OpenSearchEnvVariables:
     OPENSEARCH_USERNAME_FILE_PATH = 'OPENSEARCH_USERNAME_FILE_PATH'
     OPENSEARCH_PASSWORD_FILE_PATH = 'OPENSEARCH_PASSWORD_FILE_PATH'
     OPENSEARCH_INDEX_V2_NAME = 'OPENSEARCH_INDEX_V2_NAME'
-    OPENSEARCH_EMBEDDING_VECTOR_MAPPING_NAME = 'OPENSEARCH_EMBEDDING_VECTOR_MAPPING_NAME'
+    OPENSEARCH_INDEX_V2_EMBEDDING_VECTOR_MAPPING_NAME = (
+        'OPENSEARCH_INDEX_V2_EMBEDDING_VECTOR_MAPPING_NAME'
+    )
 
 
 def get_optional_secret_file_path_from_env_var_file_path(env_var_name: str) -> Optional[str]:
@@ -73,7 +75,7 @@ class OpenSearchConnectionConfig:  # pylint: disable=too-many-instance-attribute
             LOGGER.info('no OpenSearch username or password configured')
             return None
         embedding_vector_mapping_name = os.getenv(
-            OpenSearchEnvVariables.OPENSEARCH_EMBEDDING_VECTOR_MAPPING_NAME
+            OpenSearchEnvVariables.OPENSEARCH_INDEX_V2_EMBEDDING_VECTOR_MAPPING_NAME
         )
         return OpenSearchConnectionConfig(
             hostname=hostname,

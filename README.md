@@ -48,7 +48,7 @@ When configured, it will use OpenSearch instead of BigQuery to look up Semantic 
 | OPENSEARCH_USERNAME_FILE_PATH | File path to file containing the username |
 | OPENSEARCH_PASSWORD_FILE_PATH | File path to file containing the password |
 | OPENSEARCH_INDEX_V2_NAME | The index to use |
-| OPENSEARCH_EMBEDDING_VECTOR_MAPPING_NAME | Optional. When specified, it will use the OpenSearch embedding vector mapping to provide article recommendations for a single article (not yet used for lists). Otherwise it will continue to use Semantic Scholar. |
+| OPENSEARCH_INDEX_V2_EMBEDDING_VECTOR_MAPPING_NAME | Optional. When specified, it will use the OpenSearch embedding vector mapping to provide article recommendations for a single article (not yet used for lists). Otherwise it will continue to use Semantic Scholar. |
 
 ## Configuration
 
