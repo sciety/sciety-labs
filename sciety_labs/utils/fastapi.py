@@ -11,7 +11,10 @@ def get_likely_client_ip_for_request(request: Request) -> Optional[str]:
     """
     original_forwarded_for_value = request.headers.get('x-original-forwarded-for')
     if original_forwarded_for_value:
-        return original_forwarded_for_value
+        for value in original_forwarded_for_value.split(','):
+            value = value.strip()
+            if value:
+                return value
     real_ip_value = request.headers.get('x-real-ip')
     if real_ip_value:
         return real_ip_value
