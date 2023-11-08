@@ -9,6 +9,7 @@
 
 <head
     data-user-agent="{{ request.headers.get('User-Agent') }}"
+    data-client-ip="{{ request | likely_client_ip_for_request | default('', true) }}"
 >
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
