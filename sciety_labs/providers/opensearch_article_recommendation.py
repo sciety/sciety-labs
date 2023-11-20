@@ -33,28 +33,28 @@ DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS = 50
 
 class DocumentS2AuthorDict(TypedDict):
     name: str
-    s2_author_id: Optional[str]
+    s2_author_id: NotRequired[str]
 
 
 class DocumentS2Dict(TypedDict):
     title: str
-    author_list: Optional[Sequence[DocumentS2AuthorDict]]
+    author_list: NotRequired[Sequence[DocumentS2AuthorDict]]
 
 
 class DocumentEuropePmcDict(TypedDict):
     title_with_markup: NotRequired[str]
-    first_publication_date: Optional[str]
+    first_publication_date: NotRequired[str]
 
 
 class DocumentScietyDict(TypedDict):
-    evaluation_count: Optional[int]
+    evaluation_count: NotRequired[int]
 
 
 class DocumentDict(TypedDict):
     doi: str
-    s2: Optional[DocumentS2Dict]
-    europepmc: Optional[DocumentEuropePmcDict]
-    sciety: Optional[DocumentScietyDict]
+    s2: NotRequired[DocumentS2Dict]
+    europepmc: NotRequired[DocumentEuropePmcDict]
+    sciety: NotRequired[DocumentScietyDict]
 
 
 def get_author_names_for_document_s2_authors(
