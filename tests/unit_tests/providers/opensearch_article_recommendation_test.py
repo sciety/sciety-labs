@@ -18,7 +18,7 @@ VECTOR_1 = [1, 1, 1]
 
 
 MINIMAL_DOCUMENT_DICT_1 = {
-    'doi': 'doi1',
+    'doi': DOI_1,
     's2': {
         'title': 'Title 1'
     }
@@ -26,10 +26,20 @@ MINIMAL_DOCUMENT_DICT_1 = {
 
 
 class TestGetArticleMetaFromDocument:
-    def test_should_create_article_meta_with_minimal_fields(self):
+    def test_should_create_article_meta_with_minimal_fields_from_s2(self):
         article_meta = get_article_meta_from_document(MINIMAL_DOCUMENT_DICT_1)
         assert article_meta.article_doi == MINIMAL_DOCUMENT_DICT_1['doi']
         assert article_meta.article_title == MINIMAL_DOCUMENT_DICT_1['s2']['title']
+
+    def test_should_create_article_meta_with_minimal_fields_from_europepmc(self):
+        article_meta = get_article_meta_from_document({
+            'doi': DOI_1,
+            'europepmc': {
+                'title_with_markup': 'Title 1'
+            }
+        })
+        assert article_meta.article_doi == DOI_1
+        assert article_meta.article_title == 'Title 1'
 
     def test_should_create_article_meta_with_authors(self):
         article_meta = get_article_meta_from_document({

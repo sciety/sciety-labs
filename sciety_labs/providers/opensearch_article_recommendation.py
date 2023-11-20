@@ -1,7 +1,9 @@
 import json
 import logging
 from datetime import date, timedelta
-from typing import Any, Iterable, Optional, Sequence, TypedDict, cast
+from typing import Any, Iterable, Optional, Sequence, cast
+
+from typing_extensions import NotRequired, TypedDict
 
 import numpy.typing as npt
 
@@ -40,6 +42,7 @@ class DocumentS2Dict(TypedDict):
 
 
 class DocumentEuropePmcDict(TypedDict):
+    title_with_markup: NotRequired[str]
     first_publication_date: Optional[str]
 
 
@@ -73,10 +76,13 @@ def get_article_meta_from_document(
 ) -> ArticleMetaData:
     article_doi = document['doi']
     assert article_doi
-    s2_data: Optional[DocumentS2Dict] = document.get('s2')
-    article_title = s2_data and s2_data.get('title')
-    assert article_title is not None
     europepmc_data: Optional[DocumentEuropePmcDict] = document.get('europepmc')
+    s2_data: Optional[DocumentS2Dict] = document.get('s2')
+    article_title = (
+        (europepmc_data and europepmc_data.get('title_with_markup'))
+        or (s2_data and s2_data.get('title'))
+    )
+    assert article_title is not None
     return ArticleMetaData(
         article_doi=article_doi,
         article_title=article_title,
