@@ -41,9 +41,28 @@ class DocumentS2Dict(TypedDict):
     author_list: NotRequired[Sequence[DocumentS2AuthorDict]]
 
 
+class DocumentEuropePmcCollectiveAuthorDict(TypedDict):
+    collective_name: NotRequired[str]
+
+
+class DocumentEuropePmcIndividualAuthorDict(TypedDict):
+    full_name: NotRequired[str]
+    initials: NotRequired[str]
+    last_name: NotRequired[str]
+    first_name: NotRequired[str]
+
+
+class DocumentEuropePmcAuthorDict(
+    DocumentEuropePmcCollectiveAuthorDict,
+    DocumentEuropePmcIndividualAuthorDict
+):
+    pass
+
+
 class DocumentEuropePmcDict(TypedDict):
     title_with_markup: NotRequired[str]
     first_publication_date: NotRequired[str]
+    author_list: NotRequired[Sequence[DocumentEuropePmcAuthorDict]]
 
 
 class DocumentScietyDict(TypedDict):
@@ -63,6 +82,26 @@ def get_author_names_for_document_s2_authors(
     if authors is None:
         return None
     return [author['name'] for author in authors]
+
+
+def get_author_name_for_document_europepmc_author(
+    author: DocumentEuropePmcAuthorDict
+) -> str:
+    name: Optional[str] = (
+        author.get('collective_name')
+        or author.get('full_name')
+    )
+    if not name:
+        raise AssertionError(f'no name found in {repr(author)}')
+    return name
+
+
+def get_author_names_for_document_europepmc_authors(
+    authors: Optional[Sequence[DocumentEuropePmcAuthorDict]]
+) -> Optional[Sequence[str]]:
+    if authors is None:
+        return None
+    return [get_author_name_for_document_europepmc_author(author) for author in authors]
 
 
 def get_optional_date_from_str(date_str: Optional[str]) -> Optional[date]:
@@ -89,8 +128,13 @@ def get_article_meta_from_document(
         published_date=get_optional_date_from_str(
             europepmc_data.get('first_publication_date') if europepmc_data else None
         ),
-        author_name_list=get_author_names_for_document_s2_authors(
-            s2_data.get('author_list') if s2_data else None
+        author_name_list=(
+            get_author_names_for_document_europepmc_authors(
+                europepmc_data.get('author_list') if europepmc_data else None
+            )
+            or get_author_names_for_document_s2_authors(
+                s2_data.get('author_list') if s2_data else None
+            )
         )
     )
 
@@ -317,6 +361,7 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
                 's2.author_list',
                 'europepmc.first_publication_date',
                 'europepmc.title_with_markup',
+                'europepmc.author_list',
                 'sciety.evaluation_count',
                 self.embedding_vector_mapping_name,
             ],
