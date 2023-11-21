@@ -312,8 +312,13 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
             index=self.index_name,
             embedding_vector_mapping_name=self.embedding_vector_mapping_name,
             source_includes=[
-                'doi', 's2.title', 's2.author_list', 'europepmc.first_publication_date',
-                'sciety.evaluation_count', self.embedding_vector_mapping_name,
+                'doi',
+                's2.title',
+                's2.author_list',
+                'europepmc.first_publication_date',
+                'europepmc.title_with_markup',
+                'sciety.evaluation_count',
+                self.embedding_vector_mapping_name,
             ],
             max_results=max_recommendations,
             filter_parameters=filter_parameters
