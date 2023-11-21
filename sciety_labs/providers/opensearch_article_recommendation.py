@@ -1,7 +1,9 @@
 import json
 import logging
 from datetime import date, timedelta
-from typing import Any, Iterable, Optional, Sequence, TypedDict, cast
+from typing import Any, Iterable, Optional, Sequence, cast
+
+from typing_extensions import NotRequired, TypedDict
 
 import numpy.typing as npt
 
@@ -31,27 +33,47 @@ DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS = 50
 
 class DocumentS2AuthorDict(TypedDict):
     name: str
-    s2_author_id: Optional[str]
+    s2_author_id: NotRequired[str]
 
 
 class DocumentS2Dict(TypedDict):
     title: str
-    author_list: Optional[Sequence[DocumentS2AuthorDict]]
+    author_list: NotRequired[Sequence[DocumentS2AuthorDict]]
+
+
+class DocumentEuropePmcCollectiveAuthorDict(TypedDict):
+    collective_name: NotRequired[str]
+
+
+class DocumentEuropePmcIndividualAuthorDict(TypedDict):
+    full_name: NotRequired[str]
+    initials: NotRequired[str]
+    last_name: NotRequired[str]
+    first_name: NotRequired[str]
+
+
+class DocumentEuropePmcAuthorDict(
+    DocumentEuropePmcCollectiveAuthorDict,
+    DocumentEuropePmcIndividualAuthorDict
+):
+    pass
 
 
 class DocumentEuropePmcDict(TypedDict):
-    first_publication_date: Optional[str]
+    title_with_markup: NotRequired[str]
+    first_publication_date: NotRequired[str]
+    author_list: NotRequired[Sequence[DocumentEuropePmcAuthorDict]]
 
 
 class DocumentScietyDict(TypedDict):
-    evaluation_count: Optional[int]
+    evaluation_count: NotRequired[int]
 
 
 class DocumentDict(TypedDict):
     doi: str
-    s2: Optional[DocumentS2Dict]
-    europepmc: Optional[DocumentEuropePmcDict]
-    sciety: Optional[DocumentScietyDict]
+    s2: NotRequired[DocumentS2Dict]
+    europepmc: NotRequired[DocumentEuropePmcDict]
+    sciety: NotRequired[DocumentScietyDict]
 
 
 def get_author_names_for_document_s2_authors(
@@ -60,6 +82,26 @@ def get_author_names_for_document_s2_authors(
     if authors is None:
         return None
     return [author['name'] for author in authors]
+
+
+def get_author_name_for_document_europepmc_author(
+    author: DocumentEuropePmcAuthorDict
+) -> str:
+    name: Optional[str] = (
+        author.get('collective_name')
+        or author.get('full_name')
+    )
+    if not name:
+        raise AssertionError(f'no name found in {repr(author)}')
+    return name
+
+
+def get_author_names_for_document_europepmc_authors(
+    authors: Optional[Sequence[DocumentEuropePmcAuthorDict]]
+) -> Optional[Sequence[str]]:
+    if authors is None:
+        return None
+    return [get_author_name_for_document_europepmc_author(author) for author in authors]
 
 
 def get_optional_date_from_str(date_str: Optional[str]) -> Optional[date]:
@@ -73,18 +115,26 @@ def get_article_meta_from_document(
 ) -> ArticleMetaData:
     article_doi = document['doi']
     assert article_doi
-    s2_data: Optional[DocumentS2Dict] = document.get('s2')
-    article_title = s2_data and s2_data.get('title')
-    assert article_title is not None
     europepmc_data: Optional[DocumentEuropePmcDict] = document.get('europepmc')
+    s2_data: Optional[DocumentS2Dict] = document.get('s2')
+    article_title = (
+        (europepmc_data and europepmc_data.get('title_with_markup'))
+        or (s2_data and s2_data.get('title'))
+    )
+    assert article_title is not None
     return ArticleMetaData(
         article_doi=article_doi,
         article_title=article_title,
         published_date=get_optional_date_from_str(
-            europepmc_data and europepmc_data.get('first_publication_date')
+            europepmc_data.get('first_publication_date') if europepmc_data else None
         ),
-        author_name_list=get_author_names_for_document_s2_authors(
-            s2_data and s2_data.get('author_list')
+        author_name_list=(
+            get_author_names_for_document_europepmc_authors(
+                europepmc_data.get('author_list') if europepmc_data else None
+            )
+            or get_author_names_for_document_s2_authors(
+                s2_data.get('author_list') if s2_data else None
+            )
         )
     )
 
@@ -122,7 +172,7 @@ def get_article_recommendation_from_document(
 ) -> ArticleRecommendation:
     article_meta = get_article_meta_from_document(document)
     sciety_data: Optional[DocumentScietyDict] = document.get('sciety')
-    evaluation_count = sciety_data and sciety_data.get('evaluation_count')
+    evaluation_count = sciety_data.get('evaluation_count') if sciety_data else None
     article_stats = (
         ArticleStats(evaluation_count=evaluation_count)
         if evaluation_count is not None
@@ -306,8 +356,14 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
             index=self.index_name,
             embedding_vector_mapping_name=self.embedding_vector_mapping_name,
             source_includes=[
-                'doi', 's2.title', 's2.author_list', 'europepmc.first_publication_date',
-                'sciety.evaluation_count', self.embedding_vector_mapping_name,
+                'doi',
+                's2.title',
+                's2.author_list',
+                'europepmc.first_publication_date',
+                'europepmc.title_with_markup',
+                'europepmc.author_list',
+                'sciety.evaluation_count',
+                self.embedding_vector_mapping_name,
             ],
             max_results=max_recommendations,
             filter_parameters=filter_parameters
