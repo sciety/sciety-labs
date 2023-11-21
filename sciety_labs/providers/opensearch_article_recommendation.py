@@ -87,10 +87,10 @@ def get_article_meta_from_document(
         article_doi=article_doi,
         article_title=article_title,
         published_date=get_optional_date_from_str(
-            europepmc_data and europepmc_data.get('first_publication_date')
+            europepmc_data.get('first_publication_date') if europepmc_data else None
         ),
         author_name_list=get_author_names_for_document_s2_authors(
-            s2_data and s2_data.get('author_list')
+            s2_data.get('author_list') if s2_data else None
         )
     )
 
@@ -128,7 +128,7 @@ def get_article_recommendation_from_document(
 ) -> ArticleRecommendation:
     article_meta = get_article_meta_from_document(document)
     sciety_data: Optional[DocumentScietyDict] = document.get('sciety')
-    evaluation_count = sciety_data and sciety_data.get('evaluation_count')
+    evaluation_count = sciety_data.get('evaluation_count') if sciety_data else None
     article_stats = (
         ArticleStats(evaluation_count=evaluation_count)
         if evaluation_count is not None
