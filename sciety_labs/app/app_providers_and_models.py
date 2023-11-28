@@ -180,7 +180,10 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         )
 
         opensearch_config = OpenSearchConnectionConfig.from_env()
-        opensearch_client = get_opensearch_client_or_none(opensearch_config)
+        opensearch_client = get_opensearch_client_or_none(
+            opensearch_config,
+            requests_session=cached_requests_session
+        )
         LOGGER.info('opensearch_client: %r', opensearch_client)
 
         self.sciety_event_provider = ScietyEventProvider(

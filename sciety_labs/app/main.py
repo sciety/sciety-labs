@@ -26,6 +26,7 @@ from sciety_labs.utils.datetime import (
     get_date_as_isoformat,
     get_timestamp_as_isoformat
 )
+from sciety_labs.utils.fastapi import get_likely_client_ip_for_request
 
 
 LOGGER = logging.getLogger(__name__)
@@ -70,6 +71,7 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     templates.env.filters['date_isoformat'] = get_date_as_isoformat
     templates.env.filters['date_display_format'] = get_date_as_display_format
     templates.env.filters['timestamp_isoformat'] = get_timestamp_as_isoformat
+    templates.env.filters['likely_client_ip_for_request'] = get_likely_client_ip_for_request
     templates.env.globals['site_config'] = site_config
 
     app = FastAPI(docs_url=None, redoc_url=None)
