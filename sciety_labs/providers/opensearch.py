@@ -1,11 +1,13 @@
 import dataclasses
+import functools
 import logging
 import os
 from pathlib import Path
-from typing import Optional
+from typing import Type, cast, Optional
 
 
-from opensearchpy import OpenSearch
+from opensearchpy import OpenSearch, Transport
+
 import requests
 
 
@@ -88,6 +90,12 @@ class OpenSearchConnectionConfig:  # pylint: disable=too-many-instance-attribute
         )
 
 
+class OpenSearchTransport(Transport):
+    def __init__(self, *args, requests_session: Optional[requests.Session] = None, **kwargs):
+        self.requests_session = requests_session
+        super().__init__(*args, **kwargs)
+
+
 def get_opensearch_client(
     config: OpenSearchConnectionConfig,
     requests_session: Optional[requests.Session] = None
@@ -102,7 +110,14 @@ def get_opensearch_client(
         use_ssl=True,
         verify_certs=config.verify_certificates,
         ssl_show_warn=config.verify_certificates,
-        timeout=config.timeout
+        timeout=config.timeout,
+        transport_class=cast(
+            Type[Transport],
+            functools.partial(
+                OpenSearchTransport,
+                requests_session=requests_session
+            )
+        )
     )
 
 
