@@ -3,7 +3,7 @@ import functools
 import logging
 import os
 from pathlib import Path
-from typing import Type, cast, Optional
+from typing import Any, Collection, Mapping, Type, Union, cast, Optional
 
 
 from opensearchpy import OpenSearch, Transport
@@ -94,6 +94,26 @@ class OpenSearchTransport(Transport):
     def __init__(self, *args, requests_session: Optional[requests.Session] = None, **kwargs):
         self.requests_session = requests_session
         super().__init__(*args, **kwargs)
+
+    def perform_request(  # pylint: disable=too-many-arguments
+        self,
+        method: str,
+        url: str,
+        params: Optional[Mapping[str, Any]] = None,
+        body: Any = None,
+        timeout: Optional[Union[int, float]] = None,
+        ignore: Collection[int] = (),
+        headers: Optional[Mapping[str, str]] = None,
+    ) -> Any:
+        return super().perform_request(
+            method=method,
+            url=url,
+            params=params,
+            body=body,
+            timeout=timeout,
+            ignore=ignore,
+            headers=headers
+        )
 
 
 def get_opensearch_client(
