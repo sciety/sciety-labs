@@ -6,6 +6,7 @@ from typing import Optional
 
 
 from opensearchpy import OpenSearch
+import requests
 
 
 LOGGER = logging.getLogger(__name__)
@@ -87,7 +88,11 @@ class OpenSearchConnectionConfig:  # pylint: disable=too-many-instance-attribute
         )
 
 
-def get_opensearch_client(config: OpenSearchConnectionConfig) -> OpenSearch:
+def get_opensearch_client(
+    config: OpenSearchConnectionConfig,
+    requests_session: Optional[requests.Session] = None
+) -> OpenSearch:
+    LOGGER.info('OpenSearch requests_session: %r', requests_session)
     return OpenSearch(
         hosts=[{
             'host': config.hostname,
@@ -102,8 +107,9 @@ def get_opensearch_client(config: OpenSearchConnectionConfig) -> OpenSearch:
 
 
 def get_opensearch_client_or_none(
-    config: Optional[OpenSearchConnectionConfig]
+    config: Optional[OpenSearchConnectionConfig],
+    requests_session: Optional[requests.Session] = None
 ) -> Optional[OpenSearch]:
     if not config:
         return None
-    return get_opensearch_client(config)
+    return get_opensearch_client(config, requests_session=requests_session)
