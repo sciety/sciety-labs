@@ -268,7 +268,7 @@ def create_api_article_recommendation_router(
                 max_recommendations=limit
             )
         except requests.exceptions.HTTPError as exception:
-            status_code = exception.response.status_code
+            status_code = exception.response.status_code if exception.response else 500
             LOGGER.info('Exception retrieving metadata (%r): %r', status_code, exception)
             if status_code != 404:
                 raise
