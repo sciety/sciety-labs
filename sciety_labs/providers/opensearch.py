@@ -3,6 +3,7 @@ import functools
 import logging
 import os
 from pathlib import Path
+from time import monotonic
 from typing import Any, Collection, Mapping, Type, Union, cast, Optional
 
 
@@ -118,6 +119,7 @@ class OpenSearchTransport(Transport):
             full_url = f'{self.url_prefix}{url}'
             LOGGER.info('full_url: %r (%r)', full_url, method)
             LOGGER.debug('body: %r', body)
+            start_time = monotonic()
             response = self.requests_session.request(
                 method=method,
                 url=full_url,
@@ -127,6 +129,12 @@ class OpenSearchTransport(Transport):
                 headers=headers,
                 auth=self.auth,
                 verify=False
+            )
+            end_time = monotonic()
+            LOGGER.info(
+                'response: status=%r, time=%.3f seconds',
+                response.status_code,
+                (end_time - start_time)
             )
             response.raise_for_status()
             return response.json()
