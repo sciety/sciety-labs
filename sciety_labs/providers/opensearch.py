@@ -91,8 +91,17 @@ class OpenSearchConnectionConfig:  # pylint: disable=too-many-instance-attribute
 
 
 class OpenSearchTransport(Transport):
-    def __init__(self, *args, requests_session: Optional[requests.Session] = None, **kwargs):
+    def __init__(
+        self,
+        *args,
+        url_prefix: str,
+        requests_session: Optional[requests.Session] = None,
+        auth: Any = None,
+        **kwargs
+    ):
+        self.url_prefix = url_prefix
         self.requests_session = requests_session
+        self.auth = auth
         super().__init__(*args, **kwargs)
 
     def perform_request(  # pylint: disable=too-many-arguments
@@ -105,6 +114,22 @@ class OpenSearchTransport(Transport):
         ignore: Collection[int] = (),
         headers: Optional[Mapping[str, str]] = None,
     ) -> Any:
+        if self.requests_session:
+            full_url = f'{self.url_prefix}{url}'
+            LOGGER.info('full_url: %r (%r)', full_url, method)
+            LOGGER.debug('body: %r', body)
+            response = self.requests_session.request(
+                method=method,
+                url=full_url,
+                params=params,
+                json=body,
+                timeout=timeout,
+                headers=headers,
+                auth=self.auth,
+                verify=False
+            )
+            response.raise_for_status()
+            return response.json()
         return super().perform_request(
             method=method,
             url=url,
@@ -135,7 +160,9 @@ def get_opensearch_client(
             Type[Transport],
             functools.partial(
                 OpenSearchTransport,
-                requests_session=requests_session
+                url_prefix=f'https://{config.hostname}:{config.port}',
+                requests_session=requests_session,
+                auth=(config.username, config.password)
             )
         )
     )
