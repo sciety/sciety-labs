@@ -103,6 +103,7 @@ class OpenSearchTransport(Transport):
         self.url_prefix = url_prefix
         self.requests_session = requests_session
         self.auth = auth
+        self.verify_certificates = kwargs.get('verify_certs', True)
         super().__init__(*args, **kwargs)
 
     def perform_request(  # pylint: disable=too-many-arguments
@@ -128,7 +129,7 @@ class OpenSearchTransport(Transport):
                 timeout=timeout,
                 headers=headers,
                 auth=self.auth,
-                verify=False
+                verify=self.verify_certificates
             )
             end_time = monotonic()
             LOGGER.info(
