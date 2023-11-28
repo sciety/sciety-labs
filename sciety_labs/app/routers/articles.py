@@ -62,7 +62,7 @@ def create_articles_router(
                 .crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
             )
         except requests.exceptions.HTTPError as exception:
-            status_code = exception.response.status_code
+            status_code = exception.response.status_code if exception.response else 500
             LOGGER.info('Exception retrieving metadata (%r): %r', status_code, exception)
             if status_code != 404:
                 raise

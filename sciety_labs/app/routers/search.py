@@ -175,7 +175,7 @@ def get_search_result_page(
         )
     except requests.exceptions.HTTPError as exc:
         error_message = f'Error retrieving search results from provider: {exc}'
-        status_code = exc.response.status_code
+        status_code = exc.response.status_code if exc.response else 500
         search_result_list_with_article_meta = []
         search_result_iterator = iter([])
     url_pagination_state = get_url_pagination_state_for_pagination_parameters(
