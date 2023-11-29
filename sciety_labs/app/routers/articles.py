@@ -7,8 +7,6 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 import requests
 
-import opensearchpy.exceptions
-
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.utils.common import (
     AnnotatedPaginationParameters,
@@ -16,10 +14,9 @@ from sciety_labs.app.utils.common import (
 )
 from sciety_labs.app.utils.recommendation import (
     DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY,
-    get_article_recommendation_list_for_article_dois,
     get_article_recommendation_page_and_item_count_for_article_dois
 )
-from sciety_labs.models.article import ArticleStats, iter_preprint_article_mention
+from sciety_labs.models.article import ArticleStats
 from sciety_labs.providers.article_recommendation import ArticleRecommendationFilterParameters
 from sciety_labs.utils.pagination import get_url_pagination_state_for_pagination_parameters
 from sciety_labs.utils.text import remove_markup_or_none
@@ -47,8 +44,6 @@ def create_articles_router(
     app_providers_and_models: AppProvidersAndModels,
     templates: Jinja2Templates
 ):
-    article_aggregator = app_providers_and_models.article_aggregator
-
     router = APIRouter()
 
     @router.get('/articles/by', response_class=HTMLResponse)
@@ -86,40 +81,14 @@ def create_articles_router(
             .google_sheet_article_image_provider.get_article_images_by_doi(article_doi)
         )
 
-        filter_parameters = get_article_recommendation_filter_parameters(
-            article_doi,
-            article_stats=article_stats
-        )
-        try:
-            all_article_recommendations = list(
-                iter_preprint_article_mention(
-                    get_article_recommendation_list_for_article_dois(
-                        [article_doi],
-                        app_providers_and_models=app_providers_and_models,
-                        filter_parameters=filter_parameters
-                    ).recommendations
-                )
-            )
-        except (
-            requests.exceptions.RequestException,
-            opensearchpy.exceptions.TransportError
-        ) as exc:
-            LOGGER.warning('failed to get recommendations for %r due to %r', article_doi, exc)
-            all_article_recommendations = []
-        article_recommendation_with_article_meta = list(
-            article_aggregator.iter_page_article_mention_with_article_meta_and_stats(
-                all_article_recommendations,
-                page=1,
-                items_per_page=3
-            )
-        )
-        LOGGER.info(
-            'article_recommendation_with_article_meta[:1]=%r',
-            article_recommendation_with_article_meta[:1]
-        )
-
         article_recommendation_url = (
             request.url.replace(path='/articles/article-recommendations/by')
+        )
+        article_recommendation_fragment_url = (
+            article_recommendation_url.include_query_params(
+                fragment=True,
+                max_recommendations=3
+            )
         )
 
         return templates.TemplateResponse(
@@ -132,7 +101,7 @@ def create_articles_router(
                 'article_meta': article_meta,
                 'article_stats': article_stats,
                 'article_images': article_images,
-                'article_recommendation_list': article_recommendation_with_article_meta,
+                'article_recommendation_fragment_url': article_recommendation_fragment_url,
                 'article_recommendation_url': article_recommendation_url
             }
         )
@@ -142,7 +111,8 @@ def create_articles_router(
         request: Request,
         article_doi: str,
         pagination_parameters: AnnotatedPaginationParameters,
-        max_recommendations: Optional[int] = None
+        max_recommendations: Optional[int] = None,
+        fragment: bool = False
     ):
         article_meta = (
             app_providers_and_models
@@ -171,6 +141,13 @@ def create_articles_router(
             pagination_parameters=pagination_parameters,
             item_count=item_count
         )
+        if fragment:
+            return templates.TemplateResponse(
+                'fragments/article-recommendations.html', {
+                    'request': request,
+                    'article_list_content': article_recommendation_with_article_meta
+                }
+            )
         return templates.TemplateResponse(
             'pages/article-recommendations-by-article-doi.html', {
                 'request': request,
