@@ -38,14 +38,13 @@
                                 {{ render_select_option(value='since_2022', label='Since 2022', selected_value=date_range) }}
                                 {{ render_select_option(value='since_2021', label='Since 2021', selected_value=date_range) }}
                             </select>
+                        </label>,
+                        <label>using search provider:
+                            <select name="search_provider">
+                                {{ render_select_option(value='europe_pmc', label='Europe PMC', selected_value=search_provider) }}
+                                {{ render_select_option(value='semantic_scholar', label='Semantic Scholar', selected_value=search_provider) }}
+                            </select>
                         </label>
-                    </section>
-                    <section class="search-form__section">
-                        <legend>Please select a search provider:</legend>
-                        <div>
-                            {{ render_radio_button(name='search_provider', value='semantic_scholar', label='Semantic Scholar', selected_value=search_provider) }}
-                            {{ render_radio_button(name='search_provider', value='europe_pmc', label='Europe PMC', selected_value=search_provider) }}
-                        </div>
                     </section>
                     <button type="submit" class="search-form__submit" aria-label="Run the search">Search</button>
                     <button formaction="/feeds/search/create" type="submit" class="secondary-action-button search-form__create-feed" aria-label="Create feed">Create feed</button>
