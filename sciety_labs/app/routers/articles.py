@@ -61,7 +61,7 @@ def create_articles_router(
                 app_providers_and_models
                 .crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
             )
-        except requests.exceptions.HTTPError as exception:
+        except requests.exceptions.RequestException as exception:
             status_code = exception.response.status_code if exception.response else 500
             LOGGER.info('Exception retrieving metadata (%r): %r', status_code, exception)
             if status_code != 404:
@@ -100,7 +100,10 @@ def create_articles_router(
                     ).recommendations
                 )
             )
-        except (requests.exceptions.HTTPError, opensearchpy.exceptions.TransportError) as exc:
+        except (
+            requests.exceptions.RequestException,
+            opensearchpy.exceptions.TransportError
+        ) as exc:
             LOGGER.warning('failed to get recommendations for %r due to %r', article_doi, exc)
             all_article_recommendations = []
         article_recommendation_with_article_meta = list(

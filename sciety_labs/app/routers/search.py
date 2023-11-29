@@ -173,7 +173,7 @@ def get_search_result_page(
             'search_result_list_with_article_meta[:1]=%r',
             search_result_list_with_article_meta[:1]
         )
-    except requests.exceptions.HTTPError as exc:
+    except requests.exceptions.RequestException as exc:
         error_message = f'Error retrieving search results from provider: {exc}'
         status_code = exc.response.status_code if exc.response else 500
         search_result_list_with_article_meta = []
