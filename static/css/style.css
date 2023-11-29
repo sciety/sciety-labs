@@ -262,3 +262,14 @@ section.article-stats {
 .search-form__submit {
     display: inline-block;
 }
+
+/* htmx-request */
+.htmx-request {
+  position: absolute;
+  visibility: hidden;
+}
+
+.htmx-request:after {
+  content: 'Loading...';
+  visibility: visible;
+}
