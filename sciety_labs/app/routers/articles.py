@@ -158,6 +158,14 @@ def create_articles_router(
             )
         )
 
+        article_recommendation_url = (
+            request.url.remove_query_params([
+                'fragment', 'enable_pagination', 'max_recommendations'
+            ])
+            if not pagination_parameters.enable_pagination
+            else None
+        )
+
         url_pagination_state = get_url_pagination_state_for_pagination_parameters(
             url=request.url.remove_query_params(['fragment']),
             pagination_parameters=pagination_parameters,
@@ -168,7 +176,8 @@ def create_articles_router(
             'fragments/article-recommendations.html', {
                 'request': request,
                 'article_list_content': article_recommendation_with_article_meta,
-                'pagination': url_pagination_state
+                'pagination': url_pagination_state,
+                'article_recommendation_url': article_recommendation_url
             }
         )
 

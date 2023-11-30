@@ -11,3 +11,7 @@
 
 {{ render_article_list_content(article_list_content) }}
 {{ render_pagination(pagination) }}
+
+{% if article_recommendation_url %}
+    <a class="more-link" href="{{ article_recommendation_url }}">More</a>
+{% endif %}
