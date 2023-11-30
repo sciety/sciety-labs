@@ -1,6 +1,5 @@
 {%- from 'macros/page.html' import render_page with context %}
 {%- from 'macros/article.html' import render_article_list_content with context %}
-{%- from 'macros/pagination.html' import render_pagination_header, render_pagination %}
 
 {%- call render_page() %}
     <main class="page-content" id="mainContent">
@@ -37,17 +36,19 @@
                         </ul>
                     </div>
                     {%- endif %}
-
-                    <section>
-                        {{ render_pagination_header(pagination, list_type_name='article recommendations') }}
-                    </section>
                 </div>
             </header>
 
             <section>
-                {{ render_article_list_content(article_list_content) }}
-                {{ render_pagination(pagination) }}
+                <p
+                    hx-get="{{ article_recommendation_fragment_url }}"
+                    hx-trigger="load"
+                >
+                    Related articles are currently not available for this list.
+                </p>
             </section>
         </div>
     </main>
+
+    <script src="https://unpkg.com/htmx.org@1.9.9"></script>
 {%- endcall %}
