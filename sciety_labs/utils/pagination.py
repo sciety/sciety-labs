@@ -67,9 +67,12 @@ def get_url_pagination_state_for_url(  # pylint: disable=too-many-arguments
     if item_count is None and remaining_item_iterable is None:
         raise AssertionError('either item_count or remaining_item_iterable must be specified')
     if page > 1:
-        previous_page_url = str(url.include_query_params(
-            page=page - 1
-        ))
+        if page == 2:
+            previous_page_url = str(url.remove_query_params(['page']))
+        else:
+            previous_page_url = str(url.include_query_params(
+                page=page - 1
+            ))
     has_next_page = False
     if item_count is not None:
         page_count = get_page_count_for_item_count_and_items_per_page(
