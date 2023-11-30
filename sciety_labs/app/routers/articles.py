@@ -82,17 +82,16 @@ def create_articles_router(
         )
 
         article_recommendation_url = (
-            request.url.replace(
-                path='/articles/article-recommendations/by'
-            )
+            request.url.replace(path='/articles/article-recommendations/by')
         )
-        LOGGER.info('article_recommendation_url: %r', article_recommendation_url)
         article_recommendation_fragment_url = (
             article_recommendation_url.include_query_params(
                 fragment=True,
-                max_recommendations=3
+                max_recommendations=3,
+                enable_pagination=False
             )
         )
+        LOGGER.info('article_recommendation_fragment_url: %r', article_recommendation_fragment_url)
 
         return templates.TemplateResponse(
             'pages/article-by-article-doi.html', {
@@ -104,8 +103,7 @@ def create_articles_router(
                 'article_meta': article_meta,
                 'article_stats': article_stats,
                 'article_images': article_images,
-                'article_recommendation_fragment_url': article_recommendation_fragment_url,
-                'article_recommendation_url': article_recommendation_url
+                'article_recommendation_fragment_url': article_recommendation_fragment_url
             }
         )
 
@@ -117,6 +115,24 @@ def create_articles_router(
         max_recommendations: Optional[int] = None,
         fragment: bool = False
     ):
+        article_meta = (
+            app_providers_and_models
+            .crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
+        )
+        if not fragment:
+            article_recommendation_fragment_url = (
+                request.url.include_query_params(fragment=True)
+            )
+            return templates.TemplateResponse(
+                'pages/article-recommendations-by-article-doi.html', {
+                    'request': request,
+                    'page_title': get_page_title(
+                        f'Article recommendations for {article_meta.article_title}'
+                    ),
+                    'article_meta': article_meta,
+                    'article_recommendation_fragment_url': article_recommendation_fragment_url
+                }
+            )
         article_meta = (
             app_providers_and_models
             .crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
@@ -139,27 +155,26 @@ def create_articles_router(
             )
         )
 
+        article_recommendation_url = (
+            request.url.remove_query_params([
+                'fragment', 'enable_pagination', 'max_recommendations'
+            ])
+            if not pagination_parameters.enable_pagination
+            else None
+        )
+
         url_pagination_state = get_url_pagination_state_for_pagination_parameters(
-            url=request.url,
+            url=request.url.remove_query_params(['fragment']),
             pagination_parameters=pagination_parameters,
             item_count=item_count
         )
-        if fragment:
-            return templates.TemplateResponse(
-                'fragments/article-recommendations.html', {
-                    'request': request,
-                    'article_list_content': article_recommendation_with_article_meta
-                }
-            )
+        LOGGER.info('url_pagination_state: %r', url_pagination_state)
         return templates.TemplateResponse(
-            'pages/article-recommendations-by-article-doi.html', {
+            'fragments/article-recommendations.html', {
                 'request': request,
-                'page_title': get_page_title(
-                    f'Article recommendations for {article_meta.article_title}'
-                ),
-                'article_meta': article_meta,
                 'article_list_content': article_recommendation_with_article_meta,
-                'pagination': url_pagination_state
+                'pagination': url_pagination_state,
+                'article_recommendation_url': article_recommendation_url
             }
         )
 
