@@ -8,6 +8,7 @@ from fastapi.staticfiles import StaticFiles
 import markupsafe
 
 import bleach
+
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.app_update_manager import AppUpdateManager
 from sciety_labs.app.routers.api.app import create_api_app
@@ -26,7 +27,10 @@ from sciety_labs.utils.datetime import (
     get_date_as_isoformat,
     get_timestamp_as_isoformat
 )
-from sciety_labs.utils.fastapi import get_likely_client_ip_for_request
+from sciety_labs.utils.fastapi import (
+    get_likely_client_ip_for_request,
+    update_request_scope_to_original_url_middleware
+)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -101,6 +105,8 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         templates=templates,
         search_feeds_config=search_feeds_config
     ))
+
+    app.middleware('http')(update_request_scope_to_original_url_middleware)
 
     @app.exception_handler(404)
     async def not_found_exception_handler(request: Request, exception: HTTPException):

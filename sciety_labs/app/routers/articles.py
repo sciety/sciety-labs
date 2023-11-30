@@ -82,8 +82,11 @@ def create_articles_router(
         )
 
         article_recommendation_url = (
-            request.url.replace(path='/articles/article-recommendations/by')
+            request.url.replace(
+                path='/articles/article-recommendations/by'
+            )
         )
+        LOGGER.info('article_recommendation_url: %r', article_recommendation_url)
         article_recommendation_fragment_url = (
             article_recommendation_url.include_query_params(
                 fragment=True,
