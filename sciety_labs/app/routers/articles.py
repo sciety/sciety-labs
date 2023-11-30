@@ -90,7 +90,8 @@ def create_articles_router(
         article_recommendation_fragment_url = (
             article_recommendation_url.include_query_params(
                 fragment=True,
-                max_recommendations=3
+                max_recommendations=3,
+                enable_pagination=False
             )
         )
 
@@ -121,6 +122,24 @@ def create_articles_router(
             app_providers_and_models
             .crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
         )
+        if not fragment:
+            article_recommendation_fragment_url = (
+                request.url.include_query_params(fragment=True)
+            )
+            return templates.TemplateResponse(
+                'pages/article-recommendations-by-article-doi.html', {
+                    'request': request,
+                    'page_title': get_page_title(
+                        f'Article recommendations for {article_meta.article_title}'
+                    ),
+                    'article_meta': article_meta,
+                    'article_recommendation_fragment_url': article_recommendation_fragment_url
+                }
+            )
+        article_meta = (
+            app_providers_and_models
+            .crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
+        )
         article_stats = (
             app_providers_and_models
             .evaluation_stats_model.get_article_stats_by_article_doi(article_doi)
@@ -140,24 +159,14 @@ def create_articles_router(
         )
 
         url_pagination_state = get_url_pagination_state_for_pagination_parameters(
-            url=request.url,
+            url=request.url.remove_query_params(['fragment']),
             pagination_parameters=pagination_parameters,
             item_count=item_count
         )
-        if fragment:
-            return templates.TemplateResponse(
-                'fragments/article-recommendations.html', {
-                    'request': request,
-                    'article_list_content': article_recommendation_with_article_meta
-                }
-            )
+        LOGGER.info('url_pagination_state: %r', url_pagination_state)
         return templates.TemplateResponse(
-            'pages/article-recommendations-by-article-doi.html', {
+            'fragments/article-recommendations.html', {
                 'request': request,
-                'page_title': get_page_title(
-                    f'Article recommendations for {article_meta.article_title}'
-                ),
-                'article_meta': article_meta,
                 'article_list_content': article_recommendation_with_article_meta,
                 'pagination': url_pagination_state
             }

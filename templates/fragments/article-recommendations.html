@@ -1,3 +1,13 @@
 {%- from 'macros/article.html' import render_article_list_content with context %}
+{%- from 'macros/pagination.html' import render_pagination_header, render_pagination %}
+
+{% if pagination.enable_pagination %}
+    <header>
+        <section>
+            {{ render_pagination_header(pagination, list_type_name='article recommendations') }}
+        </section>
+    </header>
+{% endif %}
 
 {{ render_article_list_content(article_list_content) }}
+{{ render_pagination(pagination) }}
