@@ -26,3 +26,17 @@ def get_likely_client_ip_for_request(request: Request) -> Optional[str]:
     if request.client:
         return request.client.host
     return None
+
+
+def update_request_scope_to_original_url(request: Request):
+    original_scheme = request.headers.get('x-scheme')
+    if original_scheme:
+        request.scope['scheme'] = original_scheme
+
+
+async def update_request_scope_to_original_url_middleware(
+    request: Request,
+    call_next
+):
+    update_request_scope_to_original_url(request)
+    return await call_next(request)

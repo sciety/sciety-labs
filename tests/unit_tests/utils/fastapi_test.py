@@ -3,8 +3,12 @@ from unittest.mock import MagicMock
 import pytest
 
 import starlette.datastructures
+import starlette.types
 
-from sciety_labs.utils.fastapi import get_likely_client_ip_for_request
+from sciety_labs.utils.fastapi import (
+    get_likely_client_ip_for_request,
+    update_request_scope_to_original_url
+)
 
 
 IP_1 = '127.0.0.1'
@@ -20,6 +24,7 @@ def _request_mock() -> MagicMock:
     request = MagicMock(name='request')
     request.headers = starlette.datastructures.Headers()
     request.client = None
+    request.scope = {}
     return request
 
 
@@ -91,3 +96,21 @@ class TestGetLikelyClientIpForRequest:
         })
         request_mock.client = starlette.datastructures.Address(host=IP_1, port=123)
         assert get_likely_client_ip_for_request(request=request_mock) == IP_2
+
+
+class TestUpdateRequestScopeToOriginalUrl:
+    def test_should_not_update_scheme_without_extra_headers(self, request_mock: MagicMock):
+        request_mock.scope['scheme'] = 'http'
+        update_request_scope_to_original_url(request_mock)
+        assert request_mock.scope['scheme'] == 'http'
+
+    def test_should_update_scheme_with_the_one_provided_by_headers(
+        self,
+        request_mock: MagicMock
+    ):
+        request_mock.scope['scheme'] = 'http'
+        request_mock.headers = starlette.datastructures.Headers({
+            'x-scheme': 'https'
+        })
+        update_request_scope_to_original_url(request_mock)
+        assert request_mock.scope['scheme'] == 'https'
