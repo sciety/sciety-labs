@@ -115,11 +115,29 @@ def create_list_by_id_router(
         pagination_parameters: AnnotatedPaginationParameters,
         from_sciety: bool = False,
         from_sciety_alias: bool = Query(False, alias='from-sciety'),
-        max_recommendations: int = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
+        max_recommendations: int = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS,
+        fragment: bool = False
     ):
         list_summary_data = (
             app_providers_and_models.lists_model.get_list_summary_data_by_list_id(list_id)
         )
+        if not fragment:
+            article_recommendation_fragment_url = (
+                request.url.include_query_params(fragment=True)
+            )
+            return templates.TemplateResponse(
+                'pages/article-recommendations-by-sciety-list-id.html', {
+                    'request': request,
+                    'page_title': get_page_title(
+                        f'Article recommendations for {list_summary_data.list_meta.list_name}'
+                    ),
+                    'rss_url': get_rss_url(request),
+                    'owner_url': get_owner_url(list_summary_data.owner),
+                    'list_summary_data': list_summary_data,
+                    'from_sciety': from_sciety or from_sciety_alias,
+                    'article_recommendation_fragment_url': article_recommendation_fragment_url
+                }
+            )
         article_recommendation_with_article_meta, item_count = (
             get_article_recommendation_page_and_item_count_for_article_dois(
                 [
@@ -136,19 +154,16 @@ def create_list_by_id_router(
         )
 
         url_pagination_state = get_url_pagination_state_for_pagination_parameters(
-            url=request.url,
+            url=request.url.remove_query_params(['fragment']),
             pagination_parameters=pagination_parameters,
             item_count=item_count
         )
         return templates.TemplateResponse(
-            'pages/article-recommendations-by-sciety-list-id.html', {
+            'fragments/article-recommendations.html', {
                 'request': request,
                 'page_title': get_page_title(
                     f'Article recommendations for {list_summary_data.list_meta.list_name}'
                 ),
-                'rss_url': get_rss_url(request),
-                'owner_url': get_owner_url(list_summary_data.owner),
-                'list_summary_data': list_summary_data,
                 'from_sciety': from_sciety or from_sciety_alias,
                 'article_list_content': article_recommendation_with_article_meta,
                 'pagination': url_pagination_state
