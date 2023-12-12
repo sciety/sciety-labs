@@ -1,6 +1,5 @@
 from http.client import HTTPException
 import logging
-import anyio
 
 from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
@@ -130,10 +129,5 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
             },
             status_code=500
         )
-
-    LOGGER.info(
-        'Max thread count: %d',
-        anyio.to_thread.current_default_thread_limiter().total_tokens
-    )
 
     return app
