@@ -1,4 +1,5 @@
 import logging
+import threading
 
 from fastapi import APIRouter, Request
 
@@ -12,7 +13,8 @@ def create_api_debug_router():
     @router.get('/debug', include_in_schema=False)
     def debug_data(request: Request):
         result: dict = {
-            'headers': request.headers
+            'headers': request.headers,
+            'threading.active_count': threading.active_count()
         }
         if request.client:
             result.update({
