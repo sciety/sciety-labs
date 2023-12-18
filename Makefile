@@ -70,6 +70,11 @@ dev-start:
 		--log-config=config/logging.yaml
 
 
+dev-start-load-test-ui:
+	$(PYTHON) -m locust \
+		--locustfile=tests/load_tests/homepage_test.py
+
+
 check-or-reload-data:
 	curl \
 		--fail-with-body \
