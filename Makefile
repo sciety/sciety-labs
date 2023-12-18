@@ -72,6 +72,7 @@ dev-start:
 
 dev-start-load-test-ui:
 	$(PYTHON) -m locust \
+		--modern-ui \
 		--locustfile=tests/load_tests/homepage_test.py
 
 
