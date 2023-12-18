@@ -12,6 +12,9 @@ DOCKER_PYTHON = $(DOCKER_RUN) python
 ARGS =
 PYTEST_WATCH_MODULES = tests/unit_tests
 
+LOCUST_FILE = tests/load_tests/homepage_test.py
+
+
 venv-clean:
 	@if [ -d "$(VENV)" ]; then \
 		rm -rf "$(VENV)"; \
@@ -73,7 +76,7 @@ dev-start:
 dev-start-load-test-ui:
 	$(PYTHON) -m locust \
 		--modern-ui \
-		--locustfile=tests/load_tests/homepage_test.py
+		--locustfile=$(LOCUST_FILE)
 
 
 check-or-reload-data:
