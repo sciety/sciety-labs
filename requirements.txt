@@ -1,5 +1,5 @@
 bleach==6.1.0
-fastapi==0.105.0
+fastapi==0.106.0
 google-api-python-client==2.111.0
 google-cloud-bigquery==3.14.1
 Jinja2==3.1.2
