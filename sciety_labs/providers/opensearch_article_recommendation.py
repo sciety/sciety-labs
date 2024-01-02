@@ -286,7 +286,8 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
             self.opensearch_client.search(  # pylint: disable=unexpected-keyword-arg
                 body=search_query,
                 index=index,
-                _source_includes=source_includes
+                _source_includes=source_includes,
+                headers=headers
             )
         )
         hits = client_search_results['hits']['hits'][:max_results]
