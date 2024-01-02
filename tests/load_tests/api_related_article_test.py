@@ -20,10 +20,16 @@ TEST_API_PARAMS_1 = {
 }
 
 
+NO_CACHE_HEADERS = {
+    'Cache-Control': 'no-store'
+}
+
+
 class ScietyLabsApiRelatedArticlesUser(HttpUser):
     @task
     def related_articles(self):
         self.client.get(
             f'/api/like/s2/recommendations/v1/papers/forpaper/DOI:{TEST_DOI_1}',
-            params=TEST_API_PARAMS_1
+            params=TEST_API_PARAMS_1,
+            headers=NO_CACHE_HEADERS
         )
