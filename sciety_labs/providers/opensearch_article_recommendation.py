@@ -319,6 +319,7 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
     def get_alternative_embedding_vector_for_article_doi_via_title_and_abstract(
         self,
         article_doi: str,
+        headers: Optional[Mapping[str, str]] = None  # pylint: disable=unused-argument
     ) -> Optional[Sequence[float]]:
         article_meta = self.crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
         if not article_meta.article_title or not article_meta.abstract:
@@ -344,7 +345,8 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
         if embedding_vector is None:
             embedding_vector = (
                 self.get_alternative_embedding_vector_for_article_doi_via_title_and_abstract(
-                    article_doi
+                    article_doi,
+                    headers=headers
                 )
             )
         if embedding_vector is None:
