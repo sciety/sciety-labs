@@ -1,5 +1,5 @@
 import logging
-from typing import Optional, Sequence, Tuple
+from typing import Mapping, Optional, Sequence, Tuple
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.models.article import ArticleMention, iter_preprint_article_mention
@@ -23,7 +23,8 @@ def get_article_recommendation_list_for_article_dois(
     article_dois: Sequence[str],
     app_providers_and_models: AppProvidersAndModels,
     filter_parameters: Optional[ArticleRecommendationFilterParameters] = None,
-    max_recommendations: Optional[int] = None
+    max_recommendations: Optional[int] = None,
+    headers: Optional[Mapping[str, str]] = None  # pylint: disable=unused-argument
 ) -> ArticleRecommendationList:
     if len(article_dois) == 1 and app_providers_and_models.single_article_recommendation_provider:
         LOGGER.info('Retrieving single article recommendation')

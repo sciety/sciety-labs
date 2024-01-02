@@ -168,7 +168,8 @@ class TestArticleRecommendationApi:
             [DOI_1],
             app_providers_and_models=app_providers_and_models_mock,
             filter_parameters=ANY,
-            max_recommendations=None
+            max_recommendations=None,
+            headers=ANY
         )
 
     def test_should_format_recommendation_response(
