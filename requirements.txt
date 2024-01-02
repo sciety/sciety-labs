@@ -3,7 +3,7 @@ fastapi==0.108.0
 google-api-python-client==2.111.0
 google-cloud-bigquery==3.14.1
 Jinja2==3.1.2
-lxml==4.9.4
+lxml==5.0.0
 objsize==0.7.0
 opensearch-py==2.4.2
 pandas==2.1.4
