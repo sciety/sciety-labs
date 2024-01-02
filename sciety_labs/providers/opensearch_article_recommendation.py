@@ -281,7 +281,7 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
             max_results=max_results,
             filter_parameters=filter_parameters
         )
-        LOGGER.info('search_query JSON: %s', json.dumps(search_query))
+        LOGGER.info('search_query JSON: %s (headers=%r)', json.dumps(search_query), headers)
         client_search_results = (
             self.opensearch_client.search(  # pylint: disable=unexpected-keyword-arg
                 body=search_query,
