@@ -272,7 +272,8 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
         embedding_vector_mapping_name: str,
         source_includes: Sequence[str],
         max_results: int,
-        filter_parameters: ArticleRecommendationFilterParameters
+        filter_parameters: ArticleRecommendationFilterParameters,
+        headers: Optional[Mapping[str, str]] = None  # pylint: disable=unused-argument
     ) -> Sequence[dict]:
         search_query = get_vector_search_query(
             query_vector=query_vector,
@@ -331,7 +332,7 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
         article_doi: str,
         max_recommendations: Optional[int] = None,
         filter_parameters: Optional[ArticleRecommendationFilterParameters] = None,
-        headers: Optional[Mapping[str, str]] = None  # pylint: disable=unused-argument
+        headers: Optional[Mapping[str, str]] = None
     ) -> ArticleRecommendationList:
         if not max_recommendations:
             max_recommendations = DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS
@@ -367,7 +368,8 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
                 self.embedding_vector_mapping_name,
             ],
             max_results=max_recommendations,
-            filter_parameters=filter_parameters
+            filter_parameters=filter_parameters,
+            headers=headers
         )
         LOGGER.debug('hits: %r', hits)
         recommendations = list(iter_article_recommendation_from_opensearch_hits(
