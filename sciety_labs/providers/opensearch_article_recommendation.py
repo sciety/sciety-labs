@@ -1,7 +1,7 @@
 import json
 import logging
 from datetime import date, timedelta
-from typing import Any, Iterable, Optional, Sequence, cast
+from typing import Any, Iterable, Mapping, Optional, Sequence, cast
 
 from typing_extensions import NotRequired, TypedDict
 
@@ -330,7 +330,8 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
         self,
         article_doi: str,
         max_recommendations: Optional[int] = None,
-        filter_parameters: Optional[ArticleRecommendationFilterParameters] = None
+        filter_parameters: Optional[ArticleRecommendationFilterParameters] = None,
+        headers: Optional[Mapping[str, str]] = None  # pylint: disable=unused-argument
     ) -> ArticleRecommendationList:
         if not max_recommendations:
             max_recommendations = DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS
