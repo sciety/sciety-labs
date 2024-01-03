@@ -16,6 +16,9 @@ from sciety_labs.providers.article_recommendation import (
     ArticleRecommendationProvider,
     SingleArticleRecommendationProvider
 )
+from sciety_labs.providers.async_semantic_scholar import (
+    AsyncSemanticScholarTitleAbstractEmbeddingVectorProvider
+)
 from sciety_labs.providers.crossref import (
     CrossrefMetaDataProvider
 )
@@ -222,6 +225,11 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         title_abstract_embedding_vector_provider = (
             SemanticScholarTitleAbstractEmbeddingVectorProvider(
                 requests_session=cached_requests_session
+            )
+        )
+        self.async_title_abstract_embedding_vector_provider = (
+            AsyncSemanticScholarTitleAbstractEmbeddingVectorProvider(
+                client_session=None
             )
         )
         self.article_recommendation_provider = get_article_recommendation_provider(
