@@ -156,7 +156,11 @@ class CrossrefMetaDataProvider(RequestsProvider):
         super().__init__(**kwargs)
         self.headers['accept'] = 'application/json'
 
-    def get_crossref_metadata_dict_by_doi(self, doi: str) -> dict:
+    def get_crossref_metadata_dict_by_doi(
+        self,
+        doi: str,
+        headers: Optional[Mapping[str, str]] = None  # pylint: disable=unused-argument
+    ) -> dict:
         url = f'https://api.crossref.org/works/{doi}'
         response = self.requests_session.get(url, headers=self.headers, timeout=self.timeout)
         response.raise_for_status()
@@ -174,11 +178,11 @@ class CrossrefMetaDataProvider(RequestsProvider):
     def get_article_metadata_by_doi(
         self,
         doi: str,
-        headers: Optional[Mapping[str, str]] = None  # pylint: disable=unused-argument
+        headers: Optional[Mapping[str, str]] = None
     ) -> ArticleMetaData:
         return get_article_metadata_from_crossref_metadata(
             doi,
-            self.get_crossref_metadata_dict_by_doi(doi)
+            self.get_crossref_metadata_dict_by_doi(doi, headers=headers),
         )
 
     def iter_article_mention_with_article_meta(
