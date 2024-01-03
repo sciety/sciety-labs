@@ -187,3 +187,30 @@ def get_opensearch_client_or_none(
     if not config:
         return None
     return get_opensearch_client(config, requests_session=requests_session)
+
+
+def get_async_opensearch_client(
+    config: OpenSearchConnectionConfig,
+    requests_session: Optional[requests.Session] = None
+) -> opensearchpy.AsyncOpenSearch:
+    LOGGER.info('OpenSearch requests_session: %r', requests_session)
+    return opensearchpy.AsyncOpenSearch(
+        hosts=[{
+            'host': config.hostname,
+            'port': config.port
+        }],
+        http_auth=(config.username, config.password),
+        use_ssl=True,
+        verify_certs=config.verify_certificates,
+        ssl_show_warn=config.verify_certificates,
+        timeout=config.timeout
+    )
+
+
+def get_async_opensearch_client_or_none(
+    config: Optional[OpenSearchConnectionConfig],
+    requests_session: Optional[requests.Session] = None
+) -> Optional[opensearchpy.AsyncOpenSearch]:
+    if not config:
+        return None
+    return get_async_opensearch_client(config, requests_session=requests_session)

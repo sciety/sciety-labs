@@ -29,6 +29,7 @@ from sciety_labs.providers.google_sheet_image import (
 )
 from sciety_labs.providers.opensearch import (
     OpenSearchConnectionConfig,
+    get_async_opensearch_client_or_none,
     get_opensearch_client_or_none
 )
 from sciety_labs.providers.opensearch_article_recommendation import OpenSearchArticleRecommendation
@@ -182,12 +183,17 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
             match_headers=False
         )
 
-        opensearch_config = OpenSearchConnectionConfig.from_env()
+        self.opensearch_config = OpenSearchConnectionConfig.from_env()
         opensearch_client = get_opensearch_client_or_none(
-            opensearch_config,
+            self.opensearch_config,
             requests_session=cached_requests_session
         )
         LOGGER.info('opensearch_client: %r', opensearch_client)
+        self.async_opensearch_client = get_async_opensearch_client_or_none(
+            self.opensearch_config,
+            requests_session=cached_requests_session
+        )
+        LOGGER.info('async_opensearch_client: %r', self.async_opensearch_client)
 
         self.sciety_event_provider = ScietyEventProvider(
             gcp_project_name=gcp_project_name,
@@ -196,7 +202,7 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
 
         self.semantic_scholar_mapping_provider = get_semantic_scholar_mapping_provider(
             opensearch_client=opensearch_client,
-            opensearch_config=opensearch_config,
+            opensearch_config=self.opensearch_config,
             gcp_project_name=gcp_project_name,
             cache_dir=cache_dir,
             max_age_in_seconds=max_age_in_seconds
@@ -237,7 +243,7 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         )
         self.single_article_recommendation_provider = get_single_article_recommendation_provider(
             opensearch_client=opensearch_client,
-            opensearch_config=opensearch_config,
+            opensearch_config=self.opensearch_config,
             crossref_metadata_provider=self.crossref_metadata_provider,
             title_abstract_embedding_vector_provider=title_abstract_embedding_vector_provider
         )

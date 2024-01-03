@@ -285,6 +285,30 @@ def create_api_article_recommendation_router(
         )
 
     @router.get(
+        '/experimental/opensearch/metadata/by/doi'
+    )
+    async def experimental_opensearch_metadata_by_doi(
+        request: fastapi.Request,
+        article_doi: str = fastapi.Query(
+            description=textwrap.dedent(
+                '''
+                The DOI
+                '''
+            )
+        )
+    ):
+        doc = await (
+            app_providers_and_models
+            .async_opensearch_client
+            .get_source(
+                index=app_providers_and_models.opensearch_config.index_name,
+                id=article_doi,
+                headers=get_cache_control_headers_for_request(request)
+            )
+        )
+        return doc
+
+    @router.get(
         '/experimental/embedding-vector-for-title-abstract'
     )
     async def experimental_embedding_vector_for_title_abstract(
@@ -302,7 +326,7 @@ def create_api_article_recommendation_router(
                 The abstract
                 '''
             )
-        ),
+        )
     ):
         embedding_vector = await (
             app_providers_and_models
