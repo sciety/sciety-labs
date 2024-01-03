@@ -1,6 +1,6 @@
 from datetime import date, timedelta
 import logging
-from typing import Optional
+from typing import Any, Dict, Optional, cast
 
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
@@ -175,11 +175,14 @@ def create_articles_router(
         return templates.TemplateResponse(
             request=request,
             name='fragments/article-recommendations.html',
-            context={
-                'article_list_content': article_recommendation_with_article_meta,
-                'pagination': url_pagination_state,
-                'article_recommendation_url': article_recommendation_url
-            }
+            context=cast(
+                Dict[str, Any],  # workaround for mypy false positive
+                {
+                    'article_list_content': article_recommendation_with_article_meta,
+                    'pagination': url_pagination_state,
+                    'article_recommendation_url': article_recommendation_url
+                }
+            )
         )
 
     return router
