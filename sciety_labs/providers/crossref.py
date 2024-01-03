@@ -159,10 +159,14 @@ class CrossrefMetaDataProvider(RequestsProvider):
     def get_crossref_metadata_dict_by_doi(
         self,
         doi: str,
-        headers: Optional[Mapping[str, str]] = None  # pylint: disable=unused-argument
+        headers: Optional[Mapping[str, str]] = None
     ) -> dict:
         url = f'https://api.crossref.org/works/{doi}'
-        response = self.requests_session.get(url, headers=self.headers, timeout=self.timeout)
+        response = self.requests_session.get(
+            url,
+            headers=self.get_headers(headers=headers),
+            timeout=self.timeout
+        )
         response.raise_for_status()
         return response.json()['message']
 
