@@ -377,7 +377,12 @@ class SemanticScholarSearchProvider(SearchProvider):
 
 
 class SemanticScholarTitleAbstractEmbeddingVectorProvider(RequestsProvider):
-    def get_embedding_vector(self, title: str, abstract: str) -> Sequence[float]:
+    def get_embedding_vector(
+        self,
+        title: str,
+        abstract: str,
+        headers: Optional[Mapping[str, str]] = None
+    ) -> Sequence[float]:
         paper_id = '_dummy_paper_id'
         papers = [{
             'paper_id': paper_id,
@@ -387,7 +392,8 @@ class SemanticScholarTitleAbstractEmbeddingVectorProvider(RequestsProvider):
         response = requests.post(
             'https://model-apis.semanticscholar.org/specter/v1/invoke',
             json=papers,
-            timeout=self.timeout
+            timeout=self.timeout,
+            headers=self.get_headers(headers=headers)
         )
         response.raise_for_status()
         embeddings_by_paper_id = {

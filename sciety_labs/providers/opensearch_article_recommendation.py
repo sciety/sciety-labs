@@ -331,7 +331,8 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
         LOGGER.info('Retrieving embedding vector via title and abstract')
         return self.title_abstract_embedding_vector_provider.get_embedding_vector(
             title=article_meta.article_title,
-            abstract=article_meta.abstract
+            abstract=article_meta.abstract,
+            headers=headers
         )
 
     def get_article_recommendation_list_for_article_doi(
