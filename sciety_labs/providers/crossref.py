@@ -171,7 +171,11 @@ class CrossrefMetaDataProvider(RequestsProvider):
         response.raise_for_status()
         return get_response_dict_by_doi_map(response.json())
 
-    def get_article_metadata_by_doi(self, doi: str) -> ArticleMetaData:
+    def get_article_metadata_by_doi(
+        self,
+        doi: str,
+        headers: Optional[Mapping[str, str]] = None  # pylint: disable=unused-argument
+    ) -> ArticleMetaData:
         return get_article_metadata_from_crossref_metadata(
             doi,
             self.get_crossref_metadata_dict_by_doi(doi)
