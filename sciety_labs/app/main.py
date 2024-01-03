@@ -111,8 +111,9 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     @app.exception_handler(404)
     async def not_found_exception_handler(request: Request, exception: HTTPException):
         return templates.TemplateResponse(
-            'errors/404.html', {
-                'request': request,
+            request=request,
+            name='errors/404.html',
+            context={
                 'page_title': get_page_title('Page not found'),
                 'exception': exception
             },
@@ -122,8 +123,9 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
     @app.exception_handler(500)
     async def server_error_exception_handler(request: Request, exception: HTTPException):
         return templates.TemplateResponse(
-            'errors/500.html', {
-                'request': request,
+            request=request,
+            name='errors/500.html',
+            context={
                 'page_title': get_page_title('Something went wrong'),
                 'exception': exception
             },

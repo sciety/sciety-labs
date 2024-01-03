@@ -42,8 +42,9 @@ def create_home_router(
         )
         LOGGER.info('group_list_summary_data_list: %r', group_list_summary_data_list)
         return templates.TemplateResponse(
-            'pages/index.html', {
-                'request': request,
+            request=request,
+            name='pages/index.html',
+            context={
                 'user_lists': user_list_summary_data_list,
                 'group_lists': group_list_summary_data_list,
                 'search_feeds': list(search_feeds_config.feeds_by_slug.values())[:3]

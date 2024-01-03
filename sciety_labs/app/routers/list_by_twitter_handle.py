@@ -60,8 +60,9 @@ def create_list_by_twitter_handle_router(
             remaining_item_iterable=article_mention_iterable
         )
         return templates.TemplateResponse(
-            'pages/list-by-twitter-handle.html', {
-                'request': request,
+            request=request,
+            name='pages/list-by-twitter-handle.html',
+            context={
                 'page_title': get_page_title(
                     f'Twitter curations by {twitter_user.name} (@{twitter_handle})'
                 ),

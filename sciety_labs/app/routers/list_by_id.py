@@ -65,8 +65,9 @@ def create_list_by_id_router(
             item_count=item_count
         )
         return templates.TemplateResponse(
-            'pages/list-by-sciety-list-id.html', {
-                'request': request,
+            request=request,
+            name='pages/list-by-sciety-list-id.html',
+            context={
                 'page_title': get_page_title(list_summary_data.list_meta.list_name),
                 'page_description': remove_markup_or_none(
                     list_summary_data.list_meta.list_description
@@ -99,8 +100,9 @@ def create_list_by_id_router(
             )
         )
         return templates.TemplateResponse(
-            'pages/list-by-sciety-list-id.atom.xml', {
-                'request': request,
+            request=request,
+            name='pages/list-by-sciety-list-id.atom.xml',
+            context={
                 'list_summary_data': list_summary_data,
                 'article_list_content': article_mention_with_article_meta
             },
@@ -126,8 +128,9 @@ def create_list_by_id_router(
                 request.url.include_query_params(fragment=True)
             )
             return templates.TemplateResponse(
-                'pages/article-recommendations-by-sciety-list-id.html', {
-                    'request': request,
+                request=request,
+                name='pages/article-recommendations-by-sciety-list-id.html',
+                context={
                     'page_title': get_page_title(
                         f'Article recommendations for {list_summary_data.list_meta.list_name}'
                     ),
@@ -159,8 +162,9 @@ def create_list_by_id_router(
             item_count=item_count
         )
         return templates.TemplateResponse(
-            'fragments/article-recommendations.html', {
-                'request': request,
+            request=request,
+            name='fragments/article-recommendations.html',
+            context={
                 'page_title': get_page_title(
                     f'Article recommendations for {list_summary_data.list_meta.list_name}'
                 ),
@@ -214,8 +218,9 @@ def create_list_by_id_router(
         )
         LOGGER.info('recommendation_timestamp: %r', recommendation_timestamp)
         return templates.TemplateResponse(
-            'pages/article-recommendations-by-sciety-list-id.atom.xml', {
-                'request': request,
+            request=request,
+            name='pages/article-recommendations-by-sciety-list-id.atom.xml',
+            context={
                 'feed_title': (
                     f'Article recommendations for {list_summary_data.list_meta.list_name}'
                 ),
