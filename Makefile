@@ -12,7 +12,14 @@ DOCKER_PYTHON = $(DOCKER_RUN) python
 ARGS =
 PYTEST_WATCH_MODULES = tests/unit_tests
 
-LOCUST_FILE = tests/load_tests/homepage_test.py
+LOCUST_FILE =
+
+
+.require-%:
+	@ if [ "${${*}}" = "" ]; then \
+			echo "Environment variable $* not set"; \
+			exit 1; \
+	fi
 
 
 venv-clean:
@@ -73,7 +80,7 @@ dev-start:
 		--log-config=config/logging.yaml
 
 
-dev-start-load-test-ui:
+dev-start-load-test-ui: .require-LOCUST_FILE
 	PYTHONWARNINGS="ignore:Unverified HTTPS request" \
 	$(PYTHON) -m locust \
 		--modern-ui \

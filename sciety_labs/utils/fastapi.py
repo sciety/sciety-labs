@@ -1,5 +1,5 @@
 import ipaddress
-from typing import Optional
+from typing import Mapping, Optional
 
 from fastapi import Request
 
@@ -40,3 +40,12 @@ async def update_request_scope_to_original_url_middleware(
 ):
     update_request_scope_to_original_url(request)
     return await call_next(request)
+
+
+def get_cache_control_headers_for_request(
+    request: Request
+) -> Mapping[str, str]:
+    cache_control = request.headers.get('Cache-Control')
+    if not cache_control:
+        return {}
+    return {'Cache-Control': cache_control}

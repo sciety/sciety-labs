@@ -24,6 +24,7 @@ from sciety_labs.providers.opensearch_article_recommendation import (
     DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS
 )
 from sciety_labs.utils.datetime import get_date_as_isoformat
+from sciety_labs.utils.fastapi import get_cache_control_headers_for_request
 
 
 LOGGER = logging.getLogger(__name__)
@@ -178,7 +179,8 @@ def create_api_article_recommendation_router(
             }
         }
     )
-    def like_s2_recommendations_for_paper(
+    def like_s2_recommendations_for_paper(  # pylint: disable=too-many-arguments
+        request: fastapi.Request,
         article_doi: str = fastapi.Path(
             alias='DOI',
             description=textwrap.dedent(
@@ -265,7 +267,8 @@ def create_api_article_recommendation_router(
                 [article_doi],
                 app_providers_and_models=app_providers_and_models,
                 filter_parameters=filter_parameters,
-                max_recommendations=limit
+                max_recommendations=limit,
+                headers=get_cache_control_headers_for_request(request)
             )
         except requests.exceptions.RequestException as exception:
             status_code = exception.response.status_code if exception.response else 500

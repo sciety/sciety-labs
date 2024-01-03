@@ -1,7 +1,7 @@
 import json
 import logging
 from datetime import date, timedelta
-from typing import Any, Iterable, Optional, Sequence, cast
+from typing import Any, Iterable, Mapping, Optional, Sequence, cast
 
 from typing_extensions import NotRequired, TypedDict
 
@@ -272,7 +272,8 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
         embedding_vector_mapping_name: str,
         source_includes: Sequence[str],
         max_results: int,
-        filter_parameters: ArticleRecommendationFilterParameters
+        filter_parameters: ArticleRecommendationFilterParameters,
+        headers: Optional[Mapping[str, str]] = None
     ) -> Sequence[dict]:
         search_query = get_vector_search_query(
             query_vector=query_vector,
@@ -280,12 +281,13 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
             max_results=max_results,
             filter_parameters=filter_parameters
         )
-        LOGGER.info('search_query JSON: %s', json.dumps(search_query))
+        LOGGER.info('search_query JSON: %s (headers=%r)', json.dumps(search_query), headers)
         client_search_results = (
             self.opensearch_client.search(  # pylint: disable=unexpected-keyword-arg
                 body=search_query,
                 index=index,
-                _source_includes=source_includes
+                _source_includes=source_includes,
+                headers=headers
             )
         )
         hits = client_search_results['hits']['hits'][:max_results]
@@ -293,13 +295,15 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
 
     def get_embedding_vector_for_article_doi(
         self,
-        article_doi: str
+        article_doi: str,
+        headers: Optional[Mapping[str, str]] = None
     ) -> Optional[Sequence[float]]:
         try:
             doc = self.opensearch_client.get_source(
                 index=self.index_name,
                 id=article_doi,
-                _source_includes=[self.embedding_vector_mapping_name]
+                _source_includes=[self.embedding_vector_mapping_name],
+                headers=headers
             )
         except opensearchpy.exceptions.NotFoundError:
             doc = None
@@ -315,31 +319,38 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
     def get_alternative_embedding_vector_for_article_doi_via_title_and_abstract(
         self,
         article_doi: str,
+        headers: Optional[Mapping[str, str]] = None
     ) -> Optional[Sequence[float]]:
-        article_meta = self.crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
+        article_meta = self.crossref_metadata_provider.get_article_metadata_by_doi(
+            article_doi,
+            headers=headers
+        )
         if not article_meta.article_title or not article_meta.abstract:
             LOGGER.info('No title or abstract available to get embedding vector')
             return None
         LOGGER.info('Retrieving embedding vector via title and abstract')
         return self.title_abstract_embedding_vector_provider.get_embedding_vector(
             title=article_meta.article_title,
-            abstract=article_meta.abstract
+            abstract=article_meta.abstract,
+            headers=headers
         )
 
     def get_article_recommendation_list_for_article_doi(
         self,
         article_doi: str,
         max_recommendations: Optional[int] = None,
-        filter_parameters: Optional[ArticleRecommendationFilterParameters] = None
+        filter_parameters: Optional[ArticleRecommendationFilterParameters] = None,
+        headers: Optional[Mapping[str, str]] = None
     ) -> ArticleRecommendationList:
         if not max_recommendations:
             max_recommendations = DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS
         LOGGER.info('max_recommendations: %r', max_recommendations)
-        embedding_vector = self.get_embedding_vector_for_article_doi(article_doi)
+        embedding_vector = self.get_embedding_vector_for_article_doi(article_doi, headers=headers)
         if embedding_vector is None:
             embedding_vector = (
                 self.get_alternative_embedding_vector_for_article_doi_via_title_and_abstract(
-                    article_doi
+                    article_doi,
+                    headers=headers
                 )
             )
         if embedding_vector is None:
@@ -366,7 +377,8 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
                 self.embedding_vector_mapping_name,
             ],
             max_results=max_recommendations,
-            filter_parameters=filter_parameters
+            filter_parameters=filter_parameters,
+            headers=headers
         )
         LOGGER.debug('hits: %r', hits)
         recommendations = list(iter_article_recommendation_from_opensearch_hits(

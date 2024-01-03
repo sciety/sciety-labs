@@ -6,6 +6,7 @@ import starlette.datastructures
 import starlette.types
 
 from sciety_labs.utils.fastapi import (
+    get_cache_control_headers_for_request,
     get_likely_client_ip_for_request,
     update_request_scope_to_original_url
 )
@@ -114,3 +115,23 @@ class TestUpdateRequestScopeToOriginalUrl:
         })
         update_request_scope_to_original_url(request_mock)
         assert request_mock.scope['scheme'] == 'https'
+
+
+class TestGetCacheControlHeadersForRequest:
+    def test_should_return_empty_dict_without_cache_control_in_headers(
+        self,
+        request_mock: MagicMock
+    ):
+        request_mock.headers = starlette.datastructures.Headers({})
+        assert not get_cache_control_headers_for_request(request_mock)
+
+    def test_should_return_cache_control_from_headers(
+        self,
+        request_mock: MagicMock
+    ):
+        request_mock.headers = starlette.datastructures.Headers({
+            'Cache-Control': 'no-store'
+        })
+        assert get_cache_control_headers_for_request(request_mock) == {
+            'Cache-Control': 'no-store'
+        }
