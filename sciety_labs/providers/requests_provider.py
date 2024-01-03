@@ -2,6 +2,8 @@ from typing import Dict, Mapping, Optional
 
 import requests
 
+from sciety_labs.utils.http_headers import get_merged_headers
+
 
 class RequestsProvider:
     def __init__(
@@ -20,9 +22,4 @@ class RequestsProvider:
         self,
         headers: Optional[Mapping[str, str]] = None
     ) -> Mapping[str, str]:
-        if headers:
-            return {
-                **headers,
-                **self.headers
-            }
-        return self.headers
+        return get_merged_headers(self.headers, headers)
