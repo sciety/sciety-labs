@@ -8,6 +8,7 @@ from typing import Any, Collection, Mapping, Type, Union, cast, Optional
 
 
 from opensearchpy import OpenSearch, Transport
+import opensearchpy
 
 import requests
 
@@ -137,6 +138,8 @@ class OpenSearchTransport(Transport):
                 response.status_code,
                 (end_time - start_time)
             )
+            if response.status_code == 404:
+                raise opensearchpy.exceptions.NotFoundError(f'Not found: {full_url}')
             response.raise_for_status()
             return response.json()
         return super().perform_request(
