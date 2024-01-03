@@ -284,4 +284,35 @@ def create_api_article_recommendation_router(
             fields=fields_set
         )
 
+    @router.get(
+        '/experimental/embedding-vector-for-title-abstract'
+    )
+    async def experimental_embedding_vector_for_title_abstract(
+        request: fastapi.Request,
+        title: str = fastapi.Query(
+            description=textwrap.dedent(
+                '''
+                The title
+                '''
+            )
+        ),
+        abstract: str = fastapi.Query(
+            description=textwrap.dedent(
+                '''
+                The abstract
+                '''
+            )
+        ),
+    ):
+        embedding_vector = await (
+            app_providers_and_models
+            .async_title_abstract_embedding_vector_provider
+            .get_embedding_vector(
+                title=title,
+                abstract=abstract,
+                headers=get_cache_control_headers_for_request(request)
+            )
+        )
+        return embedding_vector
+
     return router
