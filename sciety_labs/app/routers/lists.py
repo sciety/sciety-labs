@@ -52,8 +52,9 @@ def create_lists_router(
         )
         LOGGER.info('group_list_summary_data_list[:1]=%r', group_list_summary_data_list[:1])
         return templates.TemplateResponse(
-            'pages/lists.html', {
-                'request': request,
+            request=request,
+            name='pages/lists.html',
+            context={
                 'page_title': page_title,
                 'user_lists': user_list_summary_data_list,
                 'group_lists': group_list_summary_data_list

@@ -249,10 +249,11 @@ def create_search_router(
             pagination_parameters=pagination_parameters
         )
         return templates.TemplateResponse(
-            'pages/search.html', {
+            request=request,
+            name='pages/search.html',
+            context={
                 **get_search_parameters_template_parameters(search_parameters),
                 **get_search_result_template_parameters(search_result_page),
-                'request': request,
                 'page_title': (
                     f'Search results for {search_parameters.query}'
                     if search_parameters.query else 'Search'
@@ -273,12 +274,13 @@ def create_search_router(
             pagination_parameters=pagination_parameters
         )
         return templates.TemplateResponse(
-            'pages/search-feed.html', {
+            request=request,
+            name='pages/search-feed.html',
+            context={
                 **get_search_parameters_template_parameters(
                     search_feed_parameters.search_parameters
                 ),
                 **get_search_result_template_parameters(search_result_page),
-                'request': request,
                 'page_title': search_feed_parameters.page_title,
                 'page_description': search_feed_parameters.page_description,
                 'page_images': search_feed_parameters.feed_images,
@@ -299,12 +301,13 @@ def create_search_router(
             pagination_parameters=pagination_parameters
         )
         return templates.TemplateResponse(
-            'pages/search-feed.atom.xml', {
+            request=request,
+            name='pages/search-feed.atom.xml',
+            context={
                 **get_search_parameters_template_parameters(
                     search_feed_parameters.search_parameters
                 ),
                 **get_search_result_template_parameters(search_result_page),
-                'request': request,
                 'last_updated_timestamp': get_rss_updated_timestamp(
                     search_result_page.search_result_list_with_article_meta
                 ),
@@ -322,8 +325,9 @@ def create_search_router(
         request: Request
     ):
         return templates.TemplateResponse(
-            'pages/search-feeds.html', {
-                'request': request,
+            request=request,
+            name='pages/search-feeds.html',
+            context={
                 'page_title': get_page_title('Feeds'),
                 'search_feeds': search_feeds_config.feeds_by_slug.values()
             }

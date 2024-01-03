@@ -62,8 +62,9 @@ def create_articles_router(
             if status_code != 404:
                 raise
             return templates.TemplateResponse(
-                'errors/error.html', {
-                    'request': request,
+                request=request,
+                name='errors/error.html',
+                context={
                     'page_title': get_page_title(f'Article not found: {article_doi}'),
                     'error_message': f'Article not found: {article_doi}',
                     'exception': exception
@@ -94,8 +95,9 @@ def create_articles_router(
         LOGGER.info('article_recommendation_fragment_url: %r', article_recommendation_fragment_url)
 
         return templates.TemplateResponse(
-            'pages/article-by-article-doi.html', {
-                'request': request,
+            request=request,
+            name='pages/article-by-article-doi.html',
+            context={
                 'page_title': get_page_title(article_meta.article_title),
                 'page_description': remove_markup_or_none(
                     article_meta.abstract
@@ -124,8 +126,9 @@ def create_articles_router(
                 request.url.include_query_params(fragment=True)
             )
             return templates.TemplateResponse(
-                'pages/article-recommendations-by-article-doi.html', {
-                    'request': request,
+                request=request,
+                name='pages/article-recommendations-by-article-doi.html',
+                context={
                     'page_title': get_page_title(
                         f'Article recommendations for {article_meta.article_title}'
                     ),
@@ -170,8 +173,9 @@ def create_articles_router(
         )
         LOGGER.info('url_pagination_state: %r', url_pagination_state)
         return templates.TemplateResponse(
-            'fragments/article-recommendations.html', {
-                'request': request,
+            request=request,
+            name='fragments/article-recommendations.html',
+            context={
                 'article_list_content': article_recommendation_with_article_meta,
                 'pagination': url_pagination_state,
                 'article_recommendation_url': article_recommendation_url
