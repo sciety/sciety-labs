@@ -1,4 +1,5 @@
 # pylint: disable=duplicate-code
+from gc import isenabled
 import json
 import logging
 from datetime import date, timedelta
@@ -63,7 +64,9 @@ class AsyncOpenSearchArticleRecommendation(AsyncSingleArticleRecommendationProvi
             max_results=max_results,
             filter_parameters=filter_parameters
         )
-        LOGGER.info('search_query JSON: %s (headers=%r)', json.dumps(search_query), headers)
+        LOGGER.info('Running OpenSearch search: max_results=%d (headers=%r)', max_results, headers)
+        if LOGGER.isEnabledFor(logging.DEBUG):
+            LOGGER.debug('search_query JSON: %s (headers=%r)', json.dumps(search_query), headers)
         client_search_results = await (
             self.opensearch_client.search(  # pylint: disable=unexpected-keyword-arg
                 body=search_query,
