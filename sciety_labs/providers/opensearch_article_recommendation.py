@@ -324,7 +324,9 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
         if not doc:
             LOGGER.info('Article not found in OpenSearch index: %r', article_doi)
             return None
-        embedding_vector = doc.get(self.embedding_vector_mapping_name)
+        embedding_vector = get_embedding_vector_from_document_or_none(
+            doc, self.embedding_vector_mapping_name
+        )
         if not embedding_vector or len(embedding_vector) == 0:
             LOGGER.info(
                 'Article has no embedding vector in OpenSearch index: %r (%r)',
