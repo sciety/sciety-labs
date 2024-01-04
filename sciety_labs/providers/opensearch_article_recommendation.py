@@ -146,19 +146,31 @@ def get_value_for_key_path(parent: dict, key_path: Sequence[str]) -> Optional[An
     return result
 
 
+def get_embedding_vector_from_document_or_none(
+    document: DocumentDict,
+    embedding_vector_mapping_name: Optional[str] = None
+) -> Optional[Sequence[float]]:
+    if embedding_vector_mapping_name:
+        embedding_vector_mapping_path = embedding_vector_mapping_name.split('.')
+        return cast(
+            Sequence[float],
+            get_value_for_key_path(
+                cast(dict, document),
+                embedding_vector_mapping_path
+            )
+        )
+    return None
+
+
 def _get_article_recommendation_score_or_none(
     document: DocumentDict,
     embedding_vector_mapping_name: Optional[str] = None,
     query_vector: Optional[npt.ArrayLike] = None
 ) -> Optional[float]:
-    if embedding_vector_mapping_name and query_vector is not None:
-        embedding_vector_mapping_path = embedding_vector_mapping_name.split('.')
-        embedding_vector = cast(
-            npt.ArrayLike,
-            get_value_for_key_path(
-                cast(dict, document),
-                embedding_vector_mapping_path
-            )
+    if query_vector is not None:
+        embedding_vector = get_embedding_vector_from_document_or_none(
+            document,
+            embedding_vector_mapping_name
         )
         if embedding_vector is not None:
             return cosine_similarity(embedding_vector, query_vector)

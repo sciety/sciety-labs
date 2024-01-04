@@ -1,5 +1,4 @@
 # pylint: disable=duplicate-code
-from gc import isenabled
 import json
 import logging
 from datetime import date, timedelta
@@ -22,6 +21,7 @@ from sciety_labs.providers.async_semantic_scholar import (
 )
 from sciety_labs.providers.opensearch_article_recommendation import (
     DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS,
+    get_embedding_vector_from_document_or_none,
     get_vector_search_query,
     iter_article_recommendation_from_opensearch_hits
 )
@@ -96,7 +96,9 @@ class AsyncOpenSearchArticleRecommendation(AsyncSingleArticleRecommendationProvi
             LOGGER.info('Article not found in OpenSearch index: %r', article_doi)
             return None
         LOGGER.debug('Getting embedding vector from OpenSearch doc')
-        embedding_vector = doc.get(self.embedding_vector_mapping_name)
+        embedding_vector = get_embedding_vector_from_document_or_none(
+            doc, self.embedding_vector_mapping_name
+        )
         if not embedding_vector or len(embedding_vector) == 0:
             LOGGER.info(
                 'Article has no embedding vector in OpenSearch index: %r (%r)',
