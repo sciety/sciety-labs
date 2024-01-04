@@ -233,11 +233,11 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         )
 
         self.opensearch_config = OpenSearchConnectionConfig.from_env()
-        opensearch_client = get_opensearch_client_or_none(
+        self.opensearch_client = get_opensearch_client_or_none(
             self.opensearch_config,
             requests_session=cached_requests_session
         )
-        LOGGER.info('opensearch_client: %r', opensearch_client)
+        LOGGER.info('opensearch_client: %r', self.opensearch_client)
         self.async_opensearch_client = get_async_opensearch_client_or_none(
             self.opensearch_config,
             requests_session=cached_requests_session
@@ -250,7 +250,7 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         )
 
         self.semantic_scholar_mapping_provider = get_semantic_scholar_mapping_provider(
-            opensearch_client=opensearch_client,
+            opensearch_client=self.opensearch_client,
             opensearch_config=self.opensearch_config,
             gcp_project_name=gcp_project_name,
             cache_dir=cache_dir,
@@ -294,7 +294,7 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
             semantic_scholar_provider=self.semantic_scholar_provider
         )
         self.single_article_recommendation_provider = get_single_article_recommendation_provider(
-            opensearch_client=opensearch_client,
+            opensearch_client=self.opensearch_client,
             opensearch_config=self.opensearch_config,
             crossref_metadata_provider=self.crossref_metadata_provider,
             title_abstract_embedding_vector_provider=title_abstract_embedding_vector_provider

@@ -16,7 +16,25 @@ def create_api_experimental_router(
 
 
     @router.get(
-        '/experimental/opensearch/metadata/by/doi'
+        '/experimental/sync/opensearch/metadata/by/doi'
+    )
+    def experimental_opensearch_metadata_by_doi(
+        request: fastapi.Request,
+        article_doi: str
+    ):
+        doc = (
+            app_providers_and_models
+            .opensearch_client
+            .get_source(
+                index=app_providers_and_models.opensearch_config.index_name,
+                id=article_doi,
+                headers=get_cache_control_headers_for_request(request)
+            )
+        )
+        return doc
+
+    @router.get(
+        '/experimental/async/opensearch/metadata/by/doi'
     )
     async def experimental_opensearch_metadata_by_doi(
         request: fastapi.Request,
