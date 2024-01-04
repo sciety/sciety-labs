@@ -130,11 +130,12 @@ class AsyncOpenSearchArticleRecommendation(AsyncSingleArticleRecommendationProvi
         LOGGER.info(
             (
                 'Async getting related articles for'
-                ' (article_doi=%r, filter_parameters=%r, max_recommendations=%r)'
+                ' (article_doi=%r, filter_parameters=%r, max_recommendations=%r, headers=%r)'
             ),
             article_doi,
             filter_parameters,
-            max_recommendations
+            max_recommendations,
+            headers
         )
         embedding_vector = await self.get_embedding_vector_for_article_doi(
             article_doi,
