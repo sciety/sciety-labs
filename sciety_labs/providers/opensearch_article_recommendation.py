@@ -293,7 +293,9 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
             max_results=max_results,
             filter_parameters=filter_parameters
         )
-        LOGGER.info('search_query JSON: %s (headers=%r)', json.dumps(search_query), headers)
+        LOGGER.info('Running OpenSearch search: max_results=%d (headers=%r)', max_results, headers)
+        if LOGGER.isEnabledFor(logging.DEBUG):
+            LOGGER.debug('search_query JSON: %s (headers=%r)', json.dumps(search_query), headers)
         client_search_results = (
             self.opensearch_client.search(  # pylint: disable=unexpected-keyword-arg
                 body=search_query,
@@ -324,7 +326,11 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
             return None
         embedding_vector = doc.get(self.embedding_vector_mapping_name)
         if not embedding_vector or len(embedding_vector) == 0:
-            LOGGER.info('Article has no embedding vector in OpenSearch index: %r', article_doi)
+            LOGGER.info(
+                'Article has no embedding vector in OpenSearch index: %r (%r)',
+                article_doi,
+                self.embedding_vector_mapping_name
+            )
             return None
         return embedding_vector
 
@@ -356,9 +362,31 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
     ) -> ArticleRecommendationList:
         if not max_recommendations:
             max_recommendations = DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS
-        LOGGER.info('max_recommendations: %r', max_recommendations)
+        LOGGER.info(
+            (
+                'Sync getting related articles for'
+                ' (article_doi=%r, filter_parameters=%r, max_recommendations=%r, headers=%r)'
+            ),
+            article_doi,
+            filter_parameters,
+            max_recommendations,
+            headers
+        )
         embedding_vector = self.get_embedding_vector_for_article_doi(article_doi, headers=headers)
-        if embedding_vector is None:
+        if embedding_vector is not None:
+            LOGGER.info(
+                'Embedding vector found in OpenSearch for: %r (size: %d)',
+                article_doi,
+                len(embedding_vector)
+            )
+        else:
+            LOGGER.info(
+                (
+                    'No embedding vector found in OpenSearch,'
+                    ' trying to get via title and abstract: %r'
+                ),
+                article_doi
+            )
             embedding_vector = (
                 self.get_alternative_embedding_vector_for_article_doi_via_title_and_abstract(
                     article_doi,
@@ -373,7 +401,6 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
                 exclude_article_dois={article_doi},
                 from_publication_date=date.today() - timedelta(days=60)
             )
-        LOGGER.info('filter_parameters: %r', filter_parameters)
         hits = self._run_vector_search_and_get_hits(
             embedding_vector,
             index=self.index_name,
