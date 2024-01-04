@@ -421,6 +421,38 @@ def create_api_article_recommendation_router(
         return doc
 
     @router.get(
+        '/experimental/sync/crossref/metadata/by/doi'
+    )
+    def experimental_sync_crossref_metadata_by_doi(
+        request: fastapi.Request,
+        article_doi: str
+    ):
+        return (
+            app_providers_and_models
+            .crossref_metadata_provider
+            .get_crossref_metadata_dict_by_doi(
+                article_doi,
+                headers=get_cache_control_headers_for_request(request)
+            )
+        )
+
+    @router.get(
+        '/experimental/async/crossref/metadata/by/doi'
+    )
+    async def experimental_async_crossref_metadata_by_doi(
+        request: fastapi.Request,
+        article_doi: str
+    ):
+        return await (
+            app_providers_and_models
+            .async_crossref_metadata_provider
+            .get_crossref_metadata_dict_by_doi(
+                article_doi,
+                headers=get_cache_control_headers_for_request(request)
+            )
+        )
+
+    @router.get(
         '/experimental/embedding-vector-for-title-abstract'
     )
     async def experimental_embedding_vector_for_title_abstract(
