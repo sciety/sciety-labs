@@ -2,6 +2,7 @@ import logging
 from datetime import timedelta
 from pathlib import Path
 from typing import Optional
+import aiohttp
 
 import requests_cache
 
@@ -227,6 +228,9 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
             allowable_methods=('GET', 'HEAD', 'POST'),  # include POST for Semantic Scholar
             match_headers=False
         )
+        client_session = aiohttp.ClientSession(
+            connector=aiohttp.TCPConnector(limit=200)
+        )
 
         self.opensearch_config = OpenSearchConnectionConfig.from_env()
         opensearch_client = get_opensearch_client_or_none(
@@ -265,7 +269,7 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
             requests_session=cached_requests_session
         )
         self.async_crossref_metadata_provider = AsyncCrossrefMetaDataProvider(
-            client_session=None
+            client_session=client_session
         )
 
         self.semantic_scholar_provider = get_semantic_scholar_provider(
@@ -283,7 +287,7 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         )
         self.async_title_abstract_embedding_vector_provider = (
             AsyncSemanticScholarTitleAbstractEmbeddingVectorProvider(
-                client_session=None
+                client_session=client_session
             )
         )
         self.article_recommendation_provider = get_article_recommendation_provider(
