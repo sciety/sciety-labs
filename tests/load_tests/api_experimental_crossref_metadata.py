@@ -23,6 +23,7 @@ class ScietyLabsApiSyncCrossrefMetadataUser(HttpUser):
             headers=NO_CACHE_HEADERS
         )
 
+
 class ScietyLabsApiAsyncCrossrefMetadataUser(HttpUser):
     @task
     def crossref_metadata(self):
