@@ -14,11 +14,10 @@ def create_api_experimental_router(
 ) -> fastapi.APIRouter:
     router = fastapi.APIRouter(include_in_schema=False)
 
-
     @router.get(
         '/experimental/sync/opensearch/metadata/by/doi'
     )
-    def experimental_opensearch_metadata_by_doi(
+    def experimental_sync_opensearch_metadata_by_doi(
         request: fastapi.Request,
         article_doi: str
     ):
@@ -36,7 +35,7 @@ def create_api_experimental_router(
     @router.get(
         '/experimental/async/opensearch/metadata/by/doi'
     )
-    async def experimental_opensearch_metadata_by_doi(
+    async def experimental_async_opensearch_metadata_by_doi(
         request: fastapi.Request,
         article_doi: str
     ):

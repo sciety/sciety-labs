@@ -34,7 +34,7 @@ def create_api_app(
     ))
 
     @app.exception_handler(Exception)
-    async def generic_exception_handler(request: fastapi.Request, exception: Exception):
+    async def generic_exception_handler(exception: Exception):
         LOGGER.warning('Error: %r', exception)
         return fastapi.responses.JSONResponse(
             content={

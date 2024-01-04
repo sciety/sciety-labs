@@ -23,6 +23,7 @@ class ScietyLabsApiSyncOpenSearchMetadataUser(HttpUser):
             headers=NO_CACHE_HEADERS
         )
 
+
 class ScietyLabsApiAsyncOpenSearchMetadataUser(HttpUser):
     @task
     def opensearch_metadata(self):
