@@ -144,7 +144,6 @@ class AsyncOpenSearchArticleRecommendation(AsyncSingleArticleRecommendationProvi
             article_doi,
             headers=headers
         )
-        LOGGER.info('Embedding vector from OpenSearch (%r): %r', article_doi, embedding_vector)
         if embedding_vector is not None:
             LOGGER.info(
                 'Embedding vector found in OpenSearch for: %r (size: %d)',
