@@ -285,6 +285,124 @@ def create_api_article_recommendation_router(
         )
 
     @router.get(
+        '/async/like/s2/recommendations/v1/papers/forpaper/DOI:{DOI:path}',
+    )
+    async def async_like_s2_recommendations_for_paper(  # pylint: disable=too-many-arguments
+        request: fastapi.Request,
+        article_doi: str = fastapi.Path(
+            alias='DOI',
+            description=textwrap.dedent(
+                '''
+                The DOI to provide paper recommendations for.
+                '''
+            ),
+            examples=[  # Note: These only seem to appear in /redoc
+                '10.1101/2022.08.08.502889'
+            ]
+        ),
+        fields: str = fastapi.Query(
+            default=','.join(sorted(DEFAULT_LIKE_S2_RECOMMENDATION_FIELDS)),
+            description=textwrap.dedent(
+                '''
+                Comma separated list of fields. The following fields can be retrieved:
+
+                - `externalIds` (only containing `DOI`)
+                - `title`
+                - `publicationDate`
+                - `authors` (only containing `name`)
+                - `_evaluationCount`
+                - `_score`
+                '''
+            ),
+            examples=[  # Note: These only seem to appear in /redoc
+                'externalIds',
+                'externalIds,title,publicationDate,authors',
+                'externalIds,title,publicationDate,authors,_evaluationCount,_score'
+            ]
+        ),
+        limit: Optional[int] = fastapi.Query(
+            default=None,
+            description=textwrap.dedent(
+                f'''
+                Maximimum number of papers returned.
+                The default will be implementation specific.
+                When the OpenSearch backend is used, it will be
+                `{DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS}`.
+                '''
+            )
+        ),
+        evaluated_only: bool = fastapi.Query(
+            alias='_evaluated_only',
+            default=False,
+            description=textwrap.dedent(
+                '''
+                If true, only evaluated articles will be recommended.
+                Not part of S2, and only working with OpenSearch.
+                '''
+            )
+        ),
+        published_within_last_n_days: Optional[int] = fastapi.Query(
+            alias='_published_within_last_n_days',
+            default=None,
+            examples=list(
+                DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY.values()
+            ),
+            description=textwrap.dedent(
+                f'''
+                Only consider papers published within the last *n* days.
+
+                The default will be
+                `{DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY[False]}`,
+                or
+                `{DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY[True]}`
+                when `evaluated_only` is `true`.
+                '''
+            )
+        )
+    ):
+        fields_set = set(fields.split(','))
+        if not published_within_last_n_days:
+            published_within_last_n_days = DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY[
+                evaluated_only
+            ]
+        filter_parameters = ArticleRecommendationFilterParameters(
+            exclude_article_dois={article_doi},
+            from_publication_date=date.today() - timedelta(days=published_within_last_n_days),
+            evaluated_only=evaluated_only
+        )
+        try:
+            assert app_providers_and_models.async_single_article_recommendation_provider
+            LOGGER.info(
+                'Getting related articles for (article_doi=%r, filter_parameters=%r, limit=%r)',
+                article_doi,
+                filter_parameters,
+                limit
+            )
+            article_recommendation_list = await (
+                app_providers_and_models
+                .async_single_article_recommendation_provider
+                .get_article_recommendation_list_for_article_doi(
+                    article_doi=article_doi,
+                    max_recommendations=limit,
+                    filter_parameters=filter_parameters,
+                    headers=get_cache_control_headers_for_request(request)
+                )
+            )
+        except requests.exceptions.RequestException as exception:
+            status_code = exception.response.status_code if exception.response else 500
+            LOGGER.info('Exception retrieving metadata (%r): %r', status_code, exception)
+            if status_code != 404:
+                raise
+            return fastapi.responses.JSONResponse(
+                {'error': f'Paper with id DOI:{article_doi} not found'},
+                status_code=404
+            )
+        return get_s2_recommended_papers_response_for_article_recommendation_list(
+            article_recommendation_list,
+            fields=fields_set
+        )
+
+    @router.get(
         '/experimental/opensearch/metadata/by/doi'
     )
     async def experimental_opensearch_metadata_by_doi(
