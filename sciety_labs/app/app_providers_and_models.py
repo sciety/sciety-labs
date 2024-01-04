@@ -228,7 +228,7 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
             allowable_methods=('GET', 'HEAD', 'POST'),  # include POST for Semantic Scholar
             match_headers=False
         )
-        client_session = aiohttp.ClientSession(
+        async_client_session = aiohttp.ClientSession(
             connector=aiohttp.TCPConnector(limit=200)
         )
 
@@ -240,7 +240,7 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         LOGGER.info('opensearch_client: %r', self.opensearch_client)
         self.async_opensearch_client = get_async_opensearch_client_or_none(
             self.opensearch_config,
-            requests_session=cached_requests_session
+            client_session=async_client_session
         )
         LOGGER.info('async_opensearch_client: %r', self.async_opensearch_client)
 
@@ -269,7 +269,7 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
             requests_session=cached_requests_session
         )
         self.async_crossref_metadata_provider = AsyncCrossrefMetaDataProvider(
-            client_session=client_session
+            client_session=async_client_session
         )
 
         self.semantic_scholar_provider = get_semantic_scholar_provider(
@@ -287,7 +287,7 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         )
         self.async_title_abstract_embedding_vector_provider = (
             AsyncSemanticScholarTitleAbstractEmbeddingVectorProvider(
-                client_session=client_session
+                client_session=async_client_session
             )
         )
         self.article_recommendation_provider = get_article_recommendation_provider(

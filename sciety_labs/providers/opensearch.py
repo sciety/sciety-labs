@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 from time import monotonic
 from typing import Any, Collection, Mapping, Type, Union, cast, Optional
+import aiohttp
 
 
 from opensearchpy import OpenSearch, Transport
@@ -153,6 +154,69 @@ class OpenSearchTransport(Transport):
         )
 
 
+class AsyncOpenSearchConnection(opensearchpy.AIOHttpConnection):
+    def __init__(
+        self,
+        *args,
+        client_session: Optional[aiohttp.ClientSession] = None,
+        **kwargs
+    ):
+        self.client_session = client_session
+        self.verify_certificates = kwargs.get('verify_certs', True)
+        super().__init__(*args, **kwargs)
+        # if client_session is not None:
+        #     self.session = client_session
+
+    async def perform_request(  # pylint: disable=too-many-arguments
+        self,
+        method: str,
+        url: str,
+        params: Optional[Mapping[str, Any]] = None,
+        body: Optional[bytes] = None,
+        timeout: Optional[Union[int, float]] = None,
+        ignore: Collection[int] = (),
+        headers: Optional[Mapping[str, str]] = None,
+    ) -> Any:
+        if self.client_session is not None:
+            url_path = f'{self.url_prefix}{url}'
+            full_url = f'{self.host}{url_path}'
+            LOGGER.info('full_url: %r (%r)', full_url, method)
+            LOGGER.debug('body: %r', body)
+            req_headers = self.headers.copy()
+            if headers:
+                req_headers.update(headers)
+            start_time = monotonic()
+            async with self.client_session.request(
+                method=method,
+                url=full_url,
+                params=params,
+                json=body,
+                timeout=timeout,
+                headers=req_headers,
+                verify_ssl=self.verify_certificates
+            ) as response:
+                end_time = monotonic()
+                LOGGER.info(
+                    'response: status=%r, time=%.3f seconds',
+                    response.status,
+                    (end_time - start_time)
+                )
+                if response.status == 404:
+                    raise opensearchpy.exceptions.NotFoundError(f'Not found: {url}')
+                response.raise_for_status()
+                raw_data = await response.text()
+                return response.status, response.headers, raw_data
+        return await super().perform_request(
+            method=method,
+            url=url,
+            params=params,
+            body=body,
+            timeout=timeout,
+            ignore=ignore,
+            headers=headers
+        )
+
+
 def get_opensearch_client(
     config: OpenSearchConnectionConfig,
     requests_session: Optional[requests.Session] = None
@@ -191,9 +255,9 @@ def get_opensearch_client_or_none(
 
 def get_async_opensearch_client(
     config: OpenSearchConnectionConfig,
-    requests_session: Optional[requests.Session] = None
+    client_session: Optional[aiohttp.ClientSession] = None
 ) -> opensearchpy.AsyncOpenSearch:
-    LOGGER.info('OpenSearch requests_session: %r', requests_session)
+    LOGGER.info('OpenSearch client_session: %r', client_session)
     return opensearchpy.AsyncOpenSearch(
         hosts=[{
             'host': config.hostname,
@@ -203,14 +267,21 @@ def get_async_opensearch_client(
         use_ssl=True,
         verify_certs=config.verify_certificates,
         ssl_show_warn=config.verify_certificates,
-        timeout=config.timeout
+        timeout=config.timeout,
+        connection_class=cast(
+            Type[AsyncOpenSearchConnection],
+            functools.partial(
+                AsyncOpenSearchConnection,
+                client_session=client_session
+            )
+        )
     )
 
 
 def get_async_opensearch_client_or_none(
     config: Optional[OpenSearchConnectionConfig],
-    requests_session: Optional[requests.Session] = None
+    client_session: Optional[aiohttp.ClientSession] = None
 ) -> Optional[opensearchpy.AsyncOpenSearch]:
     if not config:
         return None
-    return get_async_opensearch_client(config, requests_session=requests_session)
+    return get_async_opensearch_client(config, client_session=client_session)
