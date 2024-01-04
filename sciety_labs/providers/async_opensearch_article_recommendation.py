@@ -92,7 +92,8 @@ class AsyncOpenSearchArticleRecommendation(AsyncSingleArticleRecommendationProvi
         if not doc:
             LOGGER.info('Article not found in OpenSearch index: %r', article_doi)
             return None
-        embedding_vector = await doc.get(self.embedding_vector_mapping_name)
+        LOGGER.debug('Getting embedding vector from OpenSearch doc')
+        embedding_vector = doc.get(self.embedding_vector_mapping_name)
         if not embedding_vector or len(embedding_vector) == 0:
             LOGGER.info('Article has no embedding vector in OpenSearch index: %r', article_doi)
             return None
@@ -135,12 +136,25 @@ class AsyncOpenSearchArticleRecommendation(AsyncSingleArticleRecommendationProvi
             filter_parameters,
             max_recommendations
         )
-        LOGGER.info('max_recommendations: %r', max_recommendations)
         embedding_vector = await self.get_embedding_vector_for_article_doi(
             article_doi,
             headers=headers
         )
-        if embedding_vector is None:
+        LOGGER.info('Embedding vector from OpenSearch (%r): %r', article_doi, embedding_vector)
+        if embedding_vector is not None:
+            LOGGER.info(
+                'Embedding vector found in OpenSearch for: %r (size: %d)',
+                article_doi,
+                len(embedding_vector)
+            )
+        else:
+            LOGGER.info(
+                (
+                    'No embedding vector found in OpenSearch,'
+                    ' trying to get via title and abstract: %r'
+                ),
+                article_doi
+            )
             embedding_vector = (
                 await self.get_alternative_embedding_vector_for_article_doi_via_title_and_abstract(
                     article_doi,
