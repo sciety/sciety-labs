@@ -167,6 +167,13 @@ class CrossrefMetaDataProvider(RequestsProvider):
             headers=self.get_headers(headers=headers),
             timeout=self.timeout
         )
+        if response.status_code != 200:
+            LOGGER.warning(
+                'Crossref response (doi=%r, status=%r): %r',
+                doi,
+                response.status_code,
+                response.content
+            )
         response.raise_for_status()
         return response.json()['message']
 
