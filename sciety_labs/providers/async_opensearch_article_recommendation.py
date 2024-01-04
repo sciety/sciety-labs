@@ -126,6 +126,15 @@ class AsyncOpenSearchArticleRecommendation(AsyncSingleArticleRecommendationProvi
     ) -> ArticleRecommendationList:
         if not max_recommendations:
             max_recommendations = DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS
+        LOGGER.info(
+            (
+                'Async getting related articles for'
+                ' (article_doi=%r, filter_parameters=%r, max_recommendations=%r)'
+            ),
+            article_doi,
+            filter_parameters,
+            max_recommendations
+        )
         LOGGER.info('max_recommendations: %r', max_recommendations)
         embedding_vector = await self.get_embedding_vector_for_article_doi(
             article_doi,

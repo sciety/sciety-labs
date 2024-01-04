@@ -372,12 +372,6 @@ def create_api_article_recommendation_router(
         )
         try:
             assert app_providers_and_models.async_single_article_recommendation_provider
-            LOGGER.info(
-                'Getting related articles for (article_doi=%r, filter_parameters=%r, limit=%r)',
-                article_doi,
-                filter_parameters,
-                limit
-            )
             article_recommendation_list = await (
                 app_providers_and_models
                 .async_single_article_recommendation_provider
