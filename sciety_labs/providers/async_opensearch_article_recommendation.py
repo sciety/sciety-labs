@@ -173,7 +173,6 @@ class AsyncOpenSearchArticleRecommendation(AsyncSingleArticleRecommendationProvi
                 exclude_article_dois={article_doi},
                 from_publication_date=date.today() - timedelta(days=60)
             )
-        LOGGER.info('filter_parameters: %r', filter_parameters)
         hits = await self._run_vector_search_and_get_hits(
             embedding_vector,
             index=self.index_name,
