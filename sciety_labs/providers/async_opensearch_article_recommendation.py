@@ -98,7 +98,11 @@ class AsyncOpenSearchArticleRecommendation(AsyncSingleArticleRecommendationProvi
         LOGGER.debug('Getting embedding vector from OpenSearch doc')
         embedding_vector = doc.get(self.embedding_vector_mapping_name)
         if not embedding_vector or len(embedding_vector) == 0:
-            LOGGER.info('Article has no embedding vector in OpenSearch index: %r', article_doi)
+            LOGGER.info(
+                'Article has no embedding vector in OpenSearch index: %r (%r)',
+                article_doi,
+                self.embedding_vector_mapping_name
+            )
             return None
         return embedding_vector
 
