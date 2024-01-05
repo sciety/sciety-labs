@@ -58,6 +58,27 @@ class ErrorMessage(BaseModel):
     error: str
 
 
+LIKE_S2_RECOMMENDATION_API_DESCRIPTION = textwrap.dedent(
+    '''
+    API endpoint similar to S2\'s [Get recommended papers for a single positive example paper](https://api.semanticscholar.org/api-docs/recommendations#tag/Paper-Recommendations/operation/get_papers_for_paper).
+
+    Only DOIs are accepted.
+
+    It will use the underlying functionality to provide related articles within Sciety Labs.
+
+    When using OpenSearch, this then also provides the improvements made there. e.g.:
+
+    - Only preprints are returned
+    - Related articles can be provided for almost any DOI with title and abstract in Crossref
+    - The publication date is more accurate
+    - Ability filter by evaluated preprints
+    - Ability to increase the date range
+
+    Parameters and fields starting with underscore are specific to this API (not like S2).
+    '''  # noqa pylint: disable=line-too-long
+)
+
+
 def get_s2_recommended_author_list_for_author_names(
     author_name_list: Optional[Sequence[str]]
 ) -> Optional[Sequence[AuthorDict]]:
@@ -127,25 +148,7 @@ def create_api_article_recommendation_router(
             Preprint recommendation API endpoint similar to the one provided by S2
             '''
         ),
-        description=textwrap.dedent(
-            '''
-            API endpoint similar to S2\'s [Get recommended papers for a single positive example paper](https://api.semanticscholar.org/api-docs/recommendations#tag/Paper-Recommendations/operation/get_papers_for_paper).
-
-            Only DOIs are accepted.
-
-            It will use the underlying functionality to provide related articles within Sciety Labs.
-
-            When using OpenSearch, this then also provides the improvements made there. e.g.:
-
-            - Only preprints are returned
-            - Related articles can be provided for almost any DOI with title and abstract in Crossref
-            - The publication date is more accurate
-            - Ability filter by evaluated preprints
-            - Ability to increase the date range
-
-            Parameters and fields starting with underscore are specific to this API (not like S2).
-            '''  # noqa pylint: disable=line-too-long
-        ),
+        description=LIKE_S2_RECOMMENDATION_API_DESCRIPTION,
         response_model=RecommendationResponseDict,
         responses={
             200: {
