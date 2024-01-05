@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 import logging
 import textwrap
-from typing import Any, Optional, Sequence, Set, cast
+from typing import Optional, Sequence, Set, cast
 
 from typing_extensions import NotRequired, TypedDict
 
@@ -84,23 +84,29 @@ LIKE_S2_RECOMMENDATION_API_DESCRIPTION = textwrap.dedent(
     '''  # noqa pylint: disable=line-too-long
 )
 
+LIKE_S2_RECOMMENDATION_API_EXAMPLE_200_RESPONSE: RecommendationResponseDict = {
+    'recommendedPapers': [{
+        'externalIds': {'DOI': '10.12345/doi1'},
+        'title': 'Title 1',
+        'publicationDate': '2001-02-03',
+        'authors': [{'name': 'Author 1'}, {'name': 'Author 2'}]
+    }, {
+        'externalIds': {'DOI': '10.12345/doi2'},
+        'title': 'Title 2',
+        'publicationDate': '2001-02-03',
+        'authors': None
+    }]
+}
+
+LIKE_S2_RECOMMENDATION_API_EXAMPLE_404_RESPONSE = {
+    'error': 'Paper with id DOI:invalid-doi not found'
+}
+
 LIKE_S2_RECOMMENDATION_API_EXAMPLE_RESPONSES: dict = {
     200: {
         'content': {
             'application/json': {
-                'example': {
-                    'recommendedPapers': [{
-                        'externalIds': {'DOI': '10.12345/doi1'},
-                        'title': 'Title 1',
-                        'publicationDate': '2001-02-03',
-                        'authors': [{'name': 'Author 1'}, {'name': 'Author 2'}]
-                    }, {
-                        'externalIds': {'DOI': '10.12345/doi2'},
-                        'title': 'Title 2',
-                        'publicationDate': '2001-02-03',
-                        'authors': None
-                    }]
-                }
+                'example': LIKE_S2_RECOMMENDATION_API_EXAMPLE_200_RESPONSE
             }
         }
     },
@@ -108,9 +114,7 @@ LIKE_S2_RECOMMENDATION_API_EXAMPLE_RESPONSES: dict = {
         'model': ErrorMessage,
         'content': {
             'application/json': {
-                'example': {
-                    'error': 'Paper with id DOI:invalid-doi not found'
-                }
+                'example': LIKE_S2_RECOMMENDATION_API_EXAMPLE_404_RESPONSE
             }
         }
     }
