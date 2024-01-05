@@ -165,8 +165,6 @@ class AsyncOpenSearchConnection(opensearchpy.AIOHttpConnection):
         self.client_session = client_session
         self.verify_certificates = kwargs.get('verify_certs', True)
         super().__init__(*args, **kwargs)
-        # if client_session is not None:
-        #     self.session = client_session
 
     async def perform_request(  # pylint: disable=too-many-arguments
         self,
