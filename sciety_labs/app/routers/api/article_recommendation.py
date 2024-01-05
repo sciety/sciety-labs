@@ -58,6 +58,12 @@ class ErrorMessage(BaseModel):
     error: str
 
 
+LIKE_S2_RECOMMENDATION_API_SUMMARY = (
+    '''
+    Preprint recommendation API endpoint similar to the one provided by S2
+    '''
+)
+
 LIKE_S2_RECOMMENDATION_API_DESCRIPTION = textwrap.dedent(
     '''
     API endpoint similar to S2\'s [Get recommended papers for a single positive example paper](https://api.semanticscholar.org/api-docs/recommendations#tag/Paper-Recommendations/operation/get_papers_for_paper).
@@ -143,11 +149,7 @@ def create_api_article_recommendation_router(
 
     @router.get(
         '/like/s2/recommendations/v1/papers/forpaper/DOI:{DOI:path}',
-        summary=(
-            '''
-            Preprint recommendation API endpoint similar to the one provided by S2
-            '''
-        ),
+        summary=LIKE_S2_RECOMMENDATION_API_SUMMARY,
         description=LIKE_S2_RECOMMENDATION_API_DESCRIPTION,
         response_model=RecommendationResponseDict,
         responses={
