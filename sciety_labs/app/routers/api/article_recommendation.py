@@ -84,6 +84,38 @@ LIKE_S2_RECOMMENDATION_API_DESCRIPTION = textwrap.dedent(
     '''  # noqa pylint: disable=line-too-long
 )
 
+LIKE_S2_RECOMMENDATION_API_EXAMPLE_RESPONSES = {
+    200: {
+        'content': {
+            'application/json': {
+                'example': {
+                    'recommendedPapers': [{
+                        'externalIds': {'DOI': '10.12345/doi1'},
+                        'title': 'Title 1',
+                        'publicationDate': '2001-02-03',
+                        'authors': [{'name': 'Author 1'}, {'name': 'Author 2'}]
+                    }, {
+                        'externalIds': {'DOI': '10.12345/doi2'},
+                        'title': 'Title 2',
+                        'publicationDate': '2001-02-03',
+                        'authors': None
+                    }]
+                }
+            }
+        }
+    },
+    404: {
+        'model': ErrorMessage,
+        'content': {
+            'application/json': {
+                'example': {
+                    'error': 'Paper with id DOI:invalid-doi not found'
+                }
+            }
+        }
+    }
+}
+
 
 def get_s2_recommended_author_list_for_author_names(
     author_name_list: Optional[Sequence[str]]
@@ -152,37 +184,7 @@ def create_api_article_recommendation_router(
         summary=LIKE_S2_RECOMMENDATION_API_SUMMARY,
         description=LIKE_S2_RECOMMENDATION_API_DESCRIPTION,
         response_model=RecommendationResponseDict,
-        responses={
-            200: {
-                'content': {
-                    'application/json': {
-                        'example': {
-                            'recommendedPapers': [{
-                                'externalIds': {'DOI': '10.12345/doi1'},
-                                'title': 'Title 1',
-                                'publicationDate': '2001-02-03',
-                                'authors': [{'name': 'Author 1'}, {'name': 'Author 2'}]
-                            }, {
-                                'externalIds': {'DOI': '10.12345/doi2'},
-                                'title': 'Title 2',
-                                'publicationDate': '2001-02-03',
-                                'authors': None
-                            }]
-                        }
-                    }
-                }
-            },
-            404: {
-                'model': ErrorMessage,
-                'content': {
-                    'application/json': {
-                        'example': {
-                            'error': 'Paper with id DOI:invalid-doi not found'
-                        }
-                    }
-                }
-            }
-        }
+        responses=LIKE_S2_RECOMMENDATION_API_EXAMPLE_RESPONSES
     )
     def like_s2_recommendations_for_paper(  # pylint: disable=too-many-arguments
         request: fastapi.Request,
