@@ -84,12 +84,18 @@ class AsyncOpenSearchArticleRecommendation(AsyncSingleArticleRecommendationProvi
         headers: Optional[Mapping[str, str]] = None
     ) -> Optional[Sequence[float]]:
         try:
+            LOGGER.info(
+                'Getting embedding vector from OpenSearch index: %r (%r)',
+                article_doi,
+                self.embedding_vector_mapping_name
+            )
             doc = await self.opensearch_client.get_source(
                 index=self.index_name,
                 id=article_doi,
                 _source_includes=[self.embedding_vector_mapping_name],
                 headers=headers
             )
+            LOGGER.debug('doc: %r', doc)
         except opensearchpy.exceptions.NotFoundError:
             doc = None
         if not doc:
