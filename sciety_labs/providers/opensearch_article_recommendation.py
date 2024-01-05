@@ -289,6 +289,13 @@ def get_article_recommendation_list_from_opensearch_hits(
     return ArticleRecommendationList(recommendations, get_utcnow())
 
 
+def get_default_filter_parameters(article_doi: str) -> ArticleRecommendationFilterParameters:
+    return ArticleRecommendationFilterParameters(
+        exclude_article_dois={article_doi},
+        from_publication_date=date.today() - timedelta(days=60)
+    )
+
+
 class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
     def __init__(  # pylint: disable=too-many-arguments
         self,
@@ -428,10 +435,7 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
             return ArticleRecommendationList([], get_utcnow())
         LOGGER.info('Found embedding vector: %d', len(embedding_vector))
         if filter_parameters is None:
-            filter_parameters = ArticleRecommendationFilterParameters(
-                exclude_article_dois={article_doi},
-                from_publication_date=date.today() - timedelta(days=60)
-            )
+            filter_parameters = get_default_filter_parameters(article_doi=article_doi)
         hits = self._run_vector_search_and_get_hits(
             embedding_vector,
             index=self.index_name,
