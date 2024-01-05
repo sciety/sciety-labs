@@ -8,6 +8,7 @@ import aiohttp
 
 from fastapi import APIRouter
 import fastapi
+import opensearchpy
 from pydantic import BaseModel
 import requests
 
@@ -255,18 +256,35 @@ def get_s2_recommended_papers_response_for_article_recommendation_list(
     }
 
 
+def get_exception_status_code(exception: Exception) -> Optional[int]:
+    if isinstance(exception, requests.exceptions.RequestException):
+        return (
+            exception.response.status_code
+            if exception.response is not None
+            else None
+        )
+    if isinstance(exception, aiohttp.ClientResponseError):
+        return exception.status
+    return None
+
+
 def handle_like_s2_recommendation_exception(
     exception: Exception,
-    status_code: Optional[int],
     article_doi: str
 ):
+    status_code = get_exception_status_code(exception)
     LOGGER.info('Exception retrieving metadata (status_code=%r): %r', status_code, exception)
-    if status_code != 404:
-        raise exception
-    return fastapi.responses.JSONResponse(
-        {'error': f'Paper with id DOI:{article_doi} not found'},
-        status_code=404
-    )
+    if status_code == 404:
+        return fastapi.responses.JSONResponse(
+            {'error': f'Paper with id DOI:{article_doi} not found'},
+            status_code=404
+        )
+    if isinstance(exception, opensearchpy.exceptions.ConnectionError):
+        return fastapi.responses.JSONResponse(
+            {'error': 'OpenSearch backend currently not available'},
+            status_code=503
+        )
+    raise exception
 
 
 def create_api_article_recommendation_router(
@@ -309,19 +327,11 @@ def create_api_article_recommendation_router(
                 max_recommendations=limit,
                 headers=get_cache_control_headers_for_request(request)
             )
-        except requests.exceptions.RequestException as exception:
+        except Exception as exception:  # pylint: disable=broad-exception-caught
             return handle_like_s2_recommendation_exception(
                 exception=exception,
-                status_code=(
-                    exception.response.status_code
-                    if exception.response is not None
-                    else None
-                ),
                 article_doi=article_doi
             )
-        except Exception as exception:
-            LOGGER.error('Error: %r', type(exception))
-            raise
         return get_s2_recommended_papers_response_for_article_recommendation_list(
             article_recommendation_list,
             fields=fields_set
@@ -366,10 +376,9 @@ def create_api_article_recommendation_router(
                     headers=get_cache_control_headers_for_request(request)
                 )
             )
-        except aiohttp.ClientResponseError as exception:
+        except Exception as exception:  # pylint: disable=broad-exception-caught
             return handle_like_s2_recommendation_exception(
                 exception=exception,
-                status_code=exception.status,
                 article_doi=article_doi
             )
         return get_s2_recommended_papers_response_for_article_recommendation_list(
