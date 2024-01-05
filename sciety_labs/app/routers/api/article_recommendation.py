@@ -117,6 +117,82 @@ LIKE_S2_RECOMMENDATION_API_EXAMPLE_RESPONSES = {
 }
 
 
+LIKE_S2_RECOMMENDATION_API_ARTICLE_DOI_FASTAPI_PATH = fastapi.Path(
+    alias='DOI',
+    description=textwrap.dedent(
+        '''
+        The DOI to provide paper recommendations for.
+        '''
+    ),
+    examples=[  # Note: These only seem to appear in /redoc
+        '10.1101/2022.08.08.502889'
+    ]
+)
+
+LIKE_S2_RECOMMENDATION_API_FIELDS_FASTAPI_QUERY = fastapi.Query(
+    default=','.join(sorted(DEFAULT_LIKE_S2_RECOMMENDATION_FIELDS)),
+    description=textwrap.dedent(
+        '''
+        Comma separated list of fields. The following fields can be retrieved:
+
+        - `externalIds` (only containing `DOI`)
+        - `title`
+        - `publicationDate`
+        - `authors` (only containing `name`)
+        - `_evaluationCount`
+        - `_score`
+        '''
+    ),
+    examples=[  # Note: These only seem to appear in /redoc
+        'externalIds',
+        'externalIds,title,publicationDate,authors',
+        'externalIds,title,publicationDate,authors,_evaluationCount,_score'
+    ]
+)
+
+LIKE_S2_RECOMMENDATION_API_LIMIT_FASTAPI_QUERY = fastapi.Query(
+    default=None,
+    description=textwrap.dedent(
+        f'''
+        Maximimum number of papers returned.
+        The default will be implementation specific.
+        When the OpenSearch backend is used, it will be
+        `{DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS}`.
+        '''
+    )
+)
+
+LIKE_S2_RECOMMENDATION_API_EVALUATED_ONLY_FASTAPI_QUERY = fastapi.Query(
+    alias='_evaluated_only',
+    default=False,
+    description=textwrap.dedent(
+        '''
+        If true, only evaluated articles will be recommended.
+        Not part of S2, and only working with OpenSearch.
+        '''
+    )
+)
+
+LIKE_S2_RECOMMENDATION_API_PUBLISHED_WITHIN_LAST_N_DAYS_FASTAPI_QUERY = fastapi.Query(
+    alias='_published_within_last_n_days',
+    default=None,
+    examples=list(
+        DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY.values()
+    ),
+    description=textwrap.dedent(
+        f'''
+        Only consider papers published within the last *n* days.
+
+        The default will be
+        `{DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY[False]}`,
+        or
+        `{DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY[True]}`
+        when `evaluated_only` is `true`.
+        '''
+    )
+)
+
+
 def get_s2_recommended_author_list_for_author_names(
     author_name_list: Optional[Sequence[str]]
 ) -> Optional[Sequence[AuthorDict]]:
@@ -188,75 +264,12 @@ def create_api_article_recommendation_router(
     )
     def like_s2_recommendations_for_paper(  # pylint: disable=too-many-arguments
         request: fastapi.Request,
-        article_doi: str = fastapi.Path(
-            alias='DOI',
-            description=textwrap.dedent(
-                '''
-                The DOI to provide paper recommendations for.
-                '''
-            ),
-            examples=[  # Note: These only seem to appear in /redoc
-                '10.1101/2022.08.08.502889'
-            ]
-        ),
-        fields: str = fastapi.Query(
-            default=','.join(sorted(DEFAULT_LIKE_S2_RECOMMENDATION_FIELDS)),
-            description=textwrap.dedent(
-                '''
-                Comma separated list of fields. The following fields can be retrieved:
-
-                - `externalIds` (only containing `DOI`)
-                - `title`
-                - `publicationDate`
-                - `authors` (only containing `name`)
-                - `_evaluationCount`
-                - `_score`
-                '''
-            ),
-            examples=[  # Note: These only seem to appear in /redoc
-                'externalIds',
-                'externalIds,title,publicationDate,authors',
-                'externalIds,title,publicationDate,authors,_evaluationCount,_score'
-            ]
-        ),
-        limit: Optional[int] = fastapi.Query(
-            default=None,
-            description=textwrap.dedent(
-                f'''
-                Maximimum number of papers returned.
-                The default will be implementation specific.
-                When the OpenSearch backend is used, it will be
-                `{DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS}`.
-                '''
-            )
-        ),
-        evaluated_only: bool = fastapi.Query(
-            alias='_evaluated_only',
-            default=False,
-            description=textwrap.dedent(
-                '''
-                If true, only evaluated articles will be recommended.
-                Not part of S2, and only working with OpenSearch.
-                '''
-            )
-        ),
-        published_within_last_n_days: Optional[int] = fastapi.Query(
-            alias='_published_within_last_n_days',
-            default=None,
-            examples=list(
-                DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY.values()
-            ),
-            description=textwrap.dedent(
-                f'''
-                Only consider papers published within the last *n* days.
-
-                The default will be
-                `{DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY[False]}`,
-                or
-                `{DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY[True]}`
-                when `evaluated_only` is `true`.
-                '''
-            )
+        article_doi: str = LIKE_S2_RECOMMENDATION_API_ARTICLE_DOI_FASTAPI_PATH,
+        fields: str = LIKE_S2_RECOMMENDATION_API_FIELDS_FASTAPI_QUERY,
+        limit: Optional[int] = LIKE_S2_RECOMMENDATION_API_LIMIT_FASTAPI_QUERY,
+        evaluated_only: bool = LIKE_S2_RECOMMENDATION_API_EVALUATED_ONLY_FASTAPI_QUERY,
+        published_within_last_n_days: Optional[int] = (
+            LIKE_S2_RECOMMENDATION_API_PUBLISHED_WITHIN_LAST_N_DAYS_FASTAPI_QUERY
         )
     ):
         fields_set = set(fields.split(','))
@@ -296,75 +309,12 @@ def create_api_article_recommendation_router(
     )
     async def async_like_s2_recommendations_for_paper(  # pylint: disable=too-many-arguments
         request: fastapi.Request,
-        article_doi: str = fastapi.Path(
-            alias='DOI',
-            description=textwrap.dedent(
-                '''
-                The DOI to provide paper recommendations for.
-                '''
-            ),
-            examples=[  # Note: These only seem to appear in /redoc
-                '10.1101/2022.08.08.502889'
-            ]
-        ),
-        fields: str = fastapi.Query(
-            default=','.join(sorted(DEFAULT_LIKE_S2_RECOMMENDATION_FIELDS)),
-            description=textwrap.dedent(
-                '''
-                Comma separated list of fields. The following fields can be retrieved:
-
-                - `externalIds` (only containing `DOI`)
-                - `title`
-                - `publicationDate`
-                - `authors` (only containing `name`)
-                - `_evaluationCount`
-                - `_score`
-                '''
-            ),
-            examples=[  # Note: These only seem to appear in /redoc
-                'externalIds',
-                'externalIds,title,publicationDate,authors',
-                'externalIds,title,publicationDate,authors,_evaluationCount,_score'
-            ]
-        ),
-        limit: Optional[int] = fastapi.Query(
-            default=None,
-            description=textwrap.dedent(
-                f'''
-                Maximimum number of papers returned.
-                The default will be implementation specific.
-                When the OpenSearch backend is used, it will be
-                `{DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS}`.
-                '''
-            )
-        ),
-        evaluated_only: bool = fastapi.Query(
-            alias='_evaluated_only',
-            default=False,
-            description=textwrap.dedent(
-                '''
-                If true, only evaluated articles will be recommended.
-                Not part of S2, and only working with OpenSearch.
-                '''
-            )
-        ),
-        published_within_last_n_days: Optional[int] = fastapi.Query(
-            alias='_published_within_last_n_days',
-            default=None,
-            examples=list(
-                DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY.values()
-            ),
-            description=textwrap.dedent(
-                f'''
-                Only consider papers published within the last *n* days.
-
-                The default will be
-                `{DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY[False]}`,
-                or
-                `{DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY[True]}`
-                when `evaluated_only` is `true`.
-                '''
-            )
+        article_doi: str = LIKE_S2_RECOMMENDATION_API_ARTICLE_DOI_FASTAPI_PATH,
+        fields: str = LIKE_S2_RECOMMENDATION_API_FIELDS_FASTAPI_QUERY,
+        limit: Optional[int] = LIKE_S2_RECOMMENDATION_API_LIMIT_FASTAPI_QUERY,
+        evaluated_only: bool = LIKE_S2_RECOMMENDATION_API_EVALUATED_ONLY_FASTAPI_QUERY,
+        published_within_last_n_days: Optional[int] = (
+            LIKE_S2_RECOMMENDATION_API_PUBLISHED_WITHIN_LAST_N_DAYS_FASTAPI_QUERY
         )
     ):
         fields_set = set(fields.split(','))
