@@ -124,16 +124,19 @@ class OpenSearchTransport(Transport):
             LOGGER.info('full_url: %r (%r)', full_url, method)
             LOGGER.debug('body: %r', body)
             start_time = monotonic()
-            response = self.requests_session.request(
-                method=method,
-                url=full_url,
-                params=params,
-                json=body,
-                timeout=timeout,
-                headers=headers,
-                auth=self.auth,
-                verify=self.verify_certificates
-            )
+            try:
+                response = self.requests_session.request(
+                    method=method,
+                    url=full_url,
+                    params=params,
+                    json=body,
+                    timeout=timeout,
+                    headers=headers,
+                    auth=self.auth,
+                    verify=self.verify_certificates
+                )
+            except requests.exceptions.ConnectionError as exc:
+                raise opensearchpy.exceptions.ConnectionError(str(exc)) from exc
             end_time = monotonic()
             LOGGER.info(
                 'response: status=%r, time=%.3f seconds',
@@ -166,7 +169,7 @@ class AsyncOpenSearchConnection(opensearchpy.AIOHttpConnection):
         self.verify_certificates = kwargs.get('verify_certs', True)
         super().__init__(*args, **kwargs)
 
-    async def perform_request(  # pylint: disable=too-many-arguments
+    async def perform_request(  # pylint: disable=too-many-arguments, too-many-locals
         self,
         method: str,
         url: str,
@@ -187,25 +190,28 @@ class AsyncOpenSearchConnection(opensearchpy.AIOHttpConnection):
             if headers:
                 req_headers.update(headers)
             start_time = monotonic()
-            async with self.client_session.request(
-                method=method,
-                url=full_url,
-                data=body,
-                timeout=timeout,
-                headers=req_headers,
-                verify_ssl=self.verify_certificates
-            ) as response:
-                end_time = monotonic()
-                LOGGER.info(
-                    'response: status=%r, time=%.3f seconds',
-                    response.status,
-                    (end_time - start_time)
-                )
-                if response.status == 404:
-                    raise opensearchpy.exceptions.NotFoundError(f'Not found: {url}')
-                response.raise_for_status()
-                raw_data = await response.text()
-                return response.status, response.headers, raw_data
+            try:
+                async with self.client_session.request(
+                    method=method,
+                    url=full_url,
+                    data=body,
+                    timeout=timeout,
+                    headers=req_headers,
+                    verify_ssl=self.verify_certificates
+                ) as response:
+                    end_time = monotonic()
+                    LOGGER.info(
+                        'response: status=%r, time=%.3f seconds',
+                        response.status,
+                        (end_time - start_time)
+                    )
+                    if response.status == 404:
+                        raise opensearchpy.exceptions.NotFoundError(f'Not found: {url}')
+                    response.raise_for_status()
+                    raw_data = await response.text()
+                    return response.status, response.headers, raw_data
+            except aiohttp.ClientConnectorError as exc:
+                raise opensearchpy.exceptions.ConnectionError(str(exc)) from exc
         return await super().perform_request(
             method=method,
             url=url,
