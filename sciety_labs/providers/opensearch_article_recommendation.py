@@ -260,6 +260,19 @@ def get_vector_search_query(  # pylint: disable=too-many-arguments
     return search_query
 
 
+def get_source_includes(embedding_vector_mapping_name: str) -> Sequence[str]:
+    return [
+        'doi',
+        's2.title',
+        's2.author_list',
+        'europepmc.first_publication_date',
+        'europepmc.title_with_markup',
+        'europepmc.author_list',
+        'sciety.evaluation_count',
+        embedding_vector_mapping_name,
+    ]
+
+
 class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
     def __init__(  # pylint: disable=too-many-arguments
         self,
@@ -407,16 +420,9 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
             embedding_vector,
             index=self.index_name,
             embedding_vector_mapping_name=self.embedding_vector_mapping_name,
-            source_includes=[
-                'doi',
-                's2.title',
-                's2.author_list',
-                'europepmc.first_publication_date',
-                'europepmc.title_with_markup',
-                'europepmc.author_list',
-                'sciety.evaluation_count',
-                self.embedding_vector_mapping_name,
-            ],
+            source_includes=get_source_includes(
+                embedding_vector_mapping_name=self.embedding_vector_mapping_name,
+            ),
             max_results=max_recommendations,
             filter_parameters=filter_parameters,
             headers=headers

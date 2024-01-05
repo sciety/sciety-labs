@@ -22,6 +22,7 @@ from sciety_labs.providers.async_semantic_scholar import (
 from sciety_labs.providers.opensearch_article_recommendation import (
     DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS,
     get_embedding_vector_from_document_or_none,
+    get_source_includes,
     get_vector_search_query,
     iter_article_recommendation_from_opensearch_hits
 )
@@ -188,16 +189,9 @@ class AsyncOpenSearchArticleRecommendation(AsyncSingleArticleRecommendationProvi
             embedding_vector,
             index=self.index_name,
             embedding_vector_mapping_name=self.embedding_vector_mapping_name,
-            source_includes=[
-                'doi',
-                's2.title',
-                's2.author_list',
-                'europepmc.first_publication_date',
-                'europepmc.title_with_markup',
-                'europepmc.author_list',
-                'sciety.evaluation_count',
-                self.embedding_vector_mapping_name,
-            ],
+            source_includes=get_source_includes(
+                embedding_vector_mapping_name=self.embedding_vector_mapping_name,
+            ),
             max_results=max_recommendations,
             filter_parameters=filter_parameters,
             headers=headers
