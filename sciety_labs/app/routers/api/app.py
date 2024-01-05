@@ -38,7 +38,7 @@ def create_api_app(
         request: fastapi.Request,  # pylint: disable=unused-argument
         exception: Exception
     ):
-        LOGGER.warning('Error: %r', exception)
+        LOGGER.warning('Error: %r', exception, exc_info=1)
         return fastapi.responses.JSONResponse(
             content={
                 'message': repr(exception)
