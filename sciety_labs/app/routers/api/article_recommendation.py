@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 import logging
 import textwrap
-from typing import Optional, Sequence, Set, cast
+from typing import Any, Optional, Sequence, Set, cast
 
 from typing_extensions import NotRequired, TypedDict
 
@@ -84,7 +84,7 @@ LIKE_S2_RECOMMENDATION_API_DESCRIPTION = textwrap.dedent(
     '''  # noqa pylint: disable=line-too-long
 )
 
-LIKE_S2_RECOMMENDATION_API_EXAMPLE_RESPONSES = {
+LIKE_S2_RECOMMENDATION_API_EXAMPLE_RESPONSES: dict = {
     200: {
         'content': {
             'application/json': {
