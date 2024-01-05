@@ -255,6 +255,20 @@ def get_s2_recommended_papers_response_for_article_recommendation_list(
     }
 
 
+def handle_like_s2_recommendation_exception(
+    exception: Exception,
+    status_code: Optional[int],
+    article_doi: str
+):
+    LOGGER.info('Exception retrieving metadata (status_code=%r): %r', status_code, exception)
+    if status_code != 404:
+        raise exception
+    return fastapi.responses.JSONResponse(
+        {'error': f'Paper with id DOI:{article_doi} not found'},
+        status_code=404
+    )
+
+
 def create_api_article_recommendation_router(
     app_providers_and_models: AppProvidersAndModels
 ):
@@ -296,14 +310,18 @@ def create_api_article_recommendation_router(
                 headers=get_cache_control_headers_for_request(request)
             )
         except requests.exceptions.RequestException as exception:
-            status_code = exception.response.status_code if exception.response else 500
-            LOGGER.info('Exception retrieving metadata (%r): %r', status_code, exception)
-            if status_code != 404:
-                raise
-            return fastapi.responses.JSONResponse(
-                {'error': f'Paper with id DOI:{article_doi} not found'},
-                status_code=404
+            return handle_like_s2_recommendation_exception(
+                exception=exception,
+                status_code=(
+                    exception.response.status_code
+                    if exception.response is not None
+                    else None
+                ),
+                article_doi=article_doi
             )
+        except Exception as exception:
+            LOGGER.error('Error: %r', type(exception))
+            raise
         return get_s2_recommended_papers_response_for_article_recommendation_list(
             article_recommendation_list,
             fields=fields_set
@@ -349,13 +367,10 @@ def create_api_article_recommendation_router(
                 )
             )
         except aiohttp.ClientResponseError as exception:
-            status_code = exception.status if exception.status else 500
-            LOGGER.info('Exception retrieving metadata (%r): %r', status_code, exception)
-            if status_code != 404:
-                raise
-            return fastapi.responses.JSONResponse(
-                {'error': f'Paper with id DOI:{article_doi} not found'},
-                status_code=404
+            return handle_like_s2_recommendation_exception(
+                exception=exception,
+                status_code=exception.status,
+                article_doi=article_doi
             )
         return get_s2_recommended_papers_response_for_article_recommendation_list(
             article_recommendation_list,
