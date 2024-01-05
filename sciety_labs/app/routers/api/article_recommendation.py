@@ -306,6 +306,10 @@ def create_api_article_recommendation_router(
 
     @router.get(
         '/async/like/s2/recommendations/v1/papers/forpaper/DOI:{DOI:path}',
+        summary=LIKE_S2_RECOMMENDATION_API_SUMMARY,
+        description=LIKE_S2_RECOMMENDATION_API_DESCRIPTION,
+        response_model=RecommendationResponseDict,
+        responses=LIKE_S2_RECOMMENDATION_API_EXAMPLE_RESPONSES
     )
     async def async_like_s2_recommendations_for_paper(  # pylint: disable=too-many-arguments
         request: fastapi.Request,
