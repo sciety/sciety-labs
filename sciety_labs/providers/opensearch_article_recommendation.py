@@ -273,6 +273,22 @@ def get_source_includes(embedding_vector_mapping_name: str) -> Sequence[str]:
     ]
 
 
+def get_article_recommendation_list_from_opensearch_hits(
+    hits: Sequence[dict],
+    embedding_vector_mapping_name: str,
+    query_vector: Optional[npt.ArrayLike],
+    max_recommendations: int
+) -> ArticleRecommendationList:
+    LOGGER.debug('hits: %r', hits)
+    recommendations = list(iter_article_recommendation_from_opensearch_hits(
+        hits,
+        embedding_vector_mapping_name=embedding_vector_mapping_name,
+        query_vector=query_vector
+    ))[:max_recommendations]
+    LOGGER.info('hits: %d, recommendations: %d', len(hits), len(recommendations))
+    return ArticleRecommendationList(recommendations, get_utcnow())
+
+
 class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
     def __init__(  # pylint: disable=too-many-arguments
         self,
@@ -427,11 +443,9 @@ class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
             filter_parameters=filter_parameters,
             headers=headers
         )
-        LOGGER.debug('hits: %r', hits)
-        recommendations = list(iter_article_recommendation_from_opensearch_hits(
-            hits,
+        return get_article_recommendation_list_from_opensearch_hits(
+            hits=hits,
             embedding_vector_mapping_name=self.embedding_vector_mapping_name,
-            query_vector=embedding_vector
-        ))[:max_recommendations]
-        LOGGER.info('hits: %d, recommendations: %d', len(hits), len(recommendations))
-        return ArticleRecommendationList(recommendations, get_utcnow())
+            query_vector=embedding_vector,
+            max_recommendations=max_recommendations
+        )

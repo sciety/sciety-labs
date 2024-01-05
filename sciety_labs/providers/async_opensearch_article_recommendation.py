@@ -21,10 +21,10 @@ from sciety_labs.providers.async_semantic_scholar import (
 )
 from sciety_labs.providers.opensearch_article_recommendation import (
     DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS,
+    get_article_recommendation_list_from_opensearch_hits,
     get_embedding_vector_from_document_or_none,
     get_source_includes,
-    get_vector_search_query,
-    iter_article_recommendation_from_opensearch_hits
+    get_vector_search_query
 )
 from sciety_labs.utils.datetime import get_utcnow
 
@@ -196,11 +196,9 @@ class AsyncOpenSearchArticleRecommendation(AsyncSingleArticleRecommendationProvi
             filter_parameters=filter_parameters,
             headers=headers
         )
-        LOGGER.debug('hits: %r', hits)
-        recommendations = list(iter_article_recommendation_from_opensearch_hits(
-            hits,
+        return get_article_recommendation_list_from_opensearch_hits(
+            hits=hits,
             embedding_vector_mapping_name=self.embedding_vector_mapping_name,
-            query_vector=embedding_vector
-        ))[:max_recommendations]
-        LOGGER.info('hits: %d, recommendations: %d', len(hits), len(recommendations))
-        return ArticleRecommendationList(recommendations, get_utcnow())
+            query_vector=embedding_vector,
+            max_recommendations=max_recommendations
+        )
