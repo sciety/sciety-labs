@@ -4,6 +4,7 @@ import textwrap
 from typing import Optional, Sequence, Set, cast
 
 from typing_extensions import NotRequired, TypedDict
+import aiohttp
 
 from fastapi import APIRouter
 import fastapi
@@ -347,8 +348,8 @@ def create_api_article_recommendation_router(
                     headers=get_cache_control_headers_for_request(request)
                 )
             )
-        except requests.exceptions.RequestException as exception:
-            status_code = exception.response.status_code if exception.response else 500
+        except aiohttp.ClientResponseError as exception:
+            status_code = exception.status if exception.status else 500
             LOGGER.info('Exception retrieving metadata (%r): %r', status_code, exception)
             if status_code != 404:
                 raise
