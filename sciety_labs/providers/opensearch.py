@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 from time import monotonic
 from typing import Any, Collection, Mapping, Type, Union, cast, Optional
+from urllib.parse import urlencode
 import aiohttp
 
 
@@ -180,7 +181,9 @@ class AsyncOpenSearchConnection(opensearchpy.AIOHttpConnection):
         if self.client_session is not None:
             url_path = f'{self.url_prefix}{url}'
             full_url = f'{self.host}{url_path}'
-            LOGGER.info('full_url: %r (%r)', full_url, method)
+            if params:
+                full_url += '?' + urlencode(params)
+            LOGGER.info('Async Request: %r (method=%r)', full_url, method)
             LOGGER.debug('body: %r', body)
             req_headers = self.headers.copy()
             if headers:
@@ -189,8 +192,7 @@ class AsyncOpenSearchConnection(opensearchpy.AIOHttpConnection):
             async with self.client_session.request(
                 method=method,
                 url=full_url,
-                params=params,
-                json=body,
+                data=body,
                 timeout=timeout,
                 headers=req_headers,
                 verify_ssl=self.verify_certificates
