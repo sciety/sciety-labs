@@ -31,6 +31,7 @@ from sciety_labs.utils.fastapi import (
     get_likely_client_ip_for_request,
     update_request_scope_to_original_url_middleware
 )
+from sciety_labs.utils.logging import threaded_logging
 
 
 LOGGER = logging.getLogger(__name__)
@@ -50,7 +51,7 @@ def get_sanitized_string_as_safe_markup(text: str) -> markupsafe.Markup:
     return markupsafe.Markup(bleach.clean(text, tags=ALLOWED_TAGS))
 
 
-def create_app():  # pylint: disable=too-many-locals, too-many-statements
+def _create_app():  # pylint: disable=too-many-locals, too-many-statements
     site_config = get_site_config_from_environment_variables()
     LOGGER.info('site_config: %r', site_config)
 
@@ -133,3 +134,8 @@ def create_app():  # pylint: disable=too-many-locals, too-many-statements
         )
 
     return app
+
+
+def create_app():
+    threaded_logging().__enter__()
+    return _create_app()
