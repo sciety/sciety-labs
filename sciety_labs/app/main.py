@@ -137,5 +137,5 @@ def _create_app():  # pylint: disable=too-many-locals, too-many-statements
 
 
 def create_app():
-    threaded_logging().__enter__()
+    threaded_logging().__enter__()  # pylint: disable=unnecessary-dunder-call
     return _create_app()
