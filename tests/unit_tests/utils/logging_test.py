@@ -1,8 +1,29 @@
 import logging
 import logging.handlers
 import sys
+from typing import Iterator
+from unittest.mock import patch
 
-from sciety_labs.utils.logging import threaded_logging
+import pytest
+
+from sciety_labs.utils.logging import get_all_loggers, threaded_logging
+
+
+@pytest.fixture(name='logger_dict_mock')
+def _logger_dict_mock() -> Iterator[dict]:
+    with patch.object(logging.root.manager, 'loggerDict', {}) as mock:  # type: ignore
+        yield mock
+
+
+class TestGetAllLoggers:
+    def test_should_return_root_logger_and_other_configured_loggers(
+        self,
+        logger_dict_mock: dict
+    ):
+        logger = logging.Logger('test')
+        logger_dict_mock['test'] = logger
+        all_loggers = get_all_loggers()
+        assert all_loggers == [logging.root, logger]
 
 
 class TestThreadedLogging:

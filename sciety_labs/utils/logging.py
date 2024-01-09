@@ -8,13 +8,25 @@ from typing import Iterator, List, Optional, Sequence
 LOGGER = logging.getLogger(__name__)
 
 
+def get_all_loggers() -> Sequence[logging.Logger]:
+    root_logger = logging.root
+    logging_manager: logging.Manager = root_logger.manager
+    return (
+        [root_logger]
+        + [
+            logging.getLogger(logger_name)
+            for logger_name in logging_manager.loggerDict  # pylint: disable=no-member
+        ]
+    )
+
+
 @contextmanager
 def threaded_logging(
     loggers: Optional[Sequence[logging.Logger]] = None
 ) -> Iterator[logging.handlers.QueueListener]:
     queue_listener: Optional[logging.handlers.QueueListener] = None
     if loggers is None:
-        loggers = [logging.root]
+        loggers = get_all_loggers()
     original_handlers_list = [logger.handlers for logger in loggers]
     try:
         logging_queue = queue.Queue[logging.LogRecord](-1)
