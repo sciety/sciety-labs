@@ -17,7 +17,7 @@ def threaded_logging(
         loggers = [logging.root]
     original_handlers_list = [logger.handlers for logger in loggers]
     try:
-        logging_queue = queue.Queue(-1)
+        logging_queue = queue.Queue[logging.LogRecord](-1)
         queue_handlers: List[logging.handlers.QueueHandler] = []
         for logger in loggers:
             stream_handlers = [
