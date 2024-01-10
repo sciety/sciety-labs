@@ -1,6 +1,6 @@
+import io
 import logging
 import logging.handlers
-import sys
 from typing import Iterator
 from unittest.mock import patch
 
@@ -38,15 +38,17 @@ class TestThreadedLogging:
             logger.info('test')
         assert not logger.handlers
 
-    def test_should_use_queue_logger_with_console_handler(self):
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setFormatter(logging.Formatter(
+    def test_should_use_queue_logger_with_stream_handler(self):
+        buffer = io.StringIO()
+        stream_handler = logging.StreamHandler(buffer)
+        stream_handler.setFormatter(logging.Formatter(
             r'prefix:%(message)s'
         ))
-        original_handlers = [console_handler]
+        original_handlers = [stream_handler]
         logger = logging.Logger('test')
         logger.handlers = original_handlers
         with threaded_logging(loggers=[logger]):
             assert isinstance(logger.handlers[0], logging.handlers.QueueHandler)
             logger.info('test')
         assert logger.handlers == original_handlers
+        assert buffer.getvalue().strip() == 'prefix:test'
