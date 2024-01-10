@@ -31,7 +31,7 @@ from sciety_labs.utils.fastapi import (
     get_likely_client_ip_for_request,
     update_request_scope_to_original_url_middleware
 )
-from sciety_labs.utils.logging import threaded_logging
+from sciety_labs.utils.logging import ThreadedLogging
 
 
 LOGGER = logging.getLogger(__name__)
@@ -137,5 +137,6 @@ def _create_app():  # pylint: disable=too-many-locals, too-many-statements
 
 
 def create_app():
-    threaded_logging().__enter__()  # pylint: disable=unnecessary-dunder-call
+    ThreadedLogging().__enter__()  # pylint: disable=unnecessary-dunder-call
+    LOGGER.info('Creating App...')
     return _create_app()
