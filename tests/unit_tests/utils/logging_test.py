@@ -38,17 +38,25 @@ class TestThreadedLogging:
             logger.info('test')
         assert not logger.handlers
 
-    def test_should_use_queue_logger_with_stream_handler(self):
+    def test_should_use_queue_logger_and_only_pass_to_correct_stream_handler(self):
         buffer = io.StringIO()
         stream_handler = logging.StreamHandler(buffer)
         stream_handler.setFormatter(logging.Formatter(
             r'prefix:%(message)s'
         ))
+
         original_handlers = [stream_handler]
         logger = logging.Logger('test')
         logger.handlers = original_handlers
-        with threaded_logging(loggers=[logger]):
+
+        other_buffer = io.StringIO()
+        other_stream_handler = logging.StreamHandler(other_buffer)
+        other_logger = logging.Logger('other')
+        other_logger.handlers = [other_stream_handler]
+
+        with threaded_logging(loggers=[logger, other_logger]):
             assert isinstance(logger.handlers[0], logging.handlers.QueueHandler)
             logger.info('test')
         assert logger.handlers == original_handlers
         assert buffer.getvalue().strip() == 'prefix:test'
+        assert not other_buffer.getvalue()
