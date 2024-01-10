@@ -3,7 +3,7 @@ disable_existing_loggers: false
 
 formatters:
   standard:
-    format: "%(asctime)s - %(levelname)s - %(message)s"
+    format: "%(asctime)s - %(levelname)s - p:%(process)d/t:%(threadName)s/l:%(name)s - %(message)s"
 
 handlers:
   console:
@@ -15,8 +15,16 @@ loggers:
   uvicorn:
     error:
       propagate: true
+  # sciety_labs:
+  #   # level: WARNING
+  #   level: INFO
+  # opensearch:
+  #   level: WARNING
+  # opensearchpy:
+  #   level: WARNING
 
 root:
+  # level: WARNING
   level: INFO
   handlers: [console]
   propagate: no
