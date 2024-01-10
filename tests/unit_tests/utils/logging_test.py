@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import pytest
 
-from sciety_labs.utils.logging import get_all_loggers_with_handlers, threaded_logging
+from sciety_labs.utils.logging import get_all_loggers_with_handlers, ThreadedLogging
 
 
 @pytest.fixture(name='logger_dict_mock')
@@ -34,7 +34,7 @@ class TestThreadedLogging:
     def test_should_not_fail_with_logger_without_console_handler(self):
         logger = logging.Logger('test')
         logger.handlers = []
-        with threaded_logging(loggers=[logger]):
+        with ThreadedLogging(loggers=[logger]):
             logger.info('test')
         assert not logger.handlers
 
@@ -54,7 +54,7 @@ class TestThreadedLogging:
         other_logger = logging.Logger('other')
         other_logger.handlers = [other_stream_handler]
 
-        with threaded_logging(loggers=[logger, other_logger]):
+        with ThreadedLogging(loggers=[logger, other_logger]):
             assert isinstance(logger.handlers[0], logging.handlers.QueueHandler)
             logger.info('test')
         assert logger.handlers == original_handlers

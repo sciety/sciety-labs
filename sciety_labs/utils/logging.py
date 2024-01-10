@@ -22,7 +22,7 @@ def get_all_loggers_with_handlers() -> Sequence[logging.Logger]:
     )
 
 
-class threaded_logging(AbstractContextManager):  # pylint: disable=invalid-name
+class ThreadedLogging(AbstractContextManager):
     def __init__(
         self,
         loggers: Optional[Sequence[logging.Logger]] = None
@@ -99,7 +99,7 @@ class threaded_logging(AbstractContextManager):  # pylint: disable=invalid-name
         for queue_listener in self.queue_listener_by_handler_id.values():
             queue_listener.stop()
 
-    def __enter__(self) -> 'threaded_logging':
+    def __enter__(self) -> 'ThreadedLogging':
         self._patch_loggers()
         self._create_queue_listeners()
         self._start_queue_listeners()
