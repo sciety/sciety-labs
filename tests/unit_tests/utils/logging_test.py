@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import pytest
 
-from sciety_labs.utils.logging import get_all_loggers, threaded_logging
+from sciety_labs.utils.logging import get_all_loggers_with_handlers, threaded_logging
 
 
 @pytest.fixture(name='logger_dict_mock')
@@ -16,14 +16,18 @@ def _logger_dict_mock() -> Iterator[dict]:
 
 
 class TestGetAllLoggers:
-    def test_should_return_root_logger_and_other_configured_loggers(
+    def test_should_return_root_logger_and_other_configured_logger_with_handlers(
         self,
         logger_dict_mock: dict
     ):
-        logger = logging.Logger('test')
-        logger_dict_mock['test'] = logger
-        all_loggers = get_all_loggers()
-        assert all_loggers == [logging.root, logger]
+        assert logging.root.handlers
+        logger_with_handlers = logging.Logger('test.with-handlers')
+        logger_with_handlers.handlers = logging.root.handlers
+        logger_dict_mock[logger_with_handlers.name] = logger_with_handlers
+        logger_without_handlers = logging.Logger('test.without-handlers')
+        logger_dict_mock[logger_without_handlers.name] = logger_without_handlers
+        all_loggers = get_all_loggers_with_handlers()
+        assert all_loggers == [logging.root, logger_with_handlers]
 
 
 class TestThreadedLogging:

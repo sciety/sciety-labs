@@ -8,7 +8,7 @@ from typing import List, Optional, Sequence
 LOGGER = logging.getLogger(__name__)
 
 
-def get_all_loggers() -> Sequence[logging.Logger]:
+def get_all_loggers_with_handlers() -> Sequence[logging.Logger]:
     root_logger = logging.root
     logging_manager: logging.Manager = root_logger.manager
     return (
@@ -16,6 +16,7 @@ def get_all_loggers() -> Sequence[logging.Logger]:
         + [
             logging.getLogger(logger_name)
             for logger_name in logging_manager.loggerDict  # pylint: disable=no-member
+            if logging.getLogger(logger_name).handlers
         ]
     )
 
@@ -26,7 +27,7 @@ class threaded_logging(AbstractContextManager):  # pylint: disable=invalid-name
         loggers: Optional[Sequence[logging.Logger]] = None
     ):
         if loggers is None:
-            loggers = get_all_loggers()
+            loggers = get_all_loggers_with_handlers()
         LOGGER.info('Loggers: %r', loggers)
         self.loggers = loggers
         self.queue_listener: Optional[logging.handlers.QueueListener] = None
