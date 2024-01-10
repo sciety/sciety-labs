@@ -33,8 +33,6 @@ class ThreadedLogging(AbstractContextManager):
         self.loggers = loggers
         self.queue_listener: Optional[logging.handlers.QueueListener] = None
         self.original_handlers_list = [logger.handlers for logger in loggers]
-        # self.logging_queue = queue.Queue[logging.LogRecord](-1)
-        # self.queue_handler = logging.handlers.QueueHandler(self.logging_queue)
         self.handler_by_handler_id = dict[int, logging.Handler]()
         self.logging_queue_by_handler_id = defaultdict[int, queue.Queue[logging.LogRecord]](
             queue.Queue
@@ -110,5 +108,3 @@ class ThreadedLogging(AbstractContextManager):
             logger.handlers = original_handlers
         LOGGER.info('Restored logging handlers')
         self._stop_queue_listeners()
-        # if self.queue_listener is not None:
-        #     self.queue_listener.stop()
