@@ -32,6 +32,7 @@ from sciety_labs.utils.fastapi import (
     update_request_scope_to_original_url_middleware
 )
 from sciety_labs.utils.logging import ThreadedLogging
+from sciety_labs.utils.uvicorn import RedirectToHostMiddleware
 
 
 LOGGER = logging.getLogger(__name__)
@@ -80,6 +81,7 @@ def _create_app():  # pylint: disable=too-many-locals, too-many-statements
     templates.env.globals['site_config'] = site_config
 
     app = FastAPI(docs_url=None, redoc_url=None)
+
     app.mount('/static', StaticFiles(directory='static', html=False), name='static')
     app.mount('/api', create_api_app(
         app_providers_and_models=app_providers_and_models,
@@ -108,6 +110,12 @@ def _create_app():  # pylint: disable=too-many-locals, too-many-statements
     ))
 
     app.middleware('http')(update_request_scope_to_original_url_middleware)
+
+    if site_config.preferred_host:
+        app.add_middleware(
+            RedirectToHostMiddleware,
+            preferred_host=site_config.preferred_host
+        )
 
     @app.exception_handler(404)
     async def not_found_exception_handler(request: Request, exception: HTTPException):
