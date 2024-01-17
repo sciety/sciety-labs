@@ -9,6 +9,7 @@ from sciety_labs.utils.uvicorn import (
 
 REDIRECT_PATH_MAPPING: dict[str, str] = {
     '/favicon.ico': '/static/sciety/images/favicons/generated/favicon.ico',
+    '/en/favicon.ico': '/static/sciety/images/favicons/generated/favicon.ico',
     '/apple-touch-icon.png': '/static/sciety/images/favicons/generated/apple-touch-icon.png',
     '/apple-touch-icon-precomposed.png': (
         '/static/sciety/images/favicons/generated/apple-touch-icon.png'
