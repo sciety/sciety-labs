@@ -269,7 +269,29 @@ section.article-stats {
   visibility: hidden;
 }
 
-.htmx-request:after {
-  content: 'Loading...';
+.htmx-request:before {
+  content: 'Thinking...';
   visibility: visible;
+  animation: loading-text-animation 2s, blink .5s step-end infinite alternate;
+  padding-right: 1px;
+  border-right: 1px solid rgb(36, 42, 51);
+}
+
+@keyframes loading-text-animation {
+  0% { content: "T"; }
+  10% { content: "Th"; }
+  20% { content: "Thi"; }
+  30% { content: "Thin"; }
+  40% { content: "Think"; }
+  50% { content: "Thinki"; }
+  60% { content: "Thinkin"; }
+  70% { content: "Thinking"; }
+  80% { content: "Thinking."; }
+  90% { content: "Thinking.."; }
+  100% { content: "Thinking..."; }
+}
+
+@keyframes blink {
+  0%, 100% {}
+  50% { border-color: transparent; }
 }
