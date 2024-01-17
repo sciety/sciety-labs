@@ -1,8 +1,8 @@
 from datetime import date, timedelta
 import logging
-from typing import Any, Dict, Optional, cast
+from typing import Annotated, Any, Dict, Optional, cast
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Query, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 import requests
@@ -23,6 +23,12 @@ from sciety_labs.utils.text import remove_markup_or_none
 
 
 LOGGER = logging.getLogger(__name__)
+
+
+AnnotatedArticleDoiQueryParameter = Annotated[
+    str,
+    Query(pattern=r'^10\.\d{4,}(\.\d+)?/.*$')
+]
 
 
 def get_article_recommendation_filter_parameters(
@@ -49,7 +55,7 @@ def create_articles_router(
     @router.get('/articles/by', response_class=HTMLResponse)
     def article_by_article_doi(
         request: Request,
-        article_doi: str
+        article_doi: AnnotatedArticleDoiQueryParameter
     ):
         try:
             article_meta = (
@@ -112,7 +118,7 @@ def create_articles_router(
     @router.get('/articles/article-recommendations/by', response_class=HTMLResponse)
     def article_recommendations_by_article_doi(  # pylint: disable=too-many-arguments
         request: Request,
-        article_doi: str,
+        article_doi: AnnotatedArticleDoiQueryParameter,
         pagination_parameters: AnnotatedPaginationParameters,
         max_recommendations: Optional[int] = None,
         fragment: bool = False

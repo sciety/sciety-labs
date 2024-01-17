@@ -13,6 +13,8 @@ from sciety_labs.models.article import ArticleMetaData
 
 DOI_1 = '10.12345/test-doi-1'
 
+INVALID_DOI_1 = 'invalid-doi-1'
+
 
 @pytest.fixture(name='test_client')
 def _test_client(app_providers_and_models_mock: MagicMock) -> TestClient:
@@ -39,3 +41,10 @@ class TestArticlesRouter:
             params={'article_doi': DOI_1}
         )
         response.raise_for_status()
+
+    def test_should_return_422_for_invalid_article_doi(self, test_client: TestClient):
+        response = test_client.get(
+            '/articles/by',
+            params={'article_doi': INVALID_DOI_1}
+        )
+        assert response.status_code == 422
