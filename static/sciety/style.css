@@ -623,6 +623,7 @@ address {
   margin-right: 0.25rem;
 }
 
+/*
 .page-header__edit_details_link {
   font-family: Ubuntu, sans-serif;
   font-size: 1rem;
@@ -638,6 +639,8 @@ address {
   background-position: 0.5rem 0.25rem;
   padding-left: 2rem;
 }
+*/
+
 .page-header__edit_details_link:link, .page-header__edit_details_link:visited {
   background-color: rgb(206, 72, 26);
   color: rgb(255, 255, 255);
@@ -1450,6 +1453,7 @@ p.activity-feed__item__title {
   margin-bottom: 0.25rem;
 }
 
+/*
 .home-page-hero__video_call_to_action {
   display: flex;
   justify-content: center;
@@ -1459,6 +1463,8 @@ p.activity-feed__item__title {
   width: 100%;
   height: 361px;
 }
+*/
+
 @media screen and (min-width: 60.25em) {
   .home-page-hero__video_call_to_action {
     max-width: 24.75rem;
@@ -2001,6 +2007,7 @@ p.activity-feed__item__title {
   }
 }
 
+/*
 .site-menu__link--home {
   background-image: url("/static/images/home.svg");
 }
@@ -2020,6 +2027,7 @@ p.activity-feed__item__title {
 .site-menu__link--feed {
   background-image: url("/static/images/feed.svg");
 }
+*/
 
 .page-header.page-header--search-results {
   margin-top: 0;

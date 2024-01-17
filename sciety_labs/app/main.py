@@ -4,6 +4,7 @@ import logging
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.staticfiles import StaticFiles
+from sciety_labs.app.app_middleware import add_app_middlware
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.app_templates import get_app_templates
@@ -19,11 +20,7 @@ from sciety_labs.app.utils.common import (
 from sciety_labs.config.search_feed_config import load_search_feeds_config
 from sciety_labs.config.site_config import get_site_config_from_environment_variables
 
-from sciety_labs.utils.fastapi import (
-    update_request_scope_to_original_url_middleware
-)
 from sciety_labs.utils.logging import ThreadedLogging
-from sciety_labs.utils.uvicorn import RedirectDoubleQueryStringMiddleware
 
 
 LOGGER = logging.getLogger(__name__)
@@ -79,9 +76,7 @@ def _create_app():  # pylint: disable=too-many-locals, too-many-statements
         search_feeds_config=search_feeds_config
     ))
 
-    app.middleware('http')(update_request_scope_to_original_url_middleware)
-
-    app.add_middleware(RedirectDoubleQueryStringMiddleware)
+    add_app_middlware(app)
 
     @app.exception_handler(404)
     async def not_found_exception_handler(request: Request, exception: HTTPException):
