@@ -270,6 +270,6 @@ section.article-stats {
 }
 
 .htmx-request:after {
-  content: 'Loading...';
+  content: 'Thinking...';
   visibility: visible;
 }
