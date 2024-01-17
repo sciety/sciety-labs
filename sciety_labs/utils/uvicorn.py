@@ -27,3 +27,25 @@ class RedirectDoubleQueryStringMiddleware:
                 await response(scope, receive, send)
                 return
         await self.app(scope, receive, send)
+
+
+class RedirectPathMappingMiddleware:
+    def __init__(self, app: ASGIApp, path_mapping: dict[str, str]):
+        self.app = app
+        self.path_mapping = path_mapping
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        url = URL(scope=scope)
+        redirect_to_path = self.path_mapping.get(url.path)
+
+        if redirect_to_path:
+            url = url.replace(path=redirect_to_path)
+            response = RedirectResponse(url, status_code=301)
+            await response(scope, receive, send)
+            return
+
+        await self.app(scope, receive, send)
