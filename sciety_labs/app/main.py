@@ -2,14 +2,11 @@ from http.client import HTTPException
 import logging
 
 from fastapi import FastAPI, Request
-from fastapi.templating import Jinja2Templates
+from fastapi.exceptions import RequestValidationError
 from fastapi.staticfiles import StaticFiles
 
-import markupsafe
-
-import bleach
-
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
+from sciety_labs.app.app_templates import get_app_templates
 from sciety_labs.app.app_update_manager import AppUpdateManager
 from sciety_labs.app.routers.api.app import create_api_app
 from sciety_labs.app.routers.articles import create_articles_router
@@ -22,13 +19,7 @@ from sciety_labs.app.utils.common import (
 from sciety_labs.config.search_feed_config import load_search_feeds_config
 from sciety_labs.config.site_config import get_site_config_from_environment_variables
 
-from sciety_labs.utils.datetime import (
-    get_date_as_display_format,
-    get_date_as_isoformat,
-    get_timestamp_as_isoformat
-)
 from sciety_labs.utils.fastapi import (
-    get_likely_client_ip_for_request,
     update_request_scope_to_original_url_middleware
 )
 from sciety_labs.utils.logging import ThreadedLogging
@@ -36,20 +27,6 @@ from sciety_labs.utils.uvicorn import RedirectDoubleQueryStringMiddleware
 
 
 LOGGER = logging.getLogger(__name__)
-
-
-ALLOWED_TAGS = [
-    'a', 'abbr', 'acronym', 'b', 'blockquote', 'bold',
-    'code',
-    'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
-    'h1', 'h2', 'h3', 'p', 'img', 'video', 'div',
-    'p', 'br', 'span', 'hr', 'src', 'class',
-    'section', 'sub', 'sup'
-]
-
-
-def get_sanitized_string_as_safe_markup(text: str) -> markupsafe.Markup:
-    return markupsafe.Markup(bleach.clean(text, tags=ALLOWED_TAGS))
 
 
 def _create_app():  # pylint: disable=too-many-locals, too-many-statements
@@ -72,13 +49,7 @@ def _create_app():  # pylint: disable=too-many-locals, too-many-statements
     LOGGER.info('Preloading data')
     app_update_manager.check_or_reload_data(preload_only=True)
 
-    templates = Jinja2Templates(directory='templates')
-    templates.env.filters['sanitize'] = get_sanitized_string_as_safe_markup
-    templates.env.filters['date_isoformat'] = get_date_as_isoformat
-    templates.env.filters['date_display_format'] = get_date_as_display_format
-    templates.env.filters['timestamp_isoformat'] = get_timestamp_as_isoformat
-    templates.env.filters['likely_client_ip_for_request'] = get_likely_client_ip_for_request
-    templates.env.globals['site_config'] = site_config
+    templates = get_app_templates(site_config=site_config)
 
     app = FastAPI(docs_url=None, redoc_url=None)
     app.mount('/static', StaticFiles(directory='static', html=False), name='static')
@@ -122,6 +93,20 @@ def _create_app():  # pylint: disable=too-many-locals, too-many-statements
                 'exception': exception
             },
             status_code=404
+        )
+
+    @app.exception_handler(RequestValidationError)
+    async def validation_error_exception_handler(request: Request, exception: HTTPException):
+        error_message = 'Something doesn\'t seem right, with the parameters.'
+        return templates.TemplateResponse(
+            request=request,
+            name='errors/error.html',
+            context={
+                'page_title': get_page_title(error_message),
+                'error_message': error_message,
+                'exception': exception
+            },
+            status_code=400
         )
 
     @app.exception_handler(500)

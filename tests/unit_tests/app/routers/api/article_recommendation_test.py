@@ -45,11 +45,6 @@ def _get_article_recommendation_list_for_article_dois_mock() -> Iterable[MagicMo
         yield mock
 
 
-@pytest.fixture(name='app_providers_and_models_mock')
-def _app_providers_and_models_mock() -> MagicMock:
-    return MagicMock(name='app_providers_and_models')
-
-
 @pytest.fixture(name='test_client')
 def _test_client(app_providers_and_models_mock: MagicMock) -> TestClient:
     app = FastAPI()
