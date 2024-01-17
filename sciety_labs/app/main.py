@@ -32,6 +32,7 @@ from sciety_labs.utils.fastapi import (
     update_request_scope_to_original_url_middleware
 )
 from sciety_labs.utils.logging import ThreadedLogging
+from sciety_labs.utils.uvicorn import RedirectDoubleQueryStringMiddleware
 
 
 LOGGER = logging.getLogger(__name__)
@@ -108,6 +109,8 @@ def _create_app():  # pylint: disable=too-many-locals, too-many-statements
     ))
 
     app.middleware('http')(update_request_scope_to_original_url_middleware)
+
+    app.add_middleware(RedirectDoubleQueryStringMiddleware)
 
     @app.exception_handler(404)
     async def not_found_exception_handler(request: Request, exception: HTTPException):
