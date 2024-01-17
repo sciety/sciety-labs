@@ -269,7 +269,7 @@ section.article-stats {
   visibility: hidden;
 }
 
-.htmx-request:after {
+.htmx-request:before {
   content: 'Thinking...';
   visibility: visible;
 }
