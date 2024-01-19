@@ -249,8 +249,8 @@ class ScietyEventListsModel(ListsModel):
     ) -> ListMetaData:
         try:
             return self._list_meta_by_list_id[list_id]
-        except KeyError:
-            raise ListNotFoundError(list_id)
+        except KeyError as exc:
+            raise ListNotFoundError(list_id) from exc
 
     def get_list_summary_data_by_list_id(
         self,
