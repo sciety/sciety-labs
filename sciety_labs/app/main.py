@@ -1,9 +1,8 @@
-from http.client import HTTPException
 import logging
 
-from fastapi import FastAPI, Request
-from fastapi.exceptions import RequestValidationError
+from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from sciety_labs.app.app_error_handlers import add_app_error_handlers
 from sciety_labs.app.app_middleware import add_app_middlware
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
@@ -14,9 +13,6 @@ from sciety_labs.app.routers.articles import create_articles_router
 from sciety_labs.app.routers.home import create_home_router
 from sciety_labs.app.routers.lists import create_lists_router
 from sciety_labs.app.routers.search import create_search_router
-from sciety_labs.app.utils.common import (
-    get_page_title
-)
 from sciety_labs.config.search_feed_config import load_search_feeds_config
 from sciety_labs.config.site_config import get_site_config_from_environment_variables
 
@@ -77,44 +73,7 @@ def _create_app():  # pylint: disable=too-many-locals, too-many-statements
     ))
 
     add_app_middlware(app)
-
-    @app.exception_handler(404)
-    async def not_found_exception_handler(request: Request, exception: HTTPException):
-        return templates.TemplateResponse(
-            request=request,
-            name='errors/404.html',
-            context={
-                'page_title': get_page_title('Page not found'),
-                'exception': exception
-            },
-            status_code=404
-        )
-
-    @app.exception_handler(RequestValidationError)
-    async def validation_error_exception_handler(request: Request, exception: HTTPException):
-        error_message = 'Something doesn\'t seem right, with the parameters.'
-        return templates.TemplateResponse(
-            request=request,
-            name='errors/error.html',
-            context={
-                'page_title': get_page_title(error_message),
-                'error_message': error_message,
-                'exception': exception
-            },
-            status_code=400
-        )
-
-    @app.exception_handler(500)
-    async def server_error_exception_handler(request: Request, exception: HTTPException):
-        return templates.TemplateResponse(
-            request=request,
-            name='errors/500.html',
-            context={
-                'page_title': get_page_title('Something went wrong'),
-                'exception': exception
-            },
-            status_code=500
-        )
+    add_app_error_handlers(app, templates=templates)
 
     return app
 

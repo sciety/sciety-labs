@@ -127,6 +127,14 @@ class ListsModel(Protocol):
         pass
 
 
+class ListNotFoundError(KeyError):
+    list_id: str
+
+    def __init__(self, list_id: str):
+        self.list_id = list_id
+        super().__init__(list_id)
+
+
 def get_sorted_list_summary_list_by_most_active(
     list_summary_iterable: Iterable[ListSummaryData],
 ) -> Sequence[ListSummaryData]:
@@ -239,7 +247,10 @@ class ScietyEventListsModel(ListsModel):
         self,
         list_id: str
     ) -> ListMetaData:
-        return self._list_meta_by_list_id[list_id]
+        try:
+            return self._list_meta_by_list_id[list_id]
+        except KeyError as exc:
+            raise ListNotFoundError(list_id) from exc
 
     def get_list_summary_data_by_list_id(
         self,
