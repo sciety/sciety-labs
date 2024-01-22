@@ -1,4 +1,5 @@
 import logging
+import re
 from typing import Optional
 
 from starlette.datastructures import URL
@@ -12,7 +13,7 @@ LOGGER = logging.getLogger(__name__)
 def get_redirect_url_for_double_query_string_url_or_none(url: URL) -> Optional[str]:
     LOGGER.info('url.query: %r', url.query)
     if url.query:
-        first_query_string, *other_query_strings = url.query.split('?', maxsplit=1)
+        first_query_string, *other_query_strings = re.split(r'\?|%3F', url.query, maxsplit=1)
         if other_query_strings:
             return str(url.replace(query=first_query_string))
     return None
