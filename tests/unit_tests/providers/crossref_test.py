@@ -53,6 +53,17 @@ class TestGetCleanedAbstractHtml:
                 '<section>This is the section 1</section>'
          )
 
+    def test_should_not_error_on_mathml(self):
+        assert (
+            get_cleaned_abstract_html(
+                '<jats:p>'
+                '<m:math xmlns:m="http://www.w3.org/1998/Math/MathML"><m:mn>1</m:mn></m:math>'
+                '</jats:p>'
+            )
+         ) == (
+                '<p><math xmlns:m="http://www.w3.org/1998/Math/MathML"><mn>1</mn></math></p>'
+         )
+
 
 class TestGetArticleMetadataFromCrossrefMetadata:
     def test_should_extract_single_line_title(self):
