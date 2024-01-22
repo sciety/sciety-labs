@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 from starlette.datastructures import URL
 from starlette.responses import RedirectResponse
@@ -6,6 +7,15 @@ from starlette.types import ASGIApp, Receive, Scope, Send
 
 
 LOGGER = logging.getLogger(__name__)
+
+
+def get_redirect_url_for_double_query_string_url_or_none(url: URL) -> Optional[str]:
+    LOGGER.info('url.query: %r', url.query)
+    if url.query:
+        first_query_string, *other_query_strings = url.query.split('?', maxsplit=1)
+        if other_query_strings:
+            return str(url.replace(query=first_query_string))
+    return None
 
 
 class RedirectDoubleQueryStringMiddleware:
@@ -18,14 +28,12 @@ class RedirectDoubleQueryStringMiddleware:
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         LOGGER.debug('scope: %r', scope)
         url = URL(scope=scope)
-        if url.query:
-            first_query_string, *other_query_strings = url.query.split('?', maxsplit=1)
-            if other_query_strings:
-                redirect_url = str(url.replace(query=first_query_string))
-                LOGGER.info('Redirecting to (due to double query string): %r', redirect_url)
-                response = RedirectResponse(url=redirect_url, status_code=301)
-                await response(scope, receive, send)
-                return
+        redirect_url = get_redirect_url_for_double_query_string_url_or_none(url)
+        if redirect_url:
+            LOGGER.info('Redirecting to (due to double query string): %r', redirect_url)
+            response = RedirectResponse(url=redirect_url, status_code=301)
+            await response(scope, receive, send)
+            return
         await self.app(scope, receive, send)
 
 
