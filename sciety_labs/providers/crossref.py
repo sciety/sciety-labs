@@ -24,11 +24,19 @@ def get_author_name_from_crossref_metadata_author_dict(
     ]).strip() or '?'
 
 
+def get_tag_name_without_namespace(tag: str) -> str:
+    if tag.startswith('{'):
+        local_name = str(lxml.etree.QName(tag).localname)
+    else:
+        local_name = tag
+    tag_parts = local_name.split(':', maxsplit=1)
+    return tag_parts[-1]
+
+
 def remove_namespaces_from_xml_node(root: lxml.etree._Element):
     for element in root.getiterator():
         LOGGER.debug('element: %r', element)
-        tag_parts = element.tag.split(':', maxsplit=1)
-        element.tag = str(lxml.etree.QName(tag_parts[-1]).localname)
+        element.tag = get_tag_name_without_namespace(element.tag)
 
 
 def map_xml_tags(root: lxml.etree._Element, mapping: Mapping[str, str]):
