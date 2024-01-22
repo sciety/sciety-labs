@@ -11,7 +11,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 def get_redirect_url_for_double_query_string_url_or_none(url: URL) -> Optional[str]:
-    LOGGER.info('url.query: %r', url.query)
+    LOGGER.debug('url.query: %r', url.query)
     if url.query:
         first_query_string, *other_query_strings = re.split(r'\?|%3F', url.query, maxsplit=1)
         if other_query_strings:
