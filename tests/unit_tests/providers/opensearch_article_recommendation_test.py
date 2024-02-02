@@ -81,10 +81,12 @@ class TestGetArticleMetaFromDocument:
         article_meta = get_article_meta_from_document({
             'doi': DOI_1,
             'crossref': {
-                'title_with_markup': 'Title 1'
+                'title_with_markup': 'Title 1',
+                'publication_date': '2001-02-03'
             }
         })
         assert article_meta.article_title == 'Title 1'
+        assert article_meta.published_date == date(2001, 2, 3)
 
 
 class TestGetArticleRecommendationFromDocument:

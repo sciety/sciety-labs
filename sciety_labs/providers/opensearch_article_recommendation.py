@@ -43,6 +43,7 @@ class DocumentS2Dict(TypedDict):
 
 class DocumentCrossrefDict(TypedDict):
     title_with_markup: NotRequired[str]
+    publication_date: NotRequired[str]
 
 
 class DocumentEuropePmcCollectiveAuthorDict(TypedDict):
@@ -133,7 +134,8 @@ def get_article_meta_from_document(
         article_doi=article_doi,
         article_title=article_title,
         published_date=get_optional_date_from_str(
-            europepmc_data.get('first_publication_date') if europepmc_data else None
+            (crossref_data.get('publication_date') if crossref_data else None)
+            or (europepmc_data.get('first_publication_date') if europepmc_data else None)
         ),
         author_name_list=(
             get_author_names_for_document_europepmc_authors(
