@@ -77,6 +77,15 @@ class TestGetArticleMetaFromDocument:
         })
         assert article_meta.published_date == date(2001, 2, 3)
 
+    def test_should_create_article_meta_with_crossref_metadata(self):
+        article_meta = get_article_meta_from_document({
+            'doi': DOI_1,
+            'crossref': {
+                'title_with_markup': 'Title 1'
+            }
+        })
+        assert article_meta.article_title == 'Title 1'
+
 
 class TestGetArticleRecommendationFromDocument:
     def test_should_not_include_stats_without_evaluation_count(self):

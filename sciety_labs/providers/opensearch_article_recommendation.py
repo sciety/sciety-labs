@@ -41,6 +41,10 @@ class DocumentS2Dict(TypedDict):
     author_list: NotRequired[Sequence[DocumentS2AuthorDict]]
 
 
+class DocumentCrossrefDict(TypedDict):
+    title_with_markup: NotRequired[str]
+
+
 class DocumentEuropePmcCollectiveAuthorDict(TypedDict):
     collective_name: NotRequired[str]
 
@@ -71,6 +75,7 @@ class DocumentScietyDict(TypedDict):
 
 class DocumentDict(TypedDict):
     doi: str
+    crossref: NotRequired[DocumentCrossrefDict]
     s2: NotRequired[DocumentS2Dict]
     europepmc: NotRequired[DocumentEuropePmcDict]
     sciety: NotRequired[DocumentScietyDict]
@@ -115,10 +120,12 @@ def get_article_meta_from_document(
 ) -> ArticleMetaData:
     article_doi = document['doi']
     assert article_doi
+    crossref_data: Optional[DocumentCrossrefDict] = document.get('crossref')
     europepmc_data: Optional[DocumentEuropePmcDict] = document.get('europepmc')
     s2_data: Optional[DocumentS2Dict] = document.get('s2')
     article_title = (
-        (europepmc_data and europepmc_data.get('title_with_markup'))
+        (crossref_data and crossref_data.get('title_with_markup'))
+        or (europepmc_data and europepmc_data.get('title_with_markup'))
         or (s2_data and s2_data.get('title'))
     )
     assert article_title is not None
@@ -263,6 +270,9 @@ def get_vector_search_query(  # pylint: disable=too-many-arguments
 def get_source_includes(embedding_vector_mapping_name: str) -> Sequence[str]:
     return [
         'doi',
+        'crossref.publication_date',
+        'crossref.title_with_markup',
+        'crossref.author_list',
         's2.title',
         's2.author_list',
         'europepmc.first_publication_date',
