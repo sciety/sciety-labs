@@ -31,6 +31,11 @@ LOGGER = logging.getLogger(__name__)
 DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS = 50
 
 
+class DocumentCrossrefDict(TypedDict):
+    title_with_markup: NotRequired[str]
+    publication_date: NotRequired[str]
+
+
 class DocumentS2AuthorDict(TypedDict):
     name: str
     s2_author_id: NotRequired[str]
@@ -39,11 +44,6 @@ class DocumentS2AuthorDict(TypedDict):
 class DocumentS2Dict(TypedDict):
     title: str
     author_list: NotRequired[Sequence[DocumentS2AuthorDict]]
-
-
-class DocumentCrossrefDict(TypedDict):
-    title_with_markup: NotRequired[str]
-    publication_date: NotRequired[str]
 
 
 class DocumentEuropePmcCollectiveAuthorDict(TypedDict):
