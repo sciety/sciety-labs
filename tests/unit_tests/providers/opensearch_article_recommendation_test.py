@@ -82,11 +82,16 @@ class TestGetArticleMetaFromDocument:
             'doi': DOI_1,
             'crossref': {
                 'title_with_markup': 'Title 1',
-                'publication_date': '2001-02-03'
+                'publication_date': '2001-02-03',
+                'author_list': [{
+                    'family_name': 'Family1',
+                    'given_name': 'Given1'
+                }]
             }
         })
         assert article_meta.article_title == 'Title 1'
         assert article_meta.published_date == date(2001, 2, 3)
+        assert article_meta.author_name_list == ['Given1 Family1']
 
 
 class TestGetArticleRecommendationFromDocument:

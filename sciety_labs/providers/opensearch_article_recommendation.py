@@ -31,9 +31,18 @@ LOGGER = logging.getLogger(__name__)
 DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS = 50
 
 
+class DocumentCrossrefAuthorDict(TypedDict):
+    orcid: NotRequired[str]
+    family_name: NotRequired[str]
+    given_name: NotRequired[str]
+    sequence: NotRequired[str]
+    suffix: NotRequired[str]
+
+
 class DocumentCrossrefDict(TypedDict):
     title_with_markup: NotRequired[str]
     publication_date: NotRequired[str]
+    author_list: NotRequired[Sequence[DocumentCrossrefAuthorDict]]
 
 
 class DocumentS2AuthorDict(TypedDict):
@@ -90,6 +99,23 @@ def get_author_names_for_document_s2_authors(
     return [author['name'] for author in authors]
 
 
+def get_author_name_for_document_crossref_author(
+    author: DocumentCrossrefAuthorDict
+) -> str:
+    name = f"{author.get('given_name')} {author.get('family_name')}".strip()
+    if not name:
+        raise AssertionError(f'no name found in {repr(author)}')
+    return name
+
+
+def get_author_names_for_document_crossref_authors(
+    authors: Optional[Sequence[DocumentCrossrefAuthorDict]]
+) -> Optional[Sequence[str]]:
+    if authors is None:
+        return None
+    return [get_author_name_for_document_crossref_author(author) for author in authors]
+
+
 def get_author_name_for_document_europepmc_author(
     author: DocumentEuropePmcAuthorDict
 ) -> str:
@@ -138,7 +164,10 @@ def get_article_meta_from_document(
             or (europepmc_data.get('first_publication_date') if europepmc_data else None)
         ),
         author_name_list=(
-            get_author_names_for_document_europepmc_authors(
+            get_author_names_for_document_crossref_authors(
+                crossref_data.get('author_list') if crossref_data else None
+            )
+            or get_author_names_for_document_europepmc_authors(
                 europepmc_data.get('author_list') if europepmc_data else None
             )
             or get_author_names_for_document_s2_authors(
