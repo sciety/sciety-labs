@@ -253,6 +253,16 @@ def iter_article_recommendation_from_opensearch_hits(
         )
 
 
+def get_from_publication_date_query_filter(from_publication_date: date) -> dict:
+    return {
+        'range': {
+            'europepmc.first_publication_date': {
+                'gte': from_publication_date.isoformat()
+            }
+        }
+    }
+
+
 def get_vector_search_query(  # pylint: disable=too-many-arguments
     query_vector: npt.ArrayLike,
     embedding_vector_mapping_name: str,
@@ -269,13 +279,9 @@ def get_vector_search_query(  # pylint: disable=too-many-arguments
             'ids': {'values': sorted(filter_parameters.exclude_article_dois)}
         })
     if filter_parameters.from_publication_date:
-        bool_filter.setdefault('must', []).append({
-            'range': {
-                'europepmc.first_publication_date': {
-                    'gte': filter_parameters.from_publication_date.isoformat()
-                }
-            }
-        })
+        bool_filter.setdefault('must', []).append(
+            get_from_publication_date_query_filter(filter_parameters.from_publication_date)
+        )
     if filter_parameters.evaluated_only:
         bool_filter.setdefault('must', []).append({
             'range': {'sciety.evaluation_count': {'gte': 1}}
