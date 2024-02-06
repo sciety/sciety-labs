@@ -25,6 +25,8 @@ MINIMAL_DOCUMENT_DICT_1 = {
     }
 }
 
+DATE_1 = date.fromisoformat('2001-02-03')
+
 
 class TestGetArticleMetaFromDocument:
     def test_should_create_article_meta_with_minimal_fields_from_s2(self):
@@ -228,7 +230,7 @@ class TestGetVectorSearchQuery:
             embedding_vector_mapping_name='embedding1',
             max_results=3,
             filter_parameters=ArticleRecommendationFilterParameters(
-                from_publication_date=date.fromisoformat('2001-02-03'),
+                from_publication_date=DATE_1,
                 evaluated_only=False
             )
         )
@@ -241,11 +243,9 @@ class TestGetVectorSearchQuery:
                         'k': 3,
                         'filter': {
                             'bool': {
-                                'must': [{
-                                    'range': {
-                                        'europepmc.first_publication_date': {'gte': '2001-02-03'}
-                                    }
-                                }]
+                                'must': [
+                                    get_from_publication_date_query_filter(DATE_1)
+                                ]
                             }
                         }
                     }
@@ -287,7 +287,7 @@ class TestGetVectorSearchQuery:
             embedding_vector_mapping_name='embedding1',
             max_results=3,
             filter_parameters=ArticleRecommendationFilterParameters(
-                from_publication_date=date.fromisoformat('2001-02-03'),
+                from_publication_date=DATE_1,
                 evaluated_only=True
             )
         )
@@ -300,13 +300,10 @@ class TestGetVectorSearchQuery:
                         'k': 3,
                         'filter': {
                             'bool': {
-                                'must': [{
-                                    'range': {
-                                        'europepmc.first_publication_date': {'gte': '2001-02-03'}
-                                    }
-                                }, {
-                                    'range': {'sciety.evaluation_count': {'gte': 1}}
-                                }]
+                                'must': [
+                                    get_from_publication_date_query_filter(DATE_1),
+                                    {'range': {'sciety.evaluation_count': {'gte': 1}}}
+                                ]
                             }
                         }
                     }
