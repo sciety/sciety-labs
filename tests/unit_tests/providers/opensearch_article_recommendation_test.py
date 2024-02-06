@@ -5,6 +5,7 @@ from sciety_labs.providers.article_recommendation import ArticleRecommendationFi
 from sciety_labs.providers.opensearch_article_recommendation import (
     get_article_meta_from_document,
     get_article_recommendation_from_document,
+    get_from_publication_date_query_filter,
     get_vector_search_query,
     iter_article_recommendation_from_opensearch_hits
 )
@@ -156,6 +157,17 @@ class TestIterArticleRecommendationFromOpenSearchHits:
         assert len(recommendations) == 1
         recommendation = recommendations[0]
         assert round(recommendation.score, 2) == 1.0
+
+
+class TestGetFromPublicationDateQueryFilter:
+    def test_should_return_filter_for_europepmc_publication_date(self):
+        assert get_from_publication_date_query_filter(
+             date.fromisoformat('2001-02-03')
+        ) == {
+            'range': {
+                'europepmc.first_publication_date': {'gte': '2001-02-03'}
+            }
+        }
 
 
 class TestGetVectorSearchQuery:
