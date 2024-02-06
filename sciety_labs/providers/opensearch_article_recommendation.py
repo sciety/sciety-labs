@@ -253,12 +253,32 @@ def iter_article_recommendation_from_opensearch_hits(
         )
 
 
-def get_from_publication_date_query_filter(from_publication_date: date) -> dict:
+def get_from_publication_date_for_field_query_filter(
+    field_name: str,
+    from_publication_date: date
+) -> dict:
     return {
         'range': {
-            'europepmc.first_publication_date': {
+            field_name: {
                 'gte': from_publication_date.isoformat()
             }
+        }
+    }
+
+
+def get_from_publication_date_query_filter(from_publication_date: date) -> dict:
+    return {
+        'bool': {
+            'should': [
+                get_from_publication_date_for_field_query_filter(
+                    field_name='crossref.publication_date',
+                    from_publication_date=from_publication_date
+                ),
+                get_from_publication_date_for_field_query_filter(
+                    field_name='europepmc.first_publication_date',
+                    from_publication_date=from_publication_date
+                )
+            ]
         }
     }
 

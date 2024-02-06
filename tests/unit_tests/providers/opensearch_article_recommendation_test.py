@@ -162,12 +162,20 @@ class TestIterArticleRecommendationFromOpenSearchHits:
 
 
 class TestGetFromPublicationDateQueryFilter:
-    def test_should_return_filter_for_europepmc_publication_date(self):
+    def test_should_return_filter_for_crossref_or_europepmc_publication_date(self):
         assert get_from_publication_date_query_filter(
              date.fromisoformat('2001-02-03')
         ) == {
-            'range': {
-                'europepmc.first_publication_date': {'gte': '2001-02-03'}
+            'bool': {
+                'should': [{
+                    'range': {
+                        'crossref.publication_date': {'gte': '2001-02-03'}
+                    }
+                }, {
+                    'range': {
+                        'europepmc.first_publication_date': {'gte': '2001-02-03'}
+                    }
+                }]
             }
         }
 
