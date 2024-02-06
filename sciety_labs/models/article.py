@@ -150,8 +150,8 @@ class ArticleSearchResultItem(ArticleMention):
 
 
 def iter_preprint_article_mention(
-    article_mention_iterable: Iterable[ArticleMention]
-) -> Iterable[ArticleMention]:
+    article_mention_iterable: Iterable[ArticleMentionT]
+) -> Iterable[ArticleMentionT]:
     return (
         article_mention
         for article_mention in article_mention_iterable

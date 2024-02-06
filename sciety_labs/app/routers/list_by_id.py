@@ -18,7 +18,6 @@ from sciety_labs.app.utils.recommendation import (
     get_article_recommendation_page_and_item_count_for_article_dois
 )
 from sciety_labs.app.utils.response import AtomResponse
-from sciety_labs.models.article import iter_preprint_article_mention
 from sciety_labs.providers.semantic_scholar import DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
 from sciety_labs.utils.pagination import get_url_pagination_state_for_pagination_parameters
 from sciety_labs.utils.text import remove_markup_or_none
@@ -207,7 +206,7 @@ def create_list_by_id_router(
         )
         recommendation_timestamp = article_recommendation_list.recommendation_timestamp
         all_article_recommendations = list(
-            iter_preprint_article_mention(article_recommendation_list.recommendations)
+            article_recommendation_list.recommendations
         )
         article_recommendation_with_article_meta = list(
             article_aggregator.iter_page_article_mention_with_article_meta_and_stats(
