@@ -9,7 +9,12 @@ from typing import Iterable, Mapping, Optional, Sequence
 import requests
 from requests_cache import CachedResponse
 
-from sciety_labs.models.article import ArticleMention, ArticleMetaData, ArticleSearchResultItem
+from sciety_labs.models.article import (
+    ArticleMention,
+    ArticleMetaData,
+    ArticleSearchResultItem,
+    iter_preprint_article_mention
+)
 from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
 from sciety_labs.providers.article_recommendation import (
     ArticleRecommendation,
@@ -230,8 +235,10 @@ class SemanticScholarProvider(RequestsProvider, ArticleRecommendationProvider):
         LOGGER.debug('Semantic Scholar, response_json=%r', response_json)
         recommendation_timestamp = get_response_timestamp(response)
         return ArticleRecommendationList(
-            recommendations=list(_iter_article_recommendation_from_recommendation_response_json(
-                response_json
+            recommendations=list(iter_preprint_article_mention(
+                _iter_article_recommendation_from_recommendation_response_json(
+                    response_json
+                )
             )),
             recommendation_timestamp=recommendation_timestamp
         )

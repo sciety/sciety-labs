@@ -2,7 +2,7 @@ import logging
 from typing import Mapping, Optional, Sequence, Tuple
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
-from sciety_labs.models.article import ArticleMention, iter_preprint_article_mention
+from sciety_labs.models.article import ArticleMention
 from sciety_labs.providers.article_recommendation import (
     ArticleRecommendationFilterParameters,
     ArticleRecommendationList
@@ -62,9 +62,7 @@ def get_article_recommendation_page_and_item_count_for_article_dois(
         max_recommendations=max_recommendations,
         filter_parameters=filter_parameters
     )
-    all_article_recommendations = list(
-        iter_preprint_article_mention(article_recommendation_list.recommendations)
-    )
+    all_article_recommendations = article_recommendation_list.recommendations
     item_count = len(all_article_recommendations)
     article_recommendation_with_article_meta = list(
         app_providers_and_models
