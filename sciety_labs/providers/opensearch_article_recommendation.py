@@ -31,6 +31,20 @@ LOGGER = logging.getLogger(__name__)
 DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS = 50
 
 
+class DocumentCrossrefAuthorDict(TypedDict):
+    orcid: NotRequired[str]
+    family_name: NotRequired[str]
+    given_name: NotRequired[str]
+    sequence: NotRequired[str]
+    suffix: NotRequired[str]
+
+
+class DocumentCrossrefDict(TypedDict):
+    title_with_markup: NotRequired[str]
+    publication_date: NotRequired[str]
+    author_list: NotRequired[Sequence[DocumentCrossrefAuthorDict]]
+
+
 class DocumentS2AuthorDict(TypedDict):
     name: str
     s2_author_id: NotRequired[str]
@@ -71,6 +85,7 @@ class DocumentScietyDict(TypedDict):
 
 class DocumentDict(TypedDict):
     doi: str
+    crossref: NotRequired[DocumentCrossrefDict]
     s2: NotRequired[DocumentS2Dict]
     europepmc: NotRequired[DocumentEuropePmcDict]
     sciety: NotRequired[DocumentScietyDict]
@@ -82,6 +97,23 @@ def get_author_names_for_document_s2_authors(
     if authors is None:
         return None
     return [author['name'] for author in authors]
+
+
+def get_author_name_for_document_crossref_author(
+    author: DocumentCrossrefAuthorDict
+) -> str:
+    name = f"{author.get('given_name')} {author.get('family_name')}".strip()
+    if not name:
+        raise AssertionError(f'no name found in {repr(author)}')
+    return name
+
+
+def get_author_names_for_document_crossref_authors(
+    authors: Optional[Sequence[DocumentCrossrefAuthorDict]]
+) -> Optional[Sequence[str]]:
+    if authors is None:
+        return None
+    return [get_author_name_for_document_crossref_author(author) for author in authors]
 
 
 def get_author_name_for_document_europepmc_author(
@@ -115,10 +147,12 @@ def get_article_meta_from_document(
 ) -> ArticleMetaData:
     article_doi = document['doi']
     assert article_doi
+    crossref_data: Optional[DocumentCrossrefDict] = document.get('crossref')
     europepmc_data: Optional[DocumentEuropePmcDict] = document.get('europepmc')
     s2_data: Optional[DocumentS2Dict] = document.get('s2')
     article_title = (
-        (europepmc_data and europepmc_data.get('title_with_markup'))
+        (crossref_data and crossref_data.get('title_with_markup'))
+        or (europepmc_data and europepmc_data.get('title_with_markup'))
         or (s2_data and s2_data.get('title'))
     )
     assert article_title is not None
@@ -126,10 +160,14 @@ def get_article_meta_from_document(
         article_doi=article_doi,
         article_title=article_title,
         published_date=get_optional_date_from_str(
-            europepmc_data.get('first_publication_date') if europepmc_data else None
+            (crossref_data.get('publication_date') if crossref_data else None)
+            or (europepmc_data.get('first_publication_date') if europepmc_data else None)
         ),
         author_name_list=(
-            get_author_names_for_document_europepmc_authors(
+            get_author_names_for_document_crossref_authors(
+                crossref_data.get('author_list') if crossref_data else None
+            )
+            or get_author_names_for_document_europepmc_authors(
                 europepmc_data.get('author_list') if europepmc_data else None
             )
             or get_author_names_for_document_s2_authors(
@@ -215,6 +253,36 @@ def iter_article_recommendation_from_opensearch_hits(
         )
 
 
+def get_from_publication_date_for_field_query_filter(
+    field_name: str,
+    from_publication_date: date
+) -> dict:
+    return {
+        'range': {
+            field_name: {
+                'gte': from_publication_date.isoformat()
+            }
+        }
+    }
+
+
+def get_from_publication_date_query_filter(from_publication_date: date) -> dict:
+    return {
+        'bool': {
+            'should': [
+                get_from_publication_date_for_field_query_filter(
+                    field_name='crossref.publication_date',
+                    from_publication_date=from_publication_date
+                ),
+                get_from_publication_date_for_field_query_filter(
+                    field_name='europepmc.first_publication_date',
+                    from_publication_date=from_publication_date
+                )
+            ]
+        }
+    }
+
+
 def get_vector_search_query(  # pylint: disable=too-many-arguments
     query_vector: npt.ArrayLike,
     embedding_vector_mapping_name: str,
@@ -231,13 +299,9 @@ def get_vector_search_query(  # pylint: disable=too-many-arguments
             'ids': {'values': sorted(filter_parameters.exclude_article_dois)}
         })
     if filter_parameters.from_publication_date:
-        bool_filter.setdefault('must', []).append({
-            'range': {
-                'europepmc.first_publication_date': {
-                    'gte': filter_parameters.from_publication_date.isoformat()
-                }
-            }
-        })
+        bool_filter.setdefault('must', []).append(
+            get_from_publication_date_query_filter(filter_parameters.from_publication_date)
+        )
     if filter_parameters.evaluated_only:
         bool_filter.setdefault('must', []).append({
             'range': {'sciety.evaluation_count': {'gte': 1}}
@@ -263,6 +327,9 @@ def get_vector_search_query(  # pylint: disable=too-many-arguments
 def get_source_includes(embedding_vector_mapping_name: str) -> Sequence[str]:
     return [
         'doi',
+        'crossref.publication_date',
+        'crossref.title_with_markup',
+        'crossref.author_list',
         's2.title',
         's2.author_list',
         'europepmc.first_publication_date',

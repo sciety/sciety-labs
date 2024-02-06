@@ -5,6 +5,7 @@ from sciety_labs.providers.article_recommendation import ArticleRecommendationFi
 from sciety_labs.providers.opensearch_article_recommendation import (
     get_article_meta_from_document,
     get_article_recommendation_from_document,
+    get_from_publication_date_query_filter,
     get_vector_search_query,
     iter_article_recommendation_from_opensearch_hits
 )
@@ -23,6 +24,8 @@ MINIMAL_DOCUMENT_DICT_1 = {
         'title': 'Title 1'
     }
 }
+
+DATE_1 = date.fromisoformat('2001-02-03')
 
 
 class TestGetArticleMetaFromDocument:
@@ -76,6 +79,22 @@ class TestGetArticleMetaFromDocument:
             }
         })
         assert article_meta.published_date == date(2001, 2, 3)
+
+    def test_should_create_article_meta_with_crossref_metadata(self):
+        article_meta = get_article_meta_from_document({
+            'doi': DOI_1,
+            'crossref': {
+                'title_with_markup': 'Title 1',
+                'publication_date': '2001-02-03',
+                'author_list': [{
+                    'family_name': 'Family1',
+                    'given_name': 'Given1'
+                }]
+            }
+        })
+        assert article_meta.article_title == 'Title 1'
+        assert article_meta.published_date == date(2001, 2, 3)
+        assert article_meta.author_name_list == ['Given1 Family1']
 
 
 class TestGetArticleRecommendationFromDocument:
@@ -142,6 +161,25 @@ class TestIterArticleRecommendationFromOpenSearchHits:
         assert round(recommendation.score, 2) == 1.0
 
 
+class TestGetFromPublicationDateQueryFilter:
+    def test_should_return_filter_for_crossref_or_europepmc_publication_date(self):
+        assert get_from_publication_date_query_filter(
+             date.fromisoformat('2001-02-03')
+        ) == {
+            'bool': {
+                'should': [{
+                    'range': {
+                        'crossref.publication_date': {'gte': '2001-02-03'}
+                    }
+                }, {
+                    'range': {
+                        'europepmc.first_publication_date': {'gte': '2001-02-03'}
+                    }
+                }]
+            }
+        }
+
+
 class TestGetVectorSearchQuery:
     def test_should_include_query_vector(self):
         search_query = get_vector_search_query(
@@ -200,7 +238,7 @@ class TestGetVectorSearchQuery:
             embedding_vector_mapping_name='embedding1',
             max_results=3,
             filter_parameters=ArticleRecommendationFilterParameters(
-                from_publication_date=date.fromisoformat('2001-02-03'),
+                from_publication_date=DATE_1,
                 evaluated_only=False
             )
         )
@@ -213,11 +251,9 @@ class TestGetVectorSearchQuery:
                         'k': 3,
                         'filter': {
                             'bool': {
-                                'must': [{
-                                    'range': {
-                                        'europepmc.first_publication_date': {'gte': '2001-02-03'}
-                                    }
-                                }]
+                                'must': [
+                                    get_from_publication_date_query_filter(DATE_1)
+                                ]
                             }
                         }
                     }
@@ -259,7 +295,7 @@ class TestGetVectorSearchQuery:
             embedding_vector_mapping_name='embedding1',
             max_results=3,
             filter_parameters=ArticleRecommendationFilterParameters(
-                from_publication_date=date.fromisoformat('2001-02-03'),
+                from_publication_date=DATE_1,
                 evaluated_only=True
             )
         )
@@ -272,13 +308,10 @@ class TestGetVectorSearchQuery:
                         'k': 3,
                         'filter': {
                             'bool': {
-                                'must': [{
-                                    'range': {
-                                        'europepmc.first_publication_date': {'gte': '2001-02-03'}
-                                    }
-                                }, {
-                                    'range': {'sciety.evaluation_count': {'gte': 1}}
-                                }]
+                                'must': [
+                                    get_from_publication_date_query_filter(DATE_1),
+                                    {'range': {'sciety.evaluation_count': {'gte': 1}}}
+                                ]
                             }
                         }
                     }
