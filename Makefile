@@ -69,6 +69,10 @@ dev-watch:
 dev-test: dev-lint dev-unittest
 
 
+dev-regression-test:
+	$(PYTHON) -m pytest -p no:cacheprovider $(ARGS) tests/regression_tests
+
+
 dev-start:
 	TWITTER_API_AUTHORIZATION_FILE_PATH=.secrets/twitter_api_authorization.txt \
 	$(PYTHON) -m uvicorn \
