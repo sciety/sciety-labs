@@ -13,9 +13,37 @@ class TestArticlesPage:
         )
         response.raise_for_status()
 
+    def test_should_load_related_articles_by_doi_fragment(
+        self,
+        regression_test_session: Session
+    ):
+        response = regression_test_session.get(
+            '/articles/article-recommendations/by',
+            params={
+                'article_doi': DOI_1,
+                'fragment': True,
+                'max_recommendations': 3,
+                'enable_pagination': False
+            }
+        )
+        response.raise_for_status()
+
     def test_should_load_related_articles_by_doi_page(self, regression_test_session: Session):
         response = regression_test_session.get(
             '/articles/article-recommendations/by',
             params={'article_doi': DOI_1}
+        )
+        response.raise_for_status()
+
+    def test_should_load_related_articles_by_doi_fragment_with_pagination(
+        self,
+        regression_test_session: Session
+    ):
+        response = regression_test_session.get(
+            '/articles/article-recommendations/by',
+            params={
+                'article_doi': DOI_1,
+                'fragment': True
+            }
         )
         response.raise_for_status()
