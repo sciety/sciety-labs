@@ -61,6 +61,12 @@ class TestListRecommendationsPage:
         )
         response.raise_for_status()
 
+    def test_should_load_user_list_page_rss(self, regression_test_session: Session):
+        response = regression_test_session.get(
+            f'/lists/by-id/{USER_LIST_ID}/article-recommendations/atom.xml'
+        )
+        response.raise_for_status()
+
     def test_should_load_group_list_page(self, regression_test_session: Session):
         response = regression_test_session.get(
             f'/lists/by-id/{GROUP_LIST_ID}/article-recommendations'
@@ -71,5 +77,11 @@ class TestListRecommendationsPage:
         response = regression_test_session.get(
             f'/lists/by-id/{GROUP_LIST_ID}/article-recommendations',
             params={'fragment': True}
+        )
+        response.raise_for_status()
+
+    def test_should_load_group_list_page_rss(self, regression_test_session: Session):
+        response = regression_test_session.get(
+            f'/lists/by-id/{GROUP_LIST_ID}/article-recommendations/atom.xml'
         )
         response.raise_for_status()
