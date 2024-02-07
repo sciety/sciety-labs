@@ -1,9 +1,14 @@
+import os
 from typing import Iterator
 from urllib.parse import urljoin
 
 import pytest
 
 from requests import Session
+
+
+REGRESSION_TEST_BASE_URL_ENV = 'REGRESSION_TEST_BASE_URL'
+DEFAULT_REGRESSION_TEST_BASE_URL = 'http://localhost:8000'
 
 
 class RegressionTestSession(Session):
@@ -17,7 +22,10 @@ class RegressionTestSession(Session):
 
 
 def get_regression_test_base_url() -> str:
-    return 'http://localhost:8000'
+    return os.getenv(
+        REGRESSION_TEST_BASE_URL_ENV,
+        DEFAULT_REGRESSION_TEST_BASE_URL
+    )
 
 
 @pytest.fixture()
