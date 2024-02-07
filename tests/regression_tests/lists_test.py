@@ -2,7 +2,7 @@
 
 from requests import Session
 
-from tests.regression_tests.test_data import GROUP_LIST_ID, USER_LIST_ID
+from tests.regression_tests.test_data import SCIETY_GROUP_LIST_ID_1, SCIETY_USER_LIST_ID_1
 
 
 class TestListOfListPage:
@@ -22,13 +22,13 @@ class TestListOfListPage:
 class TestListPage:
     def test_should_load_user_list_page(self, regression_test_session: Session):
         response = regression_test_session.get(
-            f'/lists/by-id/{USER_LIST_ID}'
+            f'/lists/by-id/{SCIETY_USER_LIST_ID_1}'
         )
         response.raise_for_status()
 
     def test_should_load_group_list_page(self, regression_test_session: Session):
         response = regression_test_session.get(
-            f'/lists/by-id/{GROUP_LIST_ID}'
+            f'/lists/by-id/{SCIETY_GROUP_LIST_ID_1}'
         )
         response.raise_for_status()
 
@@ -36,13 +36,13 @@ class TestListPage:
 class TestListRssPage:
     def test_should_load_user_list_rss_page(self, regression_test_session: Session):
         response = regression_test_session.get(
-            f'/lists/by-id/{USER_LIST_ID}/atom.xml'
+            f'/lists/by-id/{SCIETY_USER_LIST_ID_1}/atom.xml'
         )
         response.raise_for_status()
 
     def test_should_load_group_list_rss_page(self, regression_test_session: Session):
         response = regression_test_session.get(
-            f'/lists/by-id/{GROUP_LIST_ID}/atom.xml'
+            f'/lists/by-id/{SCIETY_GROUP_LIST_ID_1}/atom.xml'
         )
         response.raise_for_status()
 
@@ -50,38 +50,38 @@ class TestListRssPage:
 class TestListRecommendationsPage:
     def test_should_load_user_list_page(self, regression_test_session: Session):
         response = regression_test_session.get(
-            f'/lists/by-id/{USER_LIST_ID}/article-recommendations'
+            f'/lists/by-id/{SCIETY_USER_LIST_ID_1}/article-recommendations'
         )
         response.raise_for_status()
 
     def test_should_load_user_list_page_fragment(self, regression_test_session: Session):
         response = regression_test_session.get(
-            f'/lists/by-id/{USER_LIST_ID}/article-recommendations',
+            f'/lists/by-id/{SCIETY_USER_LIST_ID_1}/article-recommendations',
             params={'fragment': True}
         )
         response.raise_for_status()
 
     def test_should_load_user_list_page_rss(self, regression_test_session: Session):
         response = regression_test_session.get(
-            f'/lists/by-id/{USER_LIST_ID}/article-recommendations/atom.xml'
+            f'/lists/by-id/{SCIETY_USER_LIST_ID_1}/article-recommendations/atom.xml'
         )
         response.raise_for_status()
 
     def test_should_load_group_list_page(self, regression_test_session: Session):
         response = regression_test_session.get(
-            f'/lists/by-id/{GROUP_LIST_ID}/article-recommendations'
+            f'/lists/by-id/{SCIETY_GROUP_LIST_ID_1}/article-recommendations'
         )
         response.raise_for_status()
 
     def test_should_load_group_list_page_fragment(self, regression_test_session: Session):
         response = regression_test_session.get(
-            f'/lists/by-id/{GROUP_LIST_ID}/article-recommendations',
+            f'/lists/by-id/{SCIETY_GROUP_LIST_ID_1}/article-recommendations',
             params={'fragment': True}
         )
         response.raise_for_status()
 
     def test_should_load_group_list_page_rss(self, regression_test_session: Session):
         response = regression_test_session.get(
-            f'/lists/by-id/{GROUP_LIST_ID}/article-recommendations/atom.xml'
+            f'/lists/by-id/{SCIETY_GROUP_LIST_ID_1}/article-recommendations/atom.xml'
         )
         response.raise_for_status()
