@@ -33,6 +33,20 @@ class TestListPage:
         response.raise_for_status()
 
 
+class TestListRssPage:
+    def test_should_load_user_list_rss_page(self, regression_test_session: Session):
+        response = regression_test_session.get(
+            f'/lists/by-id/{USER_LIST_ID}/atom.xml'
+        )
+        response.raise_for_status()
+
+    def test_should_load_group_list_rss_page(self, regression_test_session: Session):
+        response = regression_test_session.get(
+            f'/lists/by-id/{GROUP_LIST_ID}/atom.xml'
+        )
+        response.raise_for_status()
+
+
 class TestListRecommendationsPage:
     def test_should_load_user_list_page(self, regression_test_session: Session):
         response = regression_test_session.get(
