@@ -5,7 +5,7 @@ from requests import Session
 from tests.regression_tests.test_data import GROUP_LIST_ID, USER_LIST_ID
 
 
-class TestListsPage:
+class TestListOfListPage:
     def test_should_load_user_lists_page(self, regression_test_session: Session):
         response = regression_test_session.get(
             '/lists/user-lists'
