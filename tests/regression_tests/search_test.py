@@ -2,8 +2,6 @@
 
 from requests import Session
 
-from tests.regression_tests.test_data import FEED_NAME_1
-
 
 class TestSearchPage:
     def test_should_load_search_page_without_search_term(self, regression_test_session: Session):
