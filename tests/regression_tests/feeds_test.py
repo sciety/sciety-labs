@@ -34,3 +34,4 @@ class TestFeedPage:
             f'/feeds/by-name/{FEED_NAME_1}/atom.xml'
         )
         response.raise_for_status()
+        assert ResponseWrapper(response).get_rss_entry_count() > 0

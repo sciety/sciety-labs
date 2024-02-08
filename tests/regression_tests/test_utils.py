@@ -8,3 +8,6 @@ class ResponseWrapper:
 
     def get_article_card_count(self) -> int:
         return len(re.findall(r'<article[^>]*>', self.response.text))
+
+    def get_rss_entry_count(self) -> int:
+        return len(re.findall(r'<entry[^>]*>', self.response.text))

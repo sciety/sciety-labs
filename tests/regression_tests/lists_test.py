@@ -54,6 +54,7 @@ class TestListRssPage:
             f'/lists/by-id/{sciety_list_id}/atom.xml'
         )
         response.raise_for_status()
+        assert ResponseWrapper(response).get_rss_entry_count() > 0
 
 
 class TestListRecommendationsPage:
@@ -88,3 +89,4 @@ class TestListRecommendationsPage:
             f'/lists/by-id/{sciety_list_id}/article-recommendations/atom.xml'
         )
         response.raise_for_status()
+        assert ResponseWrapper(response).get_rss_entry_count() > 0
