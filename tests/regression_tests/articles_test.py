@@ -21,9 +21,9 @@ class TestArticlesPage:
             '/articles/article-recommendations/by',
             params={
                 'article_doi': DOI_1,
-                'fragment': True,
-                'max_recommendations': 3,
-                'enable_pagination': False
+                'fragment': 'true',
+                'max_recommendations': '3',
+                'enable_pagination': 'false'
             }
         )
         response.raise_for_status()
@@ -43,7 +43,7 @@ class TestArticlesPage:
             '/articles/article-recommendations/by',
             params={
                 'article_doi': DOI_1,
-                'fragment': True
+                'fragment': 'true'
             }
         )
         response.raise_for_status()
