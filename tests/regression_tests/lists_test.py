@@ -4,6 +4,7 @@ import pytest
 from requests import Session
 
 from tests.regression_tests.test_data import SCIETY_GROUP_LIST_ID_1, SCIETY_USER_LIST_ID_1
+from tests.regression_tests.test_utils import ResponseWrapper
 
 
 @pytest.fixture(name='sciety_list_id', params=[
@@ -20,12 +21,14 @@ class TestListOfListPage:
             '/lists/user-lists'
         )
         response.raise_for_status()
+        assert ResponseWrapper(response).get_article_card_count() > 0
 
     def test_should_load_group_lists_page(self, regression_test_session: Session):
         response = regression_test_session.get(
             '/lists/group-lists'
         )
         response.raise_for_status()
+        assert ResponseWrapper(response).get_article_card_count() > 0
 
 
 class TestListPage:
@@ -38,6 +41,7 @@ class TestListPage:
             f'/lists/by-id/{sciety_list_id}'
         )
         response.raise_for_status()
+        assert ResponseWrapper(response).get_article_card_count() > 0
 
 
 class TestListRssPage:
@@ -53,7 +57,7 @@ class TestListRssPage:
 
 
 class TestListRecommendationsPage:
-    def test_should_load_user_list_page(
+    def test_should_load_list_page(
         self,
         regression_test_session: Session,
         sciety_list_id: str
@@ -73,8 +77,9 @@ class TestListRecommendationsPage:
             params={'fragment': True}
         )
         response.raise_for_status()
+        assert ResponseWrapper(response).get_article_card_count() > 0
 
-    def test_should_load_user_list_page_rss(
+    def test_should_load_list_page_rss(
         self,
         regression_test_session: Session,
         sciety_list_id: str

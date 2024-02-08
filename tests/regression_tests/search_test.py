@@ -2,6 +2,8 @@
 
 from requests import Session
 
+from tests.regression_tests.test_utils import ResponseWrapper
+
 
 class TestSearchPage:
     def test_should_load_search_page_without_search_term(self, regression_test_session: Session):
@@ -26,3 +28,4 @@ class TestSearchPage:
             }
         )
         response.raise_for_status()
+        assert ResponseWrapper(response).get_article_card_count() > 0

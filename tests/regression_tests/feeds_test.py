@@ -3,6 +3,7 @@
 from requests import Session
 
 from tests.regression_tests.test_data import FEED_NAME_1
+from tests.regression_tests.test_utils import ResponseWrapper
 
 
 class TestListOfFeedsPage:
@@ -11,6 +12,7 @@ class TestListOfFeedsPage:
             '/feeds',
         )
         response.raise_for_status()
+        assert ResponseWrapper(response).get_article_card_count() > 0
 
 
 class TestFeedPage:
@@ -22,6 +24,7 @@ class TestFeedPage:
             f'/feeds/by-name/{FEED_NAME_1}'
         )
         response.raise_for_status()
+        assert ResponseWrapper(response).get_article_card_count() > 0
 
     def test_should_load_feed_rss(
         self,

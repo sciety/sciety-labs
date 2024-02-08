@@ -3,6 +3,7 @@
 from requests import Session
 
 from tests.regression_tests.test_data import DOI_1
+from tests.regression_tests.test_utils import ResponseWrapper
 
 
 class TestArticlesPage:
@@ -27,6 +28,7 @@ class TestArticlesPage:
             }
         )
         response.raise_for_status()
+        assert ResponseWrapper(response).get_article_card_count() > 0
 
     def test_should_load_related_articles_by_doi_page(self, regression_test_session: Session):
         response = regression_test_session.get(
@@ -47,3 +49,4 @@ class TestArticlesPage:
             }
         )
         response.raise_for_status()
+        assert ResponseWrapper(response).get_article_card_count() > 0
