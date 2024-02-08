@@ -1,13 +1,12 @@
 from datetime import date
-from typing import Iterable
-from unittest.mock import ANY, MagicMock, patch
+from unittest.mock import ANY, AsyncMock, MagicMock
+
 import pytest
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 import requests
 
-from sciety_labs.app.routers.api import article_recommendation as module_under_test
 from sciety_labs.app.routers.api.article_recommendation import (
     DEFAULT_LIKE_S2_RECOMMENDATION_FIELDS,
     create_api_article_recommendation_router,
@@ -34,15 +33,6 @@ ARTICLE_RECOMMENDATION_1 = ArticleRecommendation(
         published_date=date(2001, 2, 3)
     )
 )
-
-
-@pytest.fixture(name='get_article_recommendation_list_for_article_dois_mock', autouse=True)
-def _get_article_recommendation_list_for_article_dois_mock() -> Iterable[MagicMock]:
-    with patch.object(
-        module_under_test,
-        'get_article_recommendation_list_for_article_dois'
-    ) as mock:
-        yield mock
 
 
 @pytest.fixture(name='test_client')
@@ -155,28 +145,26 @@ class TestArticleRecommendationApi:
     def test_should_pass_article_doi_to_get_article_recommendation_list_for_article_dois(
         self,
         test_client: TestClient,
-        app_providers_and_models_mock: MagicMock,
-        get_article_recommendation_list_for_article_dois_mock: MagicMock
+        get_article_recommendation_list_for_article_doi_mock: AsyncMock
     ):
         test_client.get(f'/like/s2/recommendations/v1/papers/forpaper/DOI:{DOI_1}')
-        get_article_recommendation_list_for_article_dois_mock.assert_called_with(
-            [DOI_1],
-            app_providers_and_models=app_providers_and_models_mock,
-            filter_parameters=ANY,
+        get_article_recommendation_list_for_article_doi_mock.assert_called_with(
+            article_doi=DOI_1,
             max_recommendations=None,
+            filter_parameters=ANY,
             headers=ANY
         )
 
     def test_should_format_recommendation_response(
         self,
         test_client: TestClient,
-        get_article_recommendation_list_for_article_dois_mock: MagicMock
+        get_article_recommendation_list_for_article_doi_mock: AsyncMock
     ):
         article_recommendation_list = ArticleRecommendationList(
             recommendations=[ARTICLE_RECOMMENDATION_1],
             recommendation_timestamp=get_utcnow()
         )
-        get_article_recommendation_list_for_article_dois_mock.return_value = (
+        get_article_recommendation_list_for_article_doi_mock.return_value = (
             article_recommendation_list
         )
         response = test_client.get(
@@ -193,11 +181,11 @@ class TestArticleRecommendationApi:
     def test_should_return_404_if_not_found(
         self,
         test_client: TestClient,
-        get_article_recommendation_list_for_article_dois_mock: MagicMock
+        get_article_recommendation_list_for_article_doi_mock: AsyncMock
     ):
         response_mock = MagicMock(name='response')
         response_mock.status_code = 404
-        get_article_recommendation_list_for_article_dois_mock.side_effect = (
+        get_article_recommendation_list_for_article_doi_mock.side_effect = (
             requests.exceptions.HTTPError(response=response_mock)
         )
         response = test_client.get(

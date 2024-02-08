@@ -293,11 +293,8 @@ def create_api_article_recommendation_router(
     router = APIRouter()
 
     @router.get(
-        '/like/s2/recommendations/v1/papers/forpaper/DOI:{DOI:path}',
-        summary=LIKE_S2_RECOMMENDATION_API_SUMMARY,
-        description=LIKE_S2_RECOMMENDATION_API_DESCRIPTION,
-        response_model=RecommendationResponseDict,
-        responses=LIKE_S2_RECOMMENDATION_API_EXAMPLE_RESPONSES
+        '/sync/like/s2/recommendations/v1/papers/forpaper/DOI:{DOI:path}',
+        include_in_schema=False
     )
     def like_s2_recommendations_for_paper(  # pylint: disable=too-many-arguments
         request: fastapi.Request,
@@ -338,7 +335,7 @@ def create_api_article_recommendation_router(
         )
 
     @router.get(
-        '/async/like/s2/recommendations/v1/papers/forpaper/DOI:{DOI:path}',
+        '/like/s2/recommendations/v1/papers/forpaper/DOI:{DOI:path}',
         summary=LIKE_S2_RECOMMENDATION_API_SUMMARY,
         description=LIKE_S2_RECOMMENDATION_API_DESCRIPTION,
         response_model=RecommendationResponseDict,
@@ -376,6 +373,7 @@ def create_api_article_recommendation_router(
                     headers=get_cache_control_headers_for_request(request)
                 )
             )
+            LOGGER.debug('article_recommendation_list: %r', article_recommendation_list)
         except Exception as exception:  # pylint: disable=broad-exception-caught
             return handle_like_s2_recommendation_exception(
                 exception=exception,
