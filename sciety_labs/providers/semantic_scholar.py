@@ -28,9 +28,6 @@ from sciety_labs.providers.search import (
     SearchProvider,
     SearchSortBy
 )
-from sciety_labs.providers.semantic_scholar_bigquery_mapping import (
-    SemanticScholarBigQueryMappingProvider
-)
 from sciety_labs.utils.datetime import get_utc_timestamp_with_tzinfo, get_utcnow, parse_date_or_none
 
 
@@ -180,11 +177,9 @@ class SemanticScholarProvider(RequestsProvider, ArticleRecommendationProvider):
     def __init__(
         self,
         api_key_file_path: Optional[str],
-        semantic_scholar_mapping_provider: SemanticScholarBigQueryMappingProvider,
         **kwargs
     ) -> None:
         super().__init__(**kwargs)
-        self.semantic_scholar_mapping_provider = semantic_scholar_mapping_provider
         if api_key_file_path:
             api_key = Path(api_key_file_path).read_text(encoding='utf-8')
             self.headers['x-api-key'] = api_key
@@ -193,16 +188,8 @@ class SemanticScholarProvider(RequestsProvider, ArticleRecommendationProvider):
         self,
         article_dois: Sequence[str]
     ) -> Iterable[str]:
-        paper_ids_by_article_dois_map = (
-            self.semantic_scholar_mapping_provider
-            .get_semantic_scholar_paper_ids_by_article_dois_map(article_dois)
-        )
         for doi in article_dois:
-            paper_id = paper_ids_by_article_dois_map.get(doi)
-            if paper_id:
-                yield paper_id
-            else:
-                yield f'DOI:{doi}'
+            yield f'DOI:{doi}'
 
     def get_article_recommendation_list_for_article_dois(
         self,

@@ -14,7 +14,6 @@ class AppUpdateManager:
     def check_or_reload_data(self, preload_only: bool = False):
         if not preload_only:
             self.app_providers_and_models.sciety_event_provider.refresh()
-            self.app_providers_and_models.semantic_scholar_mapping_provider.refresh()
         # Note: this may still use a cache
         _sciety_event_dict_list = (
             self.app_providers_and_models.sciety_event_provider.get_sciety_event_dict_list()
@@ -23,7 +22,6 @@ class AppUpdateManager:
         self.app_providers_and_models.evaluation_stats_model.apply_events(_sciety_event_dict_list)
         self.app_providers_and_models.google_sheet_article_image_provider.refresh()
         self.app_providers_and_models.google_sheet_list_image_provider.refresh()
-        self.app_providers_and_models.semantic_scholar_mapping_provider.preload()
 
     def check_or_reload_data_no_fail(self):
         try:

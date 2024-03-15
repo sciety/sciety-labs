@@ -50,13 +50,6 @@ from sciety_labs.providers.semantic_scholar import (
     SemanticScholarTitleAbstractEmbeddingVectorProvider,
     get_semantic_scholar_provider
 )
-from sciety_labs.providers.semantic_scholar_bigquery_mapping import (
-    SemanticScholarBigQueryMappingProvider
-)
-from sciety_labs.providers.semantic_scholar_mapping import SemanticScholarMappingProvider
-from sciety_labs.providers.semantic_scholar_opensearch_mapping import (
-    SemanticScholarOpenSearchMappingProvider
-)
 from sciety_labs.utils.arrow_cache import ArrowTableDiskSingleObjectCache
 from sciety_labs.utils.bq_cache import BigQueryTableModifiedInMemorySingleObjectCache
 from sciety_labs.utils.cache import (
@@ -67,62 +60,6 @@ from sciety_labs.utils.cache import (
 
 
 LOGGER = logging.getLogger(__name__)
-
-
-def get_semantic_scholar_bigquery_mapping_provider(
-    gcp_project_name: str,
-    cache_dir: Path,
-    max_age_in_seconds: int
-) -> SemanticScholarMappingProvider:
-    semantic_scholar_response_table_id = (
-        f'{gcp_project_name}.prod.semantic_scholar_responses_v1'
-    )
-    semantic_scholar_mapping_query_results_cache = ChainedObjectCache([
-        BigQueryTableModifiedInMemorySingleObjectCache(
-            gcp_project_name=gcp_project_name,
-            table_id=semantic_scholar_response_table_id
-        ),
-        ArrowTableDiskSingleObjectCache(
-            file_path=cache_dir / 'semantic_scholar_mapping_query_results_cache.parquet',
-            max_age_in_seconds=max_age_in_seconds
-        )
-    ])
-
-    return SemanticScholarBigQueryMappingProvider(
-        gcp_project_name=gcp_project_name,
-        query_results_cache=semantic_scholar_mapping_query_results_cache
-    )
-
-
-def get_semantic_scholar_opensearch_mapping_provider(
-    opensearch_client: opensearchpy.OpenSearch,
-    opensearch_config: OpenSearchConnectionConfig
-) -> SemanticScholarMappingProvider:
-    LOGGER.info('Using OpenSearch index: %r', opensearch_config.index_name)
-    return SemanticScholarOpenSearchMappingProvider(
-        opensearch_client=opensearch_client,
-        index_name=opensearch_config.index_name
-    )
-
-
-def get_semantic_scholar_mapping_provider(
-    opensearch_client: Optional[opensearchpy.OpenSearch],
-    opensearch_config: Optional[OpenSearchConnectionConfig],
-    gcp_project_name: str,
-    cache_dir: Path,
-    max_age_in_seconds: int
-) -> SemanticScholarMappingProvider:
-    if opensearch_client:
-        assert opensearch_config is not None
-        return get_semantic_scholar_opensearch_mapping_provider(
-            opensearch_client=opensearch_client,
-            opensearch_config=opensearch_config
-        )
-    return get_semantic_scholar_bigquery_mapping_provider(
-        gcp_project_name=gcp_project_name,
-        cache_dir=cache_dir,
-        max_age_in_seconds=max_age_in_seconds
-    )
 
 
 def get_article_recommendation_provider(
@@ -248,15 +185,6 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
             query_results_cache=sciety_event_query_results_cache
         )
 
-        self.semantic_scholar_mapping_provider = get_semantic_scholar_mapping_provider(
-            opensearch_client=self.opensearch_client,
-            opensearch_config=self.opensearch_config,
-            gcp_project_name=gcp_project_name,
-            cache_dir=cache_dir,
-            max_age_in_seconds=max_age_in_seconds
-        )
-        LOGGER.info('semantic_scholar_mapping_provider: %r', self.semantic_scholar_mapping_provider)
-
         self.lists_model = ScietyEventListsModel([])
         self.evaluation_stats_model = ScietyEventEvaluationStatsModel([])
 
@@ -268,8 +196,7 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         )
 
         self.semantic_scholar_provider = get_semantic_scholar_provider(
-            requests_session=cached_requests_session,
-            semantic_scholar_mapping_provider=self.semantic_scholar_mapping_provider
+            requests_session=cached_requests_session
         )
         self.semantic_scholar_search_provider = SemanticScholarSearchProvider(
             semantic_scholar_provider=self.semantic_scholar_provider,
