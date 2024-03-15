@@ -123,9 +123,9 @@ def create_articles_router(
         max_recommendations: Optional[int] = None,
         fragment: bool = False
     ):
-        article_meta = (
+        article_meta = await (
             app_providers_and_models
-            .crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
+            .async_crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
         )
         if not fragment:
             article_recommendation_fragment_url = (
@@ -142,10 +142,6 @@ def create_articles_router(
                     'article_recommendation_fragment_url': article_recommendation_fragment_url
                 }
             )
-        article_meta = (
-            app_providers_and_models
-            .crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
-        )
         article_stats = (
             app_providers_and_models
             .evaluation_stats_model.get_article_stats_by_article_doi(article_doi)
