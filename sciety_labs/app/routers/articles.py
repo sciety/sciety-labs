@@ -116,7 +116,7 @@ def create_articles_router(
         )
 
     @router.get('/articles/article-recommendations/by', response_class=HTMLResponse)
-    def article_recommendations_by_article_doi(  # pylint: disable=too-many-arguments
+    async def article_recommendations_by_article_doi(  # pylint: disable=too-many-arguments
         request: Request,
         article_doi: AnnotatedArticleDoiQueryParameter,
         pagination_parameters: AnnotatedPaginationParameters,
