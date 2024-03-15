@@ -8,7 +8,6 @@ from fastapi.templating import Jinja2Templates
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.routers.list_by_id import create_list_by_id_router
-from sciety_labs.app.routers.list_by_twitter_handle import create_list_by_twitter_handle_router
 from sciety_labs.app.utils.common import (
     get_page_title
 )
@@ -24,10 +23,6 @@ def create_lists_router(
 ):
     router = APIRouter()
     router.include_router(create_list_by_id_router(
-        app_providers_and_models=app_providers_and_models,
-        templates=templates
-    ))
-    router.include_router(create_list_by_twitter_handle_router(
         app_providers_and_models=app_providers_and_models,
         templates=templates
     ))

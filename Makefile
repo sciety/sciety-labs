@@ -74,7 +74,6 @@ dev-regression-test:
 
 
 dev-start:
-	TWITTER_API_AUTHORIZATION_FILE_PATH=.secrets/twitter_api_authorization.txt \
 	$(PYTHON) -m uvicorn \
 		sciety_labs.app.main:create_app \
 		--reload \

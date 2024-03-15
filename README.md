@@ -24,19 +24,6 @@ A user with access to BigQuery in the `elife-data-pipeline` GCP project. Login v
 gcloud auth application-default login
 ```
 
-### Twitter API token
-
-The `TWITTER_API_AUTHORIZATION_FILE_PATH` environment variable (set by the `Makefile`) will point to:
-`.secrets/twitter_api_authorization.txt`
-
-The file contents should look like:
-
-```text
-Bearer <Twitter API token>
-```
-
-If the file is not present, the app will still start but the Twitter related endpoint will not work.
-
 ### OpenSearch
 
 When configured, it will use OpenSearch instead of BigQuery to look up Semantic Scholar paper ids.

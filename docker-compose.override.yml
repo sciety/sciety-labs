@@ -4,8 +4,6 @@ services:
   sciety-labs:
     ports:
       - "${SCIETY_LABS_PORT}:8000"
-    environment:
-      - TWITTER_API_AUTHORIZATION_FILE_PATH=/root/.secrets/twitter_api_authorization.txt
     volumes:
       - ~/.config/gcloud:/root/.config/gcloud
       - .secrets:/root/.secrets

@@ -57,7 +57,6 @@ from sciety_labs.providers.semantic_scholar_mapping import SemanticScholarMappin
 from sciety_labs.providers.semantic_scholar_opensearch_mapping import (
     SemanticScholarOpenSearchMappingProvider
 )
-from sciety_labs.providers.twitter import get_twitter_user_article_list_provider_or_none
 from sciety_labs.utils.arrow_cache import ArrowTableDiskSingleObjectCache
 from sciety_labs.utils.bq_cache import BigQueryTableModifiedInMemorySingleObjectCache
 from sciety_labs.utils.cache import (
@@ -260,10 +259,6 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
 
         self.lists_model = ScietyEventListsModel([])
         self.evaluation_stats_model = ScietyEventEvaluationStatsModel([])
-
-        self.twitter_user_article_list_provider = get_twitter_user_article_list_provider_or_none(
-            requests_session=cached_requests_session
-        )
 
         self.crossref_metadata_provider = CrossrefMetaDataProvider(
             requests_session=cached_requests_session
