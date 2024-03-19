@@ -53,13 +53,13 @@ def create_api_experimental_router(
     @router.get(
         '/experimental/sync/crossref/metadata/by/doi'
     )
-    def experimental_sync_crossref_metadata_by_doi(
+    async def experimental_sync_crossref_metadata_by_doi(
         request: fastapi.Request,
         article_doi: str
     ):
-        return (
+        return await (
             app_providers_and_models
-            .crossref_metadata_provider
+            .async_crossref_metadata_provider
             .get_crossref_metadata_dict_by_doi(
                 article_doi,
                 headers=get_cache_control_headers_for_request(request)
