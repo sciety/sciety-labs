@@ -2,10 +2,10 @@ from datetime import date, timedelta
 import logging
 from typing import Annotated, Any, Dict, Optional, cast
 
+import aiohttp
 from fastapi import APIRouter, Query, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-import requests
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.utils.common import (
@@ -18,6 +18,7 @@ from sciety_labs.app.utils.recommendation import (
 )
 from sciety_labs.models.article import ArticleStats
 from sciety_labs.providers.article_recommendation import ArticleRecommendationFilterParameters
+from sciety_labs.utils.aio import get_exception_status_code
 from sciety_labs.utils.pagination import get_url_pagination_state_for_pagination_parameters
 from sciety_labs.utils.text import remove_markup_or_none
 
@@ -53,18 +54,19 @@ def create_articles_router(
     router = APIRouter()
 
     @router.get('/articles/by', response_class=HTMLResponse)
-    def article_by_article_doi(
+    async def article_by_article_doi(
         request: Request,
         article_doi: AnnotatedArticleDoiQueryParameter
     ):
         try:
-            article_meta = (
+            article_meta = await (
                 app_providers_and_models
-                .crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
+                .async_crossref_metadata_provider
+                .get_article_metadata_by_doi(article_doi)
             )
-        except requests.exceptions.RequestException as exception:
-            status_code = exception.response.status_code if exception.response is not None else 500
-            LOGGER.info('Exception retrieving metadata (%r): %r', status_code, exception)
+        except aiohttp.ClientError as exc:
+            status_code = get_exception_status_code(exc) or 500
+            LOGGER.info('Exception retrieving metadata (%r): %r', status_code, exc)
             if status_code != 404:
                 raise
             return templates.TemplateResponse(
@@ -73,7 +75,7 @@ def create_articles_router(
                 context={
                     'page_title': get_page_title(f'Article not found: {article_doi}'),
                     'error_message': f'Article not found: {article_doi}',
-                    'exception': exception
+                    'exception': exc
                 },
                 status_code=404
             )
