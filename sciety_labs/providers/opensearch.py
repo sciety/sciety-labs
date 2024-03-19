@@ -9,7 +9,7 @@ from urllib.parse import urlencode
 import aiohttp
 
 
-from opensearchpy import OpenSearch, Transport
+from opensearchpy import Transport
 import opensearchpy
 
 import requests
@@ -223,40 +223,40 @@ class AsyncOpenSearchConnection(opensearchpy.AIOHttpConnection):
         )
 
 
-def get_opensearch_client(
-    config: OpenSearchConnectionConfig,
-    requests_session: Optional[requests.Session] = None
-) -> OpenSearch:
-    LOGGER.info('OpenSearch requests_session: %r', requests_session)
-    return OpenSearch(
-        hosts=[{
-            'host': config.hostname,
-            'port': config.port
-        }],
-        http_auth=(config.username, config.password),
-        use_ssl=True,
-        verify_certs=config.verify_certificates,
-        ssl_show_warn=config.verify_certificates,
-        timeout=config.timeout,
-        transport_class=cast(
-            Type[Transport],
-            functools.partial(
-                OpenSearchTransport,
-                url_prefix=f'https://{config.hostname}:{config.port}',
-                requests_session=requests_session,
-                auth=(config.username, config.password)
-            )
-        )
-    )
+# def get_opensearch_client(
+#     config: OpenSearchConnectionConfig,
+#     requests_session: Optional[requests.Session] = None
+# ) -> OpenSearch:
+#     LOGGER.info('OpenSearch requests_session: %r', requests_session)
+#     return OpenSearch(
+#         hosts=[{
+#             'host': config.hostname,
+#             'port': config.port
+#         }],
+#         http_auth=(config.username, config.password),
+#         use_ssl=True,
+#         verify_certs=config.verify_certificates,
+#         ssl_show_warn=config.verify_certificates,
+#         timeout=config.timeout,
+#         transport_class=cast(
+#             Type[Transport],
+#             functools.partial(
+#                 OpenSearchTransport,
+#                 url_prefix=f'https://{config.hostname}:{config.port}',
+#                 requests_session=requests_session,
+#                 auth=(config.username, config.password)
+#             )
+#         )
+#     )
 
 
-def get_opensearch_client_or_none(
-    config: Optional[OpenSearchConnectionConfig],
-    requests_session: Optional[requests.Session] = None
-) -> Optional[OpenSearch]:
-    if not config:
-        return None
-    return get_opensearch_client(config, requests_session=requests_session)
+# def get_opensearch_client_or_none(
+#     config: Optional[OpenSearchConnectionConfig],
+#     requests_session: Optional[requests.Session] = None
+# ) -> Optional[OpenSearch]:
+#     if not config:
+#         return None
+#     return get_opensearch_client(config, requests_session=requests_session)
 
 
 def get_async_opensearch_client(

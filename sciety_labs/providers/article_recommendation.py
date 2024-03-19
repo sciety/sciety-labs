@@ -24,7 +24,7 @@ class ArticleRecommendationList:
 
 
 class ArticleRecommendationProvider(Protocol):
-    def get_article_recommendation_list_for_article_dois(
+    async def get_article_recommendation_list_for_article_dois(
         self,
         article_dois: Iterable[str],
         max_recommendations: Optional[int] = None
@@ -33,7 +33,7 @@ class ArticleRecommendationProvider(Protocol):
 
 
 class SingleArticleRecommendationProvider(Protocol):
-    def get_article_recommendation_list_for_article_doi(
+    async def get_article_recommendation_list_for_article_doi(
         self,
         article_doi: str,
         max_recommendations: Optional[int] = None,

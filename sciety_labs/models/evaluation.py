@@ -1,6 +1,6 @@
 import logging
 from threading import Lock
-from typing import Dict, Iterable, List, NamedTuple, Sequence, cast
+from typing import AsyncIterable, AsyncIterator, Dict, Iterable, List, NamedTuple, Sequence, cast
 
 from sciety_labs.models.article import ArticleMentionT, ArticleStats
 from sciety_labs.models.sciety_event import (
@@ -85,20 +85,36 @@ class ScietyEventEvaluationStatsModel:
             )
         )
 
+    def get_article_mention_with_article_stats(
+        self,
+        article_mention: ArticleMentionT
+    ) -> ArticleMentionT:
+        return cast(
+            ArticleMentionT,
+            article_mention._replace(
+                article_stats=self.get_article_stats_by_article_doi(
+                    article_mention.article_doi
+                )
+            )
+        )
+
     def iter_article_mention_with_article_stats(
         self,
         article_mention_iterable: Iterable[ArticleMentionT]
     ) -> Iterable[ArticleMentionT]:
         return (
-            cast(
-                ArticleMentionT,
-                article_mention._replace(
-                    article_stats=self.get_article_stats_by_article_doi(
-                        article_mention.article_doi
-                    )
-                )
-            )
+            self.get_article_mention_with_article_stats(article_mention)
             for article_mention in article_mention_iterable
+        )
+
+    def async_iter_article_mention_with_article_stats(
+        self,
+        article_mention_iterable: AsyncIterable[ArticleMentionT]
+    ) -> AsyncIterator[ArticleMentionT]:
+        LOGGER.info('article_mention_iterable: %r', article_mention_iterable)
+        return (
+            self.get_article_mention_with_article_stats(article_mention)
+            async for article_mention in article_mention_iterable
         )
 
     def iter_evaluated_only_article_mention(
@@ -112,3 +128,13 @@ class ScietyEventEvaluationStatsModel:
                 DOI_ARTICLE_ID_PREFIX + article_mention.article_doi
             )
         )
+
+    async def async_iter_evaluated_only_article_mention(
+        self,
+        article_mention_iterable: AsyncIterator[ArticleMentionT]
+    ) -> AsyncIterator[ArticleMentionT]:
+        async for article_mention in article_mention_iterable:
+            if self.get_evaluation_count_by_article_id(
+                DOI_ARTICLE_ID_PREFIX + article_mention.article_doi
+            ):
+                yield article_mention

@@ -17,13 +17,13 @@ def create_api_experimental_router(
     @router.get(
         '/experimental/sync/opensearch/metadata/by/doi'
     )
-    def experimental_sync_opensearch_metadata_by_doi(
+    async def experimental_sync_opensearch_metadata_by_doi(
         request: fastapi.Request,
         article_doi: str
     ):
-        doc = (
+        doc = await (
             app_providers_and_models
-            .opensearch_client
+            .async_opensearch_client
             .get_source(
                 index=app_providers_and_models.opensearch_config.index_name,
                 id=article_doi,

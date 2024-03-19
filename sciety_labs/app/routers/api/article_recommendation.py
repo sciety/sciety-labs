@@ -14,8 +14,7 @@ import requests
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.utils.recommendation import (
-    DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY,
-    get_article_recommendation_list_for_article_dois
+    DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY
 )
 from sciety_labs.providers.article_recommendation import (
     ArticleRecommendation,
@@ -291,48 +290,6 @@ def create_api_article_recommendation_router(
     app_providers_and_models: AppProvidersAndModels
 ):
     router = APIRouter()
-
-    @router.get(
-        '/sync/like/s2/recommendations/v1/papers/forpaper/DOI:{DOI:path}',
-        include_in_schema=False
-    )
-    def like_s2_recommendations_for_paper(  # pylint: disable=too-many-arguments
-        request: fastapi.Request,
-        article_doi: str = LIKE_S2_RECOMMENDATION_API_ARTICLE_DOI_FASTAPI_PATH,
-        fields: str = LIKE_S2_RECOMMENDATION_API_FIELDS_FASTAPI_QUERY,
-        limit: Optional[int] = LIKE_S2_RECOMMENDATION_API_LIMIT_FASTAPI_QUERY,
-        evaluated_only: bool = LIKE_S2_RECOMMENDATION_API_EVALUATED_ONLY_FASTAPI_QUERY,
-        published_within_last_n_days: Optional[int] = (
-            LIKE_S2_RECOMMENDATION_API_PUBLISHED_WITHIN_LAST_N_DAYS_FASTAPI_QUERY
-        )
-    ):
-        fields_set = set(fields.split(','))
-        if not published_within_last_n_days:
-            published_within_last_n_days = DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY[
-                evaluated_only
-            ]
-        filter_parameters = ArticleRecommendationFilterParameters(
-            exclude_article_dois={article_doi},
-            from_publication_date=date.today() - timedelta(days=published_within_last_n_days),
-            evaluated_only=evaluated_only
-        )
-        try:
-            article_recommendation_list = get_article_recommendation_list_for_article_dois(
-                [article_doi],
-                app_providers_and_models=app_providers_and_models,
-                filter_parameters=filter_parameters,
-                max_recommendations=limit,
-                headers=get_cache_control_headers_for_request(request)
-            )
-        except Exception as exception:  # pylint: disable=broad-exception-caught
-            return handle_like_s2_recommendation_exception(
-                exception=exception,
-                article_doi=article_doi
-            )
-        return get_s2_recommended_papers_response_for_article_recommendation_list(
-            article_recommendation_list,
-            fields=fields_set
-        )
 
     @router.get(
         '/like/s2/recommendations/v1/papers/forpaper/DOI:{DOI:path}',

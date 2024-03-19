@@ -1,7 +1,7 @@
 import dataclasses
 from datetime import date, datetime
 import re
-from typing import Iterable, Mapping, NamedTuple, Optional, Sequence, TypeVar
+from typing import AsyncIterable, Iterable, Mapping, NamedTuple, Optional, Sequence, TypeVar
 
 from sciety_labs.models.image import ObjectImages
 
@@ -157,3 +157,11 @@ def iter_preprint_article_mention(
         for article_mention in article_mention_iterable
         if is_preprint_doi(article_mention.article_doi)
     )
+
+
+async def async_iter_preprint_article_mention(
+    article_mention_iterable: AsyncIterable[ArticleMentionT]
+) -> AsyncIterable[ArticleMentionT]:
+    async for article_mention in article_mention_iterable:
+        if is_preprint_doi(article_mention.article_doi):
+            yield article_mention

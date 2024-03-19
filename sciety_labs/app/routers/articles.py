@@ -150,7 +150,7 @@ def create_articles_router(
             article_doi,
             article_stats=article_stats
         )
-        article_recommendation_with_article_meta, item_count = (
+        article_recommendation_with_article_meta, item_count = await (
             get_article_recommendation_page_and_item_count_for_article_dois(
                 [article_doi],
                 app_providers_and_models=app_providers_and_models,

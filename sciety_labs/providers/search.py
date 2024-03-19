@@ -1,5 +1,5 @@
 from datetime import date, timedelta
-from typing import Iterable, Mapping, Optional, Protocol
+from typing import AsyncIterator, Mapping, Optional, Protocol, cast
 
 from attr import dataclass
 
@@ -69,8 +69,11 @@ class SearchParameters:
 
 
 class SearchProvider(Protocol):
-    def iter_search_result_item(  # pylint: disable=too-many-arguments
+    async def iter_search_result_item(
         self,
         search_parameters: SearchParameters
-    ) -> Iterable[ArticleSearchResultItem]:
-        pass
+    ) -> AsyncIterator[ArticleSearchResultItem]:
+        raise NotImplementedError()
+        if False:  # pylint: disable=unreachable, using-constant-test
+            # Force Python interpreter to transform function signature to generator
+            yield cast(ArticleSearchResultItem, None)

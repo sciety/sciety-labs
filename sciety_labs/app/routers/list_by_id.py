@@ -19,6 +19,7 @@ from sciety_labs.app.utils.recommendation import (
 )
 from sciety_labs.app.utils.response import AtomResponse
 from sciety_labs.providers.semantic_scholar import DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
+from sciety_labs.utils.async_utils import async_iter_sync_iterable, get_list_for_async_iterable
 from sciety_labs.utils.pagination import get_url_pagination_state_for_pagination_parameters
 from sciety_labs.utils.text import remove_markup_or_none
 
@@ -110,7 +111,7 @@ def create_list_by_id_router(
 
     # pylint: disable=duplicate-code
     @router.get('/lists/by-id/{list_id}/article-recommendations', response_class=HTMLResponse)
-    def article_recommendations_by_sciety_list_id(  # pylint: disable=too-many-arguments
+    async def article_recommendations_by_sciety_list_id(  # pylint: disable=too-many-arguments
         request: Request,
         list_id: str,
         pagination_parameters: AnnotatedPaginationParameters,
@@ -140,7 +141,7 @@ def create_list_by_id_router(
                     'article_recommendation_fragment_url': article_recommendation_fragment_url
                 }
             )
-        article_recommendation_with_article_meta, item_count = (
+        article_recommendation_with_article_meta, item_count = await (
             get_article_recommendation_page_and_item_count_for_article_dois(
                 [
                     article_mention.article_doi
@@ -178,7 +179,7 @@ def create_list_by_id_router(
         '/lists/by-id/{list_id}/article-recommendations/atom.xml',
         response_class=AtomResponse
     )
-    def article_recommendations_atom_by_sciety_list_id(
+    async def article_recommendations_atom_by_sciety_list_id(
         request: Request,
         list_id: str,
         items_per_page: Optional[int] = DEFAULT_ARTICLE_RECOMMENDATION_RSS_ITEM_COUNT,
@@ -189,7 +190,7 @@ def create_list_by_id_router(
             app_providers_and_models.lists_model.get_list_summary_data_by_list_id(list_id)
         )
         LOGGER.info('list_summary_data: %r', list_summary_data)
-        article_recommendation_list = (
+        article_recommendation_list = await (
             app_providers_and_models
             .semantic_scholar_provider.get_article_recommendation_list_for_article_dois(
                 (
@@ -208,9 +209,10 @@ def create_list_by_id_router(
         all_article_recommendations = list(
             article_recommendation_list.recommendations
         )
-        article_recommendation_with_article_meta = list(
-            article_aggregator.iter_page_article_mention_with_article_meta_and_stats(
-                all_article_recommendations,
+        article_recommendation_with_article_meta = await get_list_for_async_iterable(
+            article_aggregator
+            .async_iter_page_article_mention_with_article_meta_and_stats(
+                async_iter_sync_iterable(all_article_recommendations),
                 page=page,
                 items_per_page=items_per_page
             )
