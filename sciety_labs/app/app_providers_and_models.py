@@ -1,8 +1,10 @@
+from datetime import timedelta
 import logging
 from pathlib import Path
 from typing import Optional
 import aiohttp
 
+import aiohttp_client_cache
 import opensearchpy
 
 from sciety_labs.aggregators.article import ArticleAggregator
@@ -116,12 +118,13 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
             )
         ])
 
-        # cached_requests_session = requests_cache.CachedSession(
-        #     '.cache/requests_cache',
-        #     xpire_after=timedelta(days=1),
-        #     allowable_methods=('GET', 'HEAD', 'POST'),  # include POST for Semantic Scholar
-        #     match_headers=False
-        # )
+        async_cached_client_session = aiohttp_client_cache.CachedSession(
+            cache=aiohttp_client_cache.SQLiteBackend('.cache/aiohttp-requests.db'),
+            expire_after=timedelta(minutes=1),
+            allowable_methods=('GET', 'HEAD', 'POST'),  # include POST for Semantic Scholar
+            match_headers=False
+        )
+
         async_client_session = aiohttp.ClientSession(
             connector=aiohttp.TCPConnector(limit=200)
         )
@@ -142,11 +145,11 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         self.evaluation_stats_model = ScietyEventEvaluationStatsModel([])
 
         self.async_crossref_metadata_provider = AsyncCrossrefMetaDataProvider(
-            client_session=async_client_session
+            client_session=async_cached_client_session
         )
 
         self.semantic_scholar_provider = get_semantic_scholar_provider(
-            client_session=async_client_session
+            client_session=async_cached_client_session
         )
         self.semantic_scholar_search_provider = SemanticScholarSearchProvider(
             semantic_scholar_provider=self.semantic_scholar_provider,
