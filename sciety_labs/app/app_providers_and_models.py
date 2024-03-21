@@ -1,10 +1,7 @@
 import logging
-from datetime import timedelta
 from pathlib import Path
 from typing import Optional
 import aiohttp
-
-import requests_cache
 
 import opensearchpy
 
@@ -27,9 +24,6 @@ from sciety_labs.providers.async_opensearch_article_recommendation import (
 )
 from sciety_labs.providers.async_semantic_scholar import (
     AsyncSemanticScholarTitleAbstractEmbeddingVectorProvider
-)
-from sciety_labs.providers.crossref import (
-    CrossrefMetaDataProvider
 )
 from sciety_labs.providers.europe_pmc import EuropePmcProvider
 from sciety_labs.providers.google_sheet_image import (
@@ -122,12 +116,12 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
             )
         ])
 
-        cached_requests_session = requests_cache.CachedSession(
-            '.cache/requests_cache',
-            xpire_after=timedelta(days=1),
-            allowable_methods=('GET', 'HEAD', 'POST'),  # include POST for Semantic Scholar
-            match_headers=False
-        )
+        # cached_requests_session = requests_cache.CachedSession(
+        #     '.cache/requests_cache',
+        #     xpire_after=timedelta(days=1),
+        #     allowable_methods=('GET', 'HEAD', 'POST'),  # include POST for Semantic Scholar
+        #     match_headers=False
+        # )
         async_client_session = aiohttp.ClientSession(
             connector=aiohttp.TCPConnector(limit=200)
         )
@@ -147,9 +141,6 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         self.lists_model = ScietyEventListsModel([])
         self.evaluation_stats_model = ScietyEventEvaluationStatsModel([])
 
-        self.crossref_metadata_provider = CrossrefMetaDataProvider(
-            requests_session=cached_requests_session
-        )
         self.async_crossref_metadata_provider = AsyncCrossrefMetaDataProvider(
             client_session=async_client_session
         )
@@ -235,7 +226,6 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
 
         self.article_aggregator = ArticleAggregator(
             evaluation_stats_model=self.evaluation_stats_model,
-            crossref_metadata_provider=self.crossref_metadata_provider,
             async_crossref_metadata_provider=self.async_crossref_metadata_provider,
             google_sheet_article_image_provider=self.google_sheet_article_image_provider
         )
