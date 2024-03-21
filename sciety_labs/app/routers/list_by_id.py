@@ -36,7 +36,7 @@ def create_list_by_id_router(
     router = APIRouter()
 
     @router.get('/lists/by-id/{list_id}', response_class=HTMLResponse)
-    def list_by_sciety_list_id(
+    async def list_by_sciety_list_id(
         request: Request,
         list_id: str,
         pagination_parameters: AnnotatedPaginationParameters
@@ -51,9 +51,11 @@ def create_list_by_id_router(
         )
         LOGGER.info('list_images: %r', list_images)
         item_count = list_summary_data.article_count
-        article_mention_with_article_meta = (
-            article_aggregator.iter_page_article_mention_with_article_meta_and_stats(
-                app_providers_and_models.lists_model.iter_article_mentions_by_list_id(list_id),
+        article_mention_with_article_meta = await get_list_for_async_iterable(
+            article_aggregator.async_iter_page_article_mention_with_article_meta_and_stats(
+                async_iter_sync_iterable(
+                    app_providers_and_models.lists_model.iter_article_mentions_by_list_id(list_id)
+                ),
                 page=pagination_parameters.page,
                 items_per_page=pagination_parameters.items_per_page
             )
@@ -82,7 +84,7 @@ def create_list_by_id_router(
         )
 
     @router.get('/lists/by-id/{list_id}/atom.xml', response_class=AtomResponse)
-    def list_atom_by_sciety_list_id(
+    async def list_atom_by_sciety_list_id(
         request: Request,
         list_id: str,
         items_per_page: Optional[int] = DEFAULT_ITEMS_PER_PAGE,
@@ -92,9 +94,11 @@ def create_list_by_id_router(
             app_providers_and_models.lists_model.get_list_summary_data_by_list_id(list_id)
         )
         LOGGER.info('list_summary_data: %r', list_summary_data)
-        article_mention_with_article_meta = (
-            article_aggregator.iter_page_article_mention_with_article_meta_and_stats(
-                app_providers_and_models.lists_model.iter_article_mentions_by_list_id(list_id),
+        article_mention_with_article_meta = await get_list_for_async_iterable(
+            article_aggregator.async_iter_page_article_mention_with_article_meta_and_stats(
+                async_iter_sync_iterable(
+                    app_providers_and_models.lists_model.iter_article_mentions_by_list_id(list_id)
+                ),
                 page=page,
                 items_per_page=items_per_page
             )
