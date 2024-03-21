@@ -156,11 +156,6 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
             semantic_scholar_provider=self.semantic_scholar_provider,
             evaluation_stats_model=self.evaluation_stats_model
         )
-        # title_abstract_embedding_vector_provider = (
-        #     SemanticScholarTitleAbstractEmbeddingVectorProvider(
-        #         requests_session=cached_requests_session
-        #     )
-        # )
         self.async_title_abstract_embedding_vector_provider = (
             AsyncSemanticScholarTitleAbstractEmbeddingVectorProvider(
                 client_session=async_client_session
@@ -169,16 +164,6 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         self.article_recommendation_provider = get_article_recommendation_provider(
             semantic_scholar_provider=self.semantic_scholar_provider
         )
-        # self.single_article_recommendation_provider = get_single_article_recommendation_provider(
-        #     opensearch_client=self.opensearch_client,
-        #     opensearch_config=self.opensearch_config,
-        #     crossref_metadata_provider=self.crossref_metadata_provider,
-        #     title_abstract_embedding_vector_provider=title_abstract_embedding_vector_provider
-        # )
-        # LOGGER.info(
-        #     'single_article_recommendation_provider: %r',
-        #     self.single_article_recommendation_provider
-        # )
         self.async_single_article_recommendation_provider = (
             get_async_single_article_recommendation_provider(
                 opensearch_client=self.async_opensearch_client,
