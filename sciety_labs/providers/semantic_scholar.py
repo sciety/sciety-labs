@@ -23,7 +23,6 @@ from sciety_labs.providers.article_recommendation import (
     ArticleRecommendationProvider
 )
 from sciety_labs.providers.async_requests_provider import AsyncRequestsProvider
-from sciety_labs.providers.requests_provider import RequestsProvider
 from sciety_labs.providers.search import (
     SearchDateRange,
     SearchParameters,
@@ -384,33 +383,6 @@ class SemanticScholarSearchProvider(SearchProvider):
             ))
         async for item in search_result_iterable:
             yield item
-
-
-class SemanticScholarTitleAbstractEmbeddingVectorProvider(RequestsProvider):
-    def get_embedding_vector(
-        self,
-        title: str,
-        abstract: str,
-        headers: Optional[Mapping[str, str]] = None
-    ) -> Sequence[float]:
-        paper_id = '_dummy_paper_id'
-        papers = [{
-            'paper_id': paper_id,
-            'title': title,
-            'abstract': abstract
-        }]
-        response = requests.post(
-            'https://model-apis.semanticscholar.org/specter/v1/invoke',
-            json=papers,
-            timeout=self.timeout,
-            headers=self.get_headers(headers=headers)
-        )
-        response.raise_for_status()
-        embeddings_by_paper_id = {
-            pred['paper_id']: pred['embedding']
-            for pred in response.json().get('preds')
-        }
-        return embeddings_by_paper_id[paper_id]
 
 
 def get_semantic_scholar_api_key_file_path() -> Optional[str]:
