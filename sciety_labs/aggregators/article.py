@@ -3,7 +3,7 @@ from typing import AsyncIterable, AsyncIterator, Optional
 
 from sciety_labs.models.article import ArticleMention
 from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
-from sciety_labs.providers.async_providers.crossref.async_crossref import (
+from sciety_labs.providers.async_providers.crossref.providers import (
     AsyncCrossrefMetaDataProvider
 )
 from sciety_labs.providers.google_sheet_image import GoogleSheetArticleImageProvider
