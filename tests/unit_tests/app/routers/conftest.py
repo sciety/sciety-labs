@@ -2,8 +2,11 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from sciety_labs.providers.async_article_recommendation import (
+from sciety_labs.providers.interfaces.article_recommendation import (
     AsyncSingleArticleRecommendationProvider
+)
+from sciety_labs.providers.async_providers.crossref.providers import (
+    AsyncCrossrefMetaDataProvider
 )
 
 
@@ -12,12 +15,21 @@ def _app_providers_and_models_mock() -> MagicMock:
     return MagicMock(name='app_providers_and_models')
 
 
+@pytest.fixture(name='crossref_metadata_provider_mock', autouse=True)
+def _crossref_metadata_provider_mock(
+    app_providers_and_models_mock: MagicMock
+) -> AsyncMock:
+    mock = AsyncMock(AsyncCrossrefMetaDataProvider)
+    app_providers_and_models_mock.crossref_metadata_provider = mock
+    return mock
+
+
 @pytest.fixture(name='async_single_article_recommendation_provider_mock', autouse=True)
 def _async_single_article_recommendation_provider_mock(
     app_providers_and_models_mock: MagicMock
 ) -> AsyncMock:
     mock = AsyncMock(AsyncSingleArticleRecommendationProvider)
-    app_providers_and_models_mock.async_single_article_recommendation_provider = mock
+    app_providers_and_models_mock.single_article_recommendation_provider = mock
     return mock
 
 

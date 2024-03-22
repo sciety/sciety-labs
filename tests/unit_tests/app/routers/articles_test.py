@@ -20,7 +20,9 @@ INVALID_DOI_1 = 'invalid-doi-1'
 def _test_client(app_providers_and_models_mock: MagicMock) -> TestClient:
     app = FastAPI()
     get_article_metadata_by_doi_mock: MagicMock = (
-        app_providers_and_models_mock.crossref_metadata_provider.get_article_metadata_by_doi
+        app_providers_and_models_mock
+        .crossref_metadata_provider
+        .get_article_metadata_by_doi
     )
     get_article_metadata_by_doi_mock.return_value = ArticleMetaData(
         article_doi=DOI_1,

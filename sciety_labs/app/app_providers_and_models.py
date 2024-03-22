@@ -1,11 +1,10 @@
-import logging
 from datetime import timedelta
+import logging
 from pathlib import Path
 from typing import Optional
 import aiohttp
 
-import requests_cache
-
+import aiohttp_client_cache
 import opensearchpy
 
 from sciety_labs.aggregators.article import ArticleAggregator
@@ -13,41 +12,34 @@ from sciety_labs.aggregators.article import ArticleAggregator
 from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
 
 from sciety_labs.models.lists import ScietyEventListsModel
-from sciety_labs.providers.article_recommendation import (
-    ArticleRecommendationProvider,
-    SingleArticleRecommendationProvider
+from sciety_labs.providers.interfaces.article_recommendation import (
+    AsyncArticleRecommendationProvider
 )
-from sciety_labs.providers.async_article_recommendation import (
+from sciety_labs.providers.interfaces.article_recommendation import (
     AsyncSingleArticleRecommendationProvider
 )
-from sciety_labs.providers.async_crossref import (
+from sciety_labs.providers.async_providers.crossref.providers import (
     AsyncCrossrefMetaDataProvider
 )
-from sciety_labs.providers.async_opensearch_article_recommendation import (
+from sciety_labs.providers.async_providers.opensearch.providers import (  # noqa pylint: disable=line-too-long
     AsyncOpenSearchArticleRecommendation
 )
-from sciety_labs.providers.async_semantic_scholar import (
+from sciety_labs.providers.async_providers.semantic_scholar.providers import (
     AsyncSemanticScholarTitleAbstractEmbeddingVectorProvider
 )
-from sciety_labs.providers.crossref import (
-    CrossrefMetaDataProvider
-)
-from sciety_labs.providers.europe_pmc import EuropePmcProvider
+from sciety_labs.providers.async_providers.europe_pmc.providers import AsyncEuropePmcProvider
 from sciety_labs.providers.google_sheet_image import (
     GoogleSheetArticleImageProvider,
     GoogleSheetListImageProvider
 )
-from sciety_labs.providers.opensearch import (
+from sciety_labs.providers.async_providers.opensearch.client import (
     OpenSearchConnectionConfig,
-    get_async_opensearch_client_or_none,
-    get_opensearch_client_or_none
+    get_async_opensearch_client_or_none
 )
-from sciety_labs.providers.opensearch_article_recommendation import OpenSearchArticleRecommendation
 from sciety_labs.providers.sciety_event import ScietyEventProvider
-from sciety_labs.providers.semantic_scholar import (
-    SemanticScholarProvider,
-    SemanticScholarSearchProvider,
-    SemanticScholarTitleAbstractEmbeddingVectorProvider,
+from sciety_labs.providers.async_providers.semantic_scholar.providers import (
+    AsyncSemanticScholarProvider,
+    AsyncSemanticScholarSearchProvider,
     get_semantic_scholar_provider
 )
 from sciety_labs.utils.arrow_cache import ArrowTableDiskSingleObjectCache
@@ -63,41 +55,9 @@ LOGGER = logging.getLogger(__name__)
 
 
 def get_article_recommendation_provider(
-    semantic_scholar_provider: SemanticScholarProvider
-) -> ArticleRecommendationProvider:
+    semantic_scholar_provider: AsyncSemanticScholarProvider
+) -> AsyncArticleRecommendationProvider:
     return semantic_scholar_provider
-
-
-def get_opensearch_single_article_recommendation_provider(
-    opensearch_client: opensearchpy.OpenSearch,
-    opensearch_config: OpenSearchConnectionConfig,
-    crossref_metadata_provider: CrossrefMetaDataProvider,
-    title_abstract_embedding_vector_provider: SemanticScholarTitleAbstractEmbeddingVectorProvider
-) -> Optional[SingleArticleRecommendationProvider]:
-    assert opensearch_config.embedding_vector_mapping_name
-    return OpenSearchArticleRecommendation(
-        opensearch_client=opensearch_client,
-        index_name=opensearch_config.index_name,
-        embedding_vector_mapping_name=opensearch_config.embedding_vector_mapping_name,
-        crossref_metadata_provider=crossref_metadata_provider,
-        title_abstract_embedding_vector_provider=title_abstract_embedding_vector_provider
-    )
-
-
-def get_single_article_recommendation_provider(
-    opensearch_client: Optional[opensearchpy.OpenSearch],
-    opensearch_config: Optional[OpenSearchConnectionConfig],
-    crossref_metadata_provider: CrossrefMetaDataProvider,
-    title_abstract_embedding_vector_provider: SemanticScholarTitleAbstractEmbeddingVectorProvider
-) -> Optional[SingleArticleRecommendationProvider]:
-    if opensearch_client and opensearch_config and opensearch_config.embedding_vector_mapping_name:
-        return get_opensearch_single_article_recommendation_provider(
-            opensearch_client=opensearch_client,
-            opensearch_config=opensearch_config,
-            crossref_metadata_provider=crossref_metadata_provider,
-            title_abstract_embedding_vector_provider=title_abstract_embedding_vector_provider
-        )
-    return None
 
 
 def get_async_opensearch_single_article_recommendation_provider(
@@ -158,22 +118,21 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
             )
         ])
 
-        cached_requests_session = requests_cache.CachedSession(
-            '.cache/requests_cache',
-            xpire_after=timedelta(days=1),
-            allowable_methods=('GET', 'HEAD', 'POST'),  # include POST for Semantic Scholar
-            match_headers=False
+        self.async_cached_client_session = aiohttp_client_cache.CachedSession(
+            cache=aiohttp_client_cache.SQLiteBackend(
+                '.cache/aiohttp-requests.sqlite',
+                expire_after=timedelta(days=1),
+                allowed_methods=('GET', 'HEAD', 'POST'),  # include POST for Semantic Scholar
+                include_headers=False
+            )
         )
+        async_cached_client_session = self.async_cached_client_session
+
         async_client_session = aiohttp.ClientSession(
             connector=aiohttp.TCPConnector(limit=200)
         )
 
         self.opensearch_config = OpenSearchConnectionConfig.from_env()
-        self.opensearch_client = get_opensearch_client_or_none(
-            self.opensearch_config,
-            requests_session=cached_requests_session
-        )
-        LOGGER.info('opensearch_client: %r', self.opensearch_client)
         self.async_opensearch_client = get_async_opensearch_client_or_none(
             self.opensearch_config,
             client_session=async_client_session
@@ -188,26 +147,18 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         self.lists_model = ScietyEventListsModel([])
         self.evaluation_stats_model = ScietyEventEvaluationStatsModel([])
 
-        self.crossref_metadata_provider = CrossrefMetaDataProvider(
-            requests_session=cached_requests_session
-        )
-        self.async_crossref_metadata_provider = AsyncCrossrefMetaDataProvider(
-            client_session=async_client_session
+        self.crossref_metadata_provider = AsyncCrossrefMetaDataProvider(
+            client_session=async_cached_client_session
         )
 
         self.semantic_scholar_provider = get_semantic_scholar_provider(
-            requests_session=cached_requests_session
+            client_session=async_cached_client_session
         )
-        self.semantic_scholar_search_provider = SemanticScholarSearchProvider(
+        self.semantic_scholar_search_provider = AsyncSemanticScholarSearchProvider(
             semantic_scholar_provider=self.semantic_scholar_provider,
             evaluation_stats_model=self.evaluation_stats_model
         )
-        title_abstract_embedding_vector_provider = (
-            SemanticScholarTitleAbstractEmbeddingVectorProvider(
-                requests_session=cached_requests_session
-            )
-        )
-        self.async_title_abstract_embedding_vector_provider = (
+        self.title_abstract_embedding_vector_provider = (
             AsyncSemanticScholarTitleAbstractEmbeddingVectorProvider(
                 client_session=async_client_session
             )
@@ -215,33 +166,23 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         self.article_recommendation_provider = get_article_recommendation_provider(
             semantic_scholar_provider=self.semantic_scholar_provider
         )
-        self.single_article_recommendation_provider = get_single_article_recommendation_provider(
-            opensearch_client=self.opensearch_client,
-            opensearch_config=self.opensearch_config,
-            crossref_metadata_provider=self.crossref_metadata_provider,
-            title_abstract_embedding_vector_provider=title_abstract_embedding_vector_provider
+        self.single_article_recommendation_provider = (
+            get_async_single_article_recommendation_provider(
+                opensearch_client=self.async_opensearch_client,
+                opensearch_config=self.opensearch_config,
+                crossref_metadata_provider=self.crossref_metadata_provider,
+                title_abstract_embedding_vector_provider=(
+                    self.title_abstract_embedding_vector_provider
+                )
+            )
         )
         LOGGER.info(
             'single_article_recommendation_provider: %r',
             self.single_article_recommendation_provider
         )
-        self.async_single_article_recommendation_provider = (
-            get_async_single_article_recommendation_provider(
-                opensearch_client=self.async_opensearch_client,
-                opensearch_config=self.opensearch_config,
-                crossref_metadata_provider=self.async_crossref_metadata_provider,
-                title_abstract_embedding_vector_provider=(
-                    self.async_title_abstract_embedding_vector_provider
-                )
-            )
-        )
-        LOGGER.info(
-            'async_single_article_recommendation_provider: %r',
-            self.async_single_article_recommendation_provider
-        )
 
-        self.europe_pmc_provider = EuropePmcProvider(
-            requests_session=cached_requests_session
+        self.europe_pmc_provider = AsyncEuropePmcProvider(
+            client_session=async_client_session
         )
 
         article_image_mapping_cache = ChainedObjectCache([

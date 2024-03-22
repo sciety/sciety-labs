@@ -80,13 +80,13 @@ dev-start:
 		--factory \
 		--host 127.0.0.1 \
 		--port 8000 \
+		--lifespan on \
 		--log-config=config/logging.yaml
 
 
 dev-start-load-test-ui: .require-LOCUST_FILE
 	PYTHONWARNINGS="ignore:Unverified HTTPS request" \
 	$(PYTHON) -m locust \
-		--modern-ui \
 		--locustfile=$(LOCUST_FILE)
 
 

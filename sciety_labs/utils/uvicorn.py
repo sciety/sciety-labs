@@ -27,6 +27,10 @@ class RedirectDoubleQueryStringMiddleware:
         self.app = app
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope['type'] != 'http':
+            await self.app(scope, receive, send)
+            return
+
         LOGGER.debug('scope: %r', scope)
         url = URL(scope=scope)
         redirect_url = get_redirect_url_for_double_query_string_url_or_none(url)
@@ -44,7 +48,7 @@ class RedirectPathMappingMiddleware:
         self.path_mapping = path_mapping
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
-        if scope["type"] != "http":
+        if scope['type'] != 'http':
             await self.app(scope, receive, send)
             return
 
