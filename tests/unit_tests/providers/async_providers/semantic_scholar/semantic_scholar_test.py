@@ -1,5 +1,5 @@
 from datetime import date
-from sciety_labs.providers.semantic_scholar import (
+from sciety_labs.providers.async_providers.semantic_scholar.semantic_scholar import (
     SEMANTIC_SCHOLAR_PAPER_ID_EXT_REF_ID,
     _get_recommendation_request_payload_for_paper_ids_or_external_ids,
     _iter_article_recommendation_from_recommendation_response_json

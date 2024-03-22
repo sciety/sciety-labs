@@ -37,7 +37,7 @@ from sciety_labs.providers.opensearch import (
     get_async_opensearch_client_or_none
 )
 from sciety_labs.providers.sciety_event import ScietyEventProvider
-from sciety_labs.providers.semantic_scholar import (
+from sciety_labs.providers.async_providers.semantic_scholar.semantic_scholar import (
     SemanticScholarProvider,
     SemanticScholarSearchProvider,
     get_semantic_scholar_provider
