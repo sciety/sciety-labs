@@ -21,7 +21,7 @@ from sciety_labs.providers.article_recommendation import (
 from sciety_labs.providers.async_providers.crossref.providers import (
     AsyncCrossrefMetaDataProvider
 )
-from sciety_labs.providers.async_opensearch_article_recommendation import (
+from sciety_labs.providers.async_providers.opensearch.async_opensearch_article_recommendation import (  # noqa pylint: disable=line-too-long
     AsyncOpenSearchArticleRecommendation
 )
 from sciety_labs.providers.async_providers.semantic_scholar.providers import (
@@ -32,7 +32,7 @@ from sciety_labs.providers.google_sheet_image import (
     GoogleSheetArticleImageProvider,
     GoogleSheetListImageProvider
 )
-from sciety_labs.providers.opensearch import (
+from sciety_labs.providers.async_providers.opensearch.opensearch import (
     OpenSearchConnectionConfig,
     get_async_opensearch_client_or_none
 )

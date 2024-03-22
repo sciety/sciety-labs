@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from sciety_labs.providers.opensearch import (
+from sciety_labs.providers.async_providers.opensearch.opensearch import (
     OpenSearchConnectionConfig,
     OpenSearchEnvVariables
 )
