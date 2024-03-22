@@ -87,7 +87,6 @@ dev-start:
 dev-start-load-test-ui: .require-LOCUST_FILE
 	PYTHONWARNINGS="ignore:Unverified HTTPS request" \
 	$(PYTHON) -m locust \
-		--modern-ui \
 		--locustfile=$(LOCUST_FILE)
 
 
