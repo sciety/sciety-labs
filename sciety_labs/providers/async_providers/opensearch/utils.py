@@ -7,7 +7,7 @@ import numpy.typing as npt
 
 from sciety_labs.models.article import ArticleMetaData, ArticleStats
 
-from sciety_labs.providers.article_recommendation import (
+from sciety_labs.providers.interfaces.article_recommendation import (
     ArticleRecommendation,
     ArticleRecommendationFilterParameters,
     ArticleRecommendationList

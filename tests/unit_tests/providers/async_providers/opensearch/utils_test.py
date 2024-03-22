@@ -1,7 +1,9 @@
 import logging
 from datetime import date
 
-from sciety_labs.providers.article_recommendation import ArticleRecommendationFilterParameters
+from sciety_labs.providers.interfaces.article_recommendation import (
+    ArticleRecommendationFilterParameters
+)
 from sciety_labs.providers.async_providers.opensearch.utils import (
     get_article_meta_from_document,
     get_article_recommendation_from_document,

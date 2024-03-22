@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from sciety_labs.providers.article_recommendation import (
+from sciety_labs.providers.interfaces.article_recommendation import (
     AsyncSingleArticleRecommendationProvider
 )
 from sciety_labs.providers.async_providers.crossref.providers import (

@@ -3,7 +3,7 @@ from typing import Mapping, Optional, Sequence, Tuple
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.models.article import ArticleMention
-from sciety_labs.providers.article_recommendation import (
+from sciety_labs.providers.interfaces.article_recommendation import (
     ArticleRecommendationFilterParameters,
     ArticleRecommendationList
 )
