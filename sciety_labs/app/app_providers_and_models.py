@@ -39,7 +39,7 @@ from sciety_labs.providers.async_providers.opensearch.client import (
 from sciety_labs.providers.sciety_event import ScietyEventProvider
 from sciety_labs.providers.async_providers.semantic_scholar.providers import (
     AsyncSemanticScholarProvider,
-    SemanticScholarSearchProvider,
+    AsyncSemanticScholarSearchProvider,
     get_semantic_scholar_provider
 )
 from sciety_labs.utils.arrow_cache import ArrowTableDiskSingleObjectCache
@@ -154,7 +154,7 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         self.semantic_scholar_provider = get_semantic_scholar_provider(
             client_session=async_cached_client_session
         )
-        self.semantic_scholar_search_provider = SemanticScholarSearchProvider(
+        self.semantic_scholar_search_provider = AsyncSemanticScholarSearchProvider(
             semantic_scholar_provider=self.semantic_scholar_provider,
             evaluation_stats_model=self.evaluation_stats_model
         )

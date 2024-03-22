@@ -333,7 +333,7 @@ async def iter_search_results_published_within_date_range(
             yield search_result
 
 
-class SemanticScholarSearchProvider(SearchProvider):
+class AsyncSemanticScholarSearchProvider(SearchProvider):
     def __init__(
         self,
         semantic_scholar_provider: AsyncSemanticScholarProvider,
