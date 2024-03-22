@@ -27,7 +27,7 @@ from sciety_labs.providers.async_providers.utils.async_requests_provider import 
 from sciety_labs.providers.search import (
     SearchDateRange,
     SearchParameters,
-    SearchProvider,
+    AsyncSearchProvider,
     SearchSortBy
 )
 from sciety_labs.utils.async_utils import (
@@ -333,7 +333,7 @@ async def iter_search_results_published_within_date_range(
             yield search_result
 
 
-class AsyncSemanticScholarSearchProvider(SearchProvider):
+class AsyncSemanticScholarSearchProvider(AsyncSearchProvider):
     def __init__(
         self,
         semantic_scholar_provider: AsyncSemanticScholarProvider,

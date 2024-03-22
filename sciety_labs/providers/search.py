@@ -68,7 +68,7 @@ class SearchParameters:
     items_per_page: int = DEFAULT_SEARCH_RESULT_LIMIT
 
 
-class SearchProvider(Protocol):
+class AsyncSearchProvider(Protocol):
     async def iter_search_result_item(
         self,
         search_parameters: SearchParameters

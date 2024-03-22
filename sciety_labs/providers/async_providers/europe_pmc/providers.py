@@ -10,7 +10,7 @@ from sciety_labs.providers.async_providers.utils.async_requests_provider import 
 from sciety_labs.providers.search import (
     SearchDateRange,
     SearchParameters,
-    SearchProvider,
+    AsyncSearchProvider,
     SearchSortBy
 )
 
@@ -75,7 +75,7 @@ def get_query_with_additional_filters(search_parameters: SearchParameters) -> st
     return result
 
 
-class AsyncEuropePmcProvider(AsyncRequestsProvider, SearchProvider):
+class AsyncEuropePmcProvider(AsyncRequestsProvider, AsyncSearchProvider):
     async def get_search_result_list(  # pylint: disable=too-many-arguments
         self,
         search_parameters: SearchParameters,
