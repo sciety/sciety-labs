@@ -108,18 +108,6 @@ class ScietyEventEvaluationStatsModel:
             async for article_mention in article_mention_iterable
         )
 
-    def iter_evaluated_only_article_mention(
-        self,
-        article_mention_iterable: Iterable[ArticleMentionT]
-    ) -> Iterable[ArticleMentionT]:
-        return (
-            article_mention
-            for article_mention in article_mention_iterable
-            if self.get_evaluation_count_by_article_id(
-                DOI_ARTICLE_ID_PREFIX + article_mention.article_doi
-            )
-        )
-
     async def async_iter_evaluated_only_article_mention(
         self,
         article_mention_iterable: AsyncIterator[ArticleMentionT]
