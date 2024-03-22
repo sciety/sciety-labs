@@ -15,12 +15,12 @@ def _app_providers_and_models_mock() -> MagicMock:
     return MagicMock(name='app_providers_and_models')
 
 
-@pytest.fixture(name='async_crossref_metadata_provider_mock', autouse=True)
-def _async_crossref_metadata_provider_mock(
+@pytest.fixture(name='crossref_metadata_provider_mock', autouse=True)
+def _crossref_metadata_provider_mock(
     app_providers_and_models_mock: MagicMock
 ) -> AsyncMock:
     mock = AsyncMock(AsyncCrossrefMetaDataProvider)
-    app_providers_and_models_mock.async_crossref_metadata_provider = mock
+    app_providers_and_models_mock.crossref_metadata_provider = mock
     return mock
 
 

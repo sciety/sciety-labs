@@ -59,7 +59,7 @@ def create_api_experimental_router(
     ):
         return await (
             app_providers_and_models
-            .async_crossref_metadata_provider
+            .crossref_metadata_provider
             .get_crossref_metadata_dict_by_doi(
                 article_doi,
                 headers=get_cache_control_headers_for_request(request)
@@ -75,7 +75,7 @@ def create_api_experimental_router(
     ):
         return await (
             app_providers_and_models
-            .async_crossref_metadata_provider
+            .crossref_metadata_provider
             .get_crossref_metadata_dict_by_doi(
                 article_doi,
                 headers=get_cache_control_headers_for_request(request)

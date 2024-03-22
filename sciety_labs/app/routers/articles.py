@@ -63,7 +63,7 @@ def create_articles_router(
         try:
             article_meta = await (
                 app_providers_and_models
-                .async_crossref_metadata_provider
+                .crossref_metadata_provider
                 .get_article_metadata_by_doi(article_doi)
             )
         except aiohttp.ClientError as exc:
@@ -129,7 +129,7 @@ def create_articles_router(
     ):
         article_meta = await (
             app_providers_and_models
-            .async_crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
+            .crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
         )
         if not fragment:
             article_recommendation_fragment_url = (

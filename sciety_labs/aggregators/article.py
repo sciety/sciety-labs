@@ -18,11 +18,11 @@ class ArticleAggregator:
     def __init__(
         self,
         evaluation_stats_model: ScietyEventEvaluationStatsModel,
-        async_crossref_metadata_provider: AsyncCrossrefMetaDataProvider,
+        crossref_metadata_provider: AsyncCrossrefMetaDataProvider,
         google_sheet_article_image_provider: GoogleSheetArticleImageProvider
     ):
         self.evaluation_stats_model = evaluation_stats_model
-        self.async_crossref_metadata_provider = async_crossref_metadata_provider
+        self.crossref_metadata_provider = crossref_metadata_provider
         self.google_sheet_article_image_provider = google_sheet_article_image_provider
 
     async def async_iter_page_article_mention_with_article_meta_and_stats(
@@ -37,7 +37,7 @@ class ArticleAggregator:
             )
         )
         article_mention_with_article_meta_iterable = (
-            self.async_crossref_metadata_provider.iter_article_mention_with_article_meta(
+            self.crossref_metadata_provider.iter_article_mention_with_article_meta(
                 async_get_page_iterable(
                     article_mention_iterable, page=page, items_per_page=items_per_page
                 )

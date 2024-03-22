@@ -147,7 +147,7 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         self.lists_model = ScietyEventListsModel([])
         self.evaluation_stats_model = ScietyEventEvaluationStatsModel([])
 
-        self.async_crossref_metadata_provider = AsyncCrossrefMetaDataProvider(
+        self.crossref_metadata_provider = AsyncCrossrefMetaDataProvider(
             client_session=async_cached_client_session
         )
 
@@ -170,7 +170,7 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
             get_async_single_article_recommendation_provider(
                 opensearch_client=self.async_opensearch_client,
                 opensearch_config=self.opensearch_config,
-                crossref_metadata_provider=self.async_crossref_metadata_provider,
+                crossref_metadata_provider=self.crossref_metadata_provider,
                 title_abstract_embedding_vector_provider=(
                     self.async_title_abstract_embedding_vector_provider
                 )
@@ -217,6 +217,6 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
 
         self.article_aggregator = ArticleAggregator(
             evaluation_stats_model=self.evaluation_stats_model,
-            async_crossref_metadata_provider=self.async_crossref_metadata_provider,
+            crossref_metadata_provider=self.crossref_metadata_provider,
             google_sheet_article_image_provider=self.google_sheet_article_image_provider
         )
