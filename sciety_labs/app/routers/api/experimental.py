@@ -92,7 +92,7 @@ def create_api_experimental_router(
     ):
         embedding_vector = await (
             app_providers_and_models
-            .async_title_abstract_embedding_vector_provider
+            .title_abstract_embedding_vector_provider
             .get_embedding_vector(
                 title=title,
                 abstract=abstract,

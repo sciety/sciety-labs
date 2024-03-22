@@ -158,7 +158,7 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
             semantic_scholar_provider=self.semantic_scholar_provider,
             evaluation_stats_model=self.evaluation_stats_model
         )
-        self.async_title_abstract_embedding_vector_provider = (
+        self.title_abstract_embedding_vector_provider = (
             AsyncSemanticScholarTitleAbstractEmbeddingVectorProvider(
                 client_session=async_client_session
             )
@@ -172,7 +172,7 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
                 opensearch_config=self.opensearch_config,
                 crossref_metadata_provider=self.crossref_metadata_provider,
                 title_abstract_embedding_vector_provider=(
-                    self.async_title_abstract_embedding_vector_provider
+                    self.title_abstract_embedding_vector_provider
                 )
             )
         )
