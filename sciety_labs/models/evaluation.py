@@ -102,7 +102,7 @@ class ScietyEventEvaluationStatsModel:
         self,
         article_mention_iterable: AsyncIterable[ArticleMentionT]
     ) -> AsyncIterator[ArticleMentionT]:
-        LOGGER.info('article_mention_iterable: %r', article_mention_iterable)
+        LOGGER.debug('article_mention_iterable: %r', article_mention_iterable)
         async for article_mention in article_mention_iterable:
             yield self.get_article_mention_with_article_stats(article_mention)
 
