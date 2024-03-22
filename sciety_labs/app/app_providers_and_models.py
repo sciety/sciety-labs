@@ -32,7 +32,7 @@ from sciety_labs.providers.google_sheet_image import (
     GoogleSheetArticleImageProvider,
     GoogleSheetListImageProvider
 )
-from sciety_labs.providers.async_providers.opensearch.opensearch import (
+from sciety_labs.providers.async_providers.opensearch.client import (
     OpenSearchConnectionConfig,
     get_async_opensearch_client_or_none
 )
