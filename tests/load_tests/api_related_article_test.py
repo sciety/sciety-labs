@@ -33,13 +33,3 @@ class ScietyLabsApiRelatedArticlesUser(HttpUser):
             params=TEST_API_PARAMS_1,
             headers=NO_CACHE_HEADERS
         )
-
-
-class ScietyLabsAsyncApiRelatedArticlesUser(HttpUser):
-    @task
-    def related_articles(self):
-        self.client.get(
-            f'/api/async/like/s2/recommendations/v1/papers/forpaper/DOI:{TEST_DOI_1}',
-            params=TEST_API_PARAMS_1,
-            headers=NO_CACHE_HEADERS
-        )

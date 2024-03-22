@@ -84,6 +84,16 @@ dev-start:
 		--log-config=config/logging.yaml
 
 
+dev-start-without-reload:
+	$(PYTHON) -m uvicorn \
+		sciety_labs.app.main:create_app \
+		--factory \
+		--host 127.0.0.1 \
+		--port 8000 \
+		--lifespan on \
+		--log-config=config/logging.yaml
+
+
 dev-start-load-test-ui: .require-LOCUST_FILE
 	PYTHONWARNINGS="ignore:Unverified HTTPS request" \
 	$(PYTHON) -m locust \
