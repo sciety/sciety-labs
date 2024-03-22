@@ -122,7 +122,7 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
             cache=aiohttp_client_cache.SQLiteBackend(
                 '.cache/aiohttp-requests.sqlite',
                 expire_after=timedelta(days=1),
-                allowable_methods=('GET', 'HEAD', 'POST'),  # include POST for Semantic Scholar
+                allowed_methods=('GET', 'HEAD', 'POST'),  # include POST for Semantic Scholar
                 match_headers=False
             )
         )
