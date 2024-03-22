@@ -4,18 +4,10 @@ from typing import Optional
 import aiohttp
 from aiohttp_client_cache.response import CachedResponse
 
-import requests
-
 from sciety_labs.utils.datetime import get_utc_timestamp_with_tzinfo
 
 
 def get_exception_status_code(exception: Exception) -> Optional[int]:
-    if isinstance(exception, requests.exceptions.RequestException):
-        return (
-            exception.response.status_code
-            if exception.response is not None
-            else None
-        )
     if isinstance(exception, aiohttp.ClientResponseError):
         return exception.status
     return None
