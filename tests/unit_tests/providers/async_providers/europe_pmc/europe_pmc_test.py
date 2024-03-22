@@ -1,6 +1,8 @@
 from datetime import date
 
-from sciety_labs.providers.europe_pmc import get_first_published_date_within_dates
+from sciety_labs.providers.async_providers.europe_pmc.europe_pmc import (
+    get_first_published_date_within_dates
+)
 
 
 class TestGetFirstPublishedDateWithinDates:

@@ -27,7 +27,7 @@ from sciety_labs.providers.async_providers.opensearch.providers import (  # noqa
 from sciety_labs.providers.async_providers.semantic_scholar.providers import (
     AsyncSemanticScholarTitleAbstractEmbeddingVectorProvider
 )
-from sciety_labs.providers.europe_pmc import EuropePmcProvider
+from sciety_labs.providers.async_providers.europe_pmc.europe_pmc import EuropePmcProvider
 from sciety_labs.providers.google_sheet_image import (
     GoogleSheetArticleImageProvider,
     GoogleSheetListImageProvider
