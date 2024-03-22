@@ -5,7 +5,9 @@ import pytest
 from sciety_labs.providers.async_article_recommendation import (
     AsyncSingleArticleRecommendationProvider
 )
-from sciety_labs.providers.async_crossref import AsyncCrossrefMetaDataProvider
+from sciety_labs.providers.async_providers.crossref.async_crossref import (
+    AsyncCrossrefMetaDataProvider
+)
 
 
 @pytest.fixture(name='app_providers_and_models_mock')
