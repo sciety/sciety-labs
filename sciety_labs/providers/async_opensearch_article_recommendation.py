@@ -17,7 +17,7 @@ from sciety_labs.providers.async_article_recommendation import (
 from sciety_labs.providers.async_providers.crossref.providers import (
     AsyncCrossrefMetaDataProvider
 )
-from sciety_labs.providers.async_semantic_scholar import (
+from sciety_labs.providers.async_providers.semantic_scholar.providers import (
     AsyncSemanticScholarTitleAbstractEmbeddingVectorProvider
 )
 from sciety_labs.providers.opensearch_article_recommendation import (

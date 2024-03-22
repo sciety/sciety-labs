@@ -378,6 +378,34 @@ class SemanticScholarSearchProvider(SearchProvider):
             yield item
 
 
+class AsyncSemanticScholarTitleAbstractEmbeddingVectorProvider(AsyncRequestsProvider):
+    async def get_embedding_vector(
+        self,
+        title: str,
+        abstract: str,
+        headers: Optional[Mapping[str, str]] = None
+    ) -> Sequence[float]:
+        paper_id = '_dummy_paper_id'
+        papers = [{
+            'paper_id': paper_id,
+            'title': title,
+            'abstract': abstract
+        }]
+        async with self.post(
+            'https://model-apis.semanticscholar.org/specter/v1/invoke',
+            json=papers,
+            timeout=self.timeout,
+            headers=self.get_headers(headers=headers)
+        ) as response:
+            response.raise_for_status()
+            response_json = await response.json()
+            embeddings_by_paper_id = {
+                pred['paper_id']: pred['embedding']
+                for pred in response_json.get('preds')
+            }
+            return embeddings_by_paper_id[paper_id]
+
+
 def get_semantic_scholar_api_key_file_path() -> Optional[str]:
     return os.getenv(SEMANTIC_SCHOLAR_API_KEY_FILE_PATH_ENV_VAR)
 

@@ -24,7 +24,7 @@ from sciety_labs.providers.async_providers.crossref.providers import (
 from sciety_labs.providers.async_opensearch_article_recommendation import (
     AsyncOpenSearchArticleRecommendation
 )
-from sciety_labs.providers.async_semantic_scholar import (
+from sciety_labs.providers.async_providers.semantic_scholar.providers import (
     AsyncSemanticScholarTitleAbstractEmbeddingVectorProvider
 )
 from sciety_labs.providers.europe_pmc import EuropePmcProvider
