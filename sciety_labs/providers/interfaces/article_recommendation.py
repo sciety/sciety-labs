@@ -23,7 +23,7 @@ class ArticleRecommendationList:
     recommendation_timestamp: datetime
 
 
-class ArticleRecommendationProvider(Protocol):
+class AsyncArticleRecommendationProvider(Protocol):
     async def get_article_recommendation_list_for_article_dois(
         self,
         article_dois: Iterable[str],

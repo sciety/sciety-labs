@@ -13,7 +13,7 @@ from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
 
 from sciety_labs.models.lists import ScietyEventListsModel
 from sciety_labs.providers.interfaces.article_recommendation import (
-    ArticleRecommendationProvider
+    AsyncArticleRecommendationProvider
 )
 from sciety_labs.providers.interfaces.article_recommendation import (
     AsyncSingleArticleRecommendationProvider
@@ -56,7 +56,7 @@ LOGGER = logging.getLogger(__name__)
 
 def get_article_recommendation_provider(
     semantic_scholar_provider: AsyncSemanticScholarProvider
-) -> ArticleRecommendationProvider:
+) -> AsyncArticleRecommendationProvider:
     return semantic_scholar_provider
 
 

@@ -19,7 +19,7 @@ from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
 from sciety_labs.providers.interfaces.article_recommendation import (
     ArticleRecommendation,
     ArticleRecommendationList,
-    ArticleRecommendationProvider
+    AsyncArticleRecommendationProvider
 )
 from sciety_labs.providers.async_providers.utils.async_requests_provider import (
     AsyncRequestsProvider
@@ -181,7 +181,7 @@ async def is_data_for_limit_or_offset_not_available_error(
         return False
 
 
-class AsyncSemanticScholarProvider(AsyncRequestsProvider, ArticleRecommendationProvider):
+class AsyncSemanticScholarProvider(AsyncRequestsProvider, AsyncArticleRecommendationProvider):
     def __init__(
         self,
         api_key_file_path: Optional[str],
