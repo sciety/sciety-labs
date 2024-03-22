@@ -119,10 +119,12 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         ])
 
         self.async_cached_client_session = aiohttp_client_cache.CachedSession(
-            cache=aiohttp_client_cache.SQLiteBackend('.cache/aiohttp-requests.sqlite'),
-            expire_after=timedelta(minutes=1),
-            allowable_methods=('GET', 'HEAD', 'POST'),  # include POST for Semantic Scholar
-            match_headers=False
+            cache=aiohttp_client_cache.SQLiteBackend(
+                '.cache/aiohttp-requests.sqlite',
+                expire_after=timedelta(days=1),
+                allowable_methods=('GET', 'HEAD', 'POST'),  # include POST for Semantic Scholar
+                match_headers=False
+            )
         )
         async_cached_client_session = self.async_cached_client_session
 
