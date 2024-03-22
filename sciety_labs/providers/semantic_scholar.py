@@ -213,7 +213,7 @@ class SemanticScholarProvider(AsyncRequestsProvider, ArticleRecommendationProvid
             )
         )
         LOGGER.info('Semantic Scholar, request_json=%r', request_json)
-        async with self.client_session.post(
+        async with self.post(
             'https://api.semanticscholar.org/recommendations/v1/papers/',
             json=request_json,
             params={
@@ -251,7 +251,7 @@ class SemanticScholarProvider(AsyncRequestsProvider, ArticleRecommendationProvid
             'limit': str(limit)
         }
         LOGGER.info('Semantic Scholar search, request_params=%r', request_params)
-        async with self.client_session.get(
+        async with self.get(
             'https://api.semanticscholar.org/graph/v1/paper/search',
             params=request_params,
             timeout=self.timeout,

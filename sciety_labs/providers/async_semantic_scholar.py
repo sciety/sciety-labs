@@ -20,7 +20,7 @@ class AsyncSemanticScholarTitleAbstractEmbeddingVectorProvider(AsyncRequestsProv
             'title': title,
             'abstract': abstract
         }]
-        async with self.client_session.post(
+        async with self.post(
             'https://model-apis.semanticscholar.org/specter/v1/invoke',
             json=papers,
             timeout=self.timeout,
