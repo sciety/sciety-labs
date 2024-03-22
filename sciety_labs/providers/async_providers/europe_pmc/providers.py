@@ -91,7 +91,7 @@ class AsyncEuropePmcProvider(AsyncRequestsProvider, AsyncSearchProvider):
             'pageSize': str(search_parameters.items_per_page)
         }
         LOGGER.info('Europe PMC search, request_params=%r', request_params)
-        async with self.client_session.get(
+        async with self.get(
             'https://www.ebi.ac.uk/europepmc/webservices/rest/search',
             params=request_params,
             timeout=self.timeout,

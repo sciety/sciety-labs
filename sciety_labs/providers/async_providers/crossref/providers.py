@@ -31,7 +31,7 @@ class AsyncCrossrefMetaDataProvider(AsyncRequestsProvider):
         headers: Optional[Mapping[str, str]] = None
     ) -> dict:
         url = f'https://api.crossref.org/works/{doi}'
-        async with self.client_session.get(
+        async with self.get(
             url,
             headers=self.get_headers(headers=headers),
             timeout=self.timeout
@@ -56,7 +56,7 @@ class AsyncCrossrefMetaDataProvider(AsyncRequestsProvider):
     ) -> Mapping[str, dict]:
         url = 'https://api.crossref.org/works'
         params = get_batch_doi_request_parameters(dois)
-        async with self.client_session.get(
+        async with self.get(
             url,
             params=params,
             headers=self.get_headers(),
