@@ -4,7 +4,9 @@ from typing import AsyncIterable, AsyncIterator, Mapping, Optional, Sequence
 import aiohttp
 
 from sciety_labs.models.article import ArticleMention, ArticleMetaData
-from sciety_labs.providers.async_requests_provider import AsyncRequestsProvider
+from sciety_labs.providers.async_providers.utils.async_requests_provider import (
+    AsyncRequestsProvider
+)
 from sciety_labs.providers.async_providers.crossref.utils import (
     get_article_meta_by_doi_map_for_response_dict_mapping,
     get_article_metadata_from_crossref_metadata,

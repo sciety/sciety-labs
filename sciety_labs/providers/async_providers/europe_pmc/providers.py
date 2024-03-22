@@ -4,7 +4,9 @@ import logging
 from typing import AsyncIterator, Iterable, Optional, Sequence
 
 from sciety_labs.models.article import ArticleMetaData, ArticleSearchResultItem
-from sciety_labs.providers.async_requests_provider import AsyncRequestsProvider
+from sciety_labs.providers.async_providers.utils.async_requests_provider import (
+    AsyncRequestsProvider
+)
 from sciety_labs.providers.search import (
     SearchDateRange,
     SearchParameters,

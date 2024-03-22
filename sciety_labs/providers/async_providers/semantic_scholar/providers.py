@@ -21,7 +21,9 @@ from sciety_labs.providers.article_recommendation import (
     ArticleRecommendationList,
     ArticleRecommendationProvider
 )
-from sciety_labs.providers.async_requests_provider import AsyncRequestsProvider
+from sciety_labs.providers.async_providers.utils.async_requests_provider import (
+    AsyncRequestsProvider
+)
 from sciety_labs.providers.search import (
     SearchDateRange,
     SearchParameters,
