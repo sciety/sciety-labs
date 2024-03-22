@@ -27,7 +27,7 @@ from sciety_labs.providers.async_providers.opensearch.providers import (  # noqa
 from sciety_labs.providers.async_providers.semantic_scholar.providers import (
     AsyncSemanticScholarTitleAbstractEmbeddingVectorProvider
 )
-from sciety_labs.providers.async_providers.europe_pmc.providers import EuropePmcProvider
+from sciety_labs.providers.async_providers.europe_pmc.providers import AsyncEuropePmcProvider
 from sciety_labs.providers.google_sheet_image import (
     GoogleSheetArticleImageProvider,
     GoogleSheetListImageProvider
@@ -181,7 +181,7 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
             self.async_single_article_recommendation_provider
         )
 
-        self.europe_pmc_provider = EuropePmcProvider(
+        self.europe_pmc_provider = AsyncEuropePmcProvider(
             client_session=async_client_session
         )
 

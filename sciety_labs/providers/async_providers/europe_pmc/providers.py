@@ -75,7 +75,7 @@ def get_query_with_additional_filters(search_parameters: SearchParameters) -> st
     return result
 
 
-class EuropePmcProvider(AsyncRequestsProvider, SearchProvider):
+class AsyncEuropePmcProvider(AsyncRequestsProvider, SearchProvider):
     async def get_search_result_list(  # pylint: disable=too-many-arguments
         self,
         search_parameters: SearchParameters,
