@@ -5,7 +5,7 @@ import aiohttp
 
 from sciety_labs.models.article import ArticleMention, ArticleMetaData
 from sciety_labs.providers.async_requests_provider import AsyncRequestsProvider
-from sciety_labs.providers.crossref import (
+from sciety_labs.providers.async_providers.crossref.crossref import (
     get_article_meta_by_doi_map_for_response_dict_mapping,
     get_article_metadata_from_crossref_metadata,
     get_batch_doi_request_parameters,

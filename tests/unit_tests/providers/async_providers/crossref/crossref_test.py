@@ -1,5 +1,5 @@
 from datetime import date
-from sciety_labs.providers.crossref import (
+from sciety_labs.providers.async_providers.crossref.crossref import (
     get_article_metadata_from_crossref_metadata,
     get_batch_doi_request_parameters,
     get_cleaned_abstract_html,
