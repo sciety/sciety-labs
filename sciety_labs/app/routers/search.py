@@ -22,7 +22,7 @@ from sciety_labs.app.utils.response import AtomResponse
 from sciety_labs.config.search_feed_config import SearchFeedConfig, SearchFeedsConfig
 from sciety_labs.models.article import ArticleSearchResultItem, async_iter_preprint_article_mention
 from sciety_labs.models.image import ObjectImages
-from sciety_labs.providers.async_providers.europe_pmc.europe_pmc import EUROPE_PMC_PREPRINT_SERVERS
+from sciety_labs.providers.async_providers.europe_pmc.providers import EUROPE_PMC_PREPRINT_SERVERS
 from sciety_labs.providers.search import SearchDateRange, SearchParameters, SearchSortBy
 from sciety_labs.providers.async_providers.semantic_scholar.providers import (
     SEMANTIC_SCHOLAR_SEARCH_VENUES

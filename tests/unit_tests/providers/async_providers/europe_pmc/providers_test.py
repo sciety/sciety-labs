@@ -1,6 +1,6 @@
 from datetime import date
 
-from sciety_labs.providers.async_providers.europe_pmc.europe_pmc import (
+from sciety_labs.providers.async_providers.europe_pmc.providers import (
     get_first_published_date_within_dates
 )
 
