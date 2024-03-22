@@ -10,7 +10,6 @@ from fastapi import APIRouter
 import fastapi
 import opensearchpy
 from pydantic import BaseModel
-import requests
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.utils.recommendation import (
@@ -256,12 +255,6 @@ def get_s2_recommended_papers_response_for_article_recommendation_list(
 
 
 def get_exception_status_code(exception: Exception) -> Optional[int]:
-    if isinstance(exception, requests.exceptions.RequestException):
-        return (
-            exception.response.status_code
-            if exception.response is not None
-            else None
-        )
     if isinstance(exception, aiohttp.ClientResponseError):
         return exception.status
     return None
