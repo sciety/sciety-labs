@@ -1,6 +1,6 @@
 import logging
 from threading import Lock
-from typing import AsyncIterable, AsyncIterator, Dict, Iterable, List, NamedTuple, Sequence, cast
+from typing import AsyncIterable, AsyncIterator, Dict, List, NamedTuple, Sequence, cast
 
 from sciety_labs.models.article import ArticleMentionT, ArticleStats
 from sciety_labs.models.sciety_event import (
@@ -98,15 +98,13 @@ class ScietyEventEvaluationStatsModel:
             )
         )
 
-    def async_iter_article_mention_with_article_stats(
+    async def async_iter_article_mention_with_article_stats(
         self,
         article_mention_iterable: AsyncIterable[ArticleMentionT]
     ) -> AsyncIterator[ArticleMentionT]:
         LOGGER.info('article_mention_iterable: %r', article_mention_iterable)
-        return (
-            self.get_article_mention_with_article_stats(article_mention)
-            async for article_mention in article_mention_iterable
-        )
+        async for article_mention in article_mention_iterable:
+            yield self.get_article_mention_with_article_stats(article_mention)
 
     async def async_iter_evaluated_only_article_mention(
         self,
