@@ -38,7 +38,7 @@ from sciety_labs.providers.async_providers.opensearch.client import (
 )
 from sciety_labs.providers.sciety_event import ScietyEventProvider
 from sciety_labs.providers.async_providers.semantic_scholar.providers import (
-    SemanticScholarProvider,
+    AsyncSemanticScholarProvider,
     SemanticScholarSearchProvider,
     get_semantic_scholar_provider
 )
@@ -55,7 +55,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 def get_article_recommendation_provider(
-    semantic_scholar_provider: SemanticScholarProvider
+    semantic_scholar_provider: AsyncSemanticScholarProvider
 ) -> ArticleRecommendationProvider:
     return semantic_scholar_provider
 

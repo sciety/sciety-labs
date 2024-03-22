@@ -181,7 +181,7 @@ async def is_data_for_limit_or_offset_not_available_error(
         return False
 
 
-class SemanticScholarProvider(AsyncRequestsProvider, ArticleRecommendationProvider):
+class AsyncSemanticScholarProvider(AsyncRequestsProvider, ArticleRecommendationProvider):
     def __init__(
         self,
         api_key_file_path: Optional[str],
@@ -336,7 +336,7 @@ async def iter_search_results_published_within_date_range(
 class SemanticScholarSearchProvider(SearchProvider):
     def __init__(
         self,
-        semantic_scholar_provider: SemanticScholarProvider,
+        semantic_scholar_provider: AsyncSemanticScholarProvider,
         evaluation_stats_model: ScietyEventEvaluationStatsModel
     ) -> None:
         self.semantic_scholar_provider = semantic_scholar_provider
@@ -414,7 +414,7 @@ def get_semantic_scholar_api_key_file_path() -> Optional[str]:
 
 def get_semantic_scholar_provider(
     **kwargs
-) -> Optional[SemanticScholarProvider]:
+) -> Optional[AsyncSemanticScholarProvider]:
     api_key_file_path = get_semantic_scholar_api_key_file_path()
     if api_key_file_path and not os.path.exists(api_key_file_path):
         LOGGER.info(
@@ -423,4 +423,4 @@ def get_semantic_scholar_provider(
         )
         api_key_file_path = None
     LOGGER.info('Semantic Scholar API key: %r', api_key_file_path)
-    return SemanticScholarProvider(api_key_file_path, **kwargs)
+    return AsyncSemanticScholarProvider(api_key_file_path, **kwargs)
