@@ -29,7 +29,7 @@ def _async_single_article_recommendation_provider_mock(
     app_providers_and_models_mock: MagicMock
 ) -> AsyncMock:
     mock = AsyncMock(AsyncSingleArticleRecommendationProvider)
-    app_providers_and_models_mock.async_single_article_recommendation_provider = mock
+    app_providers_and_models_mock.single_article_recommendation_provider = mock
     return mock
 
 

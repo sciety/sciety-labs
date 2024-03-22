@@ -166,7 +166,7 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         self.article_recommendation_provider = get_article_recommendation_provider(
             semantic_scholar_provider=self.semantic_scholar_provider
         )
-        self.async_single_article_recommendation_provider = (
+        self.single_article_recommendation_provider = (
             get_async_single_article_recommendation_provider(
                 opensearch_client=self.async_opensearch_client,
                 opensearch_config=self.opensearch_config,
@@ -177,8 +177,8 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
             )
         )
         LOGGER.info(
-            'async_single_article_recommendation_provider: %r',
-            self.async_single_article_recommendation_provider
+            'single_article_recommendation_provider: %r',
+            self.single_article_recommendation_provider
         )
 
         self.europe_pmc_provider = AsyncEuropePmcProvider(

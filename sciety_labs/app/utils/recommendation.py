@@ -29,12 +29,12 @@ async def get_article_recommendation_list_for_article_dois(
 ) -> ArticleRecommendationList:
     if (
         len(article_dois) == 1
-        and app_providers_and_models.async_single_article_recommendation_provider
+        and app_providers_and_models.single_article_recommendation_provider
     ):
         LOGGER.info('Retrieving single article recommendation')
         article_recommendation_list = await (
             app_providers_and_models
-            .async_single_article_recommendation_provider
+            .single_article_recommendation_provider
             .get_article_recommendation_list_for_article_doi(
                 article_doi=article_dois[0],
                 max_recommendations=max_recommendations,

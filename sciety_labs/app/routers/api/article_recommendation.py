@@ -312,10 +312,10 @@ def create_api_article_recommendation_router(
             evaluated_only=evaluated_only
         )
         try:
-            assert app_providers_and_models.async_single_article_recommendation_provider
+            assert app_providers_and_models.single_article_recommendation_provider
             article_recommendation_list = await (
                 app_providers_and_models
-                .async_single_article_recommendation_provider
+                .single_article_recommendation_provider
                 .get_article_recommendation_list_for_article_doi(
                     article_doi=article_doi,
                     max_recommendations=limit,
