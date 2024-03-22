@@ -1,6 +1,6 @@
 import dataclasses
 from datetime import date, datetime
-from typing import Iterable, Optional, Protocol, Sequence, Set
+from typing import Iterable, Mapping, Optional, Protocol, Sequence, Set
 
 from sciety_labs.models.article import ArticleMention
 
@@ -28,5 +28,16 @@ class ArticleRecommendationProvider(Protocol):
         self,
         article_dois: Iterable[str],
         max_recommendations: Optional[int] = None
+    ) -> ArticleRecommendationList:
+        pass
+
+
+class AsyncSingleArticleRecommendationProvider(Protocol):
+    async def get_article_recommendation_list_for_article_doi(
+        self,
+        article_doi: str,
+        max_recommendations: Optional[int] = None,
+        filter_parameters: Optional[ArticleRecommendationFilterParameters] = None,
+        headers: Optional[Mapping[str, str]] = None
     ) -> ArticleRecommendationList:
         pass

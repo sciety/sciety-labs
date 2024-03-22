@@ -11,7 +11,7 @@ from sciety_labs.providers.article_recommendation import (
     ArticleRecommendationFilterParameters,
     ArticleRecommendationList
 )
-from sciety_labs.providers.async_article_recommendation import (
+from sciety_labs.providers.article_recommendation import (
     AsyncSingleArticleRecommendationProvider
 )
 from sciety_labs.providers.async_providers.crossref.providers import (

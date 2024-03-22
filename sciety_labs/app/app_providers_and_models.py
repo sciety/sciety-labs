@@ -15,7 +15,7 @@ from sciety_labs.models.lists import ScietyEventListsModel
 from sciety_labs.providers.article_recommendation import (
     ArticleRecommendationProvider
 )
-from sciety_labs.providers.async_article_recommendation import (
+from sciety_labs.providers.article_recommendation import (
     AsyncSingleArticleRecommendationProvider
 )
 from sciety_labs.providers.async_providers.crossref.providers import (
