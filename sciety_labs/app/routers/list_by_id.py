@@ -18,7 +18,7 @@ from sciety_labs.app.utils.recommendation import (
     get_article_recommendation_page_and_item_count_for_article_dois
 )
 from sciety_labs.app.utils.response import AtomResponse
-from sciety_labs.providers.async_providers.semantic_scholar.semantic_scholar import (
+from sciety_labs.providers.async_providers.semantic_scholar.providers import (
     DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
 )
 from sciety_labs.utils.async_utils import async_iter_sync_iterable, get_list_for_async_iterable

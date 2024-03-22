@@ -3,7 +3,7 @@ from typing import Annotated, Optional
 from fastapi import Depends, Request
 
 from sciety_labs.models.lists import OwnerMetaData, OwnerTypes
-from sciety_labs.providers.async_providers.semantic_scholar.semantic_scholar import (
+from sciety_labs.providers.async_providers.semantic_scholar.providers import (
     DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
 )
 from sciety_labs.utils.pagination import UrlPaginationParameters

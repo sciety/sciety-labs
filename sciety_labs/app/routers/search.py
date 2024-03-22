@@ -24,7 +24,7 @@ from sciety_labs.models.article import ArticleSearchResultItem, async_iter_prepr
 from sciety_labs.models.image import ObjectImages
 from sciety_labs.providers.europe_pmc import EUROPE_PMC_PREPRINT_SERVERS
 from sciety_labs.providers.search import SearchDateRange, SearchParameters, SearchSortBy
-from sciety_labs.providers.async_providers.semantic_scholar.semantic_scholar import (
+from sciety_labs.providers.async_providers.semantic_scholar.providers import (
     SEMANTIC_SCHOLAR_SEARCH_VENUES
 )
 from sciety_labs.utils.async_utils import async_iter_sync_iterable, get_list_for_async_iterable
