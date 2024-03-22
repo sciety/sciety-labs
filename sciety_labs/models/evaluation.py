@@ -98,15 +98,6 @@ class ScietyEventEvaluationStatsModel:
             )
         )
 
-    def iter_article_mention_with_article_stats(
-        self,
-        article_mention_iterable: Iterable[ArticleMentionT]
-    ) -> Iterable[ArticleMentionT]:
-        return (
-            self.get_article_mention_with_article_stats(article_mention)
-            for article_mention in article_mention_iterable
-        )
-
     def async_iter_article_mention_with_article_stats(
         self,
         article_mention_iterable: AsyncIterable[ArticleMentionT]
