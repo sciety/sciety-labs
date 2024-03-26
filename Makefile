@@ -14,6 +14,8 @@ PYTEST_WATCH_MODULES = tests/unit_tests
 
 LOCUST_FILE =
 
+LOAD_TEST_PORT = 8101
+
 
 .require-%:
 	@ if [ "${${*}}" = "" ]; then \
@@ -97,6 +99,7 @@ dev-start-without-reload:
 dev-start-load-test-ui: .require-LOCUST_FILE
 	PYTHONWARNINGS="ignore:Unverified HTTPS request" \
 	$(PYTHON) -m locust \
+		--web-port=$(LOAD_TEST_PORT) \
 		--locustfile=$(LOCUST_FILE)
 
 
