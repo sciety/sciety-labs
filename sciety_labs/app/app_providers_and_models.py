@@ -118,7 +118,10 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
             )
         ])
 
+        async_connector = aiohttp.TCPConnector(limit=1000)
+
         self.async_cached_client_session = aiohttp_client_cache.CachedSession(
+            connector=async_connector,
             cache=aiohttp_client_cache.SQLiteBackend(
                 '.cache/aiohttp-requests.sqlite',
                 expire_after=timedelta(days=1),
@@ -129,7 +132,7 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         async_cached_client_session = self.async_cached_client_session
 
         async_client_session = aiohttp.ClientSession(
-            connector=aiohttp.TCPConnector(limit=200)
+            connector=async_connector
         )
 
         self.opensearch_config = OpenSearchConnectionConfig.from_env()
