@@ -20,7 +20,7 @@ def create_home_router(
     router = APIRouter()
 
     @router.get('/', response_class=HTMLResponse)
-    async def index(request: Request):
+    def index(request: Request):
         user_list_summary_data_list = list(
             app_providers_and_models
             .google_sheet_list_image_provider.iter_list_summary_data_with_list_image_url(

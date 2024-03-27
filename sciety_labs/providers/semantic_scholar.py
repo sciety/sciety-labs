@@ -4,10 +4,10 @@ import logging
 from datetime import date, datetime
 import os
 from pathlib import Path
-from typing import AsyncIterator, Iterable, Mapping, Optional, Sequence
+from typing import Iterable, Mapping, Optional, Sequence
 
-import aiohttp
-from aiohttp_client_cache.response import CachedResponse
+import requests
+from requests_cache import CachedResponse
 
 from sciety_labs.models.article import (
     ArticleMention,
@@ -16,23 +16,17 @@ from sciety_labs.models.article import (
     iter_preprint_article_mention
 )
 from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
-from sciety_labs.providers.interfaces.article_recommendation import (
+from sciety_labs.providers.article_recommendation import (
     ArticleRecommendation,
     ArticleRecommendationList,
-    AsyncArticleRecommendationProvider
+    ArticleRecommendationProvider
 )
-from sciety_labs.providers.async_providers.utils.async_requests_provider import (
-    AsyncRequestsProvider
-)
+from sciety_labs.providers.requests_provider import RequestsProvider
 from sciety_labs.providers.search import (
     SearchDateRange,
     SearchParameters,
-    AsyncSearchProvider,
+    SearchProvider,
     SearchSortBy
-)
-from sciety_labs.utils.async_utils import (
-    async_iter_sync_iterable,
-    get_list_for_async_iterable
 )
 from sciety_labs.utils.datetime import get_utc_timestamp_with_tzinfo, get_utcnow, parse_date_or_none
 
@@ -160,28 +154,26 @@ def _iter_article_search_result_item_from_search_response_json(
         )
 
 
-def get_response_timestamp(response: aiohttp.ClientResponse) -> datetime:
+def get_response_timestamp(response: requests.Response) -> datetime:
     if isinstance(response, CachedResponse):
         return get_utc_timestamp_with_tzinfo(response.created_at)
     return get_utcnow()
 
 
-async def is_data_for_limit_or_offset_not_available_error(
-    response: aiohttp.ClientResponse
-) -> bool:
+def is_data_for_limit_or_offset_not_available_error(response: requests.Response) -> bool:
     try:
         return (
-            response.status == 400
+            response.status_code == 400
             and (
-                (await response.json()).get('error')
+                response.json().get('error')
                 == 'Requested data for this limit and/or offset is not available'
             )
         )
-    except aiohttp.client_exceptions.ContentTypeError:
+    except requests.exceptions.JSONDecodeError:
         return False
 
 
-class AsyncSemanticScholarProvider(AsyncRequestsProvider, AsyncArticleRecommendationProvider):
+class SemanticScholarProvider(RequestsProvider, ArticleRecommendationProvider):
     def __init__(
         self,
         api_key_file_path: Optional[str],
@@ -199,7 +191,7 @@ class AsyncSemanticScholarProvider(AsyncRequestsProvider, AsyncArticleRecommenda
         for doi in article_dois:
             yield f'DOI:{doi}'
 
-    async def get_article_recommendation_list_for_article_dois(
+    def get_article_recommendation_list_for_article_dois(
         self,
         article_dois: Iterable[str],
         max_recommendations: Optional[int] = None
@@ -215,20 +207,20 @@ class AsyncSemanticScholarProvider(AsyncRequestsProvider, AsyncArticleRecommenda
             )
         )
         LOGGER.info('Semantic Scholar, request_json=%r', request_json)
-        async with self.post(
+        response = self.requests_session.post(
             'https://api.semanticscholar.org/recommendations/v1/papers/',
             json=request_json,
             params={
                 'fields': ','.join(SEMANTIC_SCHOLAR_REQUESTED_FIELDS),
                 'limit': str(max_recommendations)
             },
-            timeout=self.timeout,
-            headers=self.get_headers()
-        ) as response:
-            response.raise_for_status()
-            response_json = await response.json()
-            LOGGER.debug('Semantic Scholar, response_json=%r', response_json)
-            recommendation_timestamp = get_response_timestamp(response)
+            headers=self.headers,
+            timeout=self.timeout
+        )
+        response.raise_for_status()
+        response_json = response.json()
+        LOGGER.debug('Semantic Scholar, response_json=%r', response_json)
+        recommendation_timestamp = get_response_timestamp(response)
         return ArticleRecommendationList(
             recommendations=list(iter_preprint_article_mention(
                 _iter_article_recommendation_from_recommendation_response_json(
@@ -238,7 +230,7 @@ class AsyncSemanticScholarProvider(AsyncRequestsProvider, AsyncArticleRecommenda
             recommendation_timestamp=recommendation_timestamp
         )
 
-    async def get_search_result_list(
+    def get_search_result_list(
         self,
         query: str,
         additional_search_parameters: Optional[Mapping[str, str]] = None,
@@ -253,21 +245,21 @@ class AsyncSemanticScholarProvider(AsyncRequestsProvider, AsyncArticleRecommenda
             'limit': str(limit)
         }
         LOGGER.info('Semantic Scholar search, request_params=%r', request_params)
-        async with self.get(
+        response = self.requests_session.get(
             'https://api.semanticscholar.org/graph/v1/paper/search',
             params=request_params,
-            timeout=self.timeout,
-            headers=self.get_headers()
-        ) as response:
-            LOGGER.info('Semantic Scholar search, url=%r', response.request_info.url)
+            headers=self.headers,
+            timeout=self.timeout
+        )
+        LOGGER.info('Semantic Scholar search, url=%r', response.request.url)
 
-            if await is_data_for_limit_or_offset_not_available_error(response):
-                LOGGER.info('Semantic Scholar search, offset/limit error for offset=%r', offset)
-                return ArticleSearchResultList(items=[], offset=offset, total=offset)
+        if is_data_for_limit_or_offset_not_available_error(response):
+            LOGGER.info('Semantic Scholar search, offset/limit error for offset=%r', offset)
+            return ArticleSearchResultList(items=[], offset=offset, total=offset)
 
-            response.raise_for_status()
-            response_json = await response.json()
-            LOGGER.debug('Semantic Scholar search, response_json=%r', response_json)
+        response.raise_for_status()
+        response_json = response.json()
+        LOGGER.debug('Semantic Scholar search, response_json=%r', response_json)
         return ArticleSearchResultList(
             items=list(_iter_article_search_result_item_from_search_response_json(
                 response_json
@@ -277,23 +269,22 @@ class AsyncSemanticScholarProvider(AsyncRequestsProvider, AsyncArticleRecommenda
             next_offset=response_json.get('next')
         )
 
-    async def iter_unfiltered_search_result_item(
+    def iter_unfiltered_search_result_item(
         self,
         query: str,
         additional_search_parameters: Optional[Mapping[str, str]] = None,
         items_per_page: int = DEFAULT_SEMANTIC_SCHOLAR_SEARCH_RESULT_LIMIT
-    ) -> AsyncIterator[ArticleSearchResultItem]:
+    ) -> Iterable[ArticleSearchResultItem]:
         offset = 0
         while True:
-            search_result_list = await self.get_search_result_list(
+            search_result_list = self.get_search_result_list(
                 query=query,
                 additional_search_parameters=additional_search_parameters,
                 offset=offset,
                 limit=items_per_page
             )
             LOGGER.info('Semantic Scholar search, total=%r', search_result_list.total)
-            for item in search_result_list.items:
-                yield item
+            yield from search_result_list.items
             if not search_result_list.next_offset:
                 LOGGER.info('no more search results (no next offset)')
                 break
@@ -318,12 +309,12 @@ def get_year_request_parameter_for_date_range(
     return f'{from_year}-{to_year}'
 
 
-async def iter_search_results_published_within_date_range(
-    search_result_iterable: AsyncIterator[ArticleSearchResultItem],
+def iter_search_results_published_within_date_range(
+    search_result_iterable: Iterable[ArticleSearchResultItem],
     from_date: date,
     to_date: date
-) -> AsyncIterator[ArticleSearchResultItem]:
-    async for search_result in search_result_iterable:
+) -> Iterable[ArticleSearchResultItem]:
+    for search_result in search_result_iterable:
         if not search_result.article_meta:
             continue
         published_date = search_result.article_meta.published_date
@@ -333,22 +324,22 @@ async def iter_search_results_published_within_date_range(
             yield search_result
 
 
-class AsyncSemanticScholarSearchProvider(AsyncSearchProvider):
+class SemanticScholarSearchProvider(SearchProvider):
     def __init__(
         self,
-        semantic_scholar_provider: AsyncSemanticScholarProvider,
+        semantic_scholar_provider: SemanticScholarProvider,
         evaluation_stats_model: ScietyEventEvaluationStatsModel
     ) -> None:
         self.semantic_scholar_provider = semantic_scholar_provider
         self.evaluation_stats_model = evaluation_stats_model
 
-    async def iter_search_result_item(
+    def iter_search_result_item(
         self,
         search_parameters: SearchParameters
-    ) -> AsyncIterator[ArticleSearchResultItem]:
+    ) -> Iterable[ArticleSearchResultItem]:
         from_date = SearchDateRange.get_from_date(search_parameters.date_range)
         to_date = SearchDateRange.get_to_date(search_parameters.date_range)
-        search_result_iterable: AsyncIterator[ArticleSearchResultItem]
+        search_result_iterable: Iterable[ArticleSearchResultItem]
         search_result_iterable = self.semantic_scholar_provider.iter_unfiltered_search_result_item(
             query=search_parameters.query,
             additional_search_parameters={
@@ -361,7 +352,7 @@ class AsyncSemanticScholarSearchProvider(AsyncSearchProvider):
         )
         if search_parameters.is_evaluated_only:
             search_result_iterable = (
-                self.evaluation_stats_model.async_iter_evaluated_only_article_mention(
+                self.evaluation_stats_model.iter_evaluated_only_article_mention(
                     search_result_iterable
                 )
             )
@@ -371,17 +362,16 @@ class AsyncSemanticScholarSearchProvider(AsyncSearchProvider):
             to_date=to_date
         )
         if search_parameters.sort_by == SearchSortBy.PUBLICATION_DATE:
-            search_result_iterable = async_iter_sync_iterable(sorted(
-                await get_list_for_async_iterable(search_result_iterable),
+            search_result_iterable = sorted(
+                search_result_iterable,
                 key=ArticleMention.get_published_date_sort_key,
                 reverse=True
-            ))
-        async for item in search_result_iterable:
-            yield item
+            )
+        return search_result_iterable
 
 
-class AsyncSemanticScholarTitleAbstractEmbeddingVectorProvider(AsyncRequestsProvider):
-    async def get_embedding_vector(
+class SemanticScholarTitleAbstractEmbeddingVectorProvider(RequestsProvider):
+    def get_embedding_vector(
         self,
         title: str,
         abstract: str,
@@ -393,19 +383,18 @@ class AsyncSemanticScholarTitleAbstractEmbeddingVectorProvider(AsyncRequestsProv
             'title': title,
             'abstract': abstract
         }]
-        async with self.post(
+        response = requests.post(
             'https://model-apis.semanticscholar.org/specter/v1/invoke',
             json=papers,
             timeout=self.timeout,
             headers=self.get_headers(headers=headers)
-        ) as response:
-            response.raise_for_status()
-            response_json = await response.json()
-            embeddings_by_paper_id = {
-                pred['paper_id']: pred['embedding']
-                for pred in response_json.get('preds')
-            }
-            return embeddings_by_paper_id[paper_id]
+        )
+        response.raise_for_status()
+        embeddings_by_paper_id = {
+            pred['paper_id']: pred['embedding']
+            for pred in response.json().get('preds')
+        }
+        return embeddings_by_paper_id[paper_id]
 
 
 def get_semantic_scholar_api_key_file_path() -> Optional[str]:
@@ -414,7 +403,7 @@ def get_semantic_scholar_api_key_file_path() -> Optional[str]:
 
 def get_semantic_scholar_provider(
     **kwargs
-) -> Optional[AsyncSemanticScholarProvider]:
+) -> Optional[SemanticScholarProvider]:
     api_key_file_path = get_semantic_scholar_api_key_file_path()
     if api_key_file_path and not os.path.exists(api_key_file_path):
         LOGGER.info(
@@ -423,4 +412,4 @@ def get_semantic_scholar_provider(
         )
         api_key_file_path = None
     LOGGER.info('Semantic Scholar API key: %r', api_key_file_path)
-    return AsyncSemanticScholarProvider(api_key_file_path, **kwargs)
+    return SemanticScholarProvider(api_key_file_path, **kwargs)

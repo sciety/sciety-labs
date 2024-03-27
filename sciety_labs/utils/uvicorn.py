@@ -30,7 +30,6 @@ class RedirectDoubleQueryStringMiddleware:
         if scope['type'] != 'http':
             await self.app(scope, receive, send)
             return
-
         LOGGER.debug('scope: %r', scope)
         url = URL(scope=scope)
         redirect_url = get_redirect_url_for_double_query_string_url_or_none(url)

@@ -2,10 +2,10 @@ from datetime import date, timedelta
 import logging
 from typing import Annotated, Any, Dict, Optional, cast
 
-import aiohttp
 from fastapi import APIRouter, Query, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+import requests
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.utils.common import (
@@ -17,10 +17,7 @@ from sciety_labs.app.utils.recommendation import (
     get_article_recommendation_page_and_item_count_for_article_dois
 )
 from sciety_labs.models.article import ArticleStats
-from sciety_labs.providers.interfaces.article_recommendation import (
-    ArticleRecommendationFilterParameters
-)
-from sciety_labs.utils.aio import get_exception_status_code
+from sciety_labs.providers.article_recommendation import ArticleRecommendationFilterParameters
 from sciety_labs.utils.pagination import get_url_pagination_state_for_pagination_parameters
 from sciety_labs.utils.text import remove_markup_or_none
 
@@ -56,19 +53,18 @@ def create_articles_router(
     router = APIRouter()
 
     @router.get('/articles/by', response_class=HTMLResponse)
-    async def article_by_article_doi(
+    def article_by_article_doi(
         request: Request,
         article_doi: AnnotatedArticleDoiQueryParameter
     ):
         try:
-            article_meta = await (
+            article_meta = (
                 app_providers_and_models
-                .crossref_metadata_provider
-                .get_article_metadata_by_doi(article_doi)
+                .crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
             )
-        except aiohttp.ClientError as exc:
-            status_code = get_exception_status_code(exc) or 500
-            LOGGER.info('Exception retrieving metadata (%r): %r', status_code, exc)
+        except requests.exceptions.RequestException as exception:
+            status_code = exception.response.status_code if exception.response is not None else 500
+            LOGGER.info('Exception retrieving metadata (%r): %r', status_code, exception)
             if status_code != 404:
                 raise
             return templates.TemplateResponse(
@@ -77,7 +73,7 @@ def create_articles_router(
                 context={
                     'page_title': get_page_title(f'Article not found: {article_doi}'),
                     'error_message': f'Article not found: {article_doi}',
-                    'exception': exc
+                    'exception': exception
                 },
                 status_code=404
             )
@@ -120,14 +116,14 @@ def create_articles_router(
         )
 
     @router.get('/articles/article-recommendations/by', response_class=HTMLResponse)
-    async def article_recommendations_by_article_doi(  # pylint: disable=too-many-arguments
+    def article_recommendations_by_article_doi(  # pylint: disable=too-many-arguments
         request: Request,
         article_doi: AnnotatedArticleDoiQueryParameter,
         pagination_parameters: AnnotatedPaginationParameters,
         max_recommendations: Optional[int] = None,
         fragment: bool = False
     ):
-        article_meta = await (
+        article_meta = (
             app_providers_and_models
             .crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
         )
@@ -146,6 +142,10 @@ def create_articles_router(
                     'article_recommendation_fragment_url': article_recommendation_fragment_url
                 }
             )
+        article_meta = (
+            app_providers_and_models
+            .crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
+        )
         article_stats = (
             app_providers_and_models
             .evaluation_stats_model.get_article_stats_by_article_doi(article_doi)
@@ -154,7 +154,7 @@ def create_articles_router(
             article_doi,
             article_stats=article_stats
         )
-        article_recommendation_with_article_meta, item_count = await (
+        article_recommendation_with_article_meta, item_count = (
             get_article_recommendation_page_and_item_count_for_article_dois(
                 [article_doi],
                 app_providers_and_models=app_providers_and_models,

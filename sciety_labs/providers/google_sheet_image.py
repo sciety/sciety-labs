@@ -1,5 +1,5 @@
 import logging
-from typing import AsyncIterable, AsyncIterator, Iterable, Mapping, Optional
+from typing import Iterable, Mapping, Optional
 
 import google.auth
 import googleapiclient.discovery
@@ -95,31 +95,18 @@ class GoogleSheetArticleImageProvider(GoogleSheetImageProvider):
             image_url=self.get_image_url_by_key(article_doi)
         )
 
-    def get_article_mention_with_article_image_url(
-        self,
-        article_mention: ArticleMention
-    ) -> ArticleMention:
-        return article_mention._replace(
-            article_images=self.get_article_images_by_doi(
-                article_mention.article_doi
-            )
-        )
-
     def iter_article_mention_with_article_image_url(
         self,
         article_mention_iterable: Iterable[ArticleMention]
     ) -> Iterable[ArticleMention]:
         return (
-            self.get_article_mention_with_article_image_url(article_mention)
+            article_mention._replace(
+                article_images=self.get_article_images_by_doi(
+                    article_mention.article_doi
+                )
+            )
             for article_mention in article_mention_iterable
         )
-
-    async def async_iter_article_mention_with_article_image_url(
-        self,
-        article_mention_iterable: AsyncIterable[ArticleMention]
-    ) -> AsyncIterator[ArticleMention]:
-        async for article_mention in article_mention_iterable:
-            yield self.get_article_mention_with_article_image_url(article_mention)
 
 
 class GoogleSheetListImageProvider(GoogleSheetImageProvider):

@@ -17,13 +17,13 @@ def create_api_experimental_router(
     @router.get(
         '/experimental/sync/opensearch/metadata/by/doi'
     )
-    async def experimental_sync_opensearch_metadata_by_doi(
+    def experimental_sync_opensearch_metadata_by_doi(
         request: fastapi.Request,
         article_doi: str
     ):
-        doc = await (
+        doc = (
             app_providers_and_models
-            .async_opensearch_client
+            .opensearch_client
             .get_source(
                 index=app_providers_and_models.opensearch_config.index_name,
                 id=article_doi,
@@ -53,11 +53,11 @@ def create_api_experimental_router(
     @router.get(
         '/experimental/sync/crossref/metadata/by/doi'
     )
-    async def experimental_sync_crossref_metadata_by_doi(
+    def experimental_sync_crossref_metadata_by_doi(
         request: fastapi.Request,
         article_doi: str
     ):
-        return await (
+        return (
             app_providers_and_models
             .crossref_metadata_provider
             .get_crossref_metadata_dict_by_doi(
@@ -75,7 +75,7 @@ def create_api_experimental_router(
     ):
         return await (
             app_providers_and_models
-            .crossref_metadata_provider
+            .async_crossref_metadata_provider
             .get_crossref_metadata_dict_by_doi(
                 article_doi,
                 headers=get_cache_control_headers_for_request(request)
@@ -92,7 +92,7 @@ def create_api_experimental_router(
     ):
         embedding_vector = await (
             app_providers_and_models
-            .title_abstract_embedding_vector_provider
+            .async_title_abstract_embedding_vector_provider
             .get_embedding_vector(
                 title=title,
                 abstract=abstract,

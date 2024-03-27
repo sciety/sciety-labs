@@ -3,7 +3,6 @@ import logging
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from sciety_labs.app.app_error_handlers import add_app_error_handlers
-from sciety_labs.app.app_lifespan import add_app_lifespan_context
 from sciety_labs.app.app_middleware import add_app_middlware
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
@@ -73,7 +72,6 @@ def _create_app():  # pylint: disable=too-many-locals, too-many-statements
         search_feeds_config=search_feeds_config
     ))
 
-    add_app_lifespan_context(app, app_providers_and_models=app_providers_and_models)
     add_app_middlware(app)
     add_app_error_handlers(app, templates=templates)
 

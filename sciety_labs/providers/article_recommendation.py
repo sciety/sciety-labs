@@ -23,8 +23,8 @@ class ArticleRecommendationList:
     recommendation_timestamp: datetime
 
 
-class AsyncArticleRecommendationProvider(Protocol):
-    async def get_article_recommendation_list_for_article_dois(
+class ArticleRecommendationProvider(Protocol):
+    def get_article_recommendation_list_for_article_dois(
         self,
         article_dois: Iterable[str],
         max_recommendations: Optional[int] = None
@@ -32,8 +32,8 @@ class AsyncArticleRecommendationProvider(Protocol):
         pass
 
 
-class AsyncSingleArticleRecommendationProvider(Protocol):
-    async def get_article_recommendation_list_for_article_doi(
+class SingleArticleRecommendationProvider(Protocol):
+    def get_article_recommendation_list_for_article_doi(
         self,
         article_doi: str,
         max_recommendations: Optional[int] = None,
