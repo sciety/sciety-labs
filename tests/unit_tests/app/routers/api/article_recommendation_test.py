@@ -1,11 +1,11 @@
 from datetime import date
 from unittest.mock import ANY, AsyncMock, MagicMock
 
-import aiohttp
 import pytest
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
+import requests
 
 from sciety_labs.app.routers.api.article_recommendation import (
     DEFAULT_LIKE_S2_RECOMMENDATION_FIELDS,
@@ -14,7 +14,7 @@ from sciety_labs.app.routers.api.article_recommendation import (
     get_s2_recommended_papers_response_for_article_recommendation_list
 )
 from sciety_labs.models.article import ArticleMetaData, ArticleStats
-from sciety_labs.providers.interfaces.article_recommendation import (
+from sciety_labs.providers.article_recommendation import (
     ArticleRecommendation,
     ArticleRecommendationList
 )
@@ -183,12 +183,10 @@ class TestArticleRecommendationApi:
         test_client: TestClient,
         get_article_recommendation_list_for_article_doi_mock: AsyncMock
     ):
+        response_mock = MagicMock(name='response')
+        response_mock.status_code = 404
         get_article_recommendation_list_for_article_doi_mock.side_effect = (
-            aiohttp.ClientResponseError(
-                request_info=MagicMock('request_info'),
-                history=MagicMock('history'),
-                status=404
-            )
+            requests.exceptions.HTTPError(response=response_mock)
         )
         response = test_client.get(
             f'/like/s2/recommendations/v1/papers/forpaper/DOI:{DOI_1}'
