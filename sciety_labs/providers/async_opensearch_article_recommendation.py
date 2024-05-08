@@ -8,6 +8,7 @@ import numpy.typing as npt
 import opensearchpy
 
 from sciety_labs.providers.article_recommendation import (
+    ArticleRecommendationFieldLiteral,
     ArticleRecommendationFilterParameters,
     ArticleRecommendationList
 )
@@ -134,11 +135,12 @@ class AsyncOpenSearchArticleRecommendation(AsyncSingleArticleRecommendationProvi
             headers=headers
         )
 
-    async def get_article_recommendation_list_for_article_doi(
+    async def get_article_recommendation_list_for_article_doi(  # pylint: disable=too-many-arguments
         self,
         article_doi: str,
         max_recommendations: Optional[int] = None,
         filter_parameters: Optional[ArticleRecommendationFilterParameters] = None,
+        fields: Optional[Sequence[ArticleRecommendationFieldLiteral]] = None,
         headers: Optional[Mapping[str, str]] = None
     ) -> ArticleRecommendationList:
         if not max_recommendations:
@@ -188,6 +190,7 @@ class AsyncOpenSearchArticleRecommendation(AsyncSingleArticleRecommendationProvi
             embedding_vector_mapping_name=self.embedding_vector_mapping_name,
             source_includes=get_source_includes(
                 embedding_vector_mapping_name=self.embedding_vector_mapping_name,
+                fields=fields
             ),
             max_results=max_recommendations,
             filter_parameters=filter_parameters,
