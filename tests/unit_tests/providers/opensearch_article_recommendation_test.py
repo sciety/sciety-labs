@@ -1,11 +1,20 @@
 import logging
 from datetime import date
 
-from sciety_labs.providers.article_recommendation import ArticleRecommendationFilterParameters
+from sciety_labs.providers.article_recommendation import (
+    ArticleRecommendationFields,
+    ArticleRecommendationFilterParameters
+)
 from sciety_labs.providers.opensearch_article_recommendation import (
+    ARTICLE_TITLE_OPENSEARCH_FIELDS,
+    AUTHOR_LIST_OPENSEARCH_FIELDS,
+    EVALUATION_COUNT_OPENSEARCH_FIELDS,
+    PUBLISHED_DATE_OPENSEARCH_FIELDS,
+    SUPPORTED_OPENSEARCH_FIELD_NAMES,
     get_article_meta_from_document,
     get_article_recommendation_from_document,
     get_from_publication_date_query_filter,
+    get_source_includes,
     get_vector_search_query,
     iter_article_recommendation_from_opensearch_hits
 )
@@ -318,3 +327,47 @@ class TestGetVectorSearchQuery:
                 }
             }
         }
+
+
+class TestGetSourceIncludes:
+    def test_should_return_all_supported_fields_if_no_fields_specified(self):
+        assert get_source_includes('embedding_vector_1') == (
+            SUPPORTED_OPENSEARCH_FIELD_NAMES
+            + ['embedding_vector_1']
+        )
+
+    def test_should_return_doi_only_if_only_doi_was_requested(self):
+        assert get_source_includes(
+            'embedding_vector_1',
+            fields=[ArticleRecommendationFields.ARTICLE_DOI]
+        ) == ['doi']
+
+    def test_should_return_title_fields_only(self):
+        assert get_source_includes(
+            'embedding_vector_1',
+            fields=[ArticleRecommendationFields.ARTICLE_TITLE]
+        ) == ARTICLE_TITLE_OPENSEARCH_FIELDS
+
+    def test_should_return_author_name_list_fields_only(self):
+        assert get_source_includes(
+            'embedding_vector_1',
+            fields=[ArticleRecommendationFields.AUTHOR_NAME_LIST]
+        ) == AUTHOR_LIST_OPENSEARCH_FIELDS
+
+    def test_should_return_published_date_fields_only(self):
+        assert get_source_includes(
+            'embedding_vector_1',
+            fields=[ArticleRecommendationFields.PUBLISHED_DATE]
+        ) == PUBLISHED_DATE_OPENSEARCH_FIELDS
+
+    def test_should_return_evaluation_count_fields_only(self):
+        assert get_source_includes(
+            'embedding_vector_1',
+            fields=[ArticleRecommendationFields.EVALUATION_COUNT]
+        ) == EVALUATION_COUNT_OPENSEARCH_FIELDS
+
+    def test_should_return_score_fields_only(self):
+        assert get_source_includes(
+            'embedding_vector_1',
+            fields=[ArticleRecommendationFields.SCORE]
+        ) == ['embedding_vector_1']
