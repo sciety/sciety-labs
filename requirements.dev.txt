@@ -1,7 +1,7 @@
 flake8==7.0.0
 locust==2.26.0
 pylint==2.17.5
-pytest==8.1.1
+pytest==8.2.0
 pytest-watch==4.2.0
 mypy==1.10.0
 httpx==0.27.0
