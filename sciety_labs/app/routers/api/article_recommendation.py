@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 import logging
 import textwrap
-from typing import Optional, Sequence, Set, cast
+from typing import Mapping, Optional, Sequence, Set, cast
 
 from typing_extensions import NotRequired, TypedDict
 import aiohttp
@@ -19,6 +19,7 @@ from sciety_labs.app.utils.recommendation import (
 )
 from sciety_labs.providers.article_recommendation import (
     ArticleRecommendation,
+    ArticleRecommendationFields,
     ArticleRecommendationFilterParameters,
     ArticleRecommendationList
 )
@@ -199,6 +200,46 @@ LIKE_S2_RECOMMENDATION_API_PUBLISHED_WITHIN_LAST_N_DAYS_FASTAPI_QUERY = fastapi.
 )
 
 
+REQUIRED_ARTICLE_RECOMMENDATION_FIELDS = [
+    ArticleRecommendationFields.ARTICLE_DOI,
+    ArticleRecommendationFields.ARTICLE_TITLE
+]
+
+ARTICLE_RECOMMENDATION_FIELDS_BY_API_FIELD_NAME: Mapping[str, Sequence[str]] = {
+    'externalIds': [ArticleRecommendationFields.ARTICLE_DOI],
+    'title': [ArticleRecommendationFields.ARTICLE_TITLE],
+    'publicationDate': [ArticleRecommendationFields.PUBLISHED_DATE],
+    'authors': [ArticleRecommendationFields.AUTHOR_NAME_LIST],
+    '_evaluationCount': [ArticleRecommendationFields.EVALUATION_COUNT],
+    '_score': [ArticleRecommendationFields.SCORE]
+}
+
+
+class InvalidApiFields(ValueError):
+    def __init__(self, invalid_field_names: Set[str]):
+        self.invalid_field_names = invalid_field_names
+
+
+def validate_api_fields(fields_set: Set[str]):
+    invalid_field_names = fields_set - set(ARTICLE_RECOMMENDATION_FIELDS_BY_API_FIELD_NAME.keys())
+    if invalid_field_names:
+        raise InvalidApiFields(invalid_field_names)
+
+
+def get_requested_fields_for_api_field_set(
+    fields_set: Set[str]
+) -> Optional[Sequence[str]]:
+    validate_api_fields(fields_set)
+    return sorted(set(REQUIRED_ARTICLE_RECOMMENDATION_FIELDS + [
+        article_recommendation_field_name
+        for field_name in fields_set
+        for article_recommendation_field_name in (
+            ARTICLE_RECOMMENDATION_FIELDS_BY_API_FIELD_NAME
+            [field_name]
+        )
+    ]))
+
+
 def get_s2_recommended_author_list_for_author_names(
     author_name_list: Optional[Sequence[str]]
 ) -> Optional[Sequence[AuthorDict]]:
@@ -283,6 +324,12 @@ def handle_like_s2_recommendation_exception(
         return fastapi.responses.JSONResponse(
             {'error': 'OpenSearch backend currently not available'},
             status_code=503
+        )
+    if isinstance(exception, InvalidApiFields):
+        invalid_fields_csv = ','.join(exception.invalid_field_names)
+        return fastapi.responses.JSONResponse(
+            {'error': f'Unrecognized or unsupported fields: [{invalid_fields_csv}]'},
+            status_code=400
         )
     raise exception
 
@@ -370,6 +417,7 @@ def create_api_article_recommendation_router(
                     article_doi=article_doi,
                     max_recommendations=limit,
                     filter_parameters=filter_parameters,
+                    fields=get_requested_fields_for_api_field_set(fields_set),
                     headers=get_cache_control_headers_for_request(request)
                 )
             )

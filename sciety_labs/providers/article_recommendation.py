@@ -1,27 +1,20 @@
 import dataclasses
 from datetime import date, datetime
-from typing import Iterable, Literal, Mapping, Optional, Protocol, Sequence, Set
+from typing import Iterable, Mapping, Optional, Protocol, Sequence, Set
 
 from sciety_labs.models.article import ArticleMention
 
 
 class ArticleRecommendationFields:
-    ARTICLE_DOI = Literal['article_doi']
-    ARTICLE_TITLE = Literal['article_title']
-    AUTHOR_NAME_LIST = Literal['author_name_list']
-    PUBLISHED_DATE = Literal['published_date']
-    EVALUATION_COUNT = Literal['evaluation_count']
-    SCORE = Literal['score']
+    ARTICLE_DOI = 'article_doi'
+    ARTICLE_TITLE = 'article_title'
+    AUTHOR_NAME_LIST = 'author_name_list'
+    PUBLISHED_DATE = 'published_date'
+    EVALUATION_COUNT = 'evaluation_count'
+    SCORE = 'score'
 
 
-ArticleRecommendationFieldLiteral = Literal[
-    ArticleRecommendationFields.ARTICLE_DOI,
-    ArticleRecommendationFields.ARTICLE_TITLE,
-    ArticleRecommendationFields.AUTHOR_NAME_LIST,
-    ArticleRecommendationFields.PUBLISHED_DATE,
-    ArticleRecommendationFields.EVALUATION_COUNT,
-    ArticleRecommendationFields.SCORE
-]
+ArticleRecommendationFieldLiteral = str
 
 
 @dataclasses.dataclass(frozen=True)
