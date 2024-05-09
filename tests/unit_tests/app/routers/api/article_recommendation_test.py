@@ -10,12 +10,14 @@ import requests
 from sciety_labs.app.routers.api.article_recommendation import (
     DEFAULT_LIKE_S2_RECOMMENDATION_FIELDS,
     create_api_article_recommendation_router,
+    get_requested_fields_for_api_field_set,
     get_s2_recommended_paper_response_for_article_recommendation,
     get_s2_recommended_papers_response_for_article_recommendation_list
 )
 from sciety_labs.models.article import ArticleMetaData, ArticleStats
 from sciety_labs.providers.article_recommendation import (
     ArticleRecommendation,
+    ArticleRecommendationFields,
     ArticleRecommendationList
 )
 from sciety_labs.utils.datetime import get_utcnow
@@ -129,6 +131,55 @@ class TestGetS2RecommendedPapersResponseForArticleRecommendationList:
         ]}
 
 
+class TestGetRequestedFieldsForApiFieldSet:
+    def test_should_return_fields_for_external_reference(self):
+        assert get_requested_fields_for_api_field_set({
+            'externalIds'
+        }) == [
+            ArticleRecommendationFields.ARTICLE_DOI
+        ]
+
+    def test_should_return_fields_for_title(self):
+        assert get_requested_fields_for_api_field_set({
+            'title'
+        }) == [
+            ArticleRecommendationFields.ARTICLE_DOI,
+            ArticleRecommendationFields.ARTICLE_TITLE
+        ]
+
+    def test_should_return_fields_for_publication_date(self):
+        assert get_requested_fields_for_api_field_set({
+            'publicationDate'
+        }) == [
+            ArticleRecommendationFields.ARTICLE_DOI,
+            ArticleRecommendationFields.PUBLISHED_DATE
+        ]
+
+    def test_should_return_fields_for_authors(self):
+        assert get_requested_fields_for_api_field_set({
+            'authors'
+        }) == [
+            ArticleRecommendationFields.ARTICLE_DOI,
+            ArticleRecommendationFields.AUTHOR_NAME_LIST
+        ]
+
+    def test_should_return_fields_for_evaluation_count(self):
+        assert get_requested_fields_for_api_field_set({
+            '_evaluationCount'
+        }) == [
+            ArticleRecommendationFields.ARTICLE_DOI,
+            ArticleRecommendationFields.EVALUATION_COUNT
+        ]
+
+    def test_should_return_fields_for_score(self):
+        assert get_requested_fields_for_api_field_set({
+            '_score'
+        }) == [
+            ArticleRecommendationFields.ARTICLE_DOI,
+            ArticleRecommendationFields.SCORE
+        ]
+
+
 class TestArticleRecommendationApi:
     def test_should_return_404_if_paper_id_was_missing(self, test_client: TestClient):
         response = test_client.get('/like/s2/recommendations/v1/papers/forpaper')
@@ -152,6 +203,9 @@ class TestArticleRecommendationApi:
             article_doi=DOI_1,
             max_recommendations=None,
             filter_parameters=ANY,
+            fields=get_requested_fields_for_api_field_set(
+                DEFAULT_LIKE_S2_RECOMMENDATION_FIELDS
+            ),
             headers=ANY
         )
 
@@ -193,3 +247,35 @@ class TestArticleRecommendationApi:
         )
         assert response.status_code == 404
         assert response.json() == {'error': f'Paper with id DOI:{DOI_1} not found'}
+
+    def test_should_be_able_to_select_fields(
+        self,
+        test_client: TestClient,
+        get_article_recommendation_list_for_article_doi_mock: AsyncMock
+    ):
+        test_client.get(
+            f'/like/s2/recommendations/v1/papers/forpaper/DOI:{DOI_1}',
+            params={'fields': 'title,_score'}
+        )
+        get_article_recommendation_list_for_article_doi_mock.assert_called_with(
+            article_doi=DOI_1,
+            max_recommendations=None,
+            filter_parameters=ANY,
+            fields=get_requested_fields_for_api_field_set({
+                'title', '_score'
+            }),
+            headers=ANY
+        )
+
+    def test_should_return_400_for_invalid_field(
+        self,
+        test_client: TestClient
+    ):
+        response = test_client.get(
+            f'/like/s2/recommendations/v1/papers/forpaper/DOI:{DOI_1}',
+            params={'fields': 'title,invalid-field1'}
+        )
+        assert response.status_code == 400
+        assert response.json() == {
+            'error': 'Unrecognized or unsupported fields: [invalid-field1]'
+        }

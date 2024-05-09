@@ -13,6 +13,8 @@ from sciety_labs.models.article import ArticleMetaData, ArticleStats
 
 from sciety_labs.providers.article_recommendation import (
     ArticleRecommendation,
+    ArticleRecommendationFieldLiteral,
+    ArticleRecommendationFields,
     ArticleRecommendationFilterParameters,
     ArticleRecommendationList,
     SingleArticleRecommendationProvider
@@ -155,7 +157,6 @@ def get_article_meta_from_document(
         or (europepmc_data and europepmc_data.get('title_with_markup'))
         or (s2_data and s2_data.get('title'))
     )
-    assert article_title is not None
     return ArticleMetaData(
         article_doi=article_doi,
         article_title=article_title,
@@ -180,7 +181,8 @@ def get_article_meta_from_document(
 def get_value_for_key_path(parent: dict, key_path: Sequence[str]) -> Optional[Any]:
     result: Any = parent
     for key in key_path:
-        result = result.get(key)
+        if result is not None:
+            result = result.get(key)
     return result
 
 
@@ -324,19 +326,63 @@ def get_vector_search_query(  # pylint: disable=too-many-arguments
     return search_query
 
 
-def get_source_includes(embedding_vector_mapping_name: str) -> Sequence[str]:
-    return [
-        'doi',
-        'crossref.publication_date',
-        'crossref.title_with_markup',
-        'crossref.author_list',
-        's2.title',
-        's2.author_list',
-        'europepmc.first_publication_date',
-        'europepmc.title_with_markup',
-        'europepmc.author_list',
-        'sciety.evaluation_count',
-        embedding_vector_mapping_name,
+ARTICLE_TITLE_OPENSEARCH_FIELDS = [
+    'crossref.title_with_markup',
+    's2.title',
+    'europepmc.title_with_markup'
+]
+
+AUTHOR_LIST_OPENSEARCH_FIELDS = [
+    'crossref.author_list',
+    's2.author_list',
+    'europepmc.author_list'
+]
+
+PUBLISHED_DATE_OPENSEARCH_FIELDS = [
+    'crossref.publication_date',
+    'europepmc.first_publication_date'
+]
+
+EVALUATION_COUNT_OPENSEARCH_FIELDS = [
+    'sciety.evaluation_count'
+]
+
+
+SUPPORTED_OPENSEARCH_FIELD_NAMES = (
+    ['doi']
+    + ARTICLE_TITLE_OPENSEARCH_FIELDS
+    + AUTHOR_LIST_OPENSEARCH_FIELDS
+    + PUBLISHED_DATE_OPENSEARCH_FIELDS
+    + EVALUATION_COUNT_OPENSEARCH_FIELDS
+)
+
+OPENSEARCH_FIELDS_BY_REQUESTED_FIELD: Mapping[str, Sequence[str]] = {
+    str(ArticleRecommendationFields.ARTICLE_DOI): ['doi'],
+    str(ArticleRecommendationFields.ARTICLE_TITLE): ARTICLE_TITLE_OPENSEARCH_FIELDS,
+    str(ArticleRecommendationFields.AUTHOR_NAME_LIST): AUTHOR_LIST_OPENSEARCH_FIELDS,
+    str(ArticleRecommendationFields.PUBLISHED_DATE): PUBLISHED_DATE_OPENSEARCH_FIELDS,
+    str(ArticleRecommendationFields.EVALUATION_COUNT): EVALUATION_COUNT_OPENSEARCH_FIELDS
+}
+
+
+def get_source_includes(
+    embedding_vector_mapping_name: str,
+    fields: Optional[Sequence[ArticleRecommendationFieldLiteral]] = None
+) -> Sequence[str]:
+    if fields:
+        opensearch_fields_with_score_by_requested_field = {
+            **OPENSEARCH_FIELDS_BY_REQUESTED_FIELD,
+            str(ArticleRecommendationFields.SCORE): [embedding_vector_mapping_name]
+        }
+        return [
+            opensearch_field
+            for requested_field in fields
+            for opensearch_field in opensearch_fields_with_score_by_requested_field[
+                str(requested_field)
+            ]
+        ]
+    return SUPPORTED_OPENSEARCH_FIELD_NAMES + [
+        embedding_vector_mapping_name
     ]
 
 

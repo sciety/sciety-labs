@@ -93,10 +93,16 @@ def is_preprint_doi(article_doi: str) -> bool:
 
 class ArticleMetaData(NamedTuple):
     article_doi: str
-    article_title: str
+    article_title: Optional[str]
     abstract: Optional[str] = None
     author_name_list: Optional[Sequence[str]] = None
     published_date: Optional[date] = None
+
+    @property
+    def article_title_or_placeholder(self) -> str:
+        if self.article_title:
+            return self.article_title
+        return self.article_doi
 
 
 class ArticleStats(NamedTuple):

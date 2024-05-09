@@ -12,7 +12,7 @@
 
     {%- for item in article_list_content %}
     <entry>
-        <title type="html">{{ item.article_meta.article_title }}</title>
+        <title type="html">{{ item.article_meta.article_title_or_placeholder }}</title>
         <link href="https://sciety.org/articles/activity/{{ item.article_doi }}?utm_source=sciety_labs_article_recommendations_atom_feed" />
         <published>{{ item.article_meta.published_date | date_isoformat }}T00:00:00+00:00</published>
         <updated>{{ item.article_meta.published_date | date_isoformat }}T00:00:00+00:00</updated>

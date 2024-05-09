@@ -104,7 +104,7 @@ def create_articles_router(
             request=request,
             name='pages/article-by-article-doi.html',
             context={
-                'page_title': get_page_title(article_meta.article_title),
+                'page_title': get_page_title(article_meta.article_title_or_placeholder),
                 'page_description': remove_markup_or_none(
                     article_meta.abstract
                 ),
