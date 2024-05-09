@@ -157,7 +157,6 @@ def get_article_meta_from_document(
         or (europepmc_data and europepmc_data.get('title_with_markup'))
         or (s2_data and s2_data.get('title'))
     )
-    assert article_title is not None
     return ArticleMetaData(
         article_doi=article_doi,
         article_title=article_title,

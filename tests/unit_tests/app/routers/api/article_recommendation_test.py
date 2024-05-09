@@ -136,8 +136,7 @@ class TestGetRequestedFieldsForApiFieldSet:
         assert get_requested_fields_for_api_field_set({
             'externalIds'
         }) == [
-            ArticleRecommendationFields.ARTICLE_DOI,
-            ArticleRecommendationFields.ARTICLE_TITLE
+            ArticleRecommendationFields.ARTICLE_DOI
         ]
 
     def test_should_return_fields_for_title(self):
@@ -153,7 +152,6 @@ class TestGetRequestedFieldsForApiFieldSet:
             'publicationDate'
         }) == [
             ArticleRecommendationFields.ARTICLE_DOI,
-            ArticleRecommendationFields.ARTICLE_TITLE,
             ArticleRecommendationFields.PUBLISHED_DATE
         ]
 
@@ -162,7 +160,6 @@ class TestGetRequestedFieldsForApiFieldSet:
             'authors'
         }) == [
             ArticleRecommendationFields.ARTICLE_DOI,
-            ArticleRecommendationFields.ARTICLE_TITLE,
             ArticleRecommendationFields.AUTHOR_NAME_LIST
         ]
 
@@ -171,7 +168,6 @@ class TestGetRequestedFieldsForApiFieldSet:
             '_evaluationCount'
         }) == [
             ArticleRecommendationFields.ARTICLE_DOI,
-            ArticleRecommendationFields.ARTICLE_TITLE,
             ArticleRecommendationFields.EVALUATION_COUNT
         ]
 
@@ -180,7 +176,6 @@ class TestGetRequestedFieldsForApiFieldSet:
             '_score'
         }) == [
             ArticleRecommendationFields.ARTICLE_DOI,
-            ArticleRecommendationFields.ARTICLE_TITLE,
             ArticleRecommendationFields.SCORE
         ]
 

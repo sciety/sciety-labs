@@ -201,8 +201,7 @@ LIKE_S2_RECOMMENDATION_API_PUBLISHED_WITHIN_LAST_N_DAYS_FASTAPI_QUERY = fastapi.
 
 
 REQUIRED_ARTICLE_RECOMMENDATION_FIELDS = [
-    ArticleRecommendationFields.ARTICLE_DOI,
-    ArticleRecommendationFields.ARTICLE_TITLE
+    ArticleRecommendationFields.ARTICLE_DOI
 ]
 
 ARTICLE_RECOMMENDATION_FIELDS_BY_API_FIELD_NAME: Mapping[str, Sequence[str]] = {

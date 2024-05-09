@@ -7,7 +7,7 @@
             <header class="page-header page-header--list">
                 <div>
                     <h1>Article Recommendations for
-                        <a href="/articles/by?article_doi={{ article_meta.article_doi }}">{{ article_meta.article_title | sanitize }}</a>
+                        <a href="/articles/by?article_doi={{ article_meta.article_doi }}">{{ article_meta.article_title_or_placeholder | sanitize }}</a>
                     </h1>
 
                     <div class="page-header__description">
@@ -15,7 +15,7 @@
                             <a href="https://www.semanticscholar.org">Semantic Scholar</a>'s
                             <a href="https://api.semanticscholar.org/api-docs/recommendations">Paper Recommendations API</a>
                             as related content to
-                            <a href="/articles/by?article_doi={{ article_meta.article_doi }}">{{ article_meta.article_title | sanitize }}</a>
+                            <a href="/articles/by?article_doi={{ article_meta.article_doi }}">{{ article_meta.article_title_or_placeholder | sanitize }}</a>
                         </span>
                         {%- if article_meta.author_name_list %}
                         <span> by
