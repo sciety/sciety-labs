@@ -182,7 +182,8 @@ def get_article_meta_from_document(
 def get_value_for_key_path(parent: dict, key_path: Sequence[str]) -> Optional[Any]:
     result: Any = parent
     for key in key_path:
-        result = result.get(key)
+        if result is not None:
+            result = result.get(key)
     return result
 
 
