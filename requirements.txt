@@ -1,7 +1,7 @@
 aiohttp[speedups]==3.9.5
 bleach==6.1.0
 fastapi==0.111.0
-google-api-python-client==2.128.0
+google-api-python-client==2.129.0
 google-cloud-bigquery==3.22.0
 Jinja2==3.1.4
 lxml==5.2.1
