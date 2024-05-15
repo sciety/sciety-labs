@@ -59,7 +59,9 @@ def add_app_error_handlers(
     ):
         list_id = exception.list_id
         error_message = (
-            'List not found. This could be because the data isn\'t yet available in Sciety Labs.'
+            'List not found.'
+            ' This could be because it takes a little time for the magic to happen.'
+            ' Come back soon to view the related articles.'
         )
         return templates.TemplateResponse(
             request=request,
