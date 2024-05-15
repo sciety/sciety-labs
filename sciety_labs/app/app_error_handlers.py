@@ -61,7 +61,7 @@ def add_app_error_handlers(
         error_message = (
             'List not found.'
             ' This could be because it takes a little time for the magic to happen.'
-            ' Come back soon to view the related articles.'
+            ' Try coming back later.'
         )
         return templates.TemplateResponse(
             request=request,
