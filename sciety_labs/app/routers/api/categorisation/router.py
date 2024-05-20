@@ -6,7 +6,7 @@ from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.routers.api.categorisation.providers import (
     AsyncOpenSearchCategoriesProvider
 )
-from sciety_labs.app.routers.api.categorisation.typing import CategorisationDict
+from sciety_labs.app.routers.api.categorisation.typing import CategorisationResponseDict
 from sciety_labs.utils.fastapi import get_cache_control_headers_for_request
 
 
@@ -27,7 +27,7 @@ def create_api_categorisation_router(
     async def categories_by_doi(
         request: fastapi.Request,
         article_doi: str
-    ) -> CategorisationDict:
+    ) -> CategorisationResponseDict:
         return await async_opensearch_categories_provider.get_categories_dict_by_doi(
             article_doi=article_doi,
             headers=get_cache_control_headers_for_request(request)

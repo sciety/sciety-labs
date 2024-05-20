@@ -2,15 +2,15 @@ import logging
 from typing import Mapping, Optional
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
-from sciety_labs.app.routers.api.categorisation.typing import CategorisationDict
+from sciety_labs.app.routers.api.categorisation.typing import CategorisationResponseDict
 
 
 LOGGER = logging.getLogger(__name__)
 
 
-def get_categorisation_dict_for_opensearch_document_dict(
+def get_categorisation_response_dict_for_opensearch_document_dict(
     document_dict: dict
-) -> CategorisationDict:
+) -> CategorisationResponseDict:
     crossref_opensearch_dict = document_dict.get('crossref')
     group_title = (
         crossref_opensearch_dict
@@ -32,8 +32,8 @@ class AsyncOpenSearchCategoriesProvider:
         self,
         article_doi: str,
         headers: Optional[Mapping[str, str]] = None
-    ) -> CategorisationDict:
-        return get_categorisation_dict_for_opensearch_document_dict(
+    ) -> CategorisationResponseDict:
+        return get_categorisation_response_dict_for_opensearch_document_dict(
             await self.async_opensearch_client.get_source(
                 index=self.index_name,
                 id=article_doi,
