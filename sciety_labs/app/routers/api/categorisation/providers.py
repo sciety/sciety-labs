@@ -21,6 +21,7 @@ def get_categorisation_response_dict_for_opensearch_document_dict(
     return {
         'categories': [{
             'display_name': group_title,
+            'type': 'category',
             'source_id': 'crossref_group_title'
         }]
     }

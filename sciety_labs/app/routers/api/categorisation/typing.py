@@ -4,6 +4,7 @@ from typing_extensions import NotRequired, TypedDict
 
 class CategorisationDict(TypedDict):
     display_name: str
+    type: str
     source_id: str
 
 
