@@ -15,5 +15,7 @@ class TestGetCategorisationDictForOpensearchDocumentDict:
             }
         })
         assert categories_response_dict == {
-            'categories': ['Category 1']
+            'categories': [{
+                'display_name': 'Category 1'
+            }]
         }

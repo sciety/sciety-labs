@@ -19,7 +19,9 @@ def get_categorisation_response_dict_for_opensearch_document_dict(
     if not group_title:
         return {}
     return {
-        'categories': [group_title]
+        'categories': [{
+            'display_name': group_title
+        }]
     }
 
 

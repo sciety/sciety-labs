@@ -2,5 +2,9 @@ from typing import Sequence
 from typing_extensions import NotRequired, TypedDict
 
 
+class CategorisationDict(TypedDict):
+    display_name: str
+
+
 class CategorisationResponseDict(TypedDict):
-    categories: NotRequired[Sequence[str]]
+    categories: NotRequired[Sequence[CategorisationDict]]
