@@ -9,4 +9,4 @@ class CategorisationDict(TypedDict):
 
 
 class CategorisationResponseDict(TypedDict):
-    categories: NotRequired[Sequence[CategorisationDict]]
+    data: NotRequired[Sequence[CategorisationDict]]

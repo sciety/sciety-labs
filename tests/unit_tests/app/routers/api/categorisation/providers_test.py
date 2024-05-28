@@ -15,7 +15,7 @@ class TestGetCategorisationDictForOpensearchDocumentDict:
             }
         })
         assert categories_response_dict == {
-            'categories': [{
+            'data': [{
                 'display_name': 'Category 1',
                 'type': 'category',
                 'source_id': 'crossref_group_title'
