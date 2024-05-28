@@ -28,7 +28,7 @@ def create_api_categorisation_router(
         request: fastapi.Request,
         article_doi: str
     ) -> CategorisationResponseDict:
-        return await async_opensearch_categories_provider.get_categories_dict_by_doi(
+        return await async_opensearch_categories_provider.get_categorisation_response_dict_by_doi(
             article_doi=article_doi,
             headers=get_cache_control_headers_for_request(request)
         )

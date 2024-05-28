@@ -32,7 +32,7 @@ class AsyncOpenSearchCategoriesProvider:
         self.async_opensearch_client = app_providers_and_models.async_opensearch_client
         self.index_name = app_providers_and_models.opensearch_config.index_name
 
-    async def get_categories_dict_by_doi(
+    async def get_categorisation_response_dict_by_doi(
         self,
         article_doi: str,
         headers: Optional[Mapping[str, str]] = None
