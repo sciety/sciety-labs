@@ -1,11 +1,19 @@
 import logging
 from typing import Mapping, Optional
 
+import opensearchpy
+
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.routers.api.categorisation.typing import CategorisationResponseDict
 
 
 LOGGER = logging.getLogger(__name__)
+
+
+class ArticleDoiNotFoundError(RuntimeError):
+    def __init__(self, article_doi: str):
+        self.article_doi = article_doi
+        super().__init__(f'Article DOI not found: {article_doi}')
 
 
 def get_categorisation_response_dict_for_opensearch_document_dict(
@@ -37,11 +45,20 @@ class AsyncOpenSearchCategoriesProvider:
         article_doi: str,
         headers: Optional[Mapping[str, str]] = None
     ) -> CategorisationResponseDict:
-        return get_categorisation_response_dict_for_opensearch_document_dict(
-            await self.async_opensearch_client.get_source(
+        LOGGER.debug('async_opensearch_client: %r', self.async_opensearch_client)
+        LOGGER.debug(
+            'async_opensearch_client.get_source: %r',
+            self.async_opensearch_client.get_source
+        )
+        try:
+            opensearch_document_dict = await self.async_opensearch_client.get_source(
                 index=self.index_name,
                 id=article_doi,
                 _source_includes=['crossref.group_title'],
                 headers=headers
             )
+        except opensearchpy.NotFoundError as exc:
+            raise ArticleDoiNotFoundError(article_doi=article_doi) from exc
+        return get_categorisation_response_dict_for_opensearch_document_dict(
+            opensearch_document_dict
         )

@@ -6,7 +6,10 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from sciety_labs.app.routers.api.categorisation.providers import AsyncOpenSearchCategoriesProvider
+from sciety_labs.app.routers.api.categorisation.providers import (
+    ArticleDoiNotFoundError,
+    AsyncOpenSearchCategoriesProvider
+)
 import sciety_labs.app.routers.api.categorisation.router as router_module
 from sciety_labs.app.routers.api.categorisation.router import create_api_categorisation_router
 from sciety_labs.app.routers.api.categorisation.typing import CategorisationResponseDict
@@ -72,3 +75,17 @@ class TestCategorisationApiRouter:
         )
         response.raise_for_status()
         assert response.json() == CATEGORISATION_RESPONSE_DICT_1
+
+    def test_should_return_404_if_not_found(
+        self,
+        get_categorisation_response_dict_by_doi_mock: AsyncMock,
+        test_client: TestClient
+    ):
+        get_categorisation_response_dict_by_doi_mock.side_effect = ArticleDoiNotFoundError(
+            DOI_1
+        )
+        response = test_client.get(
+            '/categorisation/v1/categories/by/doi',
+            params={'article_doi': DOI_1}
+        )
+        assert response.status_code == 404
