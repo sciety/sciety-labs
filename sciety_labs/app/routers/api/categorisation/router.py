@@ -7,11 +7,50 @@ from sciety_labs.app.routers.api.categorisation.providers import (
     ArticleDoiNotFoundError,
     AsyncOpenSearchCategoriesProvider
 )
-from sciety_labs.app.routers.api.categorisation.typing import JsonApiErrorsResponseDict
+from sciety_labs.app.routers.api.categorisation.typing import (
+    CategorisationResponseDict,
+    JsonApiErrorsResponseDict
+)
 from sciety_labs.utils.fastapi import get_cache_control_headers_for_request
 
 
 LOGGER = logging.getLogger(__name__)
+
+
+CATEGORISATION_BY_DOI_API_EXAMPLE_200_RESPONSE: CategorisationResponseDict = {
+    'data': [{
+        'display_name': 'Pain Medicine',
+        'type': 'category',
+        'source_id': 'crossref_group_title'
+    }]
+}
+
+CATEGORISATION_BY_DOI_API_EXAMPLE_404_RESPONSE: JsonApiErrorsResponseDict = {
+    'errors': [{
+        'title': 'Invalid DOI',
+        'detail': 'DOI not found: invalid-doi',
+        'status': '404'
+    }]
+}
+
+
+CATEGORISATION_BY_DOI_API_EXAMPLE_RESPONSES: dict = {
+    200: {
+        'content': {
+            'application/json': {
+                'example': CATEGORISATION_BY_DOI_API_EXAMPLE_200_RESPONSE
+            }
+        }
+    },
+    404: {
+        'model': JsonApiErrorsResponseDict,
+        'content': {
+            'application/json': {
+                'example': CATEGORISATION_BY_DOI_API_EXAMPLE_404_RESPONSE
+            }
+        }
+    }
+}
 
 
 def get_not_found_error_json_response_dict(
@@ -44,7 +83,9 @@ def create_api_categorisation_router(
     )
 
     @router.get(
-        '/categorisation/v1/categories/by/doi'
+        '/categorisation/v1/categories/by/doi',
+        response_model=CategorisationResponseDict,
+        responses=CATEGORISATION_BY_DOI_API_EXAMPLE_RESPONSES
     )
     async def categories_by_doi(
         request: fastapi.Request,
