@@ -1,5 +1,6 @@
 from unittest.mock import AsyncMock, MagicMock
 
+import opensearchpy
 import pytest
 
 from sciety_labs.providers.async_article_recommendation import (
@@ -18,6 +19,16 @@ def _async_single_article_recommendation_provider_mock(
 ) -> AsyncMock:
     mock = AsyncMock(AsyncSingleArticleRecommendationProvider)
     app_providers_and_models_mock.async_single_article_recommendation_provider = mock
+    return mock
+
+
+@pytest.fixture(name='async_opensearch_client_mock', autouse=True)
+def _async_opensearch_client_mock(
+    app_providers_and_models_mock: MagicMock
+) -> AsyncMock:
+    mock = AsyncMock(opensearchpy.AsyncOpenSearch)
+    mock.get_source = AsyncMock(name='AsyncOpenSearch.get_source')
+    app_providers_and_models_mock.async_opensearch_client = mock
     return mock
 
 
