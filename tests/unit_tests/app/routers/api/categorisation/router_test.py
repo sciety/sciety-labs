@@ -11,7 +11,10 @@ from sciety_labs.app.routers.api.categorisation.providers import (
     AsyncOpenSearchCategoriesProvider
 )
 import sciety_labs.app.routers.api.categorisation.router as router_module
-from sciety_labs.app.routers.api.categorisation.router import create_api_categorisation_router
+from sciety_labs.app.routers.api.categorisation.router import (
+    create_api_categorisation_router,
+    get_not_found_error_json_response_dict
+)
 from sciety_labs.app.routers.api.categorisation.typing import CategorisationResponseDict
 
 
@@ -62,6 +65,20 @@ def _test_client(app_providers_and_models_mock: MagicMock) -> TestClient:
     return TestClient(app)
 
 
+class TestGetNotFoundErrorJsonResponseDict:
+    def test_should_return_json_dict_for_exception(self):
+        exception = ArticleDoiNotFoundError(
+            DOI_1
+        )
+        assert get_not_found_error_json_response_dict(exception) == {
+            'errors': [{
+                'title': 'Invalid DOI',
+                'detail': f'DOI not found: {DOI_1}',
+                'status': '404'
+            }]
+        }
+
+
 class TestCategorisationApiRouter:
     def test_should_provide_categorisation_response(
         self,
@@ -81,11 +98,13 @@ class TestCategorisationApiRouter:
         get_categorisation_response_dict_by_doi_mock: AsyncMock,
         test_client: TestClient
     ):
-        get_categorisation_response_dict_by_doi_mock.side_effect = ArticleDoiNotFoundError(
+        exception = ArticleDoiNotFoundError(
             DOI_1
         )
+        get_categorisation_response_dict_by_doi_mock.side_effect = exception
         response = test_client.get(
             '/categorisation/v1/categories/by/doi',
             params={'article_doi': DOI_1}
         )
         assert response.status_code == 404
+        assert response.json() == get_not_found_error_json_response_dict(exception)

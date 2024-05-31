@@ -7,17 +7,30 @@ from sciety_labs.app.routers.api.categorisation.providers import (
     ArticleDoiNotFoundError,
     AsyncOpenSearchCategoriesProvider
 )
+from sciety_labs.app.routers.api.categorisation.typing import JsonApiErrorsResponseDict
 from sciety_labs.utils.fastapi import get_cache_control_headers_for_request
 
 
 LOGGER = logging.getLogger(__name__)
 
 
+def get_not_found_error_json_response_dict(
+    exception: ArticleDoiNotFoundError
+) -> JsonApiErrorsResponseDict:
+    return {
+        'errors': [{
+            'title': 'Invalid DOI',
+            'detail': f'DOI not found: {exception.article_doi}',
+            'status': '404'
+        }]
+    }
+
+
 def get_not_found_error_json_response(
     exception: ArticleDoiNotFoundError
 ) -> fastapi.responses.JSONResponse:
     return fastapi.responses.JSONResponse(
-        {'error': f'DOI not found: {exception.article_doi}'},
+        get_not_found_error_json_response_dict(exception),
         status_code=404
     )
 
