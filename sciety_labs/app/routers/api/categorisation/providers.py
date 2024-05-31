@@ -16,6 +16,40 @@ class ArticleDoiNotFoundError(RuntimeError):
         super().__init__(f'Article DOI not found: {article_doi}')
 
 
+def get_categorisation_list_opensearch_query_dict(
+) -> dict:
+    return {
+        'aggs': {
+            'group_title': {
+                'terms': {
+                    'field': 'crossref.group_title.keyword',
+                    'size': 10000
+                }
+            }
+        },
+        'size': 0
+    }
+
+
+def get_categorisation_response_dict_for_opensearch_aggregations_response_dict(
+    response_dict: dict
+) -> CategorisationResponseDict:
+    group_titles = [
+        bucket['key']
+        for bucket in response_dict['aggregations']['group_title']['buckets']
+    ]
+    return {
+        'data': [
+            {
+                'display_name': group_title,
+                'type': 'category',
+                'source_id': 'crossref_group_title'
+            }
+            for group_title in group_titles
+        ]
+    }
+
+
 def get_categorisation_response_dict_for_opensearch_document_dict(
     document_dict: dict
 ) -> CategorisationResponseDict:
@@ -39,6 +73,20 @@ class AsyncOpenSearchCategoriesProvider:
     def __init__(self, app_providers_and_models: AppProvidersAndModels):
         self.async_opensearch_client = app_providers_and_models.async_opensearch_client
         self.index_name = app_providers_and_models.opensearch_config.index_name
+
+    async def get_categorisation_list_response_dict(
+        self,
+        headers: Optional[Mapping[str, str]] = None
+    ) -> CategorisationResponseDict:
+        LOGGER.debug('async_opensearch_client: %r', self.async_opensearch_client)
+        opensearch_aggregations_response_dict = await self.async_opensearch_client.search(
+            get_categorisation_list_opensearch_query_dict(),
+            index=self.index_name,
+            headers=headers
+        )
+        return get_categorisation_response_dict_for_opensearch_aggregations_response_dict(
+            opensearch_aggregations_response_dict
+        )
 
     async def get_categorisation_response_dict_by_doi(
         self,

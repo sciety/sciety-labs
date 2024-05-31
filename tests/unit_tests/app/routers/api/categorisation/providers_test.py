@@ -6,6 +6,7 @@ import pytest
 from sciety_labs.app.routers.api.categorisation.providers import (
     ArticleDoiNotFoundError,
     AsyncOpenSearchCategoriesProvider,
+    get_categorisation_response_dict_for_opensearch_aggregations_response_dict,
     get_categorisation_response_dict_for_opensearch_document_dict
 )
 
@@ -27,6 +28,36 @@ class TestArticleDoiNotFoundError:
         exception = ArticleDoiNotFoundError(article_doi=DOI_1)
         assert DOI_1 in str(exception)
         assert DOI_1 in repr(exception)
+
+
+class TestGetCategorisationResponseDictForOpenSearchAggregationsResponseDict:
+    def test_should_return_categories_from_categorisation_response(self):
+        categorisaton_response_dict = (
+            get_categorisation_response_dict_for_opensearch_aggregations_response_dict({
+                'aggregations': {
+                    'group_title': {
+                        'buckets': [{
+                            'key': 'Category 1',
+                            'doc_count': 20
+                        }, {
+                            'key': 'Category 2',
+                            'doc_count': 10
+                        }]
+                    }
+                }
+            })
+        )
+        assert categorisaton_response_dict == {
+            'data': [{
+                'display_name': 'Category 1',
+                'type': 'category',
+                'source_id': 'crossref_group_title'
+            }, {
+                'display_name': 'Category 2',
+                'type': 'category',
+                'source_id': 'crossref_group_title'
+            }]
+        }
 
 
 class TestGetCategorisationDictForOpensearchDocumentDict:

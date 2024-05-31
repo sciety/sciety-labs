@@ -46,6 +46,16 @@ def _async_opensearch_categories_provider_mock(
     return async_opensearch_categories_provider_class_mock.return_value
 
 
+@pytest.fixture(name='get_categorisation_list_response_dict_mock', autouse=True)
+def _get_categorisation_list_response_dict_mock(
+    async_opensearch_categories_provider_mock: AsyncMock
+) -> AsyncMock:
+    return (
+        async_opensearch_categories_provider_mock
+        .get_categorisation_list_response_dict
+    )
+
+
 @pytest.fixture(name='get_categorisation_response_dict_by_doi_mock', autouse=True)
 def _get_categorisation_response_dict_by_doi_mock(
     async_opensearch_categories_provider_mock: AsyncMock
@@ -80,6 +90,19 @@ class TestGetNotFoundErrorJsonResponseDict:
 
 
 class TestCategorisationApiRouter:
+    def test_should_provide_categorisation_list_response(
+        self,
+        get_categorisation_list_response_dict_mock: AsyncMock,
+        test_client: TestClient
+    ):
+        get_categorisation_list_response_dict_mock.return_value = CATEGORISATION_RESPONSE_DICT_1
+        response = test_client.get(
+            '/categorisation/v1/categories',
+            params={'article_doi': DOI_1}
+        )
+        response.raise_for_status()
+        assert response.json() == CATEGORISATION_RESPONSE_DICT_1
+
     def test_should_provide_categorisation_response(
         self,
         get_categorisation_response_dict_by_doi_mock: AsyncMock,

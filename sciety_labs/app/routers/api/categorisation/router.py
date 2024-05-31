@@ -83,6 +83,20 @@ def create_api_categorisation_router(
     )
 
     @router.get(
+        '/categorisation/v1/categories',
+        response_model=CategorisationResponseDict
+    )
+    async def categories_list(
+        request: fastapi.Request
+    ):
+        return await (
+            async_opensearch_categories_provider
+            .get_categorisation_list_response_dict(
+                headers=get_cache_control_headers_for_request(request)
+            )
+        )
+
+    @router.get(
         '/categorisation/v1/categories/by/doi',
         response_model=CategorisationResponseDict,
         responses=CATEGORISATION_BY_DOI_API_EXAMPLE_RESPONSES
