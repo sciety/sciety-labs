@@ -53,6 +53,30 @@ CATEGORISATION_BY_DOI_API_EXAMPLE_RESPONSES: dict = {
 }
 
 
+CATEGORISATION_LIST_API_EXAMPLE_200_RESPONSE: CategorisationResponseDict = {
+    'data': [{
+        'display_name': 'Neuroscience',
+        'type': 'category',
+        'source_id': 'crossref_group_title'
+    }, {
+        'display_name': 'Pain Medicine',
+        'type': 'category',
+        'source_id': 'crossref_group_title'
+    }]
+}
+
+
+CATEGORISATION_LIST_API_EXAMPLE_RESPONSES: dict = {
+    200: {
+        'content': {
+            'application/json': {
+                'example': CATEGORISATION_LIST_API_EXAMPLE_200_RESPONSE
+            }
+        }
+    }
+}
+
+
 def get_not_found_error_json_response_dict(
     exception: ArticleDoiNotFoundError
 ) -> JsonApiErrorsResponseDict:
@@ -81,6 +105,21 @@ def create_api_categorisation_router(
     async_opensearch_categories_provider = AsyncOpenSearchCategoriesProvider(
         app_providers_and_models=app_providers_and_models
     )
+
+    @router.get(
+        '/categorisation/v1/categories',
+        response_model=CategorisationResponseDict,
+        responses=CATEGORISATION_LIST_API_EXAMPLE_RESPONSES
+    )
+    async def categories_list(
+        request: fastapi.Request
+    ):
+        return await (
+            async_opensearch_categories_provider
+            .get_categorisation_list_response_dict(
+                headers=get_cache_control_headers_for_request(request)
+            )
+        )
 
     @router.get(
         '/categorisation/v1/categories/by/doi',
