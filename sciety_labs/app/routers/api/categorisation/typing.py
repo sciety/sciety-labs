@@ -19,5 +19,14 @@ class CategorisationDict(TypedDict):
     source_id: str
 
 
+class ArticleDict(TypedDict):
+    doi: str
+    categorisation: NotRequired[Sequence[CategorisationDict]]
+
+
 class CategorisationResponseDict(TypedDict):
     data: NotRequired[Sequence[CategorisationDict]]
+
+
+class ArticleResponseDict(TypedDict):
+    data: ArticleDict

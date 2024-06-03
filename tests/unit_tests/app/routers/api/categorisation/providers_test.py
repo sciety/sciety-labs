@@ -6,6 +6,7 @@ import pytest
 from sciety_labs.app.routers.api.categorisation.providers import (
     ArticleDoiNotFoundError,
     AsyncOpenSearchCategoriesProvider,
+    get_article_response_dict_for_opensearch_document_dict,
     get_categorisation_response_dict_for_opensearch_aggregations_response_dict,
     get_categorisation_response_dict_for_opensearch_document_dict
 )
@@ -79,6 +80,22 @@ class TestGetCategorisationDictForOpensearchDocumentDict:
                 'type': 'category',
                 'source_id': 'crossref_group_title'
             }]
+        }
+
+
+class TestGetArticleResponseDictForOpensearchDocumentDict:
+    def test_should_raise_error_if_doi_is_missing(self):
+        with pytest.raises(AssertionError):
+            get_article_response_dict_for_opensearch_document_dict({})
+
+    def test_should_return_response_with_doi_only(self):
+        article_dict = get_article_response_dict_for_opensearch_document_dict({
+            'doi': DOI_1
+        })
+        assert article_dict == {
+            'data': {
+                'doi': DOI_1
+            }
         }
 
 

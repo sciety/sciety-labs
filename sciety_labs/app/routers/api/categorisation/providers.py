@@ -4,7 +4,11 @@ from typing import Mapping, Optional
 import opensearchpy
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
-from sciety_labs.app.routers.api.categorisation.typing import CategorisationResponseDict
+from sciety_labs.app.routers.api.categorisation.typing import (
+    ArticleResponseDict,
+    CategorisationResponseDict
+)
+from sciety_labs.providers.opensearch_article_recommendation import DocumentDict
 
 
 LOGGER = logging.getLogger(__name__)
@@ -68,6 +72,17 @@ def get_categorisation_response_dict_for_opensearch_document_dict(
             'type': 'category',
             'source_id': 'crossref_group_title'
         }]
+    }
+
+
+def get_article_response_dict_for_opensearch_document_dict(
+    document_dict: DocumentDict
+) -> ArticleResponseDict:
+    assert document_dict.get('doi')
+    return {
+        'data': {
+            'doi': document_dict['doi']
+        }
     }
 
 
