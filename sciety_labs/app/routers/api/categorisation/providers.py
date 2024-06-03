@@ -59,7 +59,9 @@ def get_categorisation_response_dict_for_opensearch_document_dict(
         and crossref_opensearch_dict.get('group_title')
     )
     if not group_title:
-        return {}
+        return {
+            'data': []
+        }
     return {
         'data': [{
             'display_name': group_title,

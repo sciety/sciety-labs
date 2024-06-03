@@ -63,7 +63,9 @@ class TestGetCategorisationResponseDictForOpenSearchAggregationsResponseDict:
 class TestGetCategorisationDictForOpensearchDocumentDict:
     def test_should_return_empty_dict_if_no_categories_are_available(self):
         categories_dict = get_categorisation_response_dict_for_opensearch_document_dict({})
-        assert categories_dict == {}  # pylint: disable=use-implicit-booleaness-not-comparison
+        assert categories_dict == {
+            'data': []
+        }
 
     def test_should_extract_crossref_group_title_as_categories(self):
         categories_response_dict = get_categorisation_response_dict_for_opensearch_document_dict({
