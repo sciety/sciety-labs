@@ -4,7 +4,14 @@ from typing import Mapping, Optional
 import opensearchpy
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
-from sciety_labs.app.routers.api.categorisation.typing import CategorisationResponseDict
+from sciety_labs.app.routers.api.categorisation.typing import (
+    ArticleDict,
+    ArticleResponseDict,
+    ArticleSearchResponseDict,
+    CategorisationResponseDict
+)
+from sciety_labs.providers.opensearch_article_recommendation import DocumentDict
+from sciety_labs.providers.opensearch_typing import OpenSearchSearchResultDict
 
 
 LOGGER = logging.getLogger(__name__)
@@ -28,6 +35,24 @@ def get_categorisation_list_opensearch_query_dict(
             }
         },
         'size': 0
+    }
+
+
+def get_article_search_by_category_opensearch_query_dict(
+    category: str
+) -> dict:
+    return {
+        'query': {
+            'bool': {
+                'filter': [
+                    {
+                        'term': {
+                            'crossref.group_title.keyword': category
+                        }
+                    }
+                ]
+            }
+        }
     }
 
 
@@ -71,6 +96,36 @@ def get_categorisation_response_dict_for_opensearch_document_dict(
     }
 
 
+def get_article_dict_for_opensearch_document_dict(
+    document_dict: DocumentDict
+) -> ArticleDict:
+    assert document_dict.get('doi')
+    return {
+        'doi': document_dict['doi']
+    }
+
+
+def get_article_response_dict_for_opensearch_document_dict(
+    document_dict: DocumentDict
+) -> ArticleResponseDict:
+    return {
+        'data': get_article_dict_for_opensearch_document_dict(document_dict)
+    }
+
+
+def get_article_search_response_dict_for_opensearch_search_response_dict(
+    opensearch_search_result_dict: OpenSearchSearchResultDict
+) -> ArticleSearchResponseDict:
+    return {
+        'data': [
+            get_article_dict_for_opensearch_document_dict(
+                document_dict=hit['_source']
+            )
+            for hit in opensearch_search_result_dict['hits']['hits']
+        ]
+    }
+
+
 class AsyncOpenSearchCategoriesProvider:
     def __init__(self, app_providers_and_models: AppProvidersAndModels):
         self.async_opensearch_client = app_providers_and_models.async_opensearch_client
@@ -111,4 +166,20 @@ class AsyncOpenSearchCategoriesProvider:
             raise ArticleDoiNotFoundError(article_doi=article_doi) from exc
         return get_categorisation_response_dict_for_opensearch_document_dict(
             opensearch_document_dict
+        )
+
+    async def get_article_search_response_dict_by_category(
+        self,
+        category: str,
+        headers: Optional[Mapping[str, str]] = None
+    ) -> ArticleSearchResponseDict:
+        opensearch_search_result_dict = await self.async_opensearch_client.search(
+            get_article_search_by_category_opensearch_query_dict(
+                category=category
+            ),
+            index=self.index_name,
+            headers=headers
+        )
+        return get_article_search_response_dict_for_opensearch_search_response_dict(
+            opensearch_search_result_dict
         )
