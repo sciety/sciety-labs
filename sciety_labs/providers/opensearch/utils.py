@@ -1,27 +1,28 @@
-import json
 import logging
 from datetime import date, timedelta
 from typing import Any, Iterable, Mapping, Optional, Sequence, cast
 
-from typing_extensions import NotRequired, TypedDict
 
 import numpy.typing as npt
 
-from opensearchpy import OpenSearch
-import opensearchpy
 from sciety_labs.models.article import ArticleMetaData, ArticleStats
 
-from sciety_labs.providers.article_recommendation import (
+from sciety_labs.providers.interfaces.article_recommendation import (
     ArticleRecommendation,
     ArticleRecommendationFieldLiteral,
     ArticleRecommendationFields,
     ArticleRecommendationFilterParameters,
-    ArticleRecommendationList,
-    SingleArticleRecommendationProvider
+    ArticleRecommendationList
 )
-from sciety_labs.providers.crossref import CrossrefMetaDataProvider
-from sciety_labs.providers.semantic_scholar import (
-    SemanticScholarTitleAbstractEmbeddingVectorProvider
+from sciety_labs.providers.opensearch.typing import (
+    DocumentCrossrefAuthorDict,
+    DocumentCrossrefDict,
+    DocumentDict,
+    DocumentEuropePmcAuthorDict,
+    DocumentEuropePmcDict,
+    DocumentS2AuthorDict,
+    DocumentS2Dict,
+    DocumentScietyDict
 )
 from sciety_labs.utils.datetime import get_utcnow
 from sciety_labs.utils.distance import cosine_similarity
@@ -31,66 +32,6 @@ LOGGER = logging.getLogger(__name__)
 
 
 DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS = 50
-
-
-class DocumentCrossrefAuthorDict(TypedDict):
-    orcid: NotRequired[str]
-    family_name: NotRequired[str]
-    given_name: NotRequired[str]
-    sequence: NotRequired[str]
-    suffix: NotRequired[str]
-
-
-class DocumentCrossrefDict(TypedDict):
-    title_with_markup: NotRequired[str]
-    publication_date: NotRequired[str]
-    author_list: NotRequired[Sequence[DocumentCrossrefAuthorDict]]
-
-
-class DocumentS2AuthorDict(TypedDict):
-    name: str
-    s2_author_id: NotRequired[str]
-
-
-class DocumentS2Dict(TypedDict):
-    title: str
-    author_list: NotRequired[Sequence[DocumentS2AuthorDict]]
-
-
-class DocumentEuropePmcCollectiveAuthorDict(TypedDict):
-    collective_name: NotRequired[str]
-
-
-class DocumentEuropePmcIndividualAuthorDict(TypedDict):
-    full_name: NotRequired[str]
-    initials: NotRequired[str]
-    last_name: NotRequired[str]
-    first_name: NotRequired[str]
-
-
-class DocumentEuropePmcAuthorDict(
-    DocumentEuropePmcCollectiveAuthorDict,
-    DocumentEuropePmcIndividualAuthorDict
-):
-    pass
-
-
-class DocumentEuropePmcDict(TypedDict):
-    title_with_markup: NotRequired[str]
-    first_publication_date: NotRequired[str]
-    author_list: NotRequired[Sequence[DocumentEuropePmcAuthorDict]]
-
-
-class DocumentScietyDict(TypedDict):
-    evaluation_count: NotRequired[int]
-
-
-class DocumentDict(TypedDict):
-    doi: str
-    crossref: NotRequired[DocumentCrossrefDict]
-    s2: NotRequired[DocumentS2Dict]
-    europepmc: NotRequired[DocumentEuropePmcDict]
-    sciety: NotRequired[DocumentScietyDict]
 
 
 def get_author_names_for_document_s2_authors(
@@ -407,162 +348,3 @@ def get_default_filter_parameters(article_doi: str) -> ArticleRecommendationFilt
         exclude_article_dois={article_doi},
         from_publication_date=date.today() - timedelta(days=60)
     )
-
-
-class OpenSearchArticleRecommendation(SingleArticleRecommendationProvider):
-    def __init__(  # pylint: disable=too-many-arguments
-        self,
-        opensearch_client: OpenSearch,
-        index_name: str,
-        embedding_vector_mapping_name: str,
-        crossref_metadata_provider: CrossrefMetaDataProvider,
-        title_abstract_embedding_vector_provider: (
-            SemanticScholarTitleAbstractEmbeddingVectorProvider
-        )
-    ):
-        self.opensearch_client = opensearch_client
-        self.index_name = index_name
-        self.embedding_vector_mapping_name = embedding_vector_mapping_name
-        self.crossref_metadata_provider = crossref_metadata_provider
-        self.title_abstract_embedding_vector_provider = title_abstract_embedding_vector_provider
-
-    def _run_vector_search_and_get_hits(  # pylint: disable=too-many-arguments
-        self,
-        query_vector: npt.ArrayLike,
-        index: str,
-        embedding_vector_mapping_name: str,
-        source_includes: Sequence[str],
-        max_results: int,
-        filter_parameters: ArticleRecommendationFilterParameters,
-        headers: Optional[Mapping[str, str]] = None
-    ) -> Sequence[dict]:
-        search_query = get_vector_search_query(
-            query_vector=query_vector,
-            embedding_vector_mapping_name=embedding_vector_mapping_name,
-            max_results=max_results,
-            filter_parameters=filter_parameters
-        )
-        LOGGER.info('Running OpenSearch search: max_results=%d (headers=%r)', max_results, headers)
-        if LOGGER.isEnabledFor(logging.DEBUG):
-            LOGGER.debug('search_query JSON: %s (headers=%r)', json.dumps(search_query), headers)
-        client_search_results = (
-            self.opensearch_client.search(  # pylint: disable=unexpected-keyword-arg
-                body=search_query,
-                index=index,
-                _source_includes=source_includes,
-                headers=headers
-            )
-        )
-        hits = client_search_results['hits']['hits'][:max_results]
-        return hits
-
-    def get_embedding_vector_for_article_doi(
-        self,
-        article_doi: str,
-        headers: Optional[Mapping[str, str]] = None
-    ) -> Optional[Sequence[float]]:
-        try:
-            doc = self.opensearch_client.get_source(
-                index=self.index_name,
-                id=article_doi,
-                _source_includes=[self.embedding_vector_mapping_name],
-                headers=headers
-            )
-        except opensearchpy.exceptions.NotFoundError:
-            doc = None
-        if not doc:
-            LOGGER.info('Article not found in OpenSearch index: %r', article_doi)
-            return None
-        embedding_vector = get_embedding_vector_from_document_or_none(
-            doc, self.embedding_vector_mapping_name
-        )
-        if not embedding_vector or len(embedding_vector) == 0:
-            LOGGER.info(
-                'Article has no embedding vector in OpenSearch index: %r (%r)',
-                article_doi,
-                self.embedding_vector_mapping_name
-            )
-            return None
-        return embedding_vector
-
-    def get_alternative_embedding_vector_for_article_doi_via_title_and_abstract(
-        self,
-        article_doi: str,
-        headers: Optional[Mapping[str, str]] = None
-    ) -> Optional[Sequence[float]]:
-        article_meta = self.crossref_metadata_provider.get_article_metadata_by_doi(
-            article_doi,
-            headers=headers
-        )
-        if not article_meta.article_title or not article_meta.abstract:
-            LOGGER.info('No title or abstract available to get embedding vector')
-            return None
-        LOGGER.info('Retrieving embedding vector via title and abstract')
-        return self.title_abstract_embedding_vector_provider.get_embedding_vector(
-            title=article_meta.article_title,
-            abstract=article_meta.abstract,
-            headers=headers
-        )
-
-    def get_article_recommendation_list_for_article_doi(
-        self,
-        article_doi: str,
-        max_recommendations: Optional[int] = None,
-        filter_parameters: Optional[ArticleRecommendationFilterParameters] = None,
-        headers: Optional[Mapping[str, str]] = None
-    ) -> ArticleRecommendationList:
-        if not max_recommendations:
-            max_recommendations = DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS
-        LOGGER.info(
-            (
-                'Sync getting related articles for'
-                ' (article_doi=%r, filter_parameters=%r, max_recommendations=%r, headers=%r)'
-            ),
-            article_doi,
-            filter_parameters,
-            max_recommendations,
-            headers
-        )
-        embedding_vector = self.get_embedding_vector_for_article_doi(article_doi, headers=headers)
-        if embedding_vector is not None:
-            LOGGER.info(
-                'Embedding vector found in OpenSearch for: %r (size: %d)',
-                article_doi,
-                len(embedding_vector)
-            )
-        else:
-            LOGGER.info(
-                (
-                    'No embedding vector found in OpenSearch,'
-                    ' trying to get via title and abstract: %r'
-                ),
-                article_doi
-            )
-            embedding_vector = (
-                self.get_alternative_embedding_vector_for_article_doi_via_title_and_abstract(
-                    article_doi,
-                    headers=headers
-                )
-            )
-        if embedding_vector is None:
-            return ArticleRecommendationList([], get_utcnow())
-        LOGGER.info('Found embedding vector: %d', len(embedding_vector))
-        if filter_parameters is None:
-            filter_parameters = get_default_filter_parameters(article_doi=article_doi)
-        hits = self._run_vector_search_and_get_hits(
-            embedding_vector,
-            index=self.index_name,
-            embedding_vector_mapping_name=self.embedding_vector_mapping_name,
-            source_includes=get_source_includes(
-                embedding_vector_mapping_name=self.embedding_vector_mapping_name,
-            ),
-            max_results=max_recommendations,
-            filter_parameters=filter_parameters,
-            headers=headers
-        )
-        return get_article_recommendation_list_from_opensearch_hits(
-            hits=hits,
-            embedding_vector_mapping_name=self.embedding_vector_mapping_name,
-            query_vector=embedding_vector,
-            max_recommendations=max_recommendations
-        )

@@ -7,19 +7,19 @@ import numpy.typing as npt
 
 import opensearchpy
 
-from sciety_labs.providers.article_recommendation import (
+from sciety_labs.providers.interfaces.article_recommendation import (
     ArticleRecommendationFieldLiteral,
     ArticleRecommendationFilterParameters,
     ArticleRecommendationList
 )
-from sciety_labs.providers.async_article_recommendation import (
+from sciety_labs.providers.interfaces.async_article_recommendation import (
     AsyncSingleArticleRecommendationProvider
 )
 from sciety_labs.providers.async_crossref import AsyncCrossrefMetaDataProvider
 from sciety_labs.providers.async_semantic_scholar import (
     AsyncSemanticScholarTitleAbstractEmbeddingVectorProvider
 )
-from sciety_labs.providers.opensearch_article_recommendation import (
+from sciety_labs.providers.opensearch.utils import (
     DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS,
     get_article_recommendation_list_from_opensearch_hits,
     get_default_filter_parameters,

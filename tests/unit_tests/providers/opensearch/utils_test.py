@@ -1,11 +1,11 @@
 import logging
 from datetime import date
 
-from sciety_labs.providers.article_recommendation import (
+from sciety_labs.providers.interfaces.article_recommendation import (
     ArticleRecommendationFields,
     ArticleRecommendationFilterParameters
 )
-from sciety_labs.providers.opensearch_article_recommendation import (
+from sciety_labs.providers.opensearch.utils import (
     ARTICLE_TITLE_OPENSEARCH_FIELDS,
     AUTHOR_LIST_OPENSEARCH_FIELDS,
     EVALUATION_COUNT_OPENSEARCH_FIELDS,

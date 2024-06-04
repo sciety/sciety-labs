@@ -1,6 +1,6 @@
 from typing import Mapping, Optional, Protocol, Sequence
 
-from sciety_labs.providers.article_recommendation import (
+from sciety_labs.providers.interfaces.article_recommendation import (
     ArticleRecommendationFieldLiteral,
     ArticleRecommendationFilterParameters,
     ArticleRecommendationList

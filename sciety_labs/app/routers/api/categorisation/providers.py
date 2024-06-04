@@ -10,8 +10,8 @@ from sciety_labs.app.routers.api.categorisation.typing import (
     ArticleSearchResponseDict,
     CategorisationResponseDict
 )
-from sciety_labs.providers.opensearch_article_recommendation import DocumentDict
-from sciety_labs.providers.opensearch_typing import OpenSearchSearchResultDict
+from sciety_labs.providers.opensearch.typing import DocumentDict
+from sciety_labs.providers.opensearch.typing import OpenSearchSearchResultDict
 
 
 LOGGER = logging.getLogger(__name__)

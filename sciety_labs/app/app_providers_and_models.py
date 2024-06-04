@@ -13,17 +13,17 @@ from sciety_labs.aggregators.article import ArticleAggregator
 from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
 
 from sciety_labs.models.lists import ScietyEventListsModel
-from sciety_labs.providers.article_recommendation import (
+from sciety_labs.providers.interfaces.article_recommendation import (
     ArticleRecommendationProvider,
     SingleArticleRecommendationProvider
 )
-from sciety_labs.providers.async_article_recommendation import (
+from sciety_labs.providers.interfaces.async_article_recommendation import (
     AsyncSingleArticleRecommendationProvider
 )
 from sciety_labs.providers.async_crossref import (
     AsyncCrossrefMetaDataProvider
 )
-from sciety_labs.providers.async_opensearch_article_recommendation import (
+from sciety_labs.providers.opensearch.async_providers import (
     AsyncOpenSearchArticleRecommendation
 )
 from sciety_labs.providers.async_semantic_scholar import (
@@ -37,12 +37,14 @@ from sciety_labs.providers.google_sheet_image import (
     GoogleSheetArticleImageProvider,
     GoogleSheetListImageProvider
 )
-from sciety_labs.providers.opensearch import (
-    OpenSearchConnectionConfig,
+from sciety_labs.providers.opensearch.client import (
     get_async_opensearch_client_or_none,
     get_opensearch_client_or_none
 )
-from sciety_labs.providers.opensearch_article_recommendation import OpenSearchArticleRecommendation
+from sciety_labs.providers.opensearch.config import OpenSearchConnectionConfig
+from sciety_labs.providers.opensearch.sync_providers import (
+    OpenSearchArticleRecommendation
+)
 from sciety_labs.providers.sciety_event import ScietyEventProvider
 from sciety_labs.providers.semantic_scholar import (
     SemanticScholarProvider,

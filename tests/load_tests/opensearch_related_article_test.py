@@ -3,7 +3,7 @@ import random
 from pathlib import Path
 from locust import HttpUser, task
 
-from sciety_labs.providers.opensearch import OpenSearchConnectionConfig
+from sciety_labs.providers.opensearch.config import OpenSearchConnectionConfig
 from tests.load_tests.data import get_data_file_path
 
 
