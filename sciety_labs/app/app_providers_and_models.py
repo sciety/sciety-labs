@@ -23,7 +23,7 @@ from sciety_labs.providers.async_article_recommendation import (
 from sciety_labs.providers.async_crossref import (
     AsyncCrossrefMetaDataProvider
 )
-from sciety_labs.providers.async_opensearch_article_recommendation import (
+from sciety_labs.providers.opensearch.async_opensearch_article_recommendation import (
     AsyncOpenSearchArticleRecommendation
 )
 from sciety_labs.providers.async_semantic_scholar import (
