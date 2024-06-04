@@ -23,7 +23,7 @@ from sciety_labs.providers.interfaces.article_recommendation import (
     ArticleRecommendationFilterParameters,
     ArticleRecommendationList
 )
-from sciety_labs.providers.opensearch.opensearch_article_recommendation import (
+from sciety_labs.providers.opensearch.utils import (
     DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS
 )
 from sciety_labs.utils.datetime import get_date_as_isoformat

@@ -13,7 +13,7 @@ from sciety_labs.providers.interfaces.article_recommendation import (
     ArticleRecommendationList,
     SingleArticleRecommendationProvider
 )
-from sciety_labs.providers.opensearch.opensearch_article_recommendation import (
+from sciety_labs.providers.opensearch.utils import (
     DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS,
     get_article_recommendation_list_from_opensearch_hits,
     get_default_filter_parameters,
