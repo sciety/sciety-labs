@@ -6,7 +6,7 @@ google-cloud-bigquery==3.23.1
 Jinja2==3.1.4
 lxml==5.2.2
 objsize==0.7.0
-opensearch-py==2.4.2
+opensearch-py==2.6.0
 pandas==2.2.2
 pyarrow==16.1.0
 PyYAML==6.0.1
