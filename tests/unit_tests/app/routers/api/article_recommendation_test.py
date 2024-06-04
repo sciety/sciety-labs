@@ -15,7 +15,7 @@ from sciety_labs.app.routers.api.article_recommendation import (
     get_s2_recommended_papers_response_for_article_recommendation_list
 )
 from sciety_labs.models.article import ArticleMetaData, ArticleStats
-from sciety_labs.providers.article_recommendation import (
+from sciety_labs.providers.interfaces.article_recommendation import (
     ArticleRecommendation,
     ArticleRecommendationFields,
     ArticleRecommendationList

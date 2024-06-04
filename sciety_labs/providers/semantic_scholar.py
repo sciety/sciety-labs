@@ -16,7 +16,7 @@ from sciety_labs.models.article import (
     iter_preprint_article_mention
 )
 from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
-from sciety_labs.providers.article_recommendation import (
+from sciety_labs.providers.interfaces.article_recommendation import (
     ArticleRecommendation,
     ArticleRecommendationList,
     ArticleRecommendationProvider

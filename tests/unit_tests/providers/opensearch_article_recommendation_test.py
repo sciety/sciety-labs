@@ -1,7 +1,7 @@
 import logging
 from datetime import date
 
-from sciety_labs.providers.article_recommendation import (
+from sciety_labs.providers.interfaces.article_recommendation import (
     ArticleRecommendationFields,
     ArticleRecommendationFilterParameters
 )

@@ -17,7 +17,9 @@ from sciety_labs.app.utils.recommendation import (
     get_article_recommendation_page_and_item_count_for_article_dois
 )
 from sciety_labs.models.article import ArticleStats
-from sciety_labs.providers.article_recommendation import ArticleRecommendationFilterParameters
+from sciety_labs.providers.interfaces.article_recommendation import (
+    ArticleRecommendationFilterParameters
+)
 from sciety_labs.utils.pagination import get_url_pagination_state_for_pagination_parameters
 from sciety_labs.utils.text import remove_markup_or_none
 
