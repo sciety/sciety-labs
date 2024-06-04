@@ -42,7 +42,7 @@ from sciety_labs.providers.opensearch.client import (
     get_async_opensearch_client_or_none,
     get_opensearch_client_or_none
 )
-from sciety_labs.providers.opensearch.opensearch_article_recommendation import (
+from sciety_labs.providers.opensearch.sync_providers import (
     OpenSearchArticleRecommendation
 )
 from sciety_labs.providers.sciety_event import ScietyEventProvider
