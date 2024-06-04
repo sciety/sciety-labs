@@ -28,6 +28,7 @@ def _async_opensearch_client_mock(
 ) -> AsyncMock:
     mock = AsyncMock(opensearchpy.AsyncOpenSearch)
     mock.get_source = AsyncMock(name='AsyncOpenSearch.get_source')
+    mock.search = AsyncMock(name='AsyncOpenSearch.search')
     app_providers_and_models_mock.async_opensearch_client = mock
     return mock
 

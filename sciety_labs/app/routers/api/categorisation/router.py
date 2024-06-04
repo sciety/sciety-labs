@@ -140,4 +140,20 @@ def create_api_categorisation_router(
             )
         except ArticleDoiNotFoundError as exc:
             return get_not_found_error_json_response(exc)
+
+    @router.get(
+        '/categorisation/v1/articles/by/category'
+    )
+    async def articles_by_category(
+        request: fastapi.Request,
+        category: str
+    ):
+        return await (
+            async_opensearch_categories_provider
+            .get_article_search_response_dict_by_category(
+                category=category,
+                headers=get_cache_control_headers_for_request(request)
+            )
+        )
+
     return router

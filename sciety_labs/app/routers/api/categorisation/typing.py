@@ -30,3 +30,7 @@ class CategorisationResponseDict(TypedDict):
 
 class ArticleResponseDict(TypedDict):
     data: ArticleDict
+
+
+class ArticleSearchResponseDict(TypedDict):
+    data: Sequence[ArticleDict]

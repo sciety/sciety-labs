@@ -7,12 +7,24 @@ from sciety_labs.app.routers.api.categorisation.providers import (
     ArticleDoiNotFoundError,
     AsyncOpenSearchCategoriesProvider,
     get_article_response_dict_for_opensearch_document_dict,
+    get_article_search_response_dict_for_opensearch_search_response_dict,
     get_categorisation_response_dict_for_opensearch_aggregations_response_dict,
     get_categorisation_response_dict_for_opensearch_document_dict
 )
+from sciety_labs.providers.opensearch_typing import OpenSearchSearchResultDict
 
 
 DOI_1 = '10.12345/test-doi-1'
+
+OPENSEARCH_SEARCH_RESULT_1: OpenSearchSearchResultDict = {
+    'hits': {
+        'hits': [{
+            '_source': {
+                'doi': DOI_1
+            }
+        }]
+    }
+}
 
 
 @pytest.fixture(name='async_opensearch_categories_provider')
@@ -99,6 +111,26 @@ class TestGetArticleResponseDictForOpensearchDocumentDict:
         }
 
 
+class TestGetArticleSearchResponseDictForOpensearchSearchResponseDict:
+    def test_should_return_singe_article_response_from_hits(self):
+        article_search_response_dict = (
+            get_article_search_response_dict_for_opensearch_search_response_dict({
+                'hits': {
+                    'hits': [{
+                        '_source': {
+                            'doi': DOI_1
+                        }
+                    }]
+                }
+            })
+        )
+        assert article_search_response_dict == {
+            'data': [{
+                'doi': DOI_1
+            }]
+        }
+
+
 class TestAsyncOpenSearchCategoriesProvider:
     @pytest.mark.asyncio
     async def test_should_raise_article_doi_not_found_error(
@@ -111,3 +143,21 @@ class TestAsyncOpenSearchCategoriesProvider:
             await async_opensearch_categories_provider.get_categorisation_response_dict_by_doi(
                 article_doi=DOI_1
             )
+
+    @pytest.mark.asyncio
+    async def test_should_return_article_response(
+        self,
+        async_opensearch_categories_provider: AsyncOpenSearchCategoriesProvider,
+        async_opensearch_client_mock: AsyncMock
+    ):
+        async_opensearch_client_mock.search.return_value = OPENSEARCH_SEARCH_RESULT_1
+        article_response = (
+            await async_opensearch_categories_provider.get_article_search_response_dict_by_category(
+                category='Category 1'
+            )
+        )
+        assert article_response == (
+            get_article_search_response_dict_for_opensearch_search_response_dict(
+                OPENSEARCH_SEARCH_RESULT_1
+            )
+        )
