@@ -1,9 +1,9 @@
 from pathlib import Path
 
-from sciety_labs.providers.opensearch.client import (
-    OpenSearchConnectionConfig,
-    OpenSearchEnvVariables
+from sciety_labs.providers.opensearch.config import (
+    OpenSearchConnectionConfig
 )
+from sciety_labs.providers.opensearch.config import OpenSearchEnvVariables
 
 
 class TestOpenSearchConnectionConfig:

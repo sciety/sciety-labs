@@ -38,10 +38,10 @@ from sciety_labs.providers.google_sheet_image import (
     GoogleSheetListImageProvider
 )
 from sciety_labs.providers.opensearch.client import (
-    OpenSearchConnectionConfig,
     get_async_opensearch_client_or_none,
     get_opensearch_client_or_none
 )
+from sciety_labs.providers.opensearch.config import OpenSearchConnectionConfig
 from sciety_labs.providers.opensearch.sync_providers import (
     OpenSearchArticleRecommendation
 )
