@@ -19,7 +19,7 @@ from sciety_labs.providers.async_crossref import AsyncCrossrefMetaDataProvider
 from sciety_labs.providers.async_semantic_scholar import (
     AsyncSemanticScholarTitleAbstractEmbeddingVectorProvider
 )
-from sciety_labs.providers.opensearch_article_recommendation import (
+from sciety_labs.providers.opensearch.opensearch_article_recommendation import (
     DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS,
     get_article_recommendation_list_from_opensearch_hits,
     get_default_filter_parameters,
