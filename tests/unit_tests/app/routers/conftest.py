@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, MagicMock
 import opensearchpy
 import pytest
 
-from sciety_labs.providers.async_article_recommendation import (
+from sciety_labs.providers.interfaces.async_article_recommendation import (
     AsyncSingleArticleRecommendationProvider
 )
 
