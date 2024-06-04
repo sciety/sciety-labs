@@ -11,7 +11,7 @@ from sciety_labs.app.routers.api.categorisation.providers import (
     get_categorisation_response_dict_for_opensearch_aggregations_response_dict,
     get_categorisation_response_dict_for_opensearch_document_dict
 )
-from sciety_labs.providers.opensearch.opensearch_typing import OpenSearchSearchResultDict
+from sciety_labs.providers.opensearch.typing import OpenSearchSearchResultDict
 
 
 DOI_1 = '10.12345/test-doi-1'
