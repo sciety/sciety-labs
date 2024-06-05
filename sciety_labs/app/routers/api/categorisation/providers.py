@@ -18,6 +18,13 @@ from sciety_labs.providers.opensearch.typing import OpenSearchSearchResultDict
 LOGGER = logging.getLogger(__name__)
 
 
+IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT = {
+    'prefix': {
+        'doi': KnownDoiPrefix.BIORXIV_MEDRXIV
+    }
+}
+
+
 class ArticleDoiNotFoundError(RuntimeError):
     def __init__(self, article_doi: str):
         self.article_doi = article_doi
@@ -30,7 +37,7 @@ def get_categorisation_list_opensearch_query_dict(
         'query': {
             'bool': {
                 'filter': [
-                    {'prefix': {'doi': KnownDoiPrefix.BIORXIV_MEDRXIV}}
+                    IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT
                 ]
             }
         },
@@ -53,7 +60,7 @@ def get_article_search_by_category_opensearch_query_dict(
         'query': {
             'bool': {
                 'filter': [
-                    {'prefix': {'doi': KnownDoiPrefix.BIORXIV_MEDRXIV}},
+                    IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
                     {
                         'term': {
                             'crossref.group_title.keyword': category
