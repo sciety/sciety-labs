@@ -16,6 +16,9 @@ from sciety_labs.providers.opensearch.typing import OpenSearchSearchResultDict
 
 DOI_1 = '10.12345/test-doi-1'
 
+DUMMY_BIORXIV_DOI_1 = '10.1101/dummy-biorxiv-doi-1'
+DUMMY_NON_BIORXIV_MEDRXIV_DOI_1 = '10.1234/dummy-biorxiv-doi-1'
+
 OPENSEARCH_SEARCH_RESULT_1: OpenSearchSearchResultDict = {
     'hits': {
         'hits': [{
@@ -75,23 +78,42 @@ class TestGetCategorisationResponseDictForOpenSearchAggregationsResponseDict:
 
 class TestGetCategorisationDictForOpensearchDocumentDict:
     def test_should_return_empty_dict_if_no_categories_are_available(self):
-        categories_dict = get_categorisation_response_dict_for_opensearch_document_dict({})
+        categories_dict = get_categorisation_response_dict_for_opensearch_document_dict(
+            {},
+            article_doi=DUMMY_BIORXIV_DOI_1
+        )
         assert categories_dict == {
             'data': []
         }
 
-    def test_should_extract_crossref_group_title_as_categories(self):
-        categories_response_dict = get_categorisation_response_dict_for_opensearch_document_dict({
-            'crossref': {
-                'group_title': 'Category 1'
-            }
-        })
+    def test_should_extract_crossref_group_title_as_categories_for_biorxiv_doi(self):
+        categories_response_dict = get_categorisation_response_dict_for_opensearch_document_dict(
+            {
+                'crossref': {
+                    'group_title': 'Category 1'
+                }
+            },
+            article_doi=DUMMY_BIORXIV_DOI_1
+        )
         assert categories_response_dict == {
             'data': [{
                 'display_name': 'Category 1',
                 'type': 'category',
                 'source_id': 'crossref_group_title'
             }]
+        }
+
+    def test_should_ignore_group_title_of_non_biorxiv_medrxiv_doi(self):
+        categories_response_dict = get_categorisation_response_dict_for_opensearch_document_dict(
+            {
+                'crossref': {
+                    'group_title': 'Category 1'
+                }
+            },
+            article_doi=DUMMY_NON_BIORXIV_MEDRXIV_DOI_1
+        )
+        assert categories_response_dict == {
+            'data': []
         }
 
 

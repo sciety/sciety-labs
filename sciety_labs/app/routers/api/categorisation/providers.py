@@ -84,14 +84,15 @@ def get_categorisation_response_dict_for_opensearch_aggregations_response_dict(
 
 
 def get_categorisation_response_dict_for_opensearch_document_dict(
-    document_dict: dict
+    document_dict: dict,
+    article_doi: str
 ) -> CategorisationResponseDict:
     crossref_opensearch_dict = document_dict.get('crossref')
     group_title = (
         crossref_opensearch_dict
         and crossref_opensearch_dict.get('group_title')
     )
-    if not group_title:
+    if not group_title or not article_doi.startswith('10.1101/'):
         return {
             'data': []
         }
@@ -173,7 +174,8 @@ class AsyncOpenSearchCategoriesProvider:
         except opensearchpy.NotFoundError as exc:
             raise ArticleDoiNotFoundError(article_doi=article_doi) from exc
         return get_categorisation_response_dict_for_opensearch_document_dict(
-            opensearch_document_dict
+            opensearch_document_dict,
+            article_doi=article_doi
         )
 
     async def get_article_search_response_dict_by_category(

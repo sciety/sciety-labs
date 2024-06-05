@@ -20,6 +20,7 @@ class Categories:
 
 
 NON_BIORXIV_MEDRXIV_GROUP_TITLE_1 = 'PsyArXiv'
+NON_BIORXIV_MEDRXIV_DOI_WITH_GROUP_TITLE_1 = '10.31234/osf.io/2hv6x'
 
 
 @pytest.fixture(name='categorisation_list_response_dict', scope='session')
@@ -105,3 +106,15 @@ class TestApiCategorisationByDoi:
                 'source_id': 'crossref_group_title'
             }
         ]
+
+    def test_should_return_empty_list_for_non_biorxiv_medrxiv_doi_with_group_title(
+        self,
+        regression_test_session: Session
+    ):
+        response = regression_test_session.get(
+            '/api/categorisation/v1/categories/by/doi',
+            params={'article_doi': NON_BIORXIV_MEDRXIV_DOI_WITH_GROUP_TITLE_1}
+        )
+        response.raise_for_status()
+        response_json: CategorisationResponseDict = response.json()
+        assert len(response_json['data']) == 0
