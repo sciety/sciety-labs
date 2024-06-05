@@ -132,6 +132,20 @@ class TestGetArticleResponseDictForOpensearchDocumentDict:
             }
         }
 
+    def test_should_return_response_with_crossref_metadata(self):
+        article_dict = get_article_response_dict_for_opensearch_document_dict({
+            'doi': DOI_1,
+            'crossref': {
+                'title_with_markup': 'Title 1'
+            }
+        })
+        assert article_dict == {
+            'data': {
+                'doi': DOI_1,
+                'title': 'Title 1'
+            }
+        }
+
 
 class TestGetArticleSearchResponseDictForOpensearchSearchResponseDict:
     def test_should_return_singe_article_response_from_hits(self):

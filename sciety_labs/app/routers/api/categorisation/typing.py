@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import Optional, Sequence
 from typing_extensions import NotRequired, TypedDict
 
 
@@ -21,6 +21,7 @@ class CategorisationDict(TypedDict):
 
 class ArticleDict(TypedDict):
     doi: str
+    title: NotRequired[Optional[str]]
     categorisation: NotRequired[Sequence[CategorisationDict]]
 
 
