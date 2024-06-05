@@ -52,6 +52,7 @@ def get_article_search_by_category_opensearch_query_dict(
         'query': {
             'bool': {
                 'filter': [
+                    {'prefix': {'doi': '10.1101'}},
                     {
                         'term': {
                             'crossref.group_title.keyword': category
