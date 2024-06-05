@@ -119,6 +119,18 @@ def get_article_meta_from_document(
     )
 
 
+def get_article_stats_from_document(
+    document: DocumentDict
+) -> Optional[ArticleStats]:
+    sciety_data: Optional[DocumentScietyDict] = document.get('sciety')
+    evaluation_count = sciety_data.get('evaluation_count') if sciety_data else None
+    return (
+        ArticleStats(evaluation_count=evaluation_count)
+        if evaluation_count is not None
+        else None
+    )
+
+
 def get_value_for_key_path(parent: dict, key_path: Sequence[str]) -> Optional[Any]:
     result: Any = parent
     for key in key_path:
@@ -164,13 +176,7 @@ def get_article_recommendation_from_document(
     query_vector: Optional[npt.ArrayLike] = None
 ) -> ArticleRecommendation:
     article_meta = get_article_meta_from_document(document)
-    sciety_data: Optional[DocumentScietyDict] = document.get('sciety')
-    evaluation_count = sciety_data.get('evaluation_count') if sciety_data else None
-    article_stats = (
-        ArticleStats(evaluation_count=evaluation_count)
-        if evaluation_count is not None
-        else None
-    )
+    article_stats = get_article_stats_from_document(document)
     return ArticleRecommendation(
         article_doi=article_meta.article_doi,
         article_meta=article_meta,

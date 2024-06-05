@@ -14,6 +14,12 @@ from sciety_labs.app.routers.api.categorisation.typing import (
 from sciety_labs.models.article import KnownDoiPrefix
 from sciety_labs.providers.opensearch.typing import DocumentDict
 from sciety_labs.providers.opensearch.typing import OpenSearchSearchResultDict
+from sciety_labs.providers.opensearch.utils import (
+    get_article_meta_from_document,
+    get_article_stats_from_document
+)
+from sciety_labs.utils.datetime import get_date_as_isoformat
+from sciety_labs.utils.json import get_recursively_filtered_dict_without_null_values
 
 
 LOGGER = logging.getLogger(__name__)
@@ -128,9 +134,19 @@ def get_article_dict_for_opensearch_document_dict(
     document_dict: DocumentDict
 ) -> ArticleDict:
     assert document_dict.get('doi')
-    return {
-        'doi': document_dict['doi']
+    article_meta = get_article_meta_from_document(document_dict)
+    article_stats = get_article_stats_from_document(document_dict)
+    article_dict: ArticleDict = {
+        'doi': document_dict['doi'],
+        'title': article_meta.article_title,
+        'publication_date': get_date_as_isoformat(article_meta.published_date),
+        'evaluation_count': (
+            article_stats.evaluation_count
+            if article_stats
+            else None
+        )
     }
+    return get_recursively_filtered_dict_without_null_values(article_dict)
 
 
 def get_article_response_dict_for_opensearch_document_dict(
