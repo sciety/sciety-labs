@@ -10,6 +10,7 @@ from sciety_labs.app.routers.api.categorisation.typing import (
     ArticleSearchResponseDict,
     CategorisationResponseDict
 )
+from sciety_labs.models.article import KnownDoiPrefix
 from sciety_labs.providers.opensearch.typing import DocumentDict
 from sciety_labs.providers.opensearch.typing import OpenSearchSearchResultDict
 
@@ -29,7 +30,7 @@ def get_categorisation_list_opensearch_query_dict(
         'query': {
             'bool': {
                 'filter': [
-                    {'prefix': {'doi': '10.1101'}}
+                    {'prefix': {'doi': KnownDoiPrefix.BIORXIV_MEDRXIV}}
                 ]
             }
         },
@@ -52,7 +53,7 @@ def get_article_search_by_category_opensearch_query_dict(
         'query': {
             'bool': {
                 'filter': [
-                    {'prefix': {'doi': '10.1101'}},
+                    {'prefix': {'doi': KnownDoiPrefix.BIORXIV_MEDRXIV}},
                     {
                         'term': {
                             'crossref.group_title.keyword': category
@@ -92,7 +93,7 @@ def get_categorisation_response_dict_for_opensearch_document_dict(
         crossref_opensearch_dict
         and crossref_opensearch_dict.get('group_title')
     )
-    if not group_title or not article_doi.startswith('10.1101/'):
+    if not group_title or not article_doi.startswith(f'{KnownDoiPrefix.BIORXIV_MEDRXIV}/'):
         return {
             'data': []
         }
