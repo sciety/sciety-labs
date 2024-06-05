@@ -8,13 +8,22 @@ from sciety_labs.app.routers.api.categorisation.typing import (
     ArticleDict,
     ArticleResponseDict,
     ArticleSearchResponseDict,
+    CategorisationDict,
     CategorisationResponseDict
 )
+from sciety_labs.models.article import KnownDoiPrefix
 from sciety_labs.providers.opensearch.typing import DocumentDict
 from sciety_labs.providers.opensearch.typing import OpenSearchSearchResultDict
 
 
 LOGGER = logging.getLogger(__name__)
+
+
+IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT = {
+    'prefix': {
+        'doi': KnownDoiPrefix.BIORXIV_MEDRXIV
+    }
+}
 
 
 class ArticleDoiNotFoundError(RuntimeError):
@@ -26,6 +35,13 @@ class ArticleDoiNotFoundError(RuntimeError):
 def get_categorisation_list_opensearch_query_dict(
 ) -> dict:
     return {
+        'query': {
+            'bool': {
+                'filter': [
+                    IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT
+                ]
+            }
+        },
         'aggs': {
             'group_title': {
                 'terms': {
@@ -38,6 +54,16 @@ def get_categorisation_list_opensearch_query_dict(
     }
 
 
+def get_category_as_crossref_group_title_opensearch_filter_dict(
+    category: str
+) -> dict:
+    return {
+        'term': {
+            'crossref.group_title.keyword': category
+        }
+    }
+
+
 def get_article_search_by_category_opensearch_query_dict(
     category: str
 ) -> dict:
@@ -45,14 +71,21 @@ def get_article_search_by_category_opensearch_query_dict(
         'query': {
             'bool': {
                 'filter': [
-                    {
-                        'term': {
-                            'crossref.group_title.keyword': category
-                        }
-                    }
+                    IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
+                    get_category_as_crossref_group_title_opensearch_filter_dict(category)
                 ]
             }
         }
+    }
+
+
+def get_categorisation_dict_for_crossref_group_title(
+    group_title: str
+) -> CategorisationDict:
+    return {
+        'display_name': group_title,
+        'type': 'category',
+        'source_id': 'crossref_group_title'
     }
 
 
@@ -65,34 +98,29 @@ def get_categorisation_response_dict_for_opensearch_aggregations_response_dict(
     ]
     return {
         'data': [
-            {
-                'display_name': group_title,
-                'type': 'category',
-                'source_id': 'crossref_group_title'
-            }
+            get_categorisation_dict_for_crossref_group_title(group_title)
             for group_title in group_titles
         ]
     }
 
 
 def get_categorisation_response_dict_for_opensearch_document_dict(
-    document_dict: dict
+    document_dict: dict,
+    article_doi: str
 ) -> CategorisationResponseDict:
     crossref_opensearch_dict = document_dict.get('crossref')
     group_title = (
         crossref_opensearch_dict
         and crossref_opensearch_dict.get('group_title')
     )
-    if not group_title:
+    if not group_title or not article_doi.startswith(f'{KnownDoiPrefix.BIORXIV_MEDRXIV}/'):
         return {
             'data': []
         }
     return {
-        'data': [{
-            'display_name': group_title,
-            'type': 'category',
-            'source_id': 'crossref_group_title'
-        }]
+        'data': [
+            get_categorisation_dict_for_crossref_group_title(group_title)
+        ]
     }
 
 
@@ -165,7 +193,8 @@ class AsyncOpenSearchCategoriesProvider:
         except opensearchpy.NotFoundError as exc:
             raise ArticleDoiNotFoundError(article_doi=article_doi) from exc
         return get_categorisation_response_dict_for_opensearch_document_dict(
-            opensearch_document_dict
+            opensearch_document_dict,
+            article_doi=article_doi
         )
 
     async def get_article_search_response_dict_by_category(

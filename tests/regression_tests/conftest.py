@@ -28,7 +28,7 @@ def get_regression_test_base_url() -> str:
     )
 
 
-@pytest.fixture()
+@pytest.fixture(scope='session')
 def regression_test_session() -> Iterator[Session]:
     with RegressionTestSession(get_regression_test_base_url()) as session:
         yield session
