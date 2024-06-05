@@ -26,6 +26,13 @@ class ArticleDoiNotFoundError(RuntimeError):
 def get_categorisation_list_opensearch_query_dict(
 ) -> dict:
     return {
+        'query': {
+            'bool': {
+                'filter': [
+                    {'prefix': {'doi': '10.1101'}}
+                ]
+            }
+        },
         'aggs': {
             'group_title': {
                 'terms': {
