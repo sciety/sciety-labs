@@ -148,6 +148,20 @@ class TestGetArticleResponseDictForOpensearchDocumentDict:
             }
         }
 
+    def test_should_return_response_with_evaluation_count(self):
+        article_dict = get_article_response_dict_for_opensearch_document_dict({
+            'doi': DOI_1,
+            'sciety': {
+                'evaluation_count': 123
+            }
+        })
+        assert article_dict == {
+            'data': {
+                'doi': DOI_1,
+                'evaluation_count': 123
+            }
+        }
+
 
 class TestGetArticleSearchResponseDictForOpensearchSearchResponseDict:
     def test_should_return_singe_article_response_from_hits(self):

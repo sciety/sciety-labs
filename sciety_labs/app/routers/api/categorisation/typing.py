@@ -23,6 +23,7 @@ class ArticleDict(TypedDict):
     doi: str
     title: NotRequired[Optional[str]]
     publication_date: NotRequired[Optional[str]]
+    evaluation_count: NotRequired[Optional[int]]
     categorisation: NotRequired[Sequence[CategorisationDict]]
 
 
