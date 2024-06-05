@@ -8,6 +8,7 @@ from sciety_labs.app.routers.api.categorisation.typing import (
     ArticleDict,
     ArticleResponseDict,
     ArticleSearchResponseDict,
+    CategorisationDict,
     CategorisationResponseDict
 )
 from sciety_labs.models.article import KnownDoiPrefix
@@ -78,6 +79,16 @@ def get_article_search_by_category_opensearch_query_dict(
     }
 
 
+def get_categorisation_dict_for_crossref_group_title(
+    group_title: str
+) -> CategorisationDict:
+    return {
+        'display_name': group_title,
+        'type': 'category',
+        'source_id': 'crossref_group_title'
+    }
+
+
 def get_categorisation_response_dict_for_opensearch_aggregations_response_dict(
     response_dict: dict
 ) -> CategorisationResponseDict:
@@ -87,11 +98,7 @@ def get_categorisation_response_dict_for_opensearch_aggregations_response_dict(
     ]
     return {
         'data': [
-            {
-                'display_name': group_title,
-                'type': 'category',
-                'source_id': 'crossref_group_title'
-            }
+            get_categorisation_dict_for_crossref_group_title(group_title)
             for group_title in group_titles
         ]
     }
@@ -111,11 +118,9 @@ def get_categorisation_response_dict_for_opensearch_document_dict(
             'data': []
         }
     return {
-        'data': [{
-            'display_name': group_title,
-            'type': 'category',
-            'source_id': 'crossref_group_title'
-        }]
+        'data': [
+            get_categorisation_dict_for_crossref_group_title(group_title)
+        ]
     }
 
 
