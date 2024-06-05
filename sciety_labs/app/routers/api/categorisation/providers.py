@@ -53,6 +53,16 @@ def get_categorisation_list_opensearch_query_dict(
     }
 
 
+def get_category_as_crossref_group_title_opensearch_filter_dict(
+    category: str
+) -> dict:
+    return {
+        'term': {
+            'crossref.group_title.keyword': category
+        }
+    }
+
+
 def get_article_search_by_category_opensearch_query_dict(
     category: str
 ) -> dict:
@@ -61,11 +71,7 @@ def get_article_search_by_category_opensearch_query_dict(
             'bool': {
                 'filter': [
                     IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
-                    {
-                        'term': {
-                            'crossref.group_title.keyword': category
-                        }
-                    }
+                    get_category_as_crossref_group_title_opensearch_filter_dict(category)
                 ]
             }
         }
