@@ -15,6 +15,7 @@ from sciety_labs.models.article import KnownDoiPrefix
 from sciety_labs.providers.opensearch.typing import DocumentDict
 from sciety_labs.providers.opensearch.typing import OpenSearchSearchResultDict
 from sciety_labs.providers.opensearch.utils import get_article_meta_from_document
+from sciety_labs.utils.datetime import get_date_as_isoformat
 from sciety_labs.utils.json import get_recursively_filtered_dict_without_null_values
 
 
@@ -133,7 +134,8 @@ def get_article_dict_for_opensearch_document_dict(
     article_meta = get_article_meta_from_document(document_dict)
     article_dict: ArticleDict = {
         'doi': document_dict['doi'],
-        'title': article_meta.article_title
+        'title': article_meta.article_title,
+        'publication_date': get_date_as_isoformat(article_meta.published_date)
     }
     return get_recursively_filtered_dict_without_null_values(article_dict)
 

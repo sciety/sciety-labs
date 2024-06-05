@@ -136,13 +136,15 @@ class TestGetArticleResponseDictForOpensearchDocumentDict:
         article_dict = get_article_response_dict_for_opensearch_document_dict({
             'doi': DOI_1,
             'crossref': {
-                'title_with_markup': 'Title 1'
+                'title_with_markup': 'Title 1',
+                'publication_date': '2001-02-03'
             }
         })
         assert article_dict == {
             'data': {
                 'doi': DOI_1,
-                'title': 'Title 1'
+                'title': 'Title 1',
+                'publication_date': '2001-02-03'
             }
         }
 
