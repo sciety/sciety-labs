@@ -4,15 +4,19 @@ import opensearchpy
 import pytest
 
 from sciety_labs.app.routers.api.categorisation.providers import (
+    IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
     ArticleDoiNotFoundError,
     AsyncOpenSearchCategoriesProvider,
     get_article_response_dict_for_opensearch_document_dict,
+    get_article_search_by_category_opensearch_query_dict,
     get_article_search_response_dict_for_opensearch_search_response_dict,
     get_categorisation_response_dict_for_opensearch_aggregations_response_dict,
-    get_categorisation_response_dict_for_opensearch_document_dict
+    get_categorisation_response_dict_for_opensearch_document_dict,
+    get_category_as_crossref_group_title_opensearch_filter_dict
 )
 from sciety_labs.providers.opensearch.typing import OpenSearchSearchResultDict
 from sciety_labs.providers.opensearch.utils import (
+    IS_EVALUATED_OPENSEARCH_FILTER_DICT,
     OpenSearchFilterParameters
 )
 
@@ -47,6 +51,41 @@ class TestArticleDoiNotFoundError:
         exception = ArticleDoiNotFoundError(article_doi=DOI_1)
         assert DOI_1 in str(exception)
         assert DOI_1 in repr(exception)
+
+
+class TestGetArticleSearchByCategoryOpenSearchQueryDict:
+    def test_should_include_category_filter(self):
+        query_dict = get_article_search_by_category_opensearch_query_dict(
+            category='Category 1',
+            filter_parameters=OpenSearchFilterParameters(evaluated_only=False)
+        )
+        assert query_dict == {
+            'query': {
+                'bool': {
+                    'filter': [
+                        IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
+                        get_category_as_crossref_group_title_opensearch_filter_dict('Category 1')
+                    ]
+                }
+            }
+        }
+
+    def test_should_include_category_and_is_evaluated_filter(self):
+        query_dict = get_article_search_by_category_opensearch_query_dict(
+            category='Category 1',
+            filter_parameters=OpenSearchFilterParameters(evaluated_only=True)
+        )
+        assert query_dict == {
+            'query': {
+                'bool': {
+                    'filter': [
+                        IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
+                        get_category_as_crossref_group_title_opensearch_filter_dict('Category 1'),
+                        IS_EVALUATED_OPENSEARCH_FILTER_DICT
+                    ]
+                }
+            }
+        }
 
 
 class TestGetCategorisationResponseDictForOpenSearchAggregationsResponseDict:

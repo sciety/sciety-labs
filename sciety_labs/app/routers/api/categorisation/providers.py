@@ -1,5 +1,5 @@
 import logging
-from typing import Mapping, Optional
+from typing import List, Mapping, Optional
 
 import opensearchpy
 
@@ -17,6 +17,7 @@ from sciety_labs.providers.opensearch.typing import (
     OpenSearchSearchResultDict
 )
 from sciety_labs.providers.opensearch.utils import (
+    IS_EVALUATED_OPENSEARCH_FILTER_DICT,
     OpenSearchFilterParameters,
     get_article_meta_from_document,
     get_article_stats_from_document
@@ -74,15 +75,19 @@ def get_category_as_crossref_group_title_opensearch_filter_dict(
 
 
 def get_article_search_by_category_opensearch_query_dict(
-    category: str
+    category: str,
+    filter_parameters: OpenSearchFilterParameters
 ) -> dict:
+    filter_dicts: List[dict] = [
+        IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
+        get_category_as_crossref_group_title_opensearch_filter_dict(category)
+    ]
+    if filter_parameters.evaluated_only:
+        filter_dicts.append(IS_EVALUATED_OPENSEARCH_FILTER_DICT)
     return {
         'query': {
             'bool': {
-                'filter': [
-                    IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
-                    get_category_as_crossref_group_title_opensearch_filter_dict(category)
-                ]
+                'filter': filter_dicts
             }
         }
     }
@@ -225,7 +230,8 @@ class AsyncOpenSearchCategoriesProvider:
         LOGGER.info('filter_parameters: %r', filter_parameters)
         opensearch_search_result_dict = await self.async_opensearch_client.search(
             get_article_search_by_category_opensearch_query_dict(
-                category=category
+                category=category,
+                filter_parameters=filter_parameters
             ),
             index=self.index_name,
             headers=headers
