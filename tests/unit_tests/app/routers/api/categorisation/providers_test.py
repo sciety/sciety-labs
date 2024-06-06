@@ -11,6 +11,9 @@ from sciety_labs.app.routers.api.categorisation.providers import (
     get_categorisation_response_dict_for_opensearch_aggregations_response_dict,
     get_categorisation_response_dict_for_opensearch_document_dict
 )
+from sciety_labs.providers.interfaces.article_recommendation import (
+    ArticleRecommendationFilterParameters
+)
 from sciety_labs.providers.opensearch.typing import OpenSearchSearchResultDict
 
 
@@ -205,7 +208,8 @@ class TestAsyncOpenSearchCategoriesProvider:
         async_opensearch_client_mock.search.return_value = OPENSEARCH_SEARCH_RESULT_1
         article_response = (
             await async_opensearch_categories_provider.get_article_search_response_dict_by_category(
-                category='Category 1'
+                category='Category 1',
+                filter_parameters=ArticleRecommendationFilterParameters()
             )
         )
         assert article_response == (
