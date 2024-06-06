@@ -5,6 +5,7 @@ import pytest
 
 from sciety_labs.app.routers.api.categorisation.providers import (
     IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
+    LATEST_EVALUATION_TIMESTAMP_DESC_OPENSEARCH_SORT_FIELD,
     ArticleDoiNotFoundError,
     AsyncOpenSearchCategoriesProvider,
     get_article_response_dict_for_opensearch_document_dict,
@@ -13,12 +14,15 @@ from sciety_labs.app.routers.api.categorisation.providers import (
     get_categorisation_list_opensearch_query_dict,
     get_categorisation_response_dict_for_opensearch_aggregations_response_dict,
     get_categorisation_response_dict_for_opensearch_document_dict,
-    get_category_as_crossref_group_title_opensearch_filter_dict
+    get_category_as_crossref_group_title_opensearch_filter_dict,
+    get_default_article_search_sort_parameters
 )
 from sciety_labs.providers.opensearch.typing import OpenSearchSearchResultDict
 from sciety_labs.providers.opensearch.utils import (
     IS_EVALUATED_OPENSEARCH_FILTER_DICT,
-    OpenSearchFilterParameters
+    OpenSearchFilterParameters,
+    OpenSearchSortField,
+    OpenSearchSortParameters
 )
 
 
@@ -77,7 +81,8 @@ class TestGetArticleSearchByCategoryOpenSearchQueryDict:
     def test_should_include_category_filter(self):
         query_dict = get_article_search_by_category_opensearch_query_dict(
             category='Category 1',
-            filter_parameters=OpenSearchFilterParameters(evaluated_only=False)
+            filter_parameters=OpenSearchFilterParameters(evaluated_only=False),
+            sort_parameters=OpenSearchSortParameters()
         )
         assert query_dict == {
             'query': {
@@ -93,19 +98,31 @@ class TestGetArticleSearchByCategoryOpenSearchQueryDict:
     def test_should_include_category_and_is_evaluated_filter(self):
         query_dict = get_article_search_by_category_opensearch_query_dict(
             category='Category 1',
-            filter_parameters=OpenSearchFilterParameters(evaluated_only=True)
+            filter_parameters=OpenSearchFilterParameters(evaluated_only=True),
+            sort_parameters=OpenSearchSortParameters()
         )
-        assert query_dict == {
-            'query': {
-                'bool': {
-                    'filter': [
-                        IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
-                        get_category_as_crossref_group_title_opensearch_filter_dict('Category 1'),
-                        IS_EVALUATED_OPENSEARCH_FILTER_DICT
-                    ]
+        assert query_dict['query']['bool']['filter'] == [
+            IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
+            get_category_as_crossref_group_title_opensearch_filter_dict('Category 1'),
+            IS_EVALUATED_OPENSEARCH_FILTER_DICT
+        ]
+
+    def test_should_be_able_to_sort_by_latest_evaluation_activity(self):
+        query_dict = get_article_search_by_category_opensearch_query_dict(
+            category='Category 1',
+            filter_parameters=OpenSearchFilterParameters(evaluated_only=True),
+            sort_parameters=OpenSearchSortParameters(sort_fields=[OpenSearchSortField(
+                field_name='sciety.last_event_timestamp',
+                sort_order='desc'
+            )])
+        )
+        assert query_dict['sort'] == [
+            {
+                'sciety.last_event_timestamp': {
+                    'order': 'desc'
                 }
             }
-        }
+        ]
 
 
 class TestGetCategorisationResponseDictForOpenSearchAggregationsResponseDict:
@@ -247,6 +264,23 @@ class TestGetArticleSearchResponseDictForOpensearchSearchResponseDict:
         }
 
 
+class TestGetDefaultArticleSearchSortParameters:
+    def test_should_not_sort_by_if_not_evaluation_only(self):
+        sort_parameters = get_default_article_search_sort_parameters(
+            evaluated_only=False
+        )
+        assert not sort_parameters.sort_fields
+        assert not sort_parameters
+
+    def test_should_sort_by_evaluation_activity_descending_if_evaluation_only(self):
+        sort_parameters = get_default_article_search_sort_parameters(
+            evaluated_only=True
+        )
+        assert sort_parameters == OpenSearchSortParameters(sort_fields=[
+            LATEST_EVALUATION_TIMESTAMP_DESC_OPENSEARCH_SORT_FIELD
+        ])
+
+
 class TestAsyncOpenSearchCategoriesProvider:
     @pytest.mark.asyncio
     async def test_should_raise_article_doi_not_found_error(
@@ -270,7 +304,8 @@ class TestAsyncOpenSearchCategoriesProvider:
         article_response = (
             await async_opensearch_categories_provider.get_article_search_response_dict_by_category(
                 category='Category 1',
-                filter_parameters=OpenSearchFilterParameters()
+                filter_parameters=OpenSearchFilterParameters(),
+                sort_parameters=OpenSearchSortParameters()
             )
         )
         assert article_response == (

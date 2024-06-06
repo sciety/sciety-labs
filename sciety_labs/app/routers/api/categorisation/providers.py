@@ -19,6 +19,8 @@ from sciety_labs.providers.opensearch.typing import (
 from sciety_labs.providers.opensearch.utils import (
     IS_EVALUATED_OPENSEARCH_FILTER_DICT,
     OpenSearchFilterParameters,
+    OpenSearchSortField,
+    OpenSearchSortParameters,
     get_article_meta_from_document,
     get_article_stats_from_document
 )
@@ -80,7 +82,8 @@ def get_category_as_crossref_group_title_opensearch_filter_dict(
 
 def get_article_search_by_category_opensearch_query_dict(
     category: str,
-    filter_parameters: OpenSearchFilterParameters
+    filter_parameters: OpenSearchFilterParameters,
+    sort_parameters: OpenSearchSortParameters
 ) -> dict:
     filter_dicts: List[dict] = [
         IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
@@ -88,13 +91,16 @@ def get_article_search_by_category_opensearch_query_dict(
     ]
     if filter_parameters.evaluated_only:
         filter_dicts.append(IS_EVALUATED_OPENSEARCH_FILTER_DICT)
-    return {
+    query_dict: dict = {
         'query': {
             'bool': {
                 'filter': filter_dicts
             }
         }
     }
+    if sort_parameters:
+        query_dict['sort'] = sort_parameters.to_opensearch_sort_dict_list()
+    return query_dict
 
 
 def get_categorisation_dict_for_crossref_group_title(
@@ -188,6 +194,22 @@ def get_article_search_response_dict_for_opensearch_search_response_dict(
     }
 
 
+LATEST_EVALUATION_TIMESTAMP_DESC_OPENSEARCH_SORT_FIELD = OpenSearchSortField(
+    field_name='sciety.last_event_timestamp',
+    sort_order='desc'
+)
+
+
+def get_default_article_search_sort_parameters(
+    evaluated_only: bool
+) -> OpenSearchSortParameters:
+    if evaluated_only:
+        return OpenSearchSortParameters(
+            sort_fields=[LATEST_EVALUATION_TIMESTAMP_DESC_OPENSEARCH_SORT_FIELD]
+        )
+    return OpenSearchSortParameters(sort_fields=[])
+
+
 class AsyncOpenSearchCategoriesProvider:
     def __init__(self, app_providers_and_models: AppProvidersAndModels):
         self.async_opensearch_client = app_providers_and_models.async_opensearch_client
@@ -239,13 +261,15 @@ class AsyncOpenSearchCategoriesProvider:
         self,
         category: str,
         filter_parameters: OpenSearchFilterParameters,
+        sort_parameters: OpenSearchSortParameters,
         headers: Optional[Mapping[str, str]] = None
     ) -> ArticleSearchResponseDict:
         LOGGER.info('filter_parameters: %r', filter_parameters)
         opensearch_search_result_dict = await self.async_opensearch_client.search(
             get_article_search_by_category_opensearch_query_dict(
                 category=category,
-                filter_parameters=filter_parameters
+                filter_parameters=filter_parameters,
+                sort_parameters=sort_parameters
             ),
             index=self.index_name,
             headers=headers

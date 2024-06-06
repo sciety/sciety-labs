@@ -1,7 +1,7 @@
 import dataclasses
 import logging
 from datetime import date, timedelta
-from typing import Any, Iterable, Mapping, Optional, Sequence, cast
+from typing import Any, Iterable, Literal, Mapping, Optional, Sequence, cast
 
 
 import numpy.typing as npt
@@ -43,6 +43,33 @@ IS_EVALUATED_OPENSEARCH_FILTER_DICT = {
 @dataclasses.dataclass(frozen=True)
 class OpenSearchFilterParameters:
     evaluated_only: bool = False
+
+
+@dataclasses.dataclass(frozen=True)
+class OpenSearchSortField:
+    field_name: str
+    sort_order: Literal['asc', 'desc']
+
+    def to_opensearch_sort_dict(self) -> dict:
+        return {
+            self.field_name: {
+                'order': self.sort_order
+            }
+        }
+
+
+@dataclasses.dataclass(frozen=True)
+class OpenSearchSortParameters:
+    sort_fields: Sequence[OpenSearchSortField] = dataclasses.field(default_factory=list)
+
+    def __bool__(self) -> bool:
+        return bool(self.sort_fields)
+
+    def to_opensearch_sort_dict_list(self) -> Sequence[dict]:
+        return [
+            sort_field.to_opensearch_sort_dict()
+            for sort_field in self.sort_fields
+        ]
 
 
 def get_author_names_for_document_s2_authors(
