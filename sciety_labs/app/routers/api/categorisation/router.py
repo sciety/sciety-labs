@@ -14,7 +14,8 @@ from sciety_labs.app.routers.api.categorisation.typing import (
     JsonApiErrorsResponseDict
 )
 from sciety_labs.providers.opensearch.utils import (
-    OpenSearchFilterParameters
+    OpenSearchFilterParameters,
+    OpenSearchPaginationParameters
 )
 from sciety_labs.utils.fastapi import get_cache_control_headers_for_request
 
@@ -178,7 +179,8 @@ def create_api_categorisation_router(
     async def articles_by_category(
         request: fastapi.Request,
         category: str,
-        evaluated_only: bool = False
+        evaluated_only: bool = False,
+        page_size: int = fastapi.Query(alias='page[size]', default=10)
     ):
         return await (
             async_opensearch_categories_provider
@@ -189,6 +191,9 @@ def create_api_categorisation_router(
                 ),
                 sort_parameters=get_default_article_search_sort_parameters(
                     evaluated_only=evaluated_only
+                ),
+                pagination_parameters=OpenSearchPaginationParameters(
+                    page_size=page_size
                 ),
                 headers=get_cache_control_headers_for_request(request)
             )

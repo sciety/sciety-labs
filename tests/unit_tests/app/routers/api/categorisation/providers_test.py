@@ -21,6 +21,7 @@ from sciety_labs.providers.opensearch.typing import OpenSearchSearchResultDict
 from sciety_labs.providers.opensearch.utils import (
     IS_EVALUATED_OPENSEARCH_FILTER_DICT,
     OpenSearchFilterParameters,
+    OpenSearchPaginationParameters,
     OpenSearchSortField,
     OpenSearchSortParameters
 )
@@ -82,16 +83,15 @@ class TestGetArticleSearchByCategoryOpenSearchQueryDict:
         query_dict = get_article_search_by_category_opensearch_query_dict(
             category='Category 1',
             filter_parameters=OpenSearchFilterParameters(evaluated_only=False),
-            sort_parameters=OpenSearchSortParameters()
+            sort_parameters=OpenSearchSortParameters(),
+            pagination_parameters=OpenSearchPaginationParameters()
         )
-        assert query_dict == {
-            'query': {
-                'bool': {
-                    'filter': [
-                        IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
-                        get_category_as_crossref_group_title_opensearch_filter_dict('Category 1')
-                    ]
-                }
+        assert query_dict['query'] == {
+            'bool': {
+                'filter': [
+                    IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
+                    get_category_as_crossref_group_title_opensearch_filter_dict('Category 1')
+                ]
             }
         }
 
@@ -99,7 +99,8 @@ class TestGetArticleSearchByCategoryOpenSearchQueryDict:
         query_dict = get_article_search_by_category_opensearch_query_dict(
             category='Category 1',
             filter_parameters=OpenSearchFilterParameters(evaluated_only=True),
-            sort_parameters=OpenSearchSortParameters()
+            sort_parameters=OpenSearchSortParameters(),
+            pagination_parameters=OpenSearchPaginationParameters()
         )
         assert query_dict['query']['bool']['filter'] == [
             IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
@@ -114,7 +115,8 @@ class TestGetArticleSearchByCategoryOpenSearchQueryDict:
             sort_parameters=OpenSearchSortParameters(sort_fields=[OpenSearchSortField(
                 field_name='sciety.last_event_timestamp',
                 sort_order='desc'
-            )])
+            )]),
+            pagination_parameters=OpenSearchPaginationParameters()
         )
         assert query_dict['sort'] == [
             {
@@ -123,6 +125,15 @@ class TestGetArticleSearchByCategoryOpenSearchQueryDict:
                 }
             }
         ]
+
+    def test_should_use_page_size(self):
+        query_dict = get_article_search_by_category_opensearch_query_dict(
+            category='Category 1',
+            filter_parameters=OpenSearchFilterParameters(evaluated_only=True),
+            sort_parameters=OpenSearchSortParameters(sort_fields=[]),
+            pagination_parameters=OpenSearchPaginationParameters(page_size=123)
+        )
+        assert query_dict['size'] == 123
 
 
 class TestGetCategorisationResponseDictForOpenSearchAggregationsResponseDict:
@@ -305,7 +316,8 @@ class TestAsyncOpenSearchCategoriesProvider:
             await async_opensearch_categories_provider.get_article_search_response_dict_by_category(
                 category='Category 1',
                 filter_parameters=OpenSearchFilterParameters(),
-                sort_parameters=OpenSearchSortParameters()
+                sort_parameters=OpenSearchSortParameters(),
+                pagination_parameters=OpenSearchPaginationParameters()
             )
         )
         assert article_response == (

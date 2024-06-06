@@ -40,6 +40,9 @@ IS_EVALUATED_OPENSEARCH_FILTER_DICT = {
 }
 
 
+DEFAULT_PAGE_SIZE = 10
+
+
 @dataclasses.dataclass(frozen=True)
 class OpenSearchFilterParameters:
     evaluated_only: bool = False
@@ -70,6 +73,11 @@ class OpenSearchSortParameters:
             sort_field.to_opensearch_sort_dict()
             for sort_field in self.sort_fields
         ]
+
+
+@dataclasses.dataclass(frozen=True)
+class OpenSearchPaginationParameters:
+    page_size: int = DEFAULT_PAGE_SIZE
 
 
 def get_author_names_for_document_s2_authors(
