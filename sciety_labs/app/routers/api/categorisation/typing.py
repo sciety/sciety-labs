@@ -24,6 +24,7 @@ class ArticleDict(TypedDict):
     title: NotRequired[Optional[str]]
     publication_date: NotRequired[Optional[str]]
     evaluation_count: NotRequired[Optional[int]]
+    latest_evaluation_activity_timestamp: NotRequired[Optional[str]]
     categorisation: NotRequired[Sequence[CategorisationDict]]
 
 

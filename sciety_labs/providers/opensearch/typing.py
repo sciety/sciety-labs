@@ -67,6 +67,7 @@ class DocumentEuropePmcDict(TypedDict):
 
 class DocumentScietyDict(TypedDict):
     evaluation_count: NotRequired[int]
+    last_event_timestamp: NotRequired[str]
 
 
 class DocumentDict(TypedDict):

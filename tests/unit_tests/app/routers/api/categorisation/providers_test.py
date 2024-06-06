@@ -210,17 +210,19 @@ class TestGetArticleResponseDictForOpensearchDocumentDict:
             }
         }
 
-    def test_should_return_response_with_evaluation_count(self):
+    def test_should_return_response_with_evaluation_count_and_timestamp(self):
         article_dict = get_article_response_dict_for_opensearch_document_dict({
             'doi': DOI_1,
             'sciety': {
-                'evaluation_count': 123
+                'evaluation_count': 123,
+                'last_event_timestamp': '2001-02-03T04:05:06+00:00'
             }
         })
         assert article_dict == {
             'data': {
                 'doi': DOI_1,
-                'evaluation_count': 123
+                'evaluation_count': 123,
+                'latest_evaluation_activity_timestamp': '2001-02-03T04:05:06+00:00'
             }
         }
 
