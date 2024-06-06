@@ -189,6 +189,9 @@ def get_article_search_response_dict_for_opensearch_search_response_dict(
     opensearch_search_result_dict: OpenSearchSearchResultDict
 ) -> ArticleSearchResponseDict:
     return {
+        'meta': {
+            'total': opensearch_search_result_dict['hits']['total']['value']
+        },
         'data': [
             get_article_dict_for_opensearch_document_dict(
                 document_dict=hit['_source']

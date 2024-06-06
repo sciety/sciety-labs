@@ -34,6 +34,10 @@ DUMMY_NON_BIORXIV_MEDRXIV_DOI_1 = '10.1234/dummy-biorxiv-doi-1'
 
 OPENSEARCH_SEARCH_RESULT_1: OpenSearchSearchResultDict = {
     'hits': {
+        'total': {
+            'value': 1,
+            'relation': 'eq'
+        },
         'hits': [{
             '_source': {
                 'doi': DOI_1
@@ -264,6 +268,10 @@ class TestGetArticleSearchResponseDictForOpensearchSearchResponseDict:
         article_search_response_dict = (
             get_article_search_response_dict_for_opensearch_search_response_dict({
                 'hits': {
+                    'total': {
+                        'value': 1,
+                        'relation': 'eq'
+                    },
                     'hits': [{
                         '_source': {
                             'doi': DOI_1
@@ -275,7 +283,10 @@ class TestGetArticleSearchResponseDictForOpensearchSearchResponseDict:
         assert article_search_response_dict == {
             'data': [{
                 'doi': DOI_1
-            }]
+            }],
+            'meta': {
+                'total': 1
+            }
         }
 
 

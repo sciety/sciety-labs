@@ -36,5 +36,10 @@ class ArticleResponseDict(TypedDict):
     data: ArticleDict
 
 
+class ArticleSearchMetaDict(TypedDict):
+    total: NotRequired[int]
+
+
 class ArticleSearchResponseDict(TypedDict):
     data: Sequence[ArticleDict]
+    meta: NotRequired[ArticleSearchMetaDict]
