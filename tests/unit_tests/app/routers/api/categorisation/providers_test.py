@@ -126,14 +126,18 @@ class TestGetArticleSearchByCategoryOpenSearchQueryDict:
             }
         ]
 
-    def test_should_use_page_size(self):
+    def test_should_use_page_size_and_page_number(self):
         query_dict = get_article_search_by_category_opensearch_query_dict(
             category='Category 1',
             filter_parameters=OpenSearchFilterParameters(evaluated_only=True),
             sort_parameters=OpenSearchSortParameters(sort_fields=[]),
-            pagination_parameters=OpenSearchPaginationParameters(page_size=123)
+            pagination_parameters=OpenSearchPaginationParameters(
+                page_size=100,
+                page_number=3
+            )
         )
-        assert query_dict['size'] == 123
+        assert query_dict['size'] == 100
+        assert query_dict['from'] == 200
 
 
 class TestGetCategorisationResponseDictForOpenSearchAggregationsResponseDict:

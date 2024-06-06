@@ -180,7 +180,8 @@ def create_api_categorisation_router(
         request: fastapi.Request,
         category: str,
         evaluated_only: bool = False,
-        page_size: int = fastapi.Query(alias='page[size]', default=10)
+        page_size: int = fastapi.Query(alias='page[size]', default=10),
+        page_number: int = fastapi.Query(alias='page[number]', ge=1, default=1)
     ):
         return await (
             async_opensearch_categories_provider
@@ -193,7 +194,8 @@ def create_api_categorisation_router(
                     evaluated_only=evaluated_only
                 ),
                 pagination_parameters=OpenSearchPaginationParameters(
-                    page_size=page_size
+                    page_size=page_size,
+                    page_number=page_number
                 ),
                 headers=get_cache_control_headers_for_request(request)
             )
