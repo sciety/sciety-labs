@@ -148,6 +148,7 @@ def get_article_dict_for_opensearch_document_dict(
     assert document_dict.get('doi')
     article_meta = get_article_meta_from_document(document_dict)
     article_stats = get_article_stats_from_document(document_dict)
+    sciety_dict = document_dict.get('sciety')
     article_dict: ArticleDict = {
         'doi': document_dict['doi'],
         'title': article_meta.article_title,
@@ -155,6 +156,11 @@ def get_article_dict_for_opensearch_document_dict(
         'evaluation_count': (
             article_stats.evaluation_count
             if article_stats
+            else None
+        ),
+        'latest_evaluation_activity_timestamp': (
+            sciety_dict.get('last_event_timestamp')
+            if sciety_dict
             else None
         )
     }
