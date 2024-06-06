@@ -1,5 +1,5 @@
 import logging
-from typing import List, Mapping, Optional
+from typing import List, Mapping, Optional, Set
 
 import opensearchpy
 
@@ -270,10 +270,12 @@ class AsyncOpenSearchCategoriesProvider:
         filter_parameters: OpenSearchFilterParameters,
         sort_parameters: OpenSearchSortParameters,
         pagination_parameters: OpenSearchPaginationParameters,
+        article_fields_set: Optional[Set[str]] = None,
         headers: Optional[Mapping[str, str]] = None
     ) -> ArticleSearchResponseDict:
         LOGGER.info('filter_parameters: %r', filter_parameters)
         LOGGER.info('pagination_parameters: %r', pagination_parameters)
+        LOGGER.info('article_fields_set: %r', article_fields_set)
         opensearch_search_result_dict = await self.async_opensearch_client.search(
             get_article_search_by_category_opensearch_query_dict(
                 category=category,

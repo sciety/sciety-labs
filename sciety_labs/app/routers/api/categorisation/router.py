@@ -219,9 +219,9 @@ def create_api_categorisation_router(
         evaluated_only: bool = False,
         page_size: int = fastapi.Query(alias='page[size]', default=10),
         page_number: int = fastapi.Query(alias='page[number]', ge=1, default=1),
-        fields: str = ARTICLE_FIELDS_FASTAPI_QUERY
+        article_fields_csv: str = ARTICLE_FIELDS_FASTAPI_QUERY
     ):
-        LOGGER.info('fields: %r', fields)
+        article_fields_set = set(article_fields_csv.split(','))
         return await (
             async_opensearch_categories_provider
             .get_article_search_response_dict_by_category(
@@ -236,6 +236,7 @@ def create_api_categorisation_router(
                     page_size=page_size,
                     page_number=page_number
                 ),
+                article_fields_set=article_fields_set,
                 headers=get_cache_control_headers_for_request(request)
             )
         )
