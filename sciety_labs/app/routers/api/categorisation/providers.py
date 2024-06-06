@@ -43,13 +43,17 @@ class ArticleDoiNotFoundError(RuntimeError):
 
 
 def get_categorisation_list_opensearch_query_dict(
+    filter_parameters: OpenSearchFilterParameters
 ) -> dict:
+    filter_dicts: List[dict] = [
+        IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT
+    ]
+    if filter_parameters.evaluated_only:
+        filter_dicts.append(IS_EVALUATED_OPENSEARCH_FILTER_DICT)
     return {
         'query': {
             'bool': {
-                'filter': [
-                    IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT
-                ]
+                'filter': filter_dicts
             }
         },
         'aggs': {
@@ -185,11 +189,15 @@ class AsyncOpenSearchCategoriesProvider:
 
     async def get_categorisation_list_response_dict(
         self,
+        filter_parameters: OpenSearchFilterParameters,
         headers: Optional[Mapping[str, str]] = None
     ) -> CategorisationResponseDict:
+        LOGGER.info('filter_parameters: %r', filter_parameters)
         LOGGER.debug('async_opensearch_client: %r', self.async_opensearch_client)
         opensearch_aggregations_response_dict = await self.async_opensearch_client.search(
-            get_categorisation_list_opensearch_query_dict(),
+            get_categorisation_list_opensearch_query_dict(
+                filter_parameters=filter_parameters
+            ),
             index=self.index_name,
             headers=headers
         )

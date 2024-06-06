@@ -10,6 +10,7 @@ from sciety_labs.app.routers.api.categorisation.providers import (
     get_article_response_dict_for_opensearch_document_dict,
     get_article_search_by_category_opensearch_query_dict,
     get_article_search_response_dict_for_opensearch_search_response_dict,
+    get_categorisation_list_opensearch_query_dict,
     get_categorisation_response_dict_for_opensearch_aggregations_response_dict,
     get_categorisation_response_dict_for_opensearch_document_dict,
     get_category_as_crossref_group_title_opensearch_filter_dict
@@ -51,6 +52,25 @@ class TestArticleDoiNotFoundError:
         exception = ArticleDoiNotFoundError(article_doi=DOI_1)
         assert DOI_1 in str(exception)
         assert DOI_1 in repr(exception)
+
+
+class TestGetCategorisationListOpenSearchQueryDict:
+    def test_should_include_biorxiv_medrxiv_filter(self):
+        query_dict = get_categorisation_list_opensearch_query_dict(
+            filter_parameters=OpenSearchFilterParameters(evaluated_only=False)
+        )
+        assert query_dict['query']['bool']['filter'] == [
+            IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT
+        ]
+
+    def test_should_include_is_evaluated_filter(self):
+        query_dict = get_categorisation_list_opensearch_query_dict(
+            filter_parameters=OpenSearchFilterParameters(evaluated_only=True)
+        )
+        assert query_dict['query']['bool']['filter'] == [
+            IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
+            IS_EVALUATED_OPENSEARCH_FILTER_DICT
+        ]
 
 
 class TestGetArticleSearchByCategoryOpenSearchQueryDict:
