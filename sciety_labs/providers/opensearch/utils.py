@@ -1,3 +1,4 @@
+import dataclasses
 import logging
 from datetime import date, timedelta
 from typing import Any, Iterable, Mapping, Optional, Sequence, cast
@@ -32,6 +33,11 @@ LOGGER = logging.getLogger(__name__)
 
 
 DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS = 50
+
+
+@dataclasses.dataclass(frozen=True)
+class OpenSearchFilterParameters:
+    evaluated_only: bool = False
 
 
 def get_author_names_for_document_s2_authors(
