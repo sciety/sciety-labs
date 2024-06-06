@@ -35,6 +35,11 @@ LOGGER = logging.getLogger(__name__)
 DEFAULT_OPENSEARCH_MAX_RECOMMENDATIONS = 50
 
 
+IS_EVALUATED_OPENSEARCH_FILTER_DICT = {
+    'range': {'sciety.evaluation_count': {'gte': 1}}
+}
+
+
 @dataclasses.dataclass(frozen=True)
 class OpenSearchFilterParameters:
     evaluated_only: bool = False
@@ -258,9 +263,7 @@ def get_vector_search_query(  # pylint: disable=too-many-arguments
             get_from_publication_date_query_filter(filter_parameters.from_publication_date)
         )
     if filter_parameters.evaluated_only:
-        bool_filter.setdefault('must', []).append({
-            'range': {'sciety.evaluation_count': {'gte': 1}}
-        })
+        bool_filter.setdefault('must', []).append(IS_EVALUATED_OPENSEARCH_FILTER_DICT)
     if bool_filter:
         vector_query_part = {
             **vector_query_part,
