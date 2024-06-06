@@ -9,7 +9,13 @@ class OpenSearchSearchResultHitDict(TypedDict):
     _source: dict
 
 
+class OpenSearchSearchResultHitsTotalDict(TypedDict):
+    value: int
+    relation: str
+
+
 class OpenSearchSearchResultHitsDict(TypedDict):
+    total: OpenSearchSearchResultHitsTotalDict
     hits: Sequence[dict]
 
 
