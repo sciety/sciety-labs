@@ -1,4 +1,5 @@
 import logging
+import textwrap
 
 import fastapi
 
@@ -103,6 +104,42 @@ ARTICLES_BY_CATEGORY_API_EXAMPLE_RESPONSES: dict = {
 }
 
 
+DEFAULT_ARTICLE_FIELDS = {'doi'}
+
+
+ALL_ARTICLE_FIELDS = [
+    'doi',
+    'title',
+    'publication_date',
+    'evaluation_count',
+    'latest_evaluation_activity_timestamp'
+]
+
+ALL_ARTICLE_FIELDS_CSV = ','.join(ALL_ARTICLE_FIELDS)
+
+ALL_ARTICLE_FIELDS_AS_MARKDOWN_LIST = '\n'.join([
+    f'- `{field_name}`'
+    for field_name in ALL_ARTICLE_FIELDS
+])
+
+ARTICLE_FIELDS_FASTAPI_QUERY = fastapi.Query(
+    alias='fields[article]',
+    default=','.join(sorted(DEFAULT_ARTICLE_FIELDS)),
+    description='\n'.join([
+        'Comma separated list of fields. The following fields can be retrieved:',
+        '',
+        ALL_ARTICLE_FIELDS_AS_MARKDOWN_LIST,
+        '',
+        'To retrieve all fields, use:',
+        f'`{ALL_ARTICLE_FIELDS_CSV}`'
+    ]),
+    examples=[  # Note: These only seem to appear in /redoc
+        'doi',
+        ALL_ARTICLE_FIELDS_CSV
+    ]
+)
+
+
 def get_not_found_error_json_response_dict(
     exception: ArticleDoiNotFoundError
 ) -> JsonApiErrorsResponseDict:
@@ -181,8 +218,10 @@ def create_api_categorisation_router(
         category: str,
         evaluated_only: bool = False,
         page_size: int = fastapi.Query(alias='page[size]', default=10),
-        page_number: int = fastapi.Query(alias='page[number]', ge=1, default=1)
+        page_number: int = fastapi.Query(alias='page[number]', ge=1, default=1),
+        fields: str = ARTICLE_FIELDS_FASTAPI_QUERY
     ):
+        LOGGER.info('fields: %r', fields)
         return await (
             async_opensearch_categories_provider
             .get_article_search_response_dict_by_category(
