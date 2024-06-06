@@ -1,5 +1,5 @@
 import logging
-from typing import Mapping, Optional
+from typing import List, Mapping, Optional
 
 import opensearchpy
 
@@ -12,9 +12,13 @@ from sciety_labs.app.routers.api.categorisation.typing import (
     CategorisationResponseDict
 )
 from sciety_labs.models.article import KnownDoiPrefix
-from sciety_labs.providers.opensearch.typing import DocumentDict
-from sciety_labs.providers.opensearch.typing import OpenSearchSearchResultDict
+from sciety_labs.providers.opensearch.typing import (
+    DocumentDict,
+    OpenSearchSearchResultDict
+)
 from sciety_labs.providers.opensearch.utils import (
+    IS_EVALUATED_OPENSEARCH_FILTER_DICT,
+    OpenSearchFilterParameters,
     get_article_meta_from_document,
     get_article_stats_from_document
 )
@@ -39,13 +43,17 @@ class ArticleDoiNotFoundError(RuntimeError):
 
 
 def get_categorisation_list_opensearch_query_dict(
+    filter_parameters: OpenSearchFilterParameters
 ) -> dict:
+    filter_dicts: List[dict] = [
+        IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT
+    ]
+    if filter_parameters.evaluated_only:
+        filter_dicts.append(IS_EVALUATED_OPENSEARCH_FILTER_DICT)
     return {
         'query': {
             'bool': {
-                'filter': [
-                    IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT
-                ]
+                'filter': filter_dicts
             }
         },
         'aggs': {
@@ -71,15 +79,19 @@ def get_category_as_crossref_group_title_opensearch_filter_dict(
 
 
 def get_article_search_by_category_opensearch_query_dict(
-    category: str
+    category: str,
+    filter_parameters: OpenSearchFilterParameters
 ) -> dict:
+    filter_dicts: List[dict] = [
+        IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
+        get_category_as_crossref_group_title_opensearch_filter_dict(category)
+    ]
+    if filter_parameters.evaluated_only:
+        filter_dicts.append(IS_EVALUATED_OPENSEARCH_FILTER_DICT)
     return {
         'query': {
             'bool': {
-                'filter': [
-                    IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
-                    get_category_as_crossref_group_title_opensearch_filter_dict(category)
-                ]
+                'filter': filter_dicts
             }
         }
     }
@@ -177,11 +189,15 @@ class AsyncOpenSearchCategoriesProvider:
 
     async def get_categorisation_list_response_dict(
         self,
+        filter_parameters: OpenSearchFilterParameters,
         headers: Optional[Mapping[str, str]] = None
     ) -> CategorisationResponseDict:
+        LOGGER.info('filter_parameters: %r', filter_parameters)
         LOGGER.debug('async_opensearch_client: %r', self.async_opensearch_client)
         opensearch_aggregations_response_dict = await self.async_opensearch_client.search(
-            get_categorisation_list_opensearch_query_dict(),
+            get_categorisation_list_opensearch_query_dict(
+                filter_parameters=filter_parameters
+            ),
             index=self.index_name,
             headers=headers
         )
@@ -216,11 +232,14 @@ class AsyncOpenSearchCategoriesProvider:
     async def get_article_search_response_dict_by_category(
         self,
         category: str,
+        filter_parameters: OpenSearchFilterParameters,
         headers: Optional[Mapping[str, str]] = None
     ) -> ArticleSearchResponseDict:
+        LOGGER.info('filter_parameters: %r', filter_parameters)
         opensearch_search_result_dict = await self.async_opensearch_client.search(
             get_article_search_by_category_opensearch_query_dict(
-                category=category
+                category=category,
+                filter_parameters=filter_parameters
             ),
             index=self.index_name,
             headers=headers
