@@ -99,7 +99,8 @@ def get_article_search_by_category_opensearch_query_dict(
                 'filter': filter_dicts
             }
         },
-        'size': pagination_parameters.page_size
+        'size': pagination_parameters.page_size,
+        'from': pagination_parameters.get_offset()
     }
     if sort_parameters:
         query_dict['sort'] = sort_parameters.to_opensearch_sort_dict_list()

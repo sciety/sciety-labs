@@ -78,6 +78,10 @@ class OpenSearchSortParameters:
 @dataclasses.dataclass(frozen=True)
 class OpenSearchPaginationParameters:
     page_size: int = DEFAULT_PAGE_SIZE
+    page_number: int = 1
+
+    def get_offset(self) -> int:
+        return self.page_size * (self.page_number - 1)
 
 
 def get_author_names_for_document_s2_authors(
