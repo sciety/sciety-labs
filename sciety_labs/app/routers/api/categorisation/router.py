@@ -4,7 +4,12 @@ from typing import Mapping, Sequence
 import fastapi
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
-from sciety_labs.app.routers.api.utils.validation import validate_api_fields
+from sciety_labs.app.routers.api.utils.jsonapi import (
+    AsyncExceptionHandlerMappingT,
+    async_handle_exception_and_return_response,
+    default_async_jsonapi_exception_handler
+)
+from sciety_labs.app.routers.api.utils.validation import InvalidApiFields, validate_api_fields
 from sciety_labs.app.routers.api.categorisation.providers import (
     ArticleDoiNotFoundError,
     AsyncOpenSearchCategoriesProvider,
@@ -175,6 +180,33 @@ def get_not_found_error_json_response(
     )
 
 
+def get_invalid_api_fields_json_response_dict(
+    exception: InvalidApiFields
+) -> JsonApiErrorsResponseDict:
+    return {
+        'errors': [{
+            'title': 'Invalid fields',
+            'detail': f'Invalid API fields: {",".join(exception.invalid_field_names)}',
+            'status': '400'
+        }]
+    }
+
+
+async def handle_invalid_api_fields_error(
+    request: fastapi.Request,  # pylint: disable=unused-argument
+    exc: InvalidApiFields
+) -> fastapi.responses.JSONResponse:
+    return fastapi.responses.JSONResponse(
+        get_invalid_api_fields_json_response_dict(exc),
+        status_code=400
+    )
+
+
+EXCEPTION_HANDLER_MAPPING: AsyncExceptionHandlerMappingT = {
+    InvalidApiFields: handle_invalid_api_fields_error
+}
+
+
 def create_api_categorisation_router(
     app_providers_and_models: AppProvidersAndModels
 ) -> fastapi.APIRouter:
@@ -235,29 +267,37 @@ def create_api_categorisation_router(
         page_number: int = fastapi.Query(alias='page[number]', ge=1, default=1),
         api_article_fields_csv: str = ARTICLE_FIELDS_FASTAPI_QUERY
     ):
-        api_article_fields_set = set(api_article_fields_csv.split(','))
-        validate_api_fields(api_article_fields_set, valid_values=ALL_ARTICLE_FIELDS)
-        internal_article_fields_set = set(get_flat_mapped_values_or_all_values_for_mapping(
-            INTERNAL_ARTICLE_FIELDS_BY_API_FIELD_NAME,
-            api_article_fields_set
-        ))
-        return await (
-            async_opensearch_categories_provider
-            .get_article_search_response_dict_by_category(
-                category=category,
-                filter_parameters=OpenSearchFilterParameters(
-                    evaluated_only=evaluated_only
-                ),
-                sort_parameters=get_default_article_search_sort_parameters(
-                    evaluated_only=evaluated_only
-                ),
-                pagination_parameters=OpenSearchPaginationParameters(
-                    page_size=page_size,
-                    page_number=page_number
-                ),
-                article_fields_set=internal_article_fields_set,
-                headers=get_cache_control_headers_for_request(request)
+        try:
+            api_article_fields_set = set(api_article_fields_csv.split(','))
+            validate_api_fields(api_article_fields_set, valid_values=ALL_ARTICLE_FIELDS)
+            internal_article_fields_set = set(get_flat_mapped_values_or_all_values_for_mapping(
+                INTERNAL_ARTICLE_FIELDS_BY_API_FIELD_NAME,
+                api_article_fields_set
+            ))
+            return await (
+                async_opensearch_categories_provider
+                .get_article_search_response_dict_by_category(
+                    category=category,
+                    filter_parameters=OpenSearchFilterParameters(
+                        evaluated_only=evaluated_only
+                    ),
+                    sort_parameters=get_default_article_search_sort_parameters(
+                        evaluated_only=evaluated_only
+                    ),
+                    pagination_parameters=OpenSearchPaginationParameters(
+                        page_size=page_size,
+                        page_number=page_number
+                    ),
+                    article_fields_set=internal_article_fields_set,
+                    headers=get_cache_control_headers_for_request(request)
+                )
             )
-        )
+        except Exception as exc:  # pylint: disable=broad-except
+            return await async_handle_exception_and_return_response(
+                request,
+                exc,
+                exception_handler_mapping=EXCEPTION_HANDLER_MAPPING,
+                default_exception_handler=default_async_jsonapi_exception_handler
+            )
 
     return router

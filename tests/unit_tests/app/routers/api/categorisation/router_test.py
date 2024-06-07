@@ -1,3 +1,4 @@
+import logging
 from typing import Iterator
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -13,6 +14,7 @@ from sciety_labs.app.routers.api.categorisation.providers import (
 import sciety_labs.app.routers.api.categorisation.router as router_module
 from sciety_labs.app.routers.api.categorisation.router import (
     create_api_categorisation_router,
+    get_invalid_api_fields_json_response_dict,
     get_not_found_error_json_response_dict
 )
 from sciety_labs.app.routers.api.categorisation.typing import (
@@ -21,6 +23,9 @@ from sciety_labs.app.routers.api.categorisation.typing import (
 )
 from sciety_labs.app.routers.api.utils.validation import InvalidApiFields
 from sciety_labs.models.article import InternalArticleFieldNames
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 DOI_1 = '10.12345/test-doi-1'
@@ -198,8 +203,13 @@ class TestCategorisationApiRouterArticlesByCategory:
         get_article_search_response_dict_by_category_mock.return_value = (
             ARTICLE_SEARCH_RESPONSE_DICT_1
         )
-        with pytest.raises(InvalidApiFields):
-            test_client.get(
-                '/categorisation/v1/articles/by/category',
-                params={'category': 'Category 1', 'fields[article]': 'doi,invalid_1'}
-            )
+        response = test_client.get(
+            '/categorisation/v1/articles/by/category',
+            params={'category': 'Category 1', 'fields[article]': 'doi,invalid_1'}
+        )
+        assert response.status_code == 400
+        response_json = response.json()
+        LOGGER.debug('response_json: %r', response_json)
+        assert response_json == get_invalid_api_fields_json_response_dict(
+            InvalidApiFields({'invalid_1'})
+        )
