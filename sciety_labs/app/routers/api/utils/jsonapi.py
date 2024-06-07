@@ -1,4 +1,5 @@
 import logging
+from types import MappingProxyType
 from typing import Awaitable, Callable, Mapping, Type, TypeVar
 
 import fastapi
@@ -10,6 +11,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 ExceptionT = TypeVar('ExceptionT', bound=Exception)
+RequestHandlerCallableT = TypeVar('RequestHandlerCallableT', bound=Callable)
 
 
 AsyncExceptionHandlerCallable = Callable[
@@ -22,6 +24,9 @@ AsyncExceptionHandlerMappingT = Mapping[
     Type[Exception],
     AsyncExceptionHandlerCallable
 ]
+
+
+EMPTY_EXCEPTION_HANDLER_MAPPING: AsyncExceptionHandlerMappingT = MappingProxyType({})
 
 
 def get_default_jsonapi_error_json_response_dict(
@@ -73,3 +78,37 @@ async def async_handle_exception_and_return_response(
         default_exception_handler=default_exception_handler
     )
     return await exception_handler(request, exc)
+
+
+class JsonApiRoute(fastapi.routing.APIRoute):
+    def __init__(
+        self,
+        *args,
+        exception_handler_mapping: AsyncExceptionHandlerMappingT = (
+            EMPTY_EXCEPTION_HANDLER_MAPPING
+        ),
+        default_exception_handler: AsyncExceptionHandlerCallable = (
+            default_async_jsonapi_exception_handler
+        ),
+        **kwargs,
+    ):
+        super().__init__(*args, **kwargs)
+        self.exception_handler_mapping = exception_handler_mapping
+        self.default_exception_handler = default_exception_handler
+
+    def get_route_handler(self) -> Callable:
+        original_route_handler = super().get_route_handler()
+
+        async def custom_route_handler(request: fastapi.Request) -> fastapi.Response:
+            try:
+                LOGGER.debug('handling request: %r', request)
+                return await original_route_handler(request)
+            except Exception as exc:  # pylint: disable=broad-exception-caught
+                return await async_handle_exception_and_return_response(
+                    request,
+                    exc,
+                    exception_handler_mapping=self.exception_handler_mapping,
+                    default_exception_handler=self.default_exception_handler
+                )
+
+        return custom_route_handler
