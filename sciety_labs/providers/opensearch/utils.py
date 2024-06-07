@@ -6,12 +6,15 @@ from typing import Any, Iterable, Literal, Mapping, Optional, Sequence, cast
 
 import numpy.typing as npt
 
-from sciety_labs.models.article import ArticleMetaData, ArticleStats
+from sciety_labs.models.article import (
+    ArticleMetaData,
+    ArticleStats,
+    InternalArticleFieldName,
+    InternalArticleFieldNames
+)
 
 from sciety_labs.providers.interfaces.article_recommendation import (
     ArticleRecommendation,
-    ArticleRecommendationFieldLiteral,
-    ArticleRecommendationFields,
     ArticleRecommendationFilterParameters,
     ArticleRecommendationList
 )
@@ -342,6 +345,10 @@ EVALUATION_COUNT_OPENSEARCH_FIELDS = [
     'sciety.evaluation_count'
 ]
 
+LATEST_EVALUATION_ACTIVITY_TIMESTAMP_OPENSEARCH_FIELDS = [
+    'sciety.last_event_timestamp'
+]
+
 
 SUPPORTED_OPENSEARCH_FIELD_NAMES = (
     ['doi']
@@ -349,25 +356,48 @@ SUPPORTED_OPENSEARCH_FIELD_NAMES = (
     + AUTHOR_LIST_OPENSEARCH_FIELDS
     + PUBLISHED_DATE_OPENSEARCH_FIELDS
     + EVALUATION_COUNT_OPENSEARCH_FIELDS
+    + LATEST_EVALUATION_ACTIVITY_TIMESTAMP_OPENSEARCH_FIELDS
 )
 
 OPENSEARCH_FIELDS_BY_REQUESTED_FIELD: Mapping[str, Sequence[str]] = {
-    str(ArticleRecommendationFields.ARTICLE_DOI): ['doi'],
-    str(ArticleRecommendationFields.ARTICLE_TITLE): ARTICLE_TITLE_OPENSEARCH_FIELDS,
-    str(ArticleRecommendationFields.AUTHOR_NAME_LIST): AUTHOR_LIST_OPENSEARCH_FIELDS,
-    str(ArticleRecommendationFields.PUBLISHED_DATE): PUBLISHED_DATE_OPENSEARCH_FIELDS,
-    str(ArticleRecommendationFields.EVALUATION_COUNT): EVALUATION_COUNT_OPENSEARCH_FIELDS
+    str(InternalArticleFieldNames.ARTICLE_DOI): ['doi'],
+    str(InternalArticleFieldNames.ARTICLE_TITLE): ARTICLE_TITLE_OPENSEARCH_FIELDS,
+    str(InternalArticleFieldNames.AUTHOR_NAME_LIST): AUTHOR_LIST_OPENSEARCH_FIELDS,
+    str(InternalArticleFieldNames.PUBLISHED_DATE): PUBLISHED_DATE_OPENSEARCH_FIELDS,
+    str(InternalArticleFieldNames.EVALUATION_COUNT): EVALUATION_COUNT_OPENSEARCH_FIELDS,
+    str(InternalArticleFieldNames.LATEST_EVALUATION_ACTIVITY_TIMESTAMP): (
+        LATEST_EVALUATION_ACTIVITY_TIMESTAMP_OPENSEARCH_FIELDS
+    )
 }
+
+
+def get_source_includes_for_mapping(
+    opensearch_fields_by_requested_field: Mapping[str, Sequence[str]],
+    fields: Optional[Iterable[str]] = None
+) -> Sequence[str]:
+    if fields:
+        return [
+            opensearch_field
+            for requested_field in fields
+            for opensearch_field in opensearch_fields_by_requested_field[
+                str(requested_field)
+            ]
+        ]
+    return sorted({
+        field_name
+        for field_names in opensearch_fields_by_requested_field.values()
+        for field_name in field_names
+    })
 
 
 def get_source_includes(
     embedding_vector_mapping_name: str,
-    fields: Optional[Sequence[ArticleRecommendationFieldLiteral]] = None
+    fields: Optional[Sequence[InternalArticleFieldName]] = None
 ) -> Sequence[str]:
     if fields:
         opensearch_fields_with_score_by_requested_field = {
             **OPENSEARCH_FIELDS_BY_REQUESTED_FIELD,
-            str(ArticleRecommendationFields.SCORE): [embedding_vector_mapping_name]
+            str(InternalArticleFieldNames.SCORE): [embedding_vector_mapping_name]
         }
         return [
             opensearch_field

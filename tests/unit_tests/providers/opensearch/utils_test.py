@@ -1,8 +1,8 @@
 import logging
 from datetime import date
 
+from sciety_labs.models.article import InternalArticleFieldNames
 from sciety_labs.providers.interfaces.article_recommendation import (
-    ArticleRecommendationFields,
     ArticleRecommendationFilterParameters
 )
 from sciety_labs.providers.opensearch.utils import (
@@ -351,35 +351,35 @@ class TestGetSourceIncludes:
     def test_should_return_doi_only_if_only_doi_was_requested(self):
         assert get_source_includes(
             'embedding_vector_1',
-            fields=[ArticleRecommendationFields.ARTICLE_DOI]
+            fields=[InternalArticleFieldNames.ARTICLE_DOI]
         ) == ['doi']
 
     def test_should_return_title_fields_only(self):
         assert get_source_includes(
             'embedding_vector_1',
-            fields=[ArticleRecommendationFields.ARTICLE_TITLE]
+            fields=[InternalArticleFieldNames.ARTICLE_TITLE]
         ) == ARTICLE_TITLE_OPENSEARCH_FIELDS
 
     def test_should_return_author_name_list_fields_only(self):
         assert get_source_includes(
             'embedding_vector_1',
-            fields=[ArticleRecommendationFields.AUTHOR_NAME_LIST]
+            fields=[InternalArticleFieldNames.AUTHOR_NAME_LIST]
         ) == AUTHOR_LIST_OPENSEARCH_FIELDS
 
     def test_should_return_published_date_fields_only(self):
         assert get_source_includes(
             'embedding_vector_1',
-            fields=[ArticleRecommendationFields.PUBLISHED_DATE]
+            fields=[InternalArticleFieldNames.PUBLISHED_DATE]
         ) == PUBLISHED_DATE_OPENSEARCH_FIELDS
 
     def test_should_return_evaluation_count_fields_only(self):
         assert get_source_includes(
             'embedding_vector_1',
-            fields=[ArticleRecommendationFields.EVALUATION_COUNT]
+            fields=[InternalArticleFieldNames.EVALUATION_COUNT]
         ) == EVALUATION_COUNT_OPENSEARCH_FIELDS
 
     def test_should_return_score_fields_only(self):
         assert get_source_includes(
             'embedding_vector_1',
-            fields=[ArticleRecommendationFields.SCORE]
+            fields=[InternalArticleFieldNames.SCORE]
         ) == ['embedding_vector_1']

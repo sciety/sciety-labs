@@ -13,13 +13,14 @@ from pydantic import BaseModel
 import requests
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
+from sciety_labs.app.routers.api.utils.validation import InvalidApiFieldsError
 from sciety_labs.app.utils.recommendation import (
     DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY,
     get_article_recommendation_list_for_article_dois
 )
+from sciety_labs.models.article import InternalArticleFieldNames
 from sciety_labs.providers.interfaces.article_recommendation import (
     ArticleRecommendation,
-    ArticleRecommendationFields,
     ArticleRecommendationFilterParameters,
     ArticleRecommendationList
 )
@@ -201,28 +202,23 @@ LIKE_S2_RECOMMENDATION_API_PUBLISHED_WITHIN_LAST_N_DAYS_FASTAPI_QUERY = fastapi.
 
 
 REQUIRED_ARTICLE_RECOMMENDATION_FIELDS = [
-    ArticleRecommendationFields.ARTICLE_DOI
+    InternalArticleFieldNames.ARTICLE_DOI
 ]
 
 ARTICLE_RECOMMENDATION_FIELDS_BY_API_FIELD_NAME: Mapping[str, Sequence[str]] = {
-    'externalIds': [ArticleRecommendationFields.ARTICLE_DOI],
-    'title': [ArticleRecommendationFields.ARTICLE_TITLE],
-    'publicationDate': [ArticleRecommendationFields.PUBLISHED_DATE],
-    'authors': [ArticleRecommendationFields.AUTHOR_NAME_LIST],
-    '_evaluationCount': [ArticleRecommendationFields.EVALUATION_COUNT],
-    '_score': [ArticleRecommendationFields.SCORE]
+    'externalIds': [InternalArticleFieldNames.ARTICLE_DOI],
+    'title': [InternalArticleFieldNames.ARTICLE_TITLE],
+    'publicationDate': [InternalArticleFieldNames.PUBLISHED_DATE],
+    'authors': [InternalArticleFieldNames.AUTHOR_NAME_LIST],
+    '_evaluationCount': [InternalArticleFieldNames.EVALUATION_COUNT],
+    '_score': [InternalArticleFieldNames.SCORE]
 }
-
-
-class InvalidApiFields(ValueError):
-    def __init__(self, invalid_field_names: Set[str]):
-        self.invalid_field_names = invalid_field_names
 
 
 def validate_api_fields(fields_set: Set[str]):
     invalid_field_names = fields_set - set(ARTICLE_RECOMMENDATION_FIELDS_BY_API_FIELD_NAME.keys())
     if invalid_field_names:
-        raise InvalidApiFields(invalid_field_names)
+        raise InvalidApiFieldsError(invalid_field_names)
 
 
 def get_requested_fields_for_api_field_set(
@@ -324,7 +320,7 @@ def handle_like_s2_recommendation_exception(
             {'error': 'OpenSearch backend currently not available'},
             status_code=503
         )
-    if isinstance(exception, InvalidApiFields):
+    if isinstance(exception, InvalidApiFieldsError):
         invalid_fields_csv = ','.join(exception.invalid_field_names)
         return fastapi.responses.JSONResponse(
             {'error': f'Unrecognized or unsupported fields: [{invalid_fields_csv}]'},

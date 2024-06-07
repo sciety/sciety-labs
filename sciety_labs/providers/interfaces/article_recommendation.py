@@ -5,18 +5,6 @@ from typing import Iterable, Mapping, Optional, Protocol, Sequence, Set
 from sciety_labs.models.article import ArticleMention
 
 
-class ArticleRecommendationFields:
-    ARTICLE_DOI = 'article_doi'
-    ARTICLE_TITLE = 'article_title'
-    AUTHOR_NAME_LIST = 'author_name_list'
-    PUBLISHED_DATE = 'published_date'
-    EVALUATION_COUNT = 'evaluation_count'
-    SCORE = 'score'
-
-
-ArticleRecommendationFieldLiteral = str
-
-
 @dataclasses.dataclass(frozen=True)
 class ArticleRecommendation(ArticleMention):
     score: Optional[float] = None
