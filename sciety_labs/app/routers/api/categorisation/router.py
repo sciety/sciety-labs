@@ -4,6 +4,7 @@ from typing import Mapping, Sequence
 import fastapi
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
+from sciety_labs.app.routers.api.utils.validation import validate_api_fields
 from sciety_labs.app.routers.api.categorisation.providers import (
     ArticleDoiNotFoundError,
     AsyncOpenSearchCategoriesProvider,
@@ -235,6 +236,7 @@ def create_api_categorisation_router(
         api_article_fields_csv: str = ARTICLE_FIELDS_FASTAPI_QUERY
     ):
         api_article_fields_set = set(api_article_fields_csv.split(','))
+        validate_api_fields(api_article_fields_set, valid_values=ALL_ARTICLE_FIELDS)
         internal_article_fields_set = set(get_flat_mapped_values_or_all_values_for_mapping(
             INTERNAL_ARTICLE_FIELDS_BY_API_FIELD_NAME,
             api_article_fields_set

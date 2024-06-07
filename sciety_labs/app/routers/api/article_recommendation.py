@@ -13,6 +13,7 @@ from pydantic import BaseModel
 import requests
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
+from sciety_labs.app.routers.api.utils.validation import InvalidApiFields
 from sciety_labs.app.utils.recommendation import (
     DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY,
     get_article_recommendation_list_for_article_dois
@@ -212,11 +213,6 @@ ARTICLE_RECOMMENDATION_FIELDS_BY_API_FIELD_NAME: Mapping[str, Sequence[str]] = {
     '_evaluationCount': [InternalArticleFieldNames.EVALUATION_COUNT],
     '_score': [InternalArticleFieldNames.SCORE]
 }
-
-
-class InvalidApiFields(ValueError):
-    def __init__(self, invalid_field_names: Set[str]):
-        self.invalid_field_names = invalid_field_names
 
 
 def validate_api_fields(fields_set: Set[str]):
