@@ -21,7 +21,7 @@ from sciety_labs.app.routers.api.categorisation.typing import (
     ArticleSearchResponseDict,
     CategorisationResponseDict
 )
-from sciety_labs.app.routers.api.utils.validation import InvalidApiFields
+from sciety_labs.app.routers.api.utils.validation import InvalidApiFieldsError
 from sciety_labs.models.article import InternalArticleFieldNames
 
 
@@ -211,5 +211,5 @@ class TestCategorisationApiRouterArticlesByCategory:
         response_json = response.json()
         LOGGER.debug('response_json: %r', response_json)
         assert response_json == get_invalid_api_fields_json_response_dict(
-            InvalidApiFields({'invalid_1'})
+            InvalidApiFieldsError({'invalid_1'})
         )

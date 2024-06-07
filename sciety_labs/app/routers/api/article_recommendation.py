@@ -13,7 +13,7 @@ from pydantic import BaseModel
 import requests
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
-from sciety_labs.app.routers.api.utils.validation import InvalidApiFields
+from sciety_labs.app.routers.api.utils.validation import InvalidApiFieldsError
 from sciety_labs.app.utils.recommendation import (
     DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY,
     get_article_recommendation_list_for_article_dois
@@ -218,7 +218,7 @@ ARTICLE_RECOMMENDATION_FIELDS_BY_API_FIELD_NAME: Mapping[str, Sequence[str]] = {
 def validate_api_fields(fields_set: Set[str]):
     invalid_field_names = fields_set - set(ARTICLE_RECOMMENDATION_FIELDS_BY_API_FIELD_NAME.keys())
     if invalid_field_names:
-        raise InvalidApiFields(invalid_field_names)
+        raise InvalidApiFieldsError(invalid_field_names)
 
 
 def get_requested_fields_for_api_field_set(
@@ -320,7 +320,7 @@ def handle_like_s2_recommendation_exception(
             {'error': 'OpenSearch backend currently not available'},
             status_code=503
         )
-    if isinstance(exception, InvalidApiFields):
+    if isinstance(exception, InvalidApiFieldsError):
         invalid_fields_csv = ','.join(exception.invalid_field_names)
         return fastapi.responses.JSONResponse(
             {'error': f'Unrecognized or unsupported fields: [{invalid_fields_csv}]'},

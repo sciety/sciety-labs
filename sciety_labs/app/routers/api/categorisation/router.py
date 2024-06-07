@@ -9,7 +9,7 @@ from sciety_labs.app.routers.api.utils.jsonapi import (
     JsonApiRoute
 )
 from sciety_labs.app.routers.api.utils.jsonapi_typing import JsonApiErrorsResponseDict
-from sciety_labs.app.routers.api.utils.validation import InvalidApiFields, validate_api_fields
+from sciety_labs.app.routers.api.utils.validation import InvalidApiFieldsError, validate_api_fields
 from sciety_labs.app.routers.api.categorisation.providers import (
     ArticleDoiNotFoundError,
     AsyncOpenSearchCategoriesProvider,
@@ -180,7 +180,7 @@ def get_not_found_error_json_response(
 
 
 def get_invalid_api_fields_json_response_dict(
-    exception: InvalidApiFields
+    exception: InvalidApiFieldsError
 ) -> JsonApiErrorsResponseDict:
     return {
         'errors': [{
@@ -193,7 +193,7 @@ def get_invalid_api_fields_json_response_dict(
 
 async def handle_invalid_api_fields_error(
     request: fastapi.Request,  # pylint: disable=unused-argument
-    exc: InvalidApiFields
+    exc: InvalidApiFieldsError
 ) -> fastapi.responses.JSONResponse:
     return fastapi.responses.JSONResponse(
         get_invalid_api_fields_json_response_dict(exc),
@@ -202,7 +202,7 @@ async def handle_invalid_api_fields_error(
 
 
 EXCEPTION_HANDLER_MAPPING: AsyncExceptionHandlerMappingT = {
-    InvalidApiFields: handle_invalid_api_fields_error
+    InvalidApiFieldsError: handle_invalid_api_fields_error
 }
 
 

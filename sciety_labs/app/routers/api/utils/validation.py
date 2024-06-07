@@ -1,7 +1,7 @@
 from typing import Iterable, Set
 
 
-class InvalidApiFields(ValueError):
+class InvalidApiFieldsError(ValueError):
     def __init__(self, invalid_field_names: Set[str]):
         self.invalid_field_names = invalid_field_names
 
@@ -12,4 +12,4 @@ def validate_api_fields(
 ):
     invalid_field_names = fields_set - set(valid_values)
     if invalid_field_names:
-        raise InvalidApiFields(invalid_field_names)
+        raise InvalidApiFieldsError(invalid_field_names)
