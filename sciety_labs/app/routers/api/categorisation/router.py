@@ -9,6 +9,7 @@ from sciety_labs.app.routers.api.utils.jsonapi import (
     async_handle_exception_and_return_response,
     default_async_jsonapi_exception_handler
 )
+from sciety_labs.app.routers.api.utils.jsonapi_typing import JsonApiErrorsResponseDict
 from sciety_labs.app.routers.api.utils.validation import InvalidApiFields, validate_api_fields
 from sciety_labs.app.routers.api.categorisation.providers import (
     ArticleDoiNotFoundError,
@@ -17,8 +18,7 @@ from sciety_labs.app.routers.api.categorisation.providers import (
 )
 from sciety_labs.app.routers.api.categorisation.typing import (
     ArticleSearchResponseDict,
-    CategorisationResponseDict,
-    JsonApiErrorsResponseDict
+    CategorisationResponseDict
 )
 from sciety_labs.models.article import InternalArticleFieldNames
 from sciety_labs.providers.opensearch.utils import (

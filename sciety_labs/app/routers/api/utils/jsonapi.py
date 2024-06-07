@@ -3,7 +3,7 @@ from typing import Awaitable, Callable, Mapping, Type, TypeVar
 
 import fastapi
 
-from sciety_labs.app.routers.api.categorisation.typing import JsonApiErrorsResponseDict
+from sciety_labs.app.routers.api.utils.jsonapi_typing import JsonApiErrorsResponseDict
 
 
 LOGGER = logging.getLogger(__name__)
