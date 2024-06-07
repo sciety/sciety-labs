@@ -1,6 +1,6 @@
 import logging
 from types import MappingProxyType
-from typing import Awaitable, Callable, Mapping, Type, TypeVar
+from typing import Awaitable, Callable, Mapping, Optional, Type, TypeVar
 
 import fastapi
 
@@ -32,10 +32,41 @@ EMPTY_EXCEPTION_HANDLER_MAPPING: AsyncExceptionHandlerMappingT = MappingProxyTyp
 def get_default_jsonapi_error_json_response_dict(
     exception: Exception
 ) -> JsonApiErrorsResponseDict:
+    if isinstance(exception, fastapi.exceptions.HTTPException):
+        return {
+            'errors': [{
+                'title': type(exception).__name__,
+                'detail': exception.detail,
+                'status': str(exception.status_code)
+            }]
+        }
+    if isinstance(exception, fastapi.exceptions.RequestValidationError):
+        return {
+            'errors': [{
+                'title': type(exception).__name__,
+                'detail': (
+                    'Encountered validation errors. Please check the request.'
+                ),
+                'status': '400',
+                'meta': {
+                    'errors': exception.errors(),
+                }
+            }]
+        }
+    error_message: Optional[str] = None
+    try:
+        error_message = str(exception)
+    except Exception:
+        pass
+    if not error_message:
+        try:
+            error_message = repr(exception)
+        except Exception:
+            pass
     return {
         'errors': [{
-            'title': 'Exception',
-            'detail': repr(exception),
+            'title': type(exception).__name__,
+            'detail': error_message or 'Oops',
             'status': '500'
         }]
     }

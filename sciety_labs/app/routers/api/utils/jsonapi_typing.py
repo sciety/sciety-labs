@@ -1,5 +1,8 @@
-from typing import Sequence
+from typing import Any, Mapping, Sequence
 from typing_extensions import NotRequired, TypedDict
+
+
+JsonMetaObjectDict = Mapping[str, Any]
 
 
 class JsonApiErrorDict(TypedDict):
@@ -7,6 +10,7 @@ class JsonApiErrorDict(TypedDict):
     status: NotRequired[str]
     title: NotRequired[str]
     detail: NotRequired[str]
+    meta: NotRequired[JsonMetaObjectDict]
 
 
 class JsonApiErrorsResponseDict(TypedDict):
