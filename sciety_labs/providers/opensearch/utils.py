@@ -360,6 +360,25 @@ OPENSEARCH_FIELDS_BY_REQUESTED_FIELD: Mapping[str, Sequence[str]] = {
 }
 
 
+def get_source_includes_for_mapping(
+    opensearch_fields_by_requested_field: Mapping[str, Sequence[str]],
+    fields: Optional[Iterable[str]] = None
+) -> Sequence[str]:
+    if fields:
+        return [
+            opensearch_field
+            for requested_field in fields
+            for opensearch_field in opensearch_fields_by_requested_field[
+                str(requested_field)
+            ]
+        ]
+    return sorted({
+        field_name
+        for field_names in opensearch_fields_by_requested_field.values()
+        for field_name in field_names
+    })
+
+
 def get_source_includes(
     embedding_vector_mapping_name: str,
     fields: Optional[Sequence[ArticleRecommendationFieldLiteral]] = None

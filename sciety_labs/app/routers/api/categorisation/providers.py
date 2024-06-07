@@ -18,12 +18,14 @@ from sciety_labs.providers.opensearch.typing import (
 )
 from sciety_labs.providers.opensearch.utils import (
     IS_EVALUATED_OPENSEARCH_FILTER_DICT,
+    OPENSEARCH_FIELDS_BY_REQUESTED_FIELD,
     OpenSearchFilterParameters,
     OpenSearchPaginationParameters,
     OpenSearchSortField,
     OpenSearchSortParameters,
     get_article_meta_from_document,
-    get_article_stats_from_document
+    get_article_stats_from_document,
+    get_source_includes_for_mapping
 )
 from sciety_labs.utils.datetime import get_date_as_isoformat
 from sciety_labs.utils.json import get_recursively_filtered_dict_without_null_values
@@ -276,6 +278,11 @@ class AsyncOpenSearchCategoriesProvider:
         LOGGER.info('filter_parameters: %r', filter_parameters)
         LOGGER.info('pagination_parameters: %r', pagination_parameters)
         LOGGER.info('article_fields_set: %r', article_fields_set)
+        opensearch_fields = get_source_includes_for_mapping(
+            OPENSEARCH_FIELDS_BY_REQUESTED_FIELD,
+            fields=article_fields_set
+        )
+        LOGGER.info('opensearch_fields: %r', opensearch_fields)
         opensearch_search_result_dict = await self.async_opensearch_client.search(
             get_article_search_by_category_opensearch_query_dict(
                 category=category,
@@ -283,6 +290,7 @@ class AsyncOpenSearchCategoriesProvider:
                 sort_parameters=sort_parameters,
                 pagination_parameters=pagination_parameters
             ),
+            _source_includes=opensearch_fields,
             index=self.index_name,
             headers=headers
         )
