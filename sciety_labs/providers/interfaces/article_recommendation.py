@@ -5,7 +5,7 @@ from typing import Iterable, Mapping, Optional, Protocol, Sequence, Set
 from sciety_labs.models.article import ArticleMention
 
 
-class ArticleRecommendationFields:
+class InternalArticleFieldNames:
     ARTICLE_DOI = 'article_doi'
     ARTICLE_TITLE = 'article_title'
     AUTHOR_NAME_LIST = 'author_name_list'
@@ -15,7 +15,7 @@ class ArticleRecommendationFields:
     SCORE = 'score'
 
 
-ArticleRecommendationFieldLiteral = str
+InternalArticleFieldName = str
 
 
 @dataclasses.dataclass(frozen=True)

@@ -8,7 +8,7 @@ import numpy.typing as npt
 import opensearchpy
 
 from sciety_labs.providers.interfaces.article_recommendation import (
-    ArticleRecommendationFieldLiteral,
+    InternalArticleFieldName,
     ArticleRecommendationFilterParameters,
     ArticleRecommendationList
 )
@@ -140,7 +140,7 @@ class AsyncOpenSearchArticleRecommendation(AsyncSingleArticleRecommendationProvi
         article_doi: str,
         max_recommendations: Optional[int] = None,
         filter_parameters: Optional[ArticleRecommendationFilterParameters] = None,
-        fields: Optional[Sequence[ArticleRecommendationFieldLiteral]] = None,
+        fields: Optional[Sequence[InternalArticleFieldName]] = None,
         headers: Optional[Mapping[str, str]] = None
     ) -> ArticleRecommendationList:
         if not max_recommendations:

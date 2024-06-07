@@ -19,7 +19,7 @@ from sciety_labs.app.utils.recommendation import (
 )
 from sciety_labs.providers.interfaces.article_recommendation import (
     ArticleRecommendation,
-    ArticleRecommendationFields,
+    InternalArticleFieldNames,
     ArticleRecommendationFilterParameters,
     ArticleRecommendationList
 )
@@ -201,16 +201,16 @@ LIKE_S2_RECOMMENDATION_API_PUBLISHED_WITHIN_LAST_N_DAYS_FASTAPI_QUERY = fastapi.
 
 
 REQUIRED_ARTICLE_RECOMMENDATION_FIELDS = [
-    ArticleRecommendationFields.ARTICLE_DOI
+    InternalArticleFieldNames.ARTICLE_DOI
 ]
 
 ARTICLE_RECOMMENDATION_FIELDS_BY_API_FIELD_NAME: Mapping[str, Sequence[str]] = {
-    'externalIds': [ArticleRecommendationFields.ARTICLE_DOI],
-    'title': [ArticleRecommendationFields.ARTICLE_TITLE],
-    'publicationDate': [ArticleRecommendationFields.PUBLISHED_DATE],
-    'authors': [ArticleRecommendationFields.AUTHOR_NAME_LIST],
-    '_evaluationCount': [ArticleRecommendationFields.EVALUATION_COUNT],
-    '_score': [ArticleRecommendationFields.SCORE]
+    'externalIds': [InternalArticleFieldNames.ARTICLE_DOI],
+    'title': [InternalArticleFieldNames.ARTICLE_TITLE],
+    'publicationDate': [InternalArticleFieldNames.PUBLISHED_DATE],
+    'authors': [InternalArticleFieldNames.AUTHOR_NAME_LIST],
+    '_evaluationCount': [InternalArticleFieldNames.EVALUATION_COUNT],
+    '_score': [InternalArticleFieldNames.SCORE]
 }
 
 

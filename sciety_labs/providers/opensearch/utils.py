@@ -10,8 +10,8 @@ from sciety_labs.models.article import ArticleMetaData, ArticleStats
 
 from sciety_labs.providers.interfaces.article_recommendation import (
     ArticleRecommendation,
-    ArticleRecommendationFieldLiteral,
-    ArticleRecommendationFields,
+    InternalArticleFieldName,
+    InternalArticleFieldNames,
     ArticleRecommendationFilterParameters,
     ArticleRecommendationList
 )
@@ -357,12 +357,12 @@ SUPPORTED_OPENSEARCH_FIELD_NAMES = (
 )
 
 OPENSEARCH_FIELDS_BY_REQUESTED_FIELD: Mapping[str, Sequence[str]] = {
-    str(ArticleRecommendationFields.ARTICLE_DOI): ['doi'],
-    str(ArticleRecommendationFields.ARTICLE_TITLE): ARTICLE_TITLE_OPENSEARCH_FIELDS,
-    str(ArticleRecommendationFields.AUTHOR_NAME_LIST): AUTHOR_LIST_OPENSEARCH_FIELDS,
-    str(ArticleRecommendationFields.PUBLISHED_DATE): PUBLISHED_DATE_OPENSEARCH_FIELDS,
-    str(ArticleRecommendationFields.EVALUATION_COUNT): EVALUATION_COUNT_OPENSEARCH_FIELDS,
-    str(ArticleRecommendationFields.LATEST_EVALUATION_ACTIVITY_TIMESTAMP): (
+    str(InternalArticleFieldNames.ARTICLE_DOI): ['doi'],
+    str(InternalArticleFieldNames.ARTICLE_TITLE): ARTICLE_TITLE_OPENSEARCH_FIELDS,
+    str(InternalArticleFieldNames.AUTHOR_NAME_LIST): AUTHOR_LIST_OPENSEARCH_FIELDS,
+    str(InternalArticleFieldNames.PUBLISHED_DATE): PUBLISHED_DATE_OPENSEARCH_FIELDS,
+    str(InternalArticleFieldNames.EVALUATION_COUNT): EVALUATION_COUNT_OPENSEARCH_FIELDS,
+    str(InternalArticleFieldNames.LATEST_EVALUATION_ACTIVITY_TIMESTAMP): (
         LATEST_EVALUATION_ACTIVITY_TIMESTAMP_OPENSEARCH_FIELDS
     )
 }
@@ -389,12 +389,12 @@ def get_source_includes_for_mapping(
 
 def get_source_includes(
     embedding_vector_mapping_name: str,
-    fields: Optional[Sequence[ArticleRecommendationFieldLiteral]] = None
+    fields: Optional[Sequence[InternalArticleFieldName]] = None
 ) -> Sequence[str]:
     if fields:
         opensearch_fields_with_score_by_requested_field = {
             **OPENSEARCH_FIELDS_BY_REQUESTED_FIELD,
-            str(ArticleRecommendationFields.SCORE): [embedding_vector_mapping_name]
+            str(InternalArticleFieldNames.SCORE): [embedding_vector_mapping_name]
         }
         return [
             opensearch_field

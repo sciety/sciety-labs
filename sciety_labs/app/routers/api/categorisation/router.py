@@ -14,7 +14,7 @@ from sciety_labs.app.routers.api.categorisation.typing import (
     CategorisationResponseDict,
     JsonApiErrorsResponseDict
 )
-from sciety_labs.providers.interfaces.article_recommendation import ArticleRecommendationFields
+from sciety_labs.providers.interfaces.article_recommendation import InternalArticleFieldNames
 from sciety_labs.providers.opensearch.utils import (
     OpenSearchFilterParameters,
     OpenSearchPaginationParameters
@@ -110,12 +110,12 @@ DEFAULT_ARTICLE_FIELDS = {'doi'}
 
 
 INTERNAL_ARTICLE_FIELDS_BY_API_FIELD_NAME: Mapping[str, Sequence[str]] = {
-    'doi': [ArticleRecommendationFields.ARTICLE_DOI],
-    'title': [ArticleRecommendationFields.ARTICLE_TITLE],
-    'publication_date': [ArticleRecommendationFields.PUBLISHED_DATE],
-    'evaluation_count': [ArticleRecommendationFields.EVALUATION_COUNT],
+    'doi': [InternalArticleFieldNames.ARTICLE_DOI],
+    'title': [InternalArticleFieldNames.ARTICLE_TITLE],
+    'publication_date': [InternalArticleFieldNames.PUBLISHED_DATE],
+    'evaluation_count': [InternalArticleFieldNames.EVALUATION_COUNT],
     'latest_evaluation_activity_timestamp': [
-        ArticleRecommendationFields.LATEST_EVALUATION_ACTIVITY_TIMESTAMP
+        InternalArticleFieldNames.LATEST_EVALUATION_ACTIVITY_TIMESTAMP
     ]
 }
 

@@ -17,7 +17,7 @@ from sciety_labs.app.routers.api.article_recommendation import (
 from sciety_labs.models.article import ArticleMetaData, ArticleStats
 from sciety_labs.providers.interfaces.article_recommendation import (
     ArticleRecommendation,
-    ArticleRecommendationFields,
+    InternalArticleFieldNames,
     ArticleRecommendationList
 )
 from sciety_labs.utils.datetime import get_utcnow
@@ -136,47 +136,47 @@ class TestGetRequestedFieldsForApiFieldSet:
         assert get_requested_fields_for_api_field_set({
             'externalIds'
         }) == [
-            ArticleRecommendationFields.ARTICLE_DOI
+            InternalArticleFieldNames.ARTICLE_DOI
         ]
 
     def test_should_return_fields_for_title(self):
         assert get_requested_fields_for_api_field_set({
             'title'
         }) == [
-            ArticleRecommendationFields.ARTICLE_DOI,
-            ArticleRecommendationFields.ARTICLE_TITLE
+            InternalArticleFieldNames.ARTICLE_DOI,
+            InternalArticleFieldNames.ARTICLE_TITLE
         ]
 
     def test_should_return_fields_for_publication_date(self):
         assert get_requested_fields_for_api_field_set({
             'publicationDate'
         }) == [
-            ArticleRecommendationFields.ARTICLE_DOI,
-            ArticleRecommendationFields.PUBLISHED_DATE
+            InternalArticleFieldNames.ARTICLE_DOI,
+            InternalArticleFieldNames.PUBLISHED_DATE
         ]
 
     def test_should_return_fields_for_authors(self):
         assert get_requested_fields_for_api_field_set({
             'authors'
         }) == [
-            ArticleRecommendationFields.ARTICLE_DOI,
-            ArticleRecommendationFields.AUTHOR_NAME_LIST
+            InternalArticleFieldNames.ARTICLE_DOI,
+            InternalArticleFieldNames.AUTHOR_NAME_LIST
         ]
 
     def test_should_return_fields_for_evaluation_count(self):
         assert get_requested_fields_for_api_field_set({
             '_evaluationCount'
         }) == [
-            ArticleRecommendationFields.ARTICLE_DOI,
-            ArticleRecommendationFields.EVALUATION_COUNT
+            InternalArticleFieldNames.ARTICLE_DOI,
+            InternalArticleFieldNames.EVALUATION_COUNT
         ]
 
     def test_should_return_fields_for_score(self):
         assert get_requested_fields_for_api_field_set({
             '_score'
         }) == [
-            ArticleRecommendationFields.ARTICLE_DOI,
-            ArticleRecommendationFields.SCORE
+            InternalArticleFieldNames.ARTICLE_DOI,
+            InternalArticleFieldNames.SCORE
         ]
 
 
