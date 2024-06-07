@@ -11,6 +11,7 @@ class ArticleRecommendationFields:
     AUTHOR_NAME_LIST = 'author_name_list'
     PUBLISHED_DATE = 'published_date'
     EVALUATION_COUNT = 'evaluation_count'
+    LATEST_EVALUATION_ACTIVITY_TIMESTAMP = 'latest_evaluation_activity_timestamp'
     SCORE = 'score'
 
 

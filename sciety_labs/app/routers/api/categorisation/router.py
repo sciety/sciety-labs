@@ -113,7 +113,10 @@ INTERNAL_ARTICLE_FIELDS_BY_API_FIELD_NAME: Mapping[str, Sequence[str]] = {
     'doi': [ArticleRecommendationFields.ARTICLE_DOI],
     'title': [ArticleRecommendationFields.ARTICLE_TITLE],
     'publication_date': [ArticleRecommendationFields.PUBLISHED_DATE],
-    'evaluation_count': [ArticleRecommendationFields.EVALUATION_COUNT]
+    'evaluation_count': [ArticleRecommendationFields.EVALUATION_COUNT],
+    'latest_evaluation_activity_timestamp': [
+        ArticleRecommendationFields.LATEST_EVALUATION_ACTIVITY_TIMESTAMP
+    ]
 }
 
 
