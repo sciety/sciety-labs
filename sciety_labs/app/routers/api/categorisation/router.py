@@ -14,7 +14,7 @@ from sciety_labs.app.routers.api.categorisation.typing import (
     CategorisationResponseDict,
     JsonApiErrorsResponseDict
 )
-from sciety_labs.providers.interfaces.article_recommendation import InternalArticleFieldNames
+from sciety_labs.models.article import InternalArticleFieldNames
 from sciety_labs.providers.opensearch.utils import (
     OpenSearchFilterParameters,
     OpenSearchPaginationParameters

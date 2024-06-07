@@ -7,8 +7,8 @@ import numpy.typing as npt
 
 import opensearchpy
 
+from sciety_labs.models.article import InternalArticleFieldName
 from sciety_labs.providers.interfaces.article_recommendation import (
-    InternalArticleFieldName,
     ArticleRecommendationFilterParameters,
     ArticleRecommendationList
 )

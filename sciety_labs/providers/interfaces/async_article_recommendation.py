@@ -1,7 +1,7 @@
 from typing import Mapping, Optional, Protocol, Sequence
 
+from sciety_labs.models.article import InternalArticleFieldName
 from sciety_labs.providers.interfaces.article_recommendation import (
-    InternalArticleFieldName,
     ArticleRecommendationFilterParameters,
     ArticleRecommendationList
 )

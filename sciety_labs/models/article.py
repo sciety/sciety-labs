@@ -163,3 +163,16 @@ def iter_preprint_article_mention(
         for article_mention in article_mention_iterable
         if is_preprint_doi(article_mention.article_doi)
     )
+
+
+class InternalArticleFieldNames:
+    ARTICLE_DOI = 'article_doi'
+    ARTICLE_TITLE = 'article_title'
+    AUTHOR_NAME_LIST = 'author_name_list'
+    PUBLISHED_DATE = 'published_date'
+    EVALUATION_COUNT = 'evaluation_count'
+    LATEST_EVALUATION_ACTIVITY_TIMESTAMP = 'latest_evaluation_activity_timestamp'
+    SCORE = 'score'
+
+
+InternalArticleFieldName = str

@@ -14,10 +14,9 @@ from sciety_labs.app.routers.api.article_recommendation import (
     get_s2_recommended_paper_response_for_article_recommendation,
     get_s2_recommended_papers_response_for_article_recommendation_list
 )
-from sciety_labs.models.article import ArticleMetaData, ArticleStats
+from sciety_labs.models.article import ArticleMetaData, ArticleStats, InternalArticleFieldNames
 from sciety_labs.providers.interfaces.article_recommendation import (
     ArticleRecommendation,
-    InternalArticleFieldNames,
     ArticleRecommendationList
 )
 from sciety_labs.utils.datetime import get_utcnow

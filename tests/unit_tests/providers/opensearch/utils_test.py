@@ -1,8 +1,8 @@
 import logging
 from datetime import date
 
+from sciety_labs.models.article import InternalArticleFieldNames
 from sciety_labs.providers.interfaces.article_recommendation import (
-    InternalArticleFieldNames,
     ArticleRecommendationFilterParameters
 )
 from sciety_labs.providers.opensearch.utils import (

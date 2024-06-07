@@ -17,9 +17,9 @@ from sciety_labs.app.utils.recommendation import (
     DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY,
     get_article_recommendation_list_for_article_dois
 )
+from sciety_labs.models.article import InternalArticleFieldNames
 from sciety_labs.providers.interfaces.article_recommendation import (
     ArticleRecommendation,
-    InternalArticleFieldNames,
     ArticleRecommendationFilterParameters,
     ArticleRecommendationList
 )

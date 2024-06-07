@@ -6,12 +6,15 @@ from typing import Any, Iterable, Literal, Mapping, Optional, Sequence, cast
 
 import numpy.typing as npt
 
-from sciety_labs.models.article import ArticleMetaData, ArticleStats
+from sciety_labs.models.article import (
+    ArticleMetaData,
+    ArticleStats,
+    InternalArticleFieldName,
+    InternalArticleFieldNames
+)
 
 from sciety_labs.providers.interfaces.article_recommendation import (
     ArticleRecommendation,
-    InternalArticleFieldName,
-    InternalArticleFieldNames,
     ArticleRecommendationFilterParameters,
     ArticleRecommendationList
 )
