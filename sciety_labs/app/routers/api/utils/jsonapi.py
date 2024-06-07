@@ -56,12 +56,12 @@ def get_default_jsonapi_error_json_response_dict(
     error_message: Optional[str] = None
     try:
         error_message = str(exception)
-    except Exception:
+    except Exception:  # pylint: disable=broad-exception-caught
         pass
     if not error_message:
         try:
             error_message = repr(exception)
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             pass
     return {
         'errors': [{
