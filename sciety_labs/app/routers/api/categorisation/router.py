@@ -170,11 +170,12 @@ def get_not_found_error_json_response_dict(
     }
 
 
-def get_not_found_error_json_response(
-    exception: ArticleDoiNotFoundError
+async def handle_article_doi_not_found_error(
+    request: fastapi.Request,  # pylint: disable=unused-argument
+    exc: ArticleDoiNotFoundError
 ) -> fastapi.responses.JSONResponse:
     return fastapi.responses.JSONResponse(
-        get_not_found_error_json_response_dict(exception),
+        get_not_found_error_json_response_dict(exc),
         status_code=404
     )
 
@@ -202,6 +203,7 @@ async def handle_invalid_api_fields_error(
 
 
 EXCEPTION_HANDLER_MAPPING: AsyncExceptionHandlerMappingT = {
+    ArticleDoiNotFoundError: handle_article_doi_not_found_error,
     InvalidApiFieldsError: handle_invalid_api_fields_error
 }
 
@@ -254,16 +256,13 @@ def create_api_categorisation_router(
         request: fastapi.Request,
         article_doi: str
     ):
-        try:
-            return await (
-                async_opensearch_categories_provider
-                .get_categorisation_response_dict_by_doi(
-                    article_doi=article_doi,
-                    headers=get_cache_control_headers_for_request(request)
-                )
+        return await (
+            async_opensearch_categories_provider
+            .get_categorisation_response_dict_by_doi(
+                article_doi=article_doi,
+                headers=get_cache_control_headers_for_request(request)
             )
-        except ArticleDoiNotFoundError as exc:
-            return get_not_found_error_json_response(exc)
+        )
 
     @router.get(
         '/categorisation/v1/articles/by/category',
