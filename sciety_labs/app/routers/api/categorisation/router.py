@@ -33,9 +33,12 @@ LOGGER = logging.getLogger(__name__)
 
 CATEGORISATION_BY_DOI_API_EXAMPLE_200_RESPONSE: CategorisationResponseDict = {
     'data': [{
-        'display_name': 'Pain Medicine',
         'type': 'category',
-        'source_id': 'crossref_group_title'
+        'id': 'Pain Medicine',
+        'attributes': {
+            'display_name': 'Pain Medicine',
+            'source_id': 'crossref_group_title'
+        }
     }]
 }
 
@@ -69,13 +72,19 @@ CATEGORISATION_BY_DOI_API_EXAMPLE_RESPONSES: dict = {
 
 CATEGORISATION_LIST_API_EXAMPLE_200_RESPONSE: CategorisationResponseDict = {
     'data': [{
-        'display_name': 'Neuroscience',
         'type': 'category',
-        'source_id': 'crossref_group_title'
+        'id': 'Neuroscience',
+        'attributes': {
+            'display_name': 'Neuroscience',
+            'source_id': 'crossref_group_title'
+        }
     }, {
-        'display_name': 'Pain Medicine',
         'type': 'category',
-        'source_id': 'crossref_group_title'
+        'id': 'Pain Medicine',
+        'attributes': {
+            'display_name': 'Pain Medicine',
+            'source_id': 'crossref_group_title'
+        }
     }]
 }
 
@@ -91,11 +100,22 @@ CATEGORISATION_LIST_API_EXAMPLE_RESPONSES: dict = {
 }
 
 
+EXAMPLE_DOI_1 = '10.12345/example_1'
+EXAMPLE_DOI_2 = '10.12345/example_2'
+
 ARTICLES_BY_CATEGORY_API_EXAMPLE_200_RESPONSE: ArticleSearchResponseDict = {
     'data': [{
-        'doi': '10.12345/example_1'
+        'type': 'article',
+        'id': EXAMPLE_DOI_1,
+        'attributes': {
+            'doi': EXAMPLE_DOI_1
+        }
     }, {
-        'doi': '10.12345/example_2'
+        'type': 'article',
+        'id': EXAMPLE_DOI_2,
+        'attributes': {
+            'doi': EXAMPLE_DOI_2
+        }
     }]
 }
 

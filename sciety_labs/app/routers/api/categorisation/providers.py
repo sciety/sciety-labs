@@ -113,9 +113,12 @@ def get_categorisation_dict_for_crossref_group_title(
     group_title: str
 ) -> CategorisationDict:
     return {
-        'display_name': group_title,
         'type': 'category',
-        'source_id': 'crossref_group_title'
+        'id': group_title,
+        'attributes': {
+            'display_name': group_title,
+            'source_id': 'crossref_group_title'
+        }
     }
 
 
@@ -162,19 +165,23 @@ def get_article_dict_for_opensearch_document_dict(
     article_stats = get_article_stats_from_document(document_dict)
     sciety_dict = document_dict.get('sciety')
     article_dict: ArticleDict = {
-        'doi': document_dict['doi'],
-        'title': article_meta.article_title,
-        'publication_date': get_date_as_isoformat(article_meta.published_date),
-        'evaluation_count': (
-            article_stats.evaluation_count
-            if article_stats
-            else None
-        ),
-        'latest_evaluation_activity_timestamp': (
-            sciety_dict.get('last_event_timestamp')
-            if sciety_dict
-            else None
-        )
+        'type': 'article',
+        'id': document_dict['doi'],
+        'attributes': {
+            'doi': document_dict['doi'],
+            'title': article_meta.article_title,
+            'publication_date': get_date_as_isoformat(article_meta.published_date),
+            'evaluation_count': (
+                article_stats.evaluation_count
+                if article_stats
+                else None
+            ),
+            'latest_evaluation_activity_timestamp': (
+                sciety_dict.get('last_event_timestamp')
+                if sciety_dict
+                else None
+            )
+        }
     }
     return get_recursively_filtered_dict_without_null_values(article_dict)
 

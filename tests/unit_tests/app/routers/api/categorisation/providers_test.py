@@ -8,6 +8,7 @@ from sciety_labs.app.routers.api.categorisation.providers import (
     LATEST_EVALUATION_TIMESTAMP_DESC_OPENSEARCH_SORT_FIELD,
     ArticleDoiNotFoundError,
     AsyncOpenSearchCategoriesProvider,
+    get_article_dict_for_opensearch_document_dict,
     get_article_response_dict_for_opensearch_document_dict,
     get_article_search_by_category_opensearch_query_dict,
     get_article_search_response_dict_for_opensearch_search_response_dict,
@@ -32,17 +33,17 @@ DOI_1 = '10.12345/test-doi-1'
 DUMMY_BIORXIV_DOI_1 = '10.1101/dummy-biorxiv-doi-1'
 DUMMY_NON_BIORXIV_MEDRXIV_DOI_1 = '10.1234/dummy-biorxiv-doi-1'
 
+OPENSEARCH_SEARCH_RESULT_DOCUMENT_1: dict = {
+    'doi': DOI_1
+}
+
 OPENSEARCH_SEARCH_RESULT_1: OpenSearchSearchResultDict = {
     'hits': {
         'total': {
             'value': 1,
             'relation': 'eq'
         },
-        'hits': [{
-            '_source': {
-                'doi': DOI_1
-            }
-        }]
+        'hits': [{'_source': OPENSEARCH_SEARCH_RESULT_DOCUMENT_1}]
     }
 }
 
@@ -163,18 +164,24 @@ class TestGetCategorisationResponseDictForOpenSearchAggregationsResponseDict:
         )
         assert categorisaton_response_dict == {
             'data': [{
-                'display_name': 'Category 1',
                 'type': 'category',
-                'source_id': 'crossref_group_title'
+                'id': 'Category 1',
+                'attributes': {
+                    'display_name': 'Category 1',
+                    'source_id': 'crossref_group_title'
+                }
             }, {
-                'display_name': 'Category 2',
                 'type': 'category',
-                'source_id': 'crossref_group_title'
+                'id': 'Category 2',
+                'attributes': {
+                    'display_name': 'Category 2',
+                    'source_id': 'crossref_group_title'
+                }
             }]
         }
 
 
-class TestGetCategorisationDictForOpensearchDocumentDict:
+class TestGetCategorisationDictForOpenSearchDocumentDict:
     def test_should_return_empty_dict_if_no_categories_are_available(self):
         categories_dict = get_categorisation_response_dict_for_opensearch_document_dict(
             {},
@@ -195,9 +202,12 @@ class TestGetCategorisationDictForOpensearchDocumentDict:
         )
         assert categories_response_dict == {
             'data': [{
-                'display_name': 'Category 1',
                 'type': 'category',
-                'source_id': 'crossref_group_title'
+                'id': 'Category 1',
+                'attributes': {
+                    'display_name': 'Category 1',
+                    'source_id': 'crossref_group_title'
+                }
             }]
         }
 
@@ -215,31 +225,36 @@ class TestGetCategorisationDictForOpensearchDocumentDict:
         }
 
 
-class TestGetArticleResponseDictForOpensearchDocumentDict:
+class TestGetArticleDictForOpenSearchDocumentDict:
     def test_should_raise_error_if_doi_is_missing(self):
         with pytest.raises(AssertionError):
-            get_article_response_dict_for_opensearch_document_dict({})
+            get_article_dict_for_opensearch_document_dict({})
 
     def test_should_return_response_with_doi_only(self):
-        article_dict = get_article_response_dict_for_opensearch_document_dict({
+        article_dict = get_article_dict_for_opensearch_document_dict({
             'doi': DOI_1
         })
         assert article_dict == {
-            'data': {
+            'type': 'article',
+            'id': DOI_1,
+            'attributes': {
                 'doi': DOI_1
             }
         }
 
     def test_should_return_response_with_crossref_metadata(self):
-        article_dict = get_article_response_dict_for_opensearch_document_dict({
+        article_dict = get_article_dict_for_opensearch_document_dict({
             'doi': DOI_1,
+            'id': DOI_1,
             'crossref': {
                 'title_with_markup': 'Title 1',
                 'publication_date': '2001-02-03'
             }
         })
         assert article_dict == {
-            'data': {
+            'type': 'article',
+            'id': DOI_1,
+            'attributes': {
                 'doi': DOI_1,
                 'title': 'Title 1',
                 'publication_date': '2001-02-03'
@@ -247,7 +262,7 @@ class TestGetArticleResponseDictForOpensearchDocumentDict:
         }
 
     def test_should_return_response_with_evaluation_count_and_timestamp(self):
-        article_dict = get_article_response_dict_for_opensearch_document_dict({
+        article_dict = get_article_dict_for_opensearch_document_dict({
             'doi': DOI_1,
             'sciety': {
                 'evaluation_count': 123,
@@ -255,7 +270,9 @@ class TestGetArticleResponseDictForOpensearchDocumentDict:
             }
         })
         assert article_dict == {
-            'data': {
+            'type': 'article',
+            'id': DOI_1,
+            'attributes': {
                 'doi': DOI_1,
                 'evaluation_count': 123,
                 'latest_evaluation_activity_timestamp': '2001-02-03T04:05:06+00:00'
@@ -263,7 +280,19 @@ class TestGetArticleResponseDictForOpensearchDocumentDict:
         }
 
 
-class TestGetArticleSearchResponseDictForOpensearchSearchResponseDict:
+class TestGetArticleResponseDictForOpenSearchDocumentDict:
+    def test_should_return_response_as_data_object(self):
+        article_dict = get_article_response_dict_for_opensearch_document_dict(
+            OPENSEARCH_SEARCH_RESULT_DOCUMENT_1
+        )
+        assert article_dict == {
+            'data': get_article_dict_for_opensearch_document_dict(
+                OPENSEARCH_SEARCH_RESULT_DOCUMENT_1
+            )
+        }
+
+
+class TestGetArticleSearchResponseDictForOpenSearchSearchResponseDict:
     def test_should_return_singe_article_response_from_hits(self):
         article_search_response_dict = (
             get_article_search_response_dict_for_opensearch_search_response_dict({
@@ -273,17 +302,17 @@ class TestGetArticleSearchResponseDictForOpensearchSearchResponseDict:
                         'relation': 'eq'
                     },
                     'hits': [{
-                        '_source': {
-                            'doi': DOI_1
-                        }
+                        '_source': OPENSEARCH_SEARCH_RESULT_DOCUMENT_1
                     }]
                 }
             })
         )
         assert article_search_response_dict == {
-            'data': [{
-                'doi': DOI_1
-            }],
+            'data': [
+                get_article_dict_for_opensearch_document_dict(
+                    OPENSEARCH_SEARCH_RESULT_DOCUMENT_1
+                )
+            ],
             'meta': {
                 'total': 1
             }

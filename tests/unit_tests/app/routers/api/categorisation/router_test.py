@@ -34,16 +34,23 @@ INVALID_DOI_1 = 'invalid-doi-1'
 
 CATEGORISATION_RESPONSE_DICT_1: CategorisationResponseDict = {
     'data': [{
-        'source_id': 'Source 1',
         'type': 'category',
-        'display_name': 'Category 1'
+        'id': 'Category 1',
+        'attributes': {
+            'display_name': 'Category 1',
+            'source_id': 'Source 1'
+        }
     }]
 }
 
 
 ARTICLE_SEARCH_RESPONSE_DICT_1: ArticleSearchResponseDict = {
     'data': [{
-        'doi': DOI_1
+        'type': 'article',
+        'id': DOI_1,
+        'attributes': {
+            'doi': DOI_1
+        }
     }]
 }
 
