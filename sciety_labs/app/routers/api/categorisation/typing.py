@@ -23,6 +23,7 @@ class ArticleAttributesDict(TypedDict):
 
 class ArticleDict(TypedDict):
     type: str
+    id: str
     attributes: ArticleAttributesDict
 
 

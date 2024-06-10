@@ -97,16 +97,21 @@ CATEGORISATION_LIST_API_EXAMPLE_RESPONSES: dict = {
 }
 
 
+EXAMPLE_DOI_1 = '10.12345/example_1'
+EXAMPLE_DOI_2 = '10.12345/example_2'
+
 ARTICLES_BY_CATEGORY_API_EXAMPLE_200_RESPONSE: ArticleSearchResponseDict = {
     'data': [{
         'type': 'article',
+        'id': EXAMPLE_DOI_1,
         'attributes': {
-            'doi': '10.12345/example_1'
+            'doi': EXAMPLE_DOI_1
         }
     }, {
         'type': 'article',
+        'id': EXAMPLE_DOI_2,
         'attributes': {
-            'doi': '10.12345/example_2'
+            'doi': EXAMPLE_DOI_2
         }
     }]
 }

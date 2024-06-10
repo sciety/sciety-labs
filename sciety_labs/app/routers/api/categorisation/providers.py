@@ -165,6 +165,7 @@ def get_article_dict_for_opensearch_document_dict(
     sciety_dict = document_dict.get('sciety')
     article_dict: ArticleDict = {
         'type': 'article',
+        'id': document_dict['doi'],
         'attributes': {
             'doi': document_dict['doi'],
             'title': article_meta.article_title,

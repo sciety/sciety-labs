@@ -233,6 +233,7 @@ class TestGetArticleDictForOpenSearchDocumentDict:
         })
         assert article_dict == {
             'type': 'article',
+            'id': DOI_1,
             'attributes': {
                 'doi': DOI_1
             }
@@ -241,6 +242,7 @@ class TestGetArticleDictForOpenSearchDocumentDict:
     def test_should_return_response_with_crossref_metadata(self):
         article_dict = get_article_dict_for_opensearch_document_dict({
             'doi': DOI_1,
+            'id': DOI_1,
             'crossref': {
                 'title_with_markup': 'Title 1',
                 'publication_date': '2001-02-03'
@@ -248,6 +250,7 @@ class TestGetArticleDictForOpenSearchDocumentDict:
         })
         assert article_dict == {
             'type': 'article',
+            'id': DOI_1,
             'attributes': {
                 'doi': DOI_1,
                 'title': 'Title 1',
@@ -265,6 +268,7 @@ class TestGetArticleDictForOpenSearchDocumentDict:
         })
         assert article_dict == {
             'type': 'article',
+            'id': DOI_1,
             'attributes': {
                 'doi': DOI_1,
                 'evaluation_count': 123,
