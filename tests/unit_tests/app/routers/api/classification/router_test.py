@@ -123,7 +123,7 @@ class TestGetNotFoundErrorJsonResponseDict:
         }
 
 
-class TestClassificationApiRouter:
+class TestClassificationApiRouterClassificationList:
     def test_should_provide_classification_list_response(
         self,
         get_classification_list_response_dict_mock: AsyncMock,
@@ -131,12 +131,29 @@ class TestClassificationApiRouter:
     ):
         get_classification_list_response_dict_mock.return_value = CATEGORISATION_RESPONSE_DICT_1
         response = test_client.get(
-            '/classification/v1/classifications',
-            params={'article_doi': DOI_1}
+            '/classification/v1/classifications'
         )
         response.raise_for_status()
         assert response.json() == CATEGORISATION_RESPONSE_DICT_1
 
+    def test_should_pass_is_evaluated_filter_to_provider(
+        self,
+        get_classification_list_response_dict_mock: AsyncMock,
+        test_client: TestClient
+    ):
+        get_classification_list_response_dict_mock.return_value = (
+            ARTICLE_SEARCH_RESPONSE_DICT_1
+        )
+        test_client.get(
+            '/classification/v1/classifications',
+            params={'filter[is_evaluated]': 'true'}
+        )
+        _, kwargs = get_classification_list_response_dict_mock.call_args
+        filter_parameters: OpenSearchFilterParameters = kwargs['filter_parameters']
+        assert filter_parameters.evaluated_only
+
+
+class TestClassificationApiRouterClassificationListByDoi:
     def test_should_provide_classification_response(
         self,
         get_classification_response_dict_by_doi_mock: AsyncMock,
@@ -183,7 +200,7 @@ class TestClassificationApiRouterArticlesByCategory:
         response.raise_for_status()
         assert response.json() == ARTICLE_SEARCH_RESPONSE_DICT_1
 
-    def test_should_pass_evaluated_only_and_category_filter_to_provider(
+    def test_should_pass_is_evaluated_and_category_filter_to_provider(
         self,
         get_article_search_response_dict_by_category_mock: AsyncMock,
         test_client: TestClient

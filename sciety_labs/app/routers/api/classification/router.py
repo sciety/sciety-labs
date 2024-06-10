@@ -236,7 +236,7 @@ def create_api_classification_router(
     )
     async def classifications_list(
         request: fastapi.Request,
-        evaluated_only: bool = False
+        evaluated_only: bool = fastapi.Query(alias='filter[is_evaluated]', default=False)
     ):
         return await (
             async_opensearch_classification_provider
