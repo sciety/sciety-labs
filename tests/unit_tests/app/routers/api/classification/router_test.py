@@ -9,7 +9,7 @@ from fastapi.testclient import TestClient
 
 from sciety_labs.app.routers.api.classification.providers import (
     ArticleDoiNotFoundError,
-    AsyncOpenSearchCategoriesProvider
+    AsyncOpenSearchClassificationProvider
 )
 import sciety_labs.app.routers.api.classification.router as router_module
 from sciety_labs.app.routers.api.classification.router import (
@@ -55,47 +55,47 @@ ARTICLE_SEARCH_RESPONSE_DICT_1: ArticleSearchResponseDict = {
 }
 
 
-@pytest.fixture(name='async_opensearch_categories_provider_class_mock', autouse=True)
-def _async_opensearch_categories_provider_class_mock(
+@pytest.fixture(name='async_opensearch_classification_provider_class_mock', autouse=True)
+def _async_opensearch_classification_provider_class_mock(
 ) -> Iterator[MagicMock]:
-    with patch.object(router_module, 'AsyncOpenSearchCategoriesProvider') as mock:
-        mock.return_value = AsyncMock(AsyncOpenSearchCategoriesProvider)
+    with patch.object(router_module, 'AsyncOpenSearchClassificationProvider') as mock:
+        mock.return_value = AsyncMock(AsyncOpenSearchClassificationProvider)
         yield mock
 
 
-@pytest.fixture(name='async_opensearch_categories_provider_mock', autouse=True)
-def _async_opensearch_categories_provider_mock(
-    async_opensearch_categories_provider_class_mock: MagicMock
+@pytest.fixture(name='async_opensearch_classification_provider_mock', autouse=True)
+def _async_opensearch_classification_provider_mock(
+    async_opensearch_classification_provider_class_mock: MagicMock
 ) -> AsyncMock:
-    return async_opensearch_categories_provider_class_mock.return_value
+    return async_opensearch_classification_provider_class_mock.return_value
 
 
 @pytest.fixture(name='get_classification_list_response_dict_mock', autouse=True)
 def _get_classification_list_response_dict_mock(
-    async_opensearch_categories_provider_mock: AsyncMock
+    async_opensearch_classification_provider_mock: AsyncMock
 ) -> AsyncMock:
     return (
-        async_opensearch_categories_provider_mock
+        async_opensearch_classification_provider_mock
         .get_classification_list_response_dict
     )
 
 
 @pytest.fixture(name='get_classification_response_dict_by_doi_mock', autouse=True)
 def _get_classification_response_dict_by_doi_mock(
-    async_opensearch_categories_provider_mock: AsyncMock
+    async_opensearch_classification_provider_mock: AsyncMock
 ) -> AsyncMock:
     return (
-        async_opensearch_categories_provider_mock
+        async_opensearch_classification_provider_mock
         .get_classificiation_response_dict_by_doi
     )
 
 
 @pytest.fixture(name='get_article_search_response_dict_by_category_mock', autouse=True)
 def _get_article_search_response_dict_by_category_mock(
-    async_opensearch_categories_provider_mock: AsyncMock
+    async_opensearch_classification_provider_mock: AsyncMock
 ) -> AsyncMock:
     return (
-        async_opensearch_categories_provider_mock
+        async_opensearch_classification_provider_mock
         .get_article_search_response_dict_by_category
     )
 

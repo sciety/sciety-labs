@@ -7,7 +7,7 @@ from sciety_labs.app.routers.api.classification.providers import (
     IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
     LATEST_EVALUATION_TIMESTAMP_DESC_OPENSEARCH_SORT_FIELD,
     ArticleDoiNotFoundError,
-    AsyncOpenSearchCategoriesProvider,
+    AsyncOpenSearchClassificationProvider,
     get_article_dict_for_opensearch_document_dict,
     get_article_response_dict_for_opensearch_document_dict,
     get_article_search_by_category_opensearch_query_dict,
@@ -48,11 +48,11 @@ OPENSEARCH_SEARCH_RESULT_1: OpenSearchSearchResultDict = {
 }
 
 
-@pytest.fixture(name='async_opensearch_categories_provider')
-def _async_opensearch_categories_provider(
+@pytest.fixture(name='async_opensearch_classification_provider')
+def _async_opensearch_classification_provider(
     app_providers_and_models_mock: MagicMock
-) -> AsyncOpenSearchCategoriesProvider:
-    return AsyncOpenSearchCategoriesProvider(
+) -> AsyncOpenSearchClassificationProvider:
+    return AsyncOpenSearchClassificationProvider(
         app_providers_and_models=app_providers_and_models_mock
     )
 
@@ -336,28 +336,29 @@ class TestGetDefaultArticleSearchSortParameters:
         ])
 
 
-class TestAsyncOpenSearchCategoriesProvider:
+class TestAsyncOpenSearchClassificationProvider:
     @pytest.mark.asyncio
     async def test_should_raise_article_doi_not_found_error(
         self,
-        async_opensearch_categories_provider: AsyncOpenSearchCategoriesProvider,
+        async_opensearch_classification_provider: AsyncOpenSearchClassificationProvider,
         async_opensearch_client_mock: AsyncMock
     ):
         async_opensearch_client_mock.get_source.side_effect = opensearchpy.NotFoundError()
         with pytest.raises(ArticleDoiNotFoundError):
-            await async_opensearch_categories_provider.get_classificiation_response_dict_by_doi(
+            await async_opensearch_classification_provider.get_classificiation_response_dict_by_doi(
                 article_doi=DOI_1
             )
 
     @pytest.mark.asyncio
     async def test_should_return_article_response(
         self,
-        async_opensearch_categories_provider: AsyncOpenSearchCategoriesProvider,
+        async_opensearch_classification_provider: AsyncOpenSearchClassificationProvider,
         async_opensearch_client_mock: AsyncMock
     ):
         async_opensearch_client_mock.search.return_value = OPENSEARCH_SEARCH_RESULT_1
-        article_response = (
-            await async_opensearch_categories_provider.get_article_search_response_dict_by_category(
+        article_response = await (
+            async_opensearch_classification_provider
+            .get_article_search_response_dict_by_category(
                 category='Category 1',
                 filter_parameters=OpenSearchFilterParameters(),
                 sort_parameters=OpenSearchSortParameters(),

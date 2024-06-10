@@ -12,7 +12,7 @@ from sciety_labs.app.routers.api.utils.jsonapi_typing import JsonApiErrorsRespon
 from sciety_labs.app.routers.api.utils.validation import InvalidApiFieldsError, validate_api_fields
 from sciety_labs.app.routers.api.classification.providers import (
     ArticleDoiNotFoundError,
-    AsyncOpenSearchCategoriesProvider,
+    AsyncOpenSearchClassificationProvider,
     get_default_article_search_sort_parameters
 )
 from sciety_labs.app.routers.api.classification.typing import (
@@ -244,7 +244,7 @@ def create_api_classification_router(
         route_class=CatergorisationJsonApiRoute
     )
 
-    async_opensearch_categories_provider = AsyncOpenSearchCategoriesProvider(
+    async_opensearch_classification_provider = AsyncOpenSearchClassificationProvider(
         app_providers_and_models=app_providers_and_models
     )
 
@@ -258,7 +258,7 @@ def create_api_classification_router(
         evaluated_only: bool = False
     ):
         return await (
-            async_opensearch_categories_provider
+            async_opensearch_classification_provider
             .get_classification_list_response_dict(
                 filter_parameters=OpenSearchFilterParameters(
                     evaluated_only=evaluated_only
@@ -277,7 +277,7 @@ def create_api_classification_router(
         article_doi: str
     ):
         return await (
-            async_opensearch_categories_provider
+            async_opensearch_classification_provider
             .get_classificiation_response_dict_by_doi(
                 article_doi=article_doi,
                 headers=get_cache_control_headers_for_request(request)
@@ -304,7 +304,7 @@ def create_api_classification_router(
             api_article_fields_set
         ))
         return await (
-            async_opensearch_categories_provider
+            async_opensearch_classification_provider
             .get_article_search_response_dict_by_category(
                 category=category,
                 filter_parameters=OpenSearchFilterParameters(
