@@ -259,7 +259,7 @@ def create_api_classification_router(
     ):
         return await (
             async_opensearch_categories_provider
-            .get_categorisation_list_response_dict(
+            .get_classification_list_response_dict(
                 filter_parameters=OpenSearchFilterParameters(
                     evaluated_only=evaluated_only
                 ),
