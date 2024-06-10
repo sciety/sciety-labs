@@ -184,7 +184,7 @@ class TestCategorisationApiRouterArticlesByCategory:
         response.raise_for_status()
         assert response.json() == ARTICLE_SEARCH_RESPONSE_DICT_1
 
-    def test_should_pass_evaluated_only_filter_to_provider(
+    def test_should_pass_evaluated_only_and_category_filter_to_provider(
         self,
         get_article_search_response_dict_by_category_mock: AsyncMock,
         test_client: TestClient
@@ -199,6 +199,7 @@ class TestCategorisationApiRouterArticlesByCategory:
         _, kwargs = get_article_search_response_dict_by_category_mock.call_args
         filter_parameters: OpenSearchFilterParameters = kwargs['filter_parameters']
         assert filter_parameters.evaluated_only
+        assert kwargs['category'] == 'Category 1'
 
     def test_should_pass_mapped_api_fields_to_provider(
         self,
