@@ -70,8 +70,8 @@ def _async_opensearch_categories_provider_mock(
     return async_opensearch_categories_provider_class_mock.return_value
 
 
-@pytest.fixture(name='get_categorisation_list_response_dict_mock', autouse=True)
-def _get_categorisation_list_response_dict_mock(
+@pytest.fixture(name='get_classification_list_response_dict_mock', autouse=True)
+def _get_classification_list_response_dict_mock(
     async_opensearch_categories_provider_mock: AsyncMock
 ) -> AsyncMock:
     return (
@@ -80,8 +80,8 @@ def _get_categorisation_list_response_dict_mock(
     )
 
 
-@pytest.fixture(name='get_categorisation_response_dict_by_doi_mock', autouse=True)
-def _get_categorisation_response_dict_by_doi_mock(
+@pytest.fixture(name='get_classification_response_dict_by_doi_mock', autouse=True)
+def _get_classification_response_dict_by_doi_mock(
     async_opensearch_categories_provider_mock: AsyncMock
 ) -> AsyncMock:
     return (
@@ -124,12 +124,12 @@ class TestGetNotFoundErrorJsonResponseDict:
 
 
 class TestCategorisationApiRouter:
-    def test_should_provide_categorisation_list_response(
+    def test_should_provide_classification_list_response(
         self,
-        get_categorisation_list_response_dict_mock: AsyncMock,
+        get_classification_list_response_dict_mock: AsyncMock,
         test_client: TestClient
     ):
-        get_categorisation_list_response_dict_mock.return_value = CATEGORISATION_RESPONSE_DICT_1
+        get_classification_list_response_dict_mock.return_value = CATEGORISATION_RESPONSE_DICT_1
         response = test_client.get(
             '/classification/v1/categories',
             params={'article_doi': DOI_1}
@@ -137,12 +137,12 @@ class TestCategorisationApiRouter:
         response.raise_for_status()
         assert response.json() == CATEGORISATION_RESPONSE_DICT_1
 
-    def test_should_provide_categorisation_response(
+    def test_should_provide_classification_response(
         self,
-        get_categorisation_response_dict_by_doi_mock: AsyncMock,
+        get_classification_response_dict_by_doi_mock: AsyncMock,
         test_client: TestClient
     ):
-        get_categorisation_response_dict_by_doi_mock.return_value = CATEGORISATION_RESPONSE_DICT_1
+        get_classification_response_dict_by_doi_mock.return_value = CATEGORISATION_RESPONSE_DICT_1
         response = test_client.get(
             '/classification/v1/categories/by/doi',
             params={'article_doi': DOI_1}
@@ -152,13 +152,13 @@ class TestCategorisationApiRouter:
 
     def test_should_return_404_if_not_found(
         self,
-        get_categorisation_response_dict_by_doi_mock: AsyncMock,
+        get_classification_response_dict_by_doi_mock: AsyncMock,
         test_client: TestClient
     ):
         exception = ArticleDoiNotFoundError(
             DOI_1
         )
-        get_categorisation_response_dict_by_doi_mock.side_effect = exception
+        get_classification_response_dict_by_doi_mock.side_effect = exception
         response = test_client.get(
             '/classification/v1/categories/by/doi',
             params={'article_doi': DOI_1}

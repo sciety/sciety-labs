@@ -23,8 +23,8 @@ NON_BIORXIV_MEDRXIV_GROUP_TITLE_1 = 'PsyArXiv'
 NON_BIORXIV_MEDRXIV_DOI_WITH_GROUP_TITLE_1 = '10.31234/osf.io/2hv6x'
 
 
-@pytest.fixture(name='categorisation_list_response_dict', scope='session')
-def _categorisation_list_response_dict(
+@pytest.fixture(name='classification_list_response_dict', scope='session')
+def _classification_list_response_dict(
     regression_test_session: Session
 ) -> CategorisationResponseDict:
     response = regression_test_session.get(
@@ -36,11 +36,11 @@ def _categorisation_list_response_dict(
 
 
 def get_category_set(
-    categorisation_list_response_dict: CategorisationResponseDict
+    classification_list_response_dict: CategorisationResponseDict
 ) -> Set[str]:
     return {
         classification['attributes']['display_name']
-        for classification in categorisation_list_response_dict['data']
+        for classification in classification_list_response_dict['data']
         if classification['type'] == 'category'
     }
 
@@ -48,22 +48,22 @@ def get_category_set(
 class TestApiCategorisationList:
     def test_should_return_non_empty_list(
         self,
-        categorisation_list_response_dict: CategorisationResponseDict
+        classification_list_response_dict: CategorisationResponseDict
     ):
-        assert len(categorisation_list_response_dict['data']) > 0
+        assert len(classification_list_response_dict['data']) > 0
 
     def test_should_contain_biophysics(
         self,
-        categorisation_list_response_dict: CategorisationResponseDict
+        classification_list_response_dict: CategorisationResponseDict
     ):
-        category_set = get_category_set(categorisation_list_response_dict)
+        category_set = get_category_set(classification_list_response_dict)
         assert Categories.BIOPHYSICS in category_set
 
     def test_should_not_contain_non_biorxiv_medrxiv_group_title(
         self,
-        categorisation_list_response_dict: CategorisationResponseDict
+        classification_list_response_dict: CategorisationResponseDict
     ):
-        category_set = get_category_set(categorisation_list_response_dict)
+        category_set = get_category_set(classification_list_response_dict)
         assert NON_BIORXIV_MEDRXIV_GROUP_TITLE_1 not in category_set
 
 
