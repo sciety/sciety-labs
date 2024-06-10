@@ -18,7 +18,7 @@ class ArticleAttributesDict(TypedDict):
     title: NotRequired[Optional[str]]
     publication_date: NotRequired[Optional[str]]
     evaluation_count: NotRequired[Optional[int]]
-    is_evaluated: NotRequired[Optional[bool]]
+    has_evaluations: NotRequired[Optional[bool]]
     latest_evaluation_activity_timestamp: NotRequired[Optional[str]]
     classifications: NotRequired[Sequence[CategorisationDict]]
 

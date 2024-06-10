@@ -48,7 +48,7 @@ INTERNAL_ARTICLE_FIELDS_BY_API_FIELD_NAME: Mapping[str, Sequence[str]] = {
     'title': [InternalArticleFieldNames.ARTICLE_TITLE],
     'publication_date': [InternalArticleFieldNames.PUBLISHED_DATE],
     'evaluation_count': [InternalArticleFieldNames.EVALUATION_COUNT],
-    'is_evaluated': [InternalArticleFieldNames.EVALUATION_COUNT],
+    'has_evaluations': [InternalArticleFieldNames.EVALUATION_COUNT],
     'latest_evaluation_activity_timestamp': [
         InternalArticleFieldNames.LATEST_EVALUATION_ACTIVITY_TIMESTAMP
     ]
@@ -189,7 +189,7 @@ def get_article_dict_for_opensearch_document_dict(
         'title': article_meta.article_title,
         'publication_date': get_date_as_isoformat(article_meta.published_date),
         'evaluation_count': evaluation_count,
-        'is_evaluated': (
+        'has_evaluations': (
             bool(evaluation_count)
             if evaluation_count is not None
             else None
