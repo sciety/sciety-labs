@@ -227,7 +227,9 @@ class TestGetArticleDictForOpenSearchDocumentDict:
         })
         assert article_dict == {
             'type': 'article',
-            'doi': DOI_1
+            'attributes': {
+                'doi': DOI_1
+            }
         }
 
     def test_should_return_response_with_crossref_metadata(self):
@@ -240,9 +242,11 @@ class TestGetArticleDictForOpenSearchDocumentDict:
         })
         assert article_dict == {
             'type': 'article',
-            'doi': DOI_1,
-            'title': 'Title 1',
-            'publication_date': '2001-02-03'
+            'attributes': {
+                'doi': DOI_1,
+                'title': 'Title 1',
+                'publication_date': '2001-02-03'
+            }
         }
 
     def test_should_return_response_with_evaluation_count_and_timestamp(self):
@@ -255,9 +259,11 @@ class TestGetArticleDictForOpenSearchDocumentDict:
         })
         assert article_dict == {
             'type': 'article',
-            'doi': DOI_1,
-            'evaluation_count': 123,
-            'latest_evaluation_activity_timestamp': '2001-02-03T04:05:06+00:00'
+            'attributes': {
+                'doi': DOI_1,
+                'evaluation_count': 123,
+                'latest_evaluation_activity_timestamp': '2001-02-03T04:05:06+00:00'
+            }
         }
 
 

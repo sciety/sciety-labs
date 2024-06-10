@@ -44,7 +44,9 @@ CATEGORISATION_RESPONSE_DICT_1: CategorisationResponseDict = {
 ARTICLE_SEARCH_RESPONSE_DICT_1: ArticleSearchResponseDict = {
     'data': [{
         'type': 'article',
-        'doi': DOI_1
+        'attributes': {
+            'doi': DOI_1
+        }
     }]
 }
 

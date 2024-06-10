@@ -163,19 +163,21 @@ def get_article_dict_for_opensearch_document_dict(
     sciety_dict = document_dict.get('sciety')
     article_dict: ArticleDict = {
         'type': 'article',
-        'doi': document_dict['doi'],
-        'title': article_meta.article_title,
-        'publication_date': get_date_as_isoformat(article_meta.published_date),
-        'evaluation_count': (
-            article_stats.evaluation_count
-            if article_stats
-            else None
-        ),
-        'latest_evaluation_activity_timestamp': (
-            sciety_dict.get('last_event_timestamp')
-            if sciety_dict
-            else None
-        )
+        'attributes': {
+            'doi': document_dict['doi'],
+            'title': article_meta.article_title,
+            'publication_date': get_date_as_isoformat(article_meta.published_date),
+            'evaluation_count': (
+                article_stats.evaluation_count
+                if article_stats
+                else None
+            ),
+            'latest_evaluation_activity_timestamp': (
+                sciety_dict.get('last_event_timestamp')
+                if sciety_dict
+                else None
+            )
+        }
     }
     return get_recursively_filtered_dict_without_null_values(article_dict)
 

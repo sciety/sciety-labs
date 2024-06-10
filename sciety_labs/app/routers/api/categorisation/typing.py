@@ -1,4 +1,4 @@
-from typing import Literal, Optional, Sequence
+from typing import Optional, Sequence
 from typing_extensions import NotRequired, TypedDict
 
 
@@ -8,14 +8,18 @@ class CategorisationDict(TypedDict):
     source_id: str
 
 
-class ArticleDict(TypedDict):
-    type: str
+class ArticleAttributesDict(TypedDict):
     doi: str
     title: NotRequired[Optional[str]]
     publication_date: NotRequired[Optional[str]]
     evaluation_count: NotRequired[Optional[int]]
     latest_evaluation_activity_timestamp: NotRequired[Optional[str]]
     categorisation: NotRequired[Sequence[CategorisationDict]]
+
+
+class ArticleDict(TypedDict):
+    type: str
+    attributes: ArticleAttributesDict
 
 
 class CategorisationResponseDict(TypedDict):
