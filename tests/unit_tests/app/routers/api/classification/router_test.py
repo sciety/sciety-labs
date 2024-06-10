@@ -193,7 +193,7 @@ class TestClassificationApiRouterArticlesByCategory:
         )
         test_client.get(
             '/classification/v1/articles/by/category',
-            params={'category': 'Category 1', 'evaluated_only': 'true'}
+            params={'category': 'Category 1', 'filter[is_evaluated]': 'true'}
         )
         _, kwargs = get_article_search_response_dict_by_category_mock.call_args
         filter_parameters: OpenSearchFilterParameters = kwargs['filter_parameters']

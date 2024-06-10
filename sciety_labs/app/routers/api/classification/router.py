@@ -279,7 +279,7 @@ def create_api_classification_router(
     async def articles_by_category(  # pylint: disable=too-many-arguments
         request: fastapi.Request,
         category: str,
-        evaluated_only: bool = False,
+        evaluated_only: bool = fastapi.Query(alias='filter[is_evaluated]', default=False),
         page_size: int = fastapi.Query(alias='page[size]', default=10),
         page_number: int = fastapi.Query(alias='page[number]', ge=1, default=1),
         api_article_fields_csv: str = ARTICLE_FIELDS_FASTAPI_QUERY
