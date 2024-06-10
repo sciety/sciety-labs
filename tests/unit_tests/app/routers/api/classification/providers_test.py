@@ -147,7 +147,7 @@ class TestGetArticleSearchByCategoryOpenSearchQueryDict:
 
 class TestGetCategorisationResponseDictForOpenSearchAggregationsResponseDict:
     def test_should_return_categories_from_classification_response(self):
-        categorisaton_response_dict = (
+        classification_response_dict = (
             get_classification_response_dict_for_opensearch_aggregations_response_dict({
                 'aggregations': {
                     'group_title': {
@@ -162,7 +162,7 @@ class TestGetCategorisationResponseDictForOpenSearchAggregationsResponseDict:
                 }
             })
         )
-        assert categorisaton_response_dict == {
+        assert classification_response_dict == {
             'data': [{
                 'type': 'category',
                 'id': 'Category 1',
