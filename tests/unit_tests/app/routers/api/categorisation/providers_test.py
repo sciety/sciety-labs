@@ -33,17 +33,17 @@ DOI_1 = '10.12345/test-doi-1'
 DUMMY_BIORXIV_DOI_1 = '10.1101/dummy-biorxiv-doi-1'
 DUMMY_NON_BIORXIV_MEDRXIV_DOI_1 = '10.1234/dummy-biorxiv-doi-1'
 
+OPENSEARCH_SEARCH_RESULT_DOCUMENT_1: dict = {
+    'doi': DOI_1
+}
+
 OPENSEARCH_SEARCH_RESULT_1: OpenSearchSearchResultDict = {
     'hits': {
         'total': {
             'value': 1,
             'relation': 'eq'
         },
-        'hits': [{
-            '_source': {
-                'doi': DOI_1
-            }
-        }]
+        'hits': [{'_source': OPENSEARCH_SEARCH_RESULT_DOCUMENT_1}]
     }
 }
 
@@ -259,50 +259,14 @@ class TestGetArticleDictForOpenSearchDocumentDict:
 
 
 class TestGetArticleResponseDictForOpenSearchDocumentDict:
-    def test_should_raise_error_if_doi_is_missing(self):
-        with pytest.raises(AssertionError):
-            get_article_response_dict_for_opensearch_document_dict({})
-
-    def test_should_return_response_with_doi_only(self):
-        article_dict = get_article_response_dict_for_opensearch_document_dict({
-            'doi': DOI_1
-        })
+    def test_should_return_response_as_data_object(self):
+        article_dict = get_article_response_dict_for_opensearch_document_dict(
+            OPENSEARCH_SEARCH_RESULT_DOCUMENT_1
+        )
         assert article_dict == {
-            'data': {
-                'doi': DOI_1
-            }
-        }
-
-    def test_should_return_response_with_crossref_metadata(self):
-        article_dict = get_article_response_dict_for_opensearch_document_dict({
-            'doi': DOI_1,
-            'crossref': {
-                'title_with_markup': 'Title 1',
-                'publication_date': '2001-02-03'
-            }
-        })
-        assert article_dict == {
-            'data': {
-                'doi': DOI_1,
-                'title': 'Title 1',
-                'publication_date': '2001-02-03'
-            }
-        }
-
-    def test_should_return_response_with_evaluation_count_and_timestamp(self):
-        article_dict = get_article_response_dict_for_opensearch_document_dict({
-            'doi': DOI_1,
-            'sciety': {
-                'evaluation_count': 123,
-                'last_event_timestamp': '2001-02-03T04:05:06+00:00'
-            }
-        })
-        assert article_dict == {
-            'data': {
-                'doi': DOI_1,
-                'evaluation_count': 123,
-                'latest_evaluation_activity_timestamp': '2001-02-03T04:05:06+00:00'
-            }
+            'data': get_article_dict_for_opensearch_document_dict(
+                OPENSEARCH_SEARCH_RESULT_DOCUMENT_1
+            )
         }
 
 
