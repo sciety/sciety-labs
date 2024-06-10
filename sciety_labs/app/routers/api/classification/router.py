@@ -249,7 +249,7 @@ def create_api_classification_router(
     )
 
     @router.get(
-        '/categorisation/v1/categories',
+        '/classification/v1/categories',
         response_model=CategorisationResponseDict,
         responses=CATEGORISATION_LIST_API_EXAMPLE_RESPONSES
     )
@@ -268,7 +268,7 @@ def create_api_classification_router(
         )
 
     @router.get(
-        '/categorisation/v1/categories/by/doi',
+        '/classification/v1/categories/by/doi',
         response_model=CategorisationResponseDict,
         responses=CATEGORISATION_BY_DOI_API_EXAMPLE_RESPONSES
     )
@@ -285,7 +285,7 @@ def create_api_classification_router(
         )
 
     @router.get(
-        '/categorisation/v1/articles/by/category',
+        '/classification/v1/articles/by/category',
         response_model=ArticleSearchResponseDict,
         responses=ARTICLES_BY_CATEGORY_API_EXAMPLE_RESPONSES
     )
