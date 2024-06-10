@@ -10,6 +10,7 @@ from sciety_labs.app.routers.api.utils.jsonapi import (
 from sciety_labs.app.routers.api.utils.jsonapi_typing import JsonApiErrorsResponseDict
 from sciety_labs.app.routers.api.utils.validation import InvalidApiFieldsError, validate_api_fields
 from sciety_labs.app.routers.api.classification.providers import (
+    INTERNAL_ARTICLE_FIELDS_BY_API_FIELD_NAME,
     ArticleDoiNotFoundError,
     AsyncOpenSearchClassificationProvider,
     get_default_article_search_sort_parameters
@@ -131,14 +132,7 @@ ARTICLES_BY_CATEGORY_API_EXAMPLE_RESPONSES: dict = {
 DEFAULT_ARTICLE_FIELDS = {'doi'}
 
 
-ALL_ARTICLE_FIELDS = [
-    'doi',
-    'title',
-    'publication_date',
-    'evaluation_count',
-    'is_evaluated',
-    'latest_evaluation_activity_timestamp'
-]
+ALL_ARTICLE_FIELDS = list(INTERNAL_ARTICLE_FIELDS_BY_API_FIELD_NAME.keys())
 
 ALL_ARTICLE_FIELDS_CSV = ','.join(ALL_ARTICLE_FIELDS)
 
