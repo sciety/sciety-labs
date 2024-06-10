@@ -123,7 +123,7 @@ class TestGetNotFoundErrorJsonResponseDict:
         }
 
 
-class TestCategorisationApiRouter:
+class TestClassificationApiRouter:
     def test_should_provide_classification_list_response(
         self,
         get_classification_list_response_dict_mock: AsyncMock,
@@ -167,7 +167,7 @@ class TestCategorisationApiRouter:
         assert response.json() == get_not_found_error_json_response_dict(exception)
 
 
-class TestCategorisationApiRouterArticlesByCategory:
+class TestClassificationApiRouterArticlesByCategory:
     def test_should_return_response_from_provider(
         self,
         get_article_search_response_dict_by_category_mock: AsyncMock,
