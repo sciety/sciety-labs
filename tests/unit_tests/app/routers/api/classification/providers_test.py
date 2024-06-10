@@ -14,7 +14,7 @@ from sciety_labs.app.routers.api.classification.providers import (
     get_article_search_response_dict_for_opensearch_search_response_dict,
     get_classification_list_opensearch_query_dict,
     get_classification_response_dict_for_opensearch_aggregations_response_dict,
-    get_categorisation_response_dict_for_opensearch_document_dict,
+    get_classification_response_dict_for_opensearch_document_dict,
     get_category_as_crossref_group_title_opensearch_filter_dict,
     get_default_article_search_sort_parameters
 )
@@ -183,7 +183,7 @@ class TestGetCategorisationResponseDictForOpenSearchAggregationsResponseDict:
 
 class TestGetCategorisationDictForOpenSearchDocumentDict:
     def test_should_return_empty_dict_if_no_categories_are_available(self):
-        categories_dict = get_categorisation_response_dict_for_opensearch_document_dict(
+        categories_dict = get_classification_response_dict_for_opensearch_document_dict(
             {},
             article_doi=DUMMY_BIORXIV_DOI_1
         )
@@ -192,7 +192,7 @@ class TestGetCategorisationDictForOpenSearchDocumentDict:
         }
 
     def test_should_extract_crossref_group_title_as_categories_for_biorxiv_doi(self):
-        categories_response_dict = get_categorisation_response_dict_for_opensearch_document_dict(
+        categories_response_dict = get_classification_response_dict_for_opensearch_document_dict(
             {
                 'crossref': {
                     'group_title': 'Category 1'
@@ -212,7 +212,7 @@ class TestGetCategorisationDictForOpenSearchDocumentDict:
         }
 
     def test_should_ignore_group_title_of_non_biorxiv_medrxiv_doi(self):
-        categories_response_dict = get_categorisation_response_dict_for_opensearch_document_dict(
+        categories_response_dict = get_classification_response_dict_for_opensearch_document_dict(
             {
                 'crossref': {
                     'group_title': 'Category 1'

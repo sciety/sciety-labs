@@ -137,7 +137,7 @@ def get_classification_response_dict_for_opensearch_aggregations_response_dict(
     }
 
 
-def get_categorisation_response_dict_for_opensearch_document_dict(
+def get_classification_response_dict_for_opensearch_document_dict(
     document_dict: dict,
     article_doi: str
 ) -> CategorisationResponseDict:
@@ -268,7 +268,7 @@ class AsyncOpenSearchCategoriesProvider:
             )
         except opensearchpy.NotFoundError as exc:
             raise ArticleDoiNotFoundError(article_doi=article_doi) from exc
-        return get_categorisation_response_dict_for_opensearch_document_dict(
+        return get_classification_response_dict_for_opensearch_document_dict(
             opensearch_document_dict,
             article_doi=article_doi
         )
