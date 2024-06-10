@@ -174,7 +174,7 @@ class TestGetCategorisationResponseDictForOpenSearchAggregationsResponseDict:
         }
 
 
-class TestGetCategorisationDictForOpensearchDocumentDict:
+class TestGetCategorisationDictForOpenSearchDocumentDict:
     def test_should_return_empty_dict_if_no_categories_are_available(self):
         categories_dict = get_categorisation_response_dict_for_opensearch_document_dict(
             {},
@@ -215,7 +215,7 @@ class TestGetCategorisationDictForOpensearchDocumentDict:
         }
 
 
-class TestGetArticleResponseDictForOpensearchDocumentDict:
+class TestGetArticleResponseDictForOpenSearchDocumentDict:
     def test_should_raise_error_if_doi_is_missing(self):
         with pytest.raises(AssertionError):
             get_article_response_dict_for_opensearch_document_dict({})
@@ -263,7 +263,7 @@ class TestGetArticleResponseDictForOpensearchDocumentDict:
         }
 
 
-class TestGetArticleSearchResponseDictForOpensearchSearchResponseDict:
+class TestGetArticleSearchResponseDictForOpenSearchSearchResponseDict:
     def test_should_return_singe_article_response_from_hits(self):
         article_search_response_dict = (
             get_article_search_response_dict_for_opensearch_search_response_dict({
