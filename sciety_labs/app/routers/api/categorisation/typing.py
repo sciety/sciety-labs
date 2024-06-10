@@ -9,6 +9,7 @@ class CategorisationAttributesDict(TypedDict):
 
 class CategorisationDict(TypedDict):
     type: str
+    id: str
     attributes: CategorisationAttributesDict
 
 

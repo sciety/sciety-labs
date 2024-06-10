@@ -102,6 +102,7 @@ class TestApiCategorisationByDoi:
         assert response_json['data'] == [
             {
                 'type': 'category',
+                'id': Categories.BIOPHYSICS,
                 'attributes': {
                     'display_name': Categories.BIOPHYSICS,
                     'source_id': 'crossref_group_title'

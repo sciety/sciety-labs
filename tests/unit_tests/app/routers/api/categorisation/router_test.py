@@ -35,6 +35,7 @@ INVALID_DOI_1 = 'invalid-doi-1'
 CATEGORISATION_RESPONSE_DICT_1: CategorisationResponseDict = {
     'data': [{
         'type': 'category',
+        'id': 'Category 1',
         'attributes': {
             'display_name': 'Category 1',
             'source_id': 'Source 1'

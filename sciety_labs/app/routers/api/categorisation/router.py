@@ -34,6 +34,7 @@ LOGGER = logging.getLogger(__name__)
 CATEGORISATION_BY_DOI_API_EXAMPLE_200_RESPONSE: CategorisationResponseDict = {
     'data': [{
         'type': 'category',
+        'id': 'Pain Medicine',
         'attributes': {
             'display_name': 'Pain Medicine',
             'source_id': 'crossref_group_title'
@@ -72,12 +73,14 @@ CATEGORISATION_BY_DOI_API_EXAMPLE_RESPONSES: dict = {
 CATEGORISATION_LIST_API_EXAMPLE_200_RESPONSE: CategorisationResponseDict = {
     'data': [{
         'type': 'category',
+        'id': 'Neuroscience',
         'attributes': {
             'display_name': 'Neuroscience',
             'source_id': 'crossref_group_title'
         }
     }, {
         'type': 'category',
+        'id': 'Pain Medicine',
         'attributes': {
             'display_name': 'Pain Medicine',
             'source_id': 'crossref_group_title'

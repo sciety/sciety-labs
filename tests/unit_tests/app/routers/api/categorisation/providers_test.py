@@ -165,12 +165,14 @@ class TestGetCategorisationResponseDictForOpenSearchAggregationsResponseDict:
         assert categorisaton_response_dict == {
             'data': [{
                 'type': 'category',
+                'id': 'Category 1',
                 'attributes': {
                     'display_name': 'Category 1',
                     'source_id': 'crossref_group_title'
                 }
             }, {
                 'type': 'category',
+                'id': 'Category 2',
                 'attributes': {
                     'display_name': 'Category 2',
                     'source_id': 'crossref_group_title'
@@ -201,6 +203,7 @@ class TestGetCategorisationDictForOpenSearchDocumentDict:
         assert categories_response_dict == {
             'data': [{
                 'type': 'category',
+                'id': 'Category 1',
                 'attributes': {
                     'display_name': 'Category 1',
                     'source_id': 'crossref_group_title'
