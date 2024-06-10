@@ -2,10 +2,14 @@ from typing import Optional, Sequence
 from typing_extensions import NotRequired, TypedDict
 
 
-class CategorisationDict(TypedDict):
+class CategorisationAttributesDict(TypedDict):
     display_name: str
-    type: str
     source_id: str
+
+
+class CategorisationDict(TypedDict):
+    type: str
+    attributes: CategorisationAttributesDict
 
 
 class ArticleAttributesDict(TypedDict):

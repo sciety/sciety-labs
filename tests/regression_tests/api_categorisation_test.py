@@ -39,7 +39,7 @@ def get_category_set(
     categorisation_list_response_dict: CategorisationResponseDict
 ) -> Set[str]:
     return {
-        categorisation['display_name']
+        categorisation['attributes']['display_name']
         for categorisation in categorisation_list_response_dict['data']
         if categorisation['type'] == 'category'
     }
@@ -101,9 +101,11 @@ class TestApiCategorisationByDoi:
         assert len(response_json['data']) > 0
         assert response_json['data'] == [
             {
-                'display_name': Categories.BIOPHYSICS,
                 'type': 'category',
-                'source_id': 'crossref_group_title'
+                'attributes': {
+                    'display_name': Categories.BIOPHYSICS,
+                    'source_id': 'crossref_group_title'
+                }
             }
         ]
 

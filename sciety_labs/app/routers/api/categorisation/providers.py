@@ -113,9 +113,11 @@ def get_categorisation_dict_for_crossref_group_title(
     group_title: str
 ) -> CategorisationDict:
     return {
-        'display_name': group_title,
         'type': 'category',
-        'source_id': 'crossref_group_title'
+        'attributes': {
+            'display_name': group_title,
+            'source_id': 'crossref_group_title'
+        }
     }
 
 
