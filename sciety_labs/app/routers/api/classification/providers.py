@@ -4,7 +4,7 @@ from typing import List, Mapping, Optional, Set
 import opensearchpy
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
-from sciety_labs.app.routers.api.categorisation.typing import (
+from sciety_labs.app.routers.api.classification.typing import (
     ArticleDict,
     ArticleResponseDict,
     ArticleSearchResponseDict,
@@ -47,7 +47,7 @@ class ArticleDoiNotFoundError(RuntimeError):
         super().__init__(f'Article DOI not found: {article_doi}')
 
 
-def get_categorisation_list_opensearch_query_dict(
+def get_classification_list_opensearch_query_dict(
     filter_parameters: OpenSearchFilterParameters
 ) -> dict:
     filter_dicts: List[dict] = [
@@ -109,7 +109,7 @@ def get_article_search_by_category_opensearch_query_dict(
     return query_dict
 
 
-def get_categorisation_dict_for_crossref_group_title(
+def get_classification_dict_for_crossref_group_title(
     group_title: str
 ) -> CategorisationDict:
     return {
@@ -122,7 +122,7 @@ def get_categorisation_dict_for_crossref_group_title(
     }
 
 
-def get_categorisation_response_dict_for_opensearch_aggregations_response_dict(
+def get_classification_response_dict_for_opensearch_aggregations_response_dict(
     response_dict: dict
 ) -> CategorisationResponseDict:
     group_titles = [
@@ -131,13 +131,13 @@ def get_categorisation_response_dict_for_opensearch_aggregations_response_dict(
     ]
     return {
         'data': [
-            get_categorisation_dict_for_crossref_group_title(group_title)
+            get_classification_dict_for_crossref_group_title(group_title)
             for group_title in group_titles
         ]
     }
 
 
-def get_categorisation_response_dict_for_opensearch_document_dict(
+def get_classification_response_dict_for_opensearch_document_dict(
     document_dict: dict,
     article_doi: str
 ) -> CategorisationResponseDict:
@@ -152,7 +152,7 @@ def get_categorisation_response_dict_for_opensearch_document_dict(
         }
     return {
         'data': [
-            get_categorisation_dict_for_crossref_group_title(group_title)
+            get_classification_dict_for_crossref_group_title(group_title)
         ]
     }
 
@@ -226,12 +226,12 @@ def get_default_article_search_sort_parameters(
     return OpenSearchSortParameters(sort_fields=[])
 
 
-class AsyncOpenSearchCategoriesProvider:
+class AsyncOpenSearchClassificationProvider:
     def __init__(self, app_providers_and_models: AppProvidersAndModels):
         self.async_opensearch_client = app_providers_and_models.async_opensearch_client
         self.index_name = app_providers_and_models.opensearch_config.index_name
 
-    async def get_categorisation_list_response_dict(
+    async def get_classification_list_response_dict(
         self,
         filter_parameters: OpenSearchFilterParameters,
         headers: Optional[Mapping[str, str]] = None
@@ -239,17 +239,17 @@ class AsyncOpenSearchCategoriesProvider:
         LOGGER.info('filter_parameters: %r', filter_parameters)
         LOGGER.debug('async_opensearch_client: %r', self.async_opensearch_client)
         opensearch_aggregations_response_dict = await self.async_opensearch_client.search(
-            get_categorisation_list_opensearch_query_dict(
+            get_classification_list_opensearch_query_dict(
                 filter_parameters=filter_parameters
             ),
             index=self.index_name,
             headers=headers
         )
-        return get_categorisation_response_dict_for_opensearch_aggregations_response_dict(
+        return get_classification_response_dict_for_opensearch_aggregations_response_dict(
             opensearch_aggregations_response_dict
         )
 
-    async def get_categorisation_response_dict_by_doi(
+    async def get_classificiation_response_dict_by_doi(
         self,
         article_doi: str,
         headers: Optional[Mapping[str, str]] = None
@@ -268,7 +268,7 @@ class AsyncOpenSearchCategoriesProvider:
             )
         except opensearchpy.NotFoundError as exc:
             raise ArticleDoiNotFoundError(article_doi=article_doi) from exc
-        return get_categorisation_response_dict_for_opensearch_document_dict(
+        return get_classification_response_dict_for_opensearch_document_dict(
             opensearch_document_dict,
             article_doi=article_doi
         )

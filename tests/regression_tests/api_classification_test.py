@@ -6,7 +6,7 @@ import pytest
 
 from requests import Session
 
-from sciety_labs.app.routers.api.categorisation.typing import (
+from sciety_labs.app.routers.api.classification.typing import (
     ArticleSearchResponseDict,
     CategorisationResponseDict
 )
@@ -23,12 +23,12 @@ NON_BIORXIV_MEDRXIV_GROUP_TITLE_1 = 'PsyArXiv'
 NON_BIORXIV_MEDRXIV_DOI_WITH_GROUP_TITLE_1 = '10.31234/osf.io/2hv6x'
 
 
-@pytest.fixture(name='categorisation_list_response_dict', scope='session')
-def _categorisation_list_response_dict(
+@pytest.fixture(name='classification_list_response_dict', scope='session')
+def _classification_list_response_dict(
     regression_test_session: Session
 ) -> CategorisationResponseDict:
     response = regression_test_session.get(
-        '/api/categorisation/v1/categories'
+        '/api/classification/v1/classifications'
     )
     response.raise_for_status()
     response_json: CategorisationResponseDict = response.json()
@@ -36,41 +36,41 @@ def _categorisation_list_response_dict(
 
 
 def get_category_set(
-    categorisation_list_response_dict: CategorisationResponseDict
+    classification_list_response_dict: CategorisationResponseDict
 ) -> Set[str]:
     return {
-        categorisation['attributes']['display_name']
-        for categorisation in categorisation_list_response_dict['data']
-        if categorisation['type'] == 'category'
+        classification['attributes']['display_name']
+        for classification in classification_list_response_dict['data']
+        if classification['type'] == 'category'
     }
 
 
 class TestApiCategorisationList:
     def test_should_return_non_empty_list(
         self,
-        categorisation_list_response_dict: CategorisationResponseDict
+        classification_list_response_dict: CategorisationResponseDict
     ):
-        assert len(categorisation_list_response_dict['data']) > 0
+        assert len(classification_list_response_dict['data']) > 0
 
     def test_should_contain_biophysics(
         self,
-        categorisation_list_response_dict: CategorisationResponseDict
+        classification_list_response_dict: CategorisationResponseDict
     ):
-        category_set = get_category_set(categorisation_list_response_dict)
+        category_set = get_category_set(classification_list_response_dict)
         assert Categories.BIOPHYSICS in category_set
 
     def test_should_not_contain_non_biorxiv_medrxiv_group_title(
         self,
-        categorisation_list_response_dict: CategorisationResponseDict
+        classification_list_response_dict: CategorisationResponseDict
     ):
-        category_set = get_category_set(categorisation_list_response_dict)
+        category_set = get_category_set(classification_list_response_dict)
         assert NON_BIORXIV_MEDRXIV_GROUP_TITLE_1 not in category_set
 
 
 class TestApiAticlesByCategory:
     def test_should_list_articles_for_valid_category(self, regression_test_session: Session):
         response = regression_test_session.get(
-            '/api/categorisation/v1/articles/by/category',
+            '/api/classification/v1/articles/by/category',
             params={'category': Categories.BIOPHYSICS}
         )
         response.raise_for_status()
@@ -82,7 +82,7 @@ class TestApiAticlesByCategory:
         regression_test_session: Session
     ):
         response = regression_test_session.get(
-            '/api/categorisation/v1/articles/by/category',
+            '/api/classification/v1/articles/by/category',
             params={'category': NON_BIORXIV_MEDRXIV_GROUP_TITLE_1}
         )
         response.raise_for_status()
@@ -91,9 +91,9 @@ class TestApiAticlesByCategory:
 
 
 class TestApiCategorisationByDoi:
-    def test_should_list_categories_by_doi(self, regression_test_session: Session):
+    def test_should_list_classifications_by_doi(self, regression_test_session: Session):
         response = regression_test_session.get(
-            '/api/categorisation/v1/categories/by/doi',
+            '/api/classification/v1/classifications/by/doi',
             params={'article_doi': BIOPHYISICS_DOI_1}
         )
         response.raise_for_status()
@@ -115,7 +115,7 @@ class TestApiCategorisationByDoi:
         regression_test_session: Session
     ):
         response = regression_test_session.get(
-            '/api/categorisation/v1/categories/by/doi',
+            '/api/classification/v1/classifications/by/doi',
             params={'article_doi': NON_BIORXIV_MEDRXIV_DOI_WITH_GROUP_TITLE_1}
         )
         response.raise_for_status()

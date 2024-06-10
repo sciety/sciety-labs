@@ -3,18 +3,18 @@ from unittest.mock import AsyncMock, MagicMock
 import opensearchpy
 import pytest
 
-from sciety_labs.app.routers.api.categorisation.providers import (
+from sciety_labs.app.routers.api.classification.providers import (
     IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
     LATEST_EVALUATION_TIMESTAMP_DESC_OPENSEARCH_SORT_FIELD,
     ArticleDoiNotFoundError,
-    AsyncOpenSearchCategoriesProvider,
+    AsyncOpenSearchClassificationProvider,
     get_article_dict_for_opensearch_document_dict,
     get_article_response_dict_for_opensearch_document_dict,
     get_article_search_by_category_opensearch_query_dict,
     get_article_search_response_dict_for_opensearch_search_response_dict,
-    get_categorisation_list_opensearch_query_dict,
-    get_categorisation_response_dict_for_opensearch_aggregations_response_dict,
-    get_categorisation_response_dict_for_opensearch_document_dict,
+    get_classification_list_opensearch_query_dict,
+    get_classification_response_dict_for_opensearch_aggregations_response_dict,
+    get_classification_response_dict_for_opensearch_document_dict,
     get_category_as_crossref_group_title_opensearch_filter_dict,
     get_default_article_search_sort_parameters
 )
@@ -48,11 +48,11 @@ OPENSEARCH_SEARCH_RESULT_1: OpenSearchSearchResultDict = {
 }
 
 
-@pytest.fixture(name='async_opensearch_categories_provider')
-def _async_opensearch_categories_provider(
+@pytest.fixture(name='async_opensearch_classification_provider')
+def _async_opensearch_classification_provider(
     app_providers_and_models_mock: MagicMock
-) -> AsyncOpenSearchCategoriesProvider:
-    return AsyncOpenSearchCategoriesProvider(
+) -> AsyncOpenSearchClassificationProvider:
+    return AsyncOpenSearchClassificationProvider(
         app_providers_and_models=app_providers_and_models_mock
     )
 
@@ -64,9 +64,9 @@ class TestArticleDoiNotFoundError:
         assert DOI_1 in repr(exception)
 
 
-class TestGetCategorisationListOpenSearchQueryDict:
+class TestGetClassificationListOpenSearchQueryDict:
     def test_should_include_biorxiv_medrxiv_filter(self):
-        query_dict = get_categorisation_list_opensearch_query_dict(
+        query_dict = get_classification_list_opensearch_query_dict(
             filter_parameters=OpenSearchFilterParameters(evaluated_only=False)
         )
         assert query_dict['query']['bool']['filter'] == [
@@ -74,7 +74,7 @@ class TestGetCategorisationListOpenSearchQueryDict:
         ]
 
     def test_should_include_is_evaluated_filter(self):
-        query_dict = get_categorisation_list_opensearch_query_dict(
+        query_dict = get_classification_list_opensearch_query_dict(
             filter_parameters=OpenSearchFilterParameters(evaluated_only=True)
         )
         assert query_dict['query']['bool']['filter'] == [
@@ -145,10 +145,10 @@ class TestGetArticleSearchByCategoryOpenSearchQueryDict:
         assert query_dict['from'] == 200
 
 
-class TestGetCategorisationResponseDictForOpenSearchAggregationsResponseDict:
-    def test_should_return_categories_from_categorisation_response(self):
-        categorisaton_response_dict = (
-            get_categorisation_response_dict_for_opensearch_aggregations_response_dict({
+class TestGetClassificationResponseDictForOpenSearchAggregationsResponseDict:
+    def test_should_return_classifications_from_classification_response(self):
+        classification_response_dict = (
+            get_classification_response_dict_for_opensearch_aggregations_response_dict({
                 'aggregations': {
                     'group_title': {
                         'buckets': [{
@@ -162,7 +162,7 @@ class TestGetCategorisationResponseDictForOpenSearchAggregationsResponseDict:
                 }
             })
         )
-        assert categorisaton_response_dict == {
+        assert classification_response_dict == {
             'data': [{
                 'type': 'category',
                 'id': 'Category 1',
@@ -181,26 +181,28 @@ class TestGetCategorisationResponseDictForOpenSearchAggregationsResponseDict:
         }
 
 
-class TestGetCategorisationDictForOpenSearchDocumentDict:
-    def test_should_return_empty_dict_if_no_categories_are_available(self):
-        categories_dict = get_categorisation_response_dict_for_opensearch_document_dict(
+class TestGetClassificationDictForOpenSearchDocumentDict:
+    def test_should_return_empty_dict_if_no_classifications_are_available(self):
+        classifications_dict = get_classification_response_dict_for_opensearch_document_dict(
             {},
             article_doi=DUMMY_BIORXIV_DOI_1
         )
-        assert categories_dict == {
+        assert classifications_dict == {
             'data': []
         }
 
-    def test_should_extract_crossref_group_title_as_categories_for_biorxiv_doi(self):
-        categories_response_dict = get_categorisation_response_dict_for_opensearch_document_dict(
-            {
-                'crossref': {
-                    'group_title': 'Category 1'
-                }
-            },
-            article_doi=DUMMY_BIORXIV_DOI_1
+    def test_should_extract_crossref_group_title_as_classifications_for_biorxiv_doi(self):
+        classifications_response_dict = (
+            get_classification_response_dict_for_opensearch_document_dict(
+                {
+                    'crossref': {
+                        'group_title': 'Category 1'
+                    }
+                },
+                article_doi=DUMMY_BIORXIV_DOI_1
+            )
         )
-        assert categories_response_dict == {
+        assert classifications_response_dict == {
             'data': [{
                 'type': 'category',
                 'id': 'Category 1',
@@ -212,15 +214,17 @@ class TestGetCategorisationDictForOpenSearchDocumentDict:
         }
 
     def test_should_ignore_group_title_of_non_biorxiv_medrxiv_doi(self):
-        categories_response_dict = get_categorisation_response_dict_for_opensearch_document_dict(
-            {
-                'crossref': {
-                    'group_title': 'Category 1'
-                }
-            },
-            article_doi=DUMMY_NON_BIORXIV_MEDRXIV_DOI_1
+        classifications_response_dict = (
+            get_classification_response_dict_for_opensearch_document_dict(
+                {
+                    'crossref': {
+                        'group_title': 'Category 1'
+                    }
+                },
+                article_doi=DUMMY_NON_BIORXIV_MEDRXIV_DOI_1
+            )
         )
-        assert categories_response_dict == {
+        assert classifications_response_dict == {
             'data': []
         }
 
@@ -336,28 +340,29 @@ class TestGetDefaultArticleSearchSortParameters:
         ])
 
 
-class TestAsyncOpenSearchCategoriesProvider:
+class TestAsyncOpenSearchClassificationProvider:
     @pytest.mark.asyncio
     async def test_should_raise_article_doi_not_found_error(
         self,
-        async_opensearch_categories_provider: AsyncOpenSearchCategoriesProvider,
+        async_opensearch_classification_provider: AsyncOpenSearchClassificationProvider,
         async_opensearch_client_mock: AsyncMock
     ):
         async_opensearch_client_mock.get_source.side_effect = opensearchpy.NotFoundError()
         with pytest.raises(ArticleDoiNotFoundError):
-            await async_opensearch_categories_provider.get_categorisation_response_dict_by_doi(
+            await async_opensearch_classification_provider.get_classificiation_response_dict_by_doi(
                 article_doi=DOI_1
             )
 
     @pytest.mark.asyncio
     async def test_should_return_article_response(
         self,
-        async_opensearch_categories_provider: AsyncOpenSearchCategoriesProvider,
+        async_opensearch_classification_provider: AsyncOpenSearchClassificationProvider,
         async_opensearch_client_mock: AsyncMock
     ):
         async_opensearch_client_mock.search.return_value = OPENSEARCH_SEARCH_RESULT_1
-        article_response = (
-            await async_opensearch_categories_provider.get_article_search_response_dict_by_category(
+        article_response = await (
+            async_opensearch_classification_provider
+            .get_article_search_response_dict_by_category(
                 category='Category 1',
                 filter_parameters=OpenSearchFilterParameters(),
                 sort_parameters=OpenSearchSortParameters(),
