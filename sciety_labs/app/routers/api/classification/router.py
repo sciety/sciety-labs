@@ -10,7 +10,6 @@ from sciety_labs.app.routers.api.utils.jsonapi import (
 from sciety_labs.app.routers.api.utils.jsonapi_typing import JsonApiErrorsResponseDict
 from sciety_labs.app.routers.api.utils.validation import InvalidApiFieldsError, validate_api_fields
 from sciety_labs.app.routers.api.classification.providers import (
-    INTERNAL_ARTICLE_FIELDS_BY_API_FIELD_NAME,
     ArticleDoiNotFoundError,
     AsyncOpenSearchClassificationProvider,
     get_default_article_search_sort_parameters
@@ -24,7 +23,6 @@ from sciety_labs.providers.opensearch.utils import (
     OpenSearchPaginationParameters
 )
 from sciety_labs.utils.fastapi import get_cache_control_headers_for_request
-from sciety_labs.utils.mapping import get_flat_mapped_values_or_all_values_for_mapping
 
 
 LOGGER = logging.getLogger(__name__)
@@ -288,10 +286,6 @@ def create_api_classification_router(
     ):
         api_article_fields_set = set(api_article_fields_csv.split(','))
         validate_api_fields(api_article_fields_set, valid_values=ALL_ARTICLE_FIELDS)
-        internal_article_fields_set = set(get_flat_mapped_values_or_all_values_for_mapping(
-            INTERNAL_ARTICLE_FIELDS_BY_API_FIELD_NAME,
-            api_article_fields_set
-        ))
         return await (
             async_opensearch_classification_provider
             .get_article_search_response_dict_by_category(
@@ -306,8 +300,7 @@ def create_api_classification_router(
                     page_size=page_size,
                     page_number=page_number
                 ),
-                article_fields_set=internal_article_fields_set,
-                api_article_fields_set=api_article_fields_set,
+                article_fields_set=api_article_fields_set,
                 headers=get_cache_control_headers_for_request(request)
             )
         )

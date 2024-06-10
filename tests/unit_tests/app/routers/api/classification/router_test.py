@@ -22,7 +22,6 @@ from sciety_labs.app.routers.api.classification.typing import (
     CategorisationResponseDict
 )
 from sciety_labs.app.routers.api.utils.validation import InvalidApiFieldsError
-from sciety_labs.models.article import InternalArticleFieldNames
 from sciety_labs.providers.opensearch.utils import OpenSearchFilterParameters
 
 
@@ -201,7 +200,7 @@ class TestCategorisationApiRouterArticlesByCategory:
         assert filter_parameters.evaluated_only
         assert kwargs['category'] == 'Category 1'
 
-    def test_should_pass_mapped_api_fields_to_provider(
+    def test_should_pass_api_fields_to_provider(
         self,
         get_article_search_response_dict_by_category_mock: AsyncMock,
         test_client: TestClient
@@ -215,10 +214,7 @@ class TestCategorisationApiRouterArticlesByCategory:
         )
         get_article_search_response_dict_by_category_mock.assert_called()
         _, kwargs = get_article_search_response_dict_by_category_mock.call_args
-        assert kwargs['article_fields_set'] == {
-            InternalArticleFieldNames.ARTICLE_DOI,
-            InternalArticleFieldNames.ARTICLE_TITLE
-        }
+        assert kwargs['article_fields_set'] == {'doi', 'title'}
 
     def test_should_raise_error_for_invalid_field_name(
         self,

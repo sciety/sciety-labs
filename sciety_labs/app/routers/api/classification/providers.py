@@ -30,6 +30,7 @@ from sciety_labs.providers.opensearch.utils import (
 )
 from sciety_labs.utils.datetime import get_date_as_isoformat
 from sciety_labs.utils.json import get_recursively_filtered_dict_without_null_values
+from sciety_labs.utils.mapping import get_flat_mapped_values_or_all_values_for_mapping
 
 
 LOGGER = logging.getLogger(__name__)
@@ -309,15 +310,18 @@ class AsyncOpenSearchClassificationProvider:
         sort_parameters: OpenSearchSortParameters,
         pagination_parameters: OpenSearchPaginationParameters,
         article_fields_set: Optional[Set[str]] = None,
-        api_article_fields_set: Optional[Set[str]] = None,
         headers: Optional[Mapping[str, str]] = None
     ) -> ArticleSearchResponseDict:
         LOGGER.info('filter_parameters: %r', filter_parameters)
         LOGGER.info('pagination_parameters: %r', pagination_parameters)
         LOGGER.info('article_fields_set: %r', article_fields_set)
+        internal_article_fields_set = set(get_flat_mapped_values_or_all_values_for_mapping(
+            INTERNAL_ARTICLE_FIELDS_BY_API_FIELD_NAME,
+            article_fields_set
+        ))
         opensearch_fields = get_source_includes_for_mapping(
             OPENSEARCH_FIELDS_BY_REQUESTED_FIELD,
-            fields=article_fields_set
+            fields=internal_article_fields_set
         )
         LOGGER.info('opensearch_fields: %r', opensearch_fields)
         opensearch_search_result_dict = await self.async_opensearch_client.search(
@@ -333,5 +337,5 @@ class AsyncOpenSearchClassificationProvider:
         )
         return get_article_search_response_dict_for_opensearch_search_response_dict(
             opensearch_search_result_dict,
-            article_fields_set=api_article_fields_set
+            article_fields_set=article_fields_set
         )
