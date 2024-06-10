@@ -76,7 +76,7 @@ def _get_categorisation_list_response_dict_mock(
 ) -> AsyncMock:
     return (
         async_opensearch_categories_provider_mock
-        .get_categorisation_list_response_dict
+        .get_classification_list_response_dict
     )
 
 
@@ -86,7 +86,7 @@ def _get_categorisation_response_dict_by_doi_mock(
 ) -> AsyncMock:
     return (
         async_opensearch_categories_provider_mock
-        .get_categorisation_response_dict_by_doi
+        .get_classificiation_response_dict_by_doi
     )
 
 
