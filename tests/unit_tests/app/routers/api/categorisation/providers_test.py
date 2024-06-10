@@ -8,6 +8,7 @@ from sciety_labs.app.routers.api.categorisation.providers import (
     LATEST_EVALUATION_TIMESTAMP_DESC_OPENSEARCH_SORT_FIELD,
     ArticleDoiNotFoundError,
     AsyncOpenSearchCategoriesProvider,
+    get_article_dict_for_opensearch_document_dict,
     get_article_response_dict_for_opensearch_document_dict,
     get_article_search_by_category_opensearch_query_dict,
     get_article_search_response_dict_for_opensearch_search_response_dict,
@@ -212,6 +213,48 @@ class TestGetCategorisationDictForOpenSearchDocumentDict:
         )
         assert categories_response_dict == {
             'data': []
+        }
+
+
+class TestGetArticleDictForOpenSearchDocumentDict:
+    def test_should_raise_error_if_doi_is_missing(self):
+        with pytest.raises(AssertionError):
+            get_article_dict_for_opensearch_document_dict({})
+
+    def test_should_return_response_with_doi_only(self):
+        article_dict = get_article_dict_for_opensearch_document_dict({
+            'doi': DOI_1
+        })
+        assert article_dict == {
+            'doi': DOI_1
+        }
+
+    def test_should_return_response_with_crossref_metadata(self):
+        article_dict = get_article_dict_for_opensearch_document_dict({
+            'doi': DOI_1,
+            'crossref': {
+                'title_with_markup': 'Title 1',
+                'publication_date': '2001-02-03'
+            }
+        })
+        assert article_dict == {
+            'doi': DOI_1,
+            'title': 'Title 1',
+            'publication_date': '2001-02-03'
+        }
+
+    def test_should_return_response_with_evaluation_count_and_timestamp(self):
+        article_dict = get_article_dict_for_opensearch_document_dict({
+            'doi': DOI_1,
+            'sciety': {
+                'evaluation_count': 123,
+                'last_event_timestamp': '2001-02-03T04:05:06+00:00'
+            }
+        })
+        assert article_dict == {
+            'doi': DOI_1,
+            'evaluation_count': 123,
+            'latest_evaluation_activity_timestamp': '2001-02-03T04:05:06+00:00'
         }
 
 
