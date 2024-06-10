@@ -270,6 +270,7 @@ class TestGetArticleDictForOpenSearchDocumentDict:
             'doi': DOI_1,
             'sciety': {
                 'evaluation_count': 123,
+                'is_evaluated': True,
                 'last_event_timestamp': '2001-02-03T04:05:06+00:00'
             }
         })
@@ -279,6 +280,7 @@ class TestGetArticleDictForOpenSearchDocumentDict:
             'attributes': {
                 'doi': DOI_1,
                 'evaluation_count': 123,
+                'is_evaluated': True,
                 'latest_evaluation_activity_timestamp': '2001-02-03T04:05:06+00:00'
             }
         }

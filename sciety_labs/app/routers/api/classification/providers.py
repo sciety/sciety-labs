@@ -164,6 +164,11 @@ def get_article_dict_for_opensearch_document_dict(
     article_meta = get_article_meta_from_document(document_dict)
     article_stats = get_article_stats_from_document(document_dict)
     sciety_dict = document_dict.get('sciety')
+    evaluation_count = (
+        article_stats.evaluation_count
+        if article_stats
+        else None
+    )
     article_dict: ArticleDict = {
         'type': 'article',
         'id': document_dict['doi'],
@@ -171,9 +176,10 @@ def get_article_dict_for_opensearch_document_dict(
             'doi': document_dict['doi'],
             'title': article_meta.article_title,
             'publication_date': get_date_as_isoformat(article_meta.published_date),
-            'evaluation_count': (
-                article_stats.evaluation_count
-                if article_stats
+            'evaluation_count': evaluation_count,
+            'is_evaluated': (
+                bool(evaluation_count)
+                if evaluation_count is not None
                 else None
             ),
             'latest_evaluation_activity_timestamp': (
