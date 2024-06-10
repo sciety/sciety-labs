@@ -1,5 +1,4 @@
 import logging
-from typing import Mapping, Sequence
 
 import fastapi
 
@@ -11,6 +10,7 @@ from sciety_labs.app.routers.api.utils.jsonapi import (
 from sciety_labs.app.routers.api.utils.jsonapi_typing import JsonApiErrorsResponseDict
 from sciety_labs.app.routers.api.utils.validation import InvalidApiFieldsError, validate_api_fields
 from sciety_labs.app.routers.api.classification.providers import (
+    INTERNAL_ARTICLE_FIELDS_BY_API_FIELD_NAME,
     ArticleDoiNotFoundError,
     AsyncOpenSearchClassificationProvider,
     get_default_article_search_sort_parameters
@@ -19,7 +19,6 @@ from sciety_labs.app.routers.api.classification.typing import (
     ArticleSearchResponseDict,
     CategorisationResponseDict
 )
-from sciety_labs.models.article import InternalArticleFieldNames
 from sciety_labs.providers.opensearch.utils import (
     OpenSearchFilterParameters,
     OpenSearchPaginationParameters
@@ -132,18 +131,6 @@ ARTICLES_BY_CATEGORY_API_EXAMPLE_RESPONSES: dict = {
 
 
 DEFAULT_ARTICLE_FIELDS = {'doi'}
-
-
-INTERNAL_ARTICLE_FIELDS_BY_API_FIELD_NAME: Mapping[str, Sequence[str]] = {
-    'doi': [InternalArticleFieldNames.ARTICLE_DOI],
-    'title': [InternalArticleFieldNames.ARTICLE_TITLE],
-    'publication_date': [InternalArticleFieldNames.PUBLISHED_DATE],
-    'evaluation_count': [InternalArticleFieldNames.EVALUATION_COUNT],
-    'is_evaluated': [InternalArticleFieldNames.EVALUATION_COUNT],
-    'latest_evaluation_activity_timestamp': [
-        InternalArticleFieldNames.LATEST_EVALUATION_ACTIVITY_TIMESTAMP
-    ]
-}
 
 
 ALL_ARTICLE_FIELDS = [

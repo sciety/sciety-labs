@@ -1,5 +1,5 @@
 import logging
-from typing import List, Mapping, Optional, Set, cast
+from typing import List, Mapping, Optional, Sequence, Set, cast
 
 import opensearchpy
 
@@ -12,7 +12,7 @@ from sciety_labs.app.routers.api.classification.typing import (
     CategorisationDict,
     CategorisationResponseDict
 )
-from sciety_labs.models.article import KnownDoiPrefix
+from sciety_labs.models.article import InternalArticleFieldNames, KnownDoiPrefix
 from sciety_labs.providers.opensearch.typing import (
     DocumentDict,
     OpenSearchSearchResultDict
@@ -39,6 +39,18 @@ IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT = {
     'prefix': {
         'doi': KnownDoiPrefix.BIORXIV_MEDRXIV
     }
+}
+
+
+INTERNAL_ARTICLE_FIELDS_BY_API_FIELD_NAME: Mapping[str, Sequence[str]] = {
+    'doi': [InternalArticleFieldNames.ARTICLE_DOI],
+    'title': [InternalArticleFieldNames.ARTICLE_TITLE],
+    'publication_date': [InternalArticleFieldNames.PUBLISHED_DATE],
+    'evaluation_count': [InternalArticleFieldNames.EVALUATION_COUNT],
+    'is_evaluated': [InternalArticleFieldNames.EVALUATION_COUNT],
+    'latest_evaluation_activity_timestamp': [
+        InternalArticleFieldNames.LATEST_EVALUATION_ACTIVITY_TIMESTAMP
+    ]
 }
 
 
