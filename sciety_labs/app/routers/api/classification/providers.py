@@ -122,7 +122,7 @@ def get_classification_dict_for_crossref_group_title(
     }
 
 
-def get_categorisation_response_dict_for_opensearch_aggregations_response_dict(
+def get_classification_response_dict_for_opensearch_aggregations_response_dict(
     response_dict: dict
 ) -> CategorisationResponseDict:
     group_titles = [
@@ -245,7 +245,7 @@ class AsyncOpenSearchCategoriesProvider:
             index=self.index_name,
             headers=headers
         )
-        return get_categorisation_response_dict_for_opensearch_aggregations_response_dict(
+        return get_classification_response_dict_for_opensearch_aggregations_response_dict(
             opensearch_aggregations_response_dict
         )
 

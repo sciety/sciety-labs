@@ -13,7 +13,7 @@ from sciety_labs.app.routers.api.classification.providers import (
     get_article_search_by_category_opensearch_query_dict,
     get_article_search_response_dict_for_opensearch_search_response_dict,
     get_classification_list_opensearch_query_dict,
-    get_categorisation_response_dict_for_opensearch_aggregations_response_dict,
+    get_classification_response_dict_for_opensearch_aggregations_response_dict,
     get_categorisation_response_dict_for_opensearch_document_dict,
     get_category_as_crossref_group_title_opensearch_filter_dict,
     get_default_article_search_sort_parameters
@@ -148,7 +148,7 @@ class TestGetArticleSearchByCategoryOpenSearchQueryDict:
 class TestGetCategorisationResponseDictForOpenSearchAggregationsResponseDict:
     def test_should_return_categories_from_categorisation_response(self):
         categorisaton_response_dict = (
-            get_categorisation_response_dict_for_opensearch_aggregations_response_dict({
+            get_classification_response_dict_for_opensearch_aggregations_response_dict({
                 'aggregations': {
                     'group_title': {
                         'buckets': [{
