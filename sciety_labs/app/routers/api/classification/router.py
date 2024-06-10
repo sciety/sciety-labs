@@ -10,12 +10,12 @@ from sciety_labs.app.routers.api.utils.jsonapi import (
 )
 from sciety_labs.app.routers.api.utils.jsonapi_typing import JsonApiErrorsResponseDict
 from sciety_labs.app.routers.api.utils.validation import InvalidApiFieldsError, validate_api_fields
-from sciety_labs.app.routers.api.categorisation.providers import (
+from sciety_labs.app.routers.api.classification.providers import (
     ArticleDoiNotFoundError,
     AsyncOpenSearchCategoriesProvider,
     get_default_article_search_sort_parameters
 )
-from sciety_labs.app.routers.api.categorisation.typing import (
+from sciety_labs.app.routers.api.classification.typing import (
     ArticleSearchResponseDict,
     CategorisationResponseDict
 )

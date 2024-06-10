@@ -9,7 +9,7 @@ from sciety_labs.app.routers.api.api_maintenance import create_api_maintenance_r
 from sciety_labs.app.routers.api.article_recommendation import (
     create_api_article_recommendation_router
 )
-from sciety_labs.app.routers.api.categorisation.router import create_api_categorisation_router
+from sciety_labs.app.routers.api.classification.router import create_api_categorisation_router
 from sciety_labs.app.routers.api.debug import create_api_debug_router
 from sciety_labs.app.routers.api.experimental import create_api_experimental_router
 

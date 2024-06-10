@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, MagicMock
 import opensearchpy
 import pytest
 
-from sciety_labs.app.routers.api.categorisation.providers import (
+from sciety_labs.app.routers.api.classification.providers import (
     IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
     LATEST_EVALUATION_TIMESTAMP_DESC_OPENSEARCH_SORT_FIELD,
     ArticleDoiNotFoundError,

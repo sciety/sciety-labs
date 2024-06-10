@@ -4,7 +4,7 @@ from typing import List, Mapping, Optional, Set
 import opensearchpy
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
-from sciety_labs.app.routers.api.categorisation.typing import (
+from sciety_labs.app.routers.api.classification.typing import (
     ArticleDict,
     ArticleResponseDict,
     ArticleSearchResponseDict,
