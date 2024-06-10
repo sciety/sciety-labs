@@ -64,7 +64,7 @@ class TestArticleDoiNotFoundError:
         assert DOI_1 in repr(exception)
 
 
-class TestGetCategorisationListOpenSearchQueryDict:
+class TestGetClassificationListOpenSearchQueryDict:
     def test_should_include_biorxiv_medrxiv_filter(self):
         query_dict = get_classification_list_opensearch_query_dict(
             filter_parameters=OpenSearchFilterParameters(evaluated_only=False)
@@ -145,7 +145,7 @@ class TestGetArticleSearchByCategoryOpenSearchQueryDict:
         assert query_dict['from'] == 200
 
 
-class TestGetCategorisationResponseDictForOpenSearchAggregationsResponseDict:
+class TestGetClassificationResponseDictForOpenSearchAggregationsResponseDict:
     def test_should_return_categories_from_classification_response(self):
         classification_response_dict = (
             get_classification_response_dict_for_opensearch_aggregations_response_dict({
@@ -181,7 +181,7 @@ class TestGetCategorisationResponseDictForOpenSearchAggregationsResponseDict:
         }
 
 
-class TestGetCategorisationDictForOpenSearchDocumentDict:
+class TestGetClassificationDictForOpenSearchDocumentDict:
     def test_should_return_empty_dict_if_no_categories_are_available(self):
         categories_dict = get_classification_response_dict_for_opensearch_document_dict(
             {},
