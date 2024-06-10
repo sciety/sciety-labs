@@ -28,7 +28,7 @@ def _classification_list_response_dict(
     regression_test_session: Session
 ) -> CategorisationResponseDict:
     response = regression_test_session.get(
-        '/api/classification/v1/categories'
+        '/api/classification/v1/classifications'
     )
     response.raise_for_status()
     response_json: CategorisationResponseDict = response.json()
@@ -91,9 +91,9 @@ class TestApiAticlesByCategory:
 
 
 class TestApiCategorisationByDoi:
-    def test_should_list_categories_by_doi(self, regression_test_session: Session):
+    def test_should_list_classifications_by_doi(self, regression_test_session: Session):
         response = regression_test_session.get(
-            '/api/classification/v1/categories/by/doi',
+            '/api/classification/v1/classifications/by/doi',
             params={'article_doi': BIOPHYISICS_DOI_1}
         )
         response.raise_for_status()
@@ -115,7 +115,7 @@ class TestApiCategorisationByDoi:
         regression_test_session: Session
     ):
         response = regression_test_session.get(
-            '/api/classification/v1/categories/by/doi',
+            '/api/classification/v1/classifications/by/doi',
             params={'article_doi': NON_BIORXIV_MEDRXIV_DOI_WITH_GROUP_TITLE_1}
         )
         response.raise_for_status()

@@ -131,7 +131,7 @@ class TestCategorisationApiRouter:
     ):
         get_classification_list_response_dict_mock.return_value = CATEGORISATION_RESPONSE_DICT_1
         response = test_client.get(
-            '/classification/v1/categories',
+            '/classification/v1/classifications',
             params={'article_doi': DOI_1}
         )
         response.raise_for_status()
@@ -144,7 +144,7 @@ class TestCategorisationApiRouter:
     ):
         get_classification_response_dict_by_doi_mock.return_value = CATEGORISATION_RESPONSE_DICT_1
         response = test_client.get(
-            '/classification/v1/categories/by/doi',
+            '/classification/v1/classifications/by/doi',
             params={'article_doi': DOI_1}
         )
         response.raise_for_status()
@@ -160,7 +160,7 @@ class TestCategorisationApiRouter:
         )
         get_classification_response_dict_by_doi_mock.side_effect = exception
         response = test_client.get(
-            '/classification/v1/categories/by/doi',
+            '/classification/v1/classifications/by/doi',
             params={'article_doi': DOI_1}
         )
         assert response.status_code == 404

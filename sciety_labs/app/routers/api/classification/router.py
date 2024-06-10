@@ -249,11 +249,11 @@ def create_api_classification_router(
     )
 
     @router.get(
-        '/classification/v1/categories',
+        '/classification/v1/classifications',
         response_model=CategorisationResponseDict,
         responses=CATEGORISATION_LIST_API_EXAMPLE_RESPONSES
     )
-    async def categories_list(
+    async def classifications_list(
         request: fastapi.Request,
         evaluated_only: bool = False
     ):
@@ -268,11 +268,11 @@ def create_api_classification_router(
         )
 
     @router.get(
-        '/classification/v1/categories/by/doi',
+        '/classification/v1/classifications/by/doi',
         response_model=CategorisationResponseDict,
         responses=CATEGORISATION_BY_DOI_API_EXAMPLE_RESPONSES
     )
-    async def categories_by_doi(
+    async def classifications_by_doi(
         request: fastapi.Request,
         article_doi: str
     ):

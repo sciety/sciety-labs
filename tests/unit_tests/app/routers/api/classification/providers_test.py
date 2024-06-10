@@ -146,7 +146,7 @@ class TestGetArticleSearchByCategoryOpenSearchQueryDict:
 
 
 class TestGetClassificationResponseDictForOpenSearchAggregationsResponseDict:
-    def test_should_return_categories_from_classification_response(self):
+    def test_should_return_classifications_from_classification_response(self):
         classification_response_dict = (
             get_classification_response_dict_for_opensearch_aggregations_response_dict({
                 'aggregations': {
@@ -182,25 +182,27 @@ class TestGetClassificationResponseDictForOpenSearchAggregationsResponseDict:
 
 
 class TestGetClassificationDictForOpenSearchDocumentDict:
-    def test_should_return_empty_dict_if_no_categories_are_available(self):
-        categories_dict = get_classification_response_dict_for_opensearch_document_dict(
+    def test_should_return_empty_dict_if_no_classifications_are_available(self):
+        classifications_dict = get_classification_response_dict_for_opensearch_document_dict(
             {},
             article_doi=DUMMY_BIORXIV_DOI_1
         )
-        assert categories_dict == {
+        assert classifications_dict == {
             'data': []
         }
 
-    def test_should_extract_crossref_group_title_as_categories_for_biorxiv_doi(self):
-        categories_response_dict = get_classification_response_dict_for_opensearch_document_dict(
-            {
-                'crossref': {
-                    'group_title': 'Category 1'
-                }
-            },
-            article_doi=DUMMY_BIORXIV_DOI_1
+    def test_should_extract_crossref_group_title_as_classifications_for_biorxiv_doi(self):
+        classifications_response_dict = (
+            get_classification_response_dict_for_opensearch_document_dict(
+                {
+                    'crossref': {
+                        'group_title': 'Category 1'
+                    }
+                },
+                article_doi=DUMMY_BIORXIV_DOI_1
+            )
         )
-        assert categories_response_dict == {
+        assert classifications_response_dict == {
             'data': [{
                 'type': 'category',
                 'id': 'Category 1',
@@ -212,15 +214,17 @@ class TestGetClassificationDictForOpenSearchDocumentDict:
         }
 
     def test_should_ignore_group_title_of_non_biorxiv_medrxiv_doi(self):
-        categories_response_dict = get_classification_response_dict_for_opensearch_document_dict(
-            {
-                'crossref': {
-                    'group_title': 'Category 1'
-                }
-            },
-            article_doi=DUMMY_NON_BIORXIV_MEDRXIV_DOI_1
+        classifications_response_dict = (
+            get_classification_response_dict_for_opensearch_document_dict(
+                {
+                    'crossref': {
+                        'group_title': 'Category 1'
+                    }
+                },
+                article_doi=DUMMY_NON_BIORXIV_MEDRXIV_DOI_1
+            )
         )
-        assert categories_response_dict == {
+        assert classifications_response_dict == {
             'data': []
         }
 
