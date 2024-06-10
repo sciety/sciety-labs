@@ -109,7 +109,7 @@ def get_article_search_by_category_opensearch_query_dict(
     return query_dict
 
 
-def get_categorisation_dict_for_crossref_group_title(
+def get_classification_dict_for_crossref_group_title(
     group_title: str
 ) -> CategorisationDict:
     return {
@@ -131,7 +131,7 @@ def get_categorisation_response_dict_for_opensearch_aggregations_response_dict(
     ]
     return {
         'data': [
-            get_categorisation_dict_for_crossref_group_title(group_title)
+            get_classification_dict_for_crossref_group_title(group_title)
             for group_title in group_titles
         ]
     }
@@ -152,7 +152,7 @@ def get_categorisation_response_dict_for_opensearch_document_dict(
         }
     return {
         'data': [
-            get_categorisation_dict_for_crossref_group_title(group_title)
+            get_classification_dict_for_crossref_group_title(group_title)
         ]
     }
 
