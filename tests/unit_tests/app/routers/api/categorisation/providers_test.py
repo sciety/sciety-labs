@@ -226,6 +226,7 @@ class TestGetArticleDictForOpenSearchDocumentDict:
             'doi': DOI_1
         })
         assert article_dict == {
+            'type': 'article',
             'doi': DOI_1
         }
 
@@ -238,6 +239,7 @@ class TestGetArticleDictForOpenSearchDocumentDict:
             }
         })
         assert article_dict == {
+            'type': 'article',
             'doi': DOI_1,
             'title': 'Title 1',
             'publication_date': '2001-02-03'
@@ -252,6 +254,7 @@ class TestGetArticleDictForOpenSearchDocumentDict:
             }
         })
         assert article_dict == {
+            'type': 'article',
             'doi': DOI_1,
             'evaluation_count': 123,
             'latest_evaluation_activity_timestamp': '2001-02-03T04:05:06+00:00'
@@ -280,17 +283,17 @@ class TestGetArticleSearchResponseDictForOpenSearchSearchResponseDict:
                         'relation': 'eq'
                     },
                     'hits': [{
-                        '_source': {
-                            'doi': DOI_1
-                        }
+                        '_source': OPENSEARCH_SEARCH_RESULT_DOCUMENT_1
                     }]
                 }
             })
         )
         assert article_search_response_dict == {
-            'data': [{
-                'doi': DOI_1
-            }],
+            'data': [
+                get_article_dict_for_opensearch_document_dict(
+                    OPENSEARCH_SEARCH_RESULT_DOCUMENT_1
+                )
+            ],
             'meta': {
                 'total': 1
             }

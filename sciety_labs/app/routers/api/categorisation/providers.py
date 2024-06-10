@@ -162,6 +162,7 @@ def get_article_dict_for_opensearch_document_dict(
     article_stats = get_article_stats_from_document(document_dict)
     sciety_dict = document_dict.get('sciety')
     article_dict: ArticleDict = {
+        'type': 'article',
         'doi': document_dict['doi'],
         'title': article_meta.article_title,
         'publication_date': get_date_as_isoformat(article_meta.published_date),
