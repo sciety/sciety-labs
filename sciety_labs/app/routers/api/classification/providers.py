@@ -47,7 +47,7 @@ class ArticleDoiNotFoundError(RuntimeError):
         super().__init__(f'Article DOI not found: {article_doi}')
 
 
-def get_categorisation_list_opensearch_query_dict(
+def get_classification_list_opensearch_query_dict(
     filter_parameters: OpenSearchFilterParameters
 ) -> dict:
     filter_dicts: List[dict] = [
@@ -239,7 +239,7 @@ class AsyncOpenSearchCategoriesProvider:
         LOGGER.info('filter_parameters: %r', filter_parameters)
         LOGGER.debug('async_opensearch_client: %r', self.async_opensearch_client)
         opensearch_aggregations_response_dict = await self.async_opensearch_client.search(
-            get_categorisation_list_opensearch_query_dict(
+            get_classification_list_opensearch_query_dict(
                 filter_parameters=filter_parameters
             ),
             index=self.index_name,
