@@ -1,10 +1,11 @@
 import logging
-from typing import List, Mapping, Optional, Set
+from typing import List, Mapping, Optional, Set, cast
 
 import opensearchpy
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.routers.api.classification.typing import (
+    ArticleAttributesDict,
     ArticleDict,
     ArticleResponseDict,
     ArticleSearchResponseDict,
@@ -158,7 +159,8 @@ def get_classification_response_dict_for_opensearch_document_dict(
 
 
 def get_article_dict_for_opensearch_document_dict(
-    document_dict: DocumentDict
+    document_dict: DocumentDict,
+    article_fields_set: Optional[Set[str]] = None
 ) -> ArticleDict:
     assert document_dict.get('doi')
     article_meta = get_article_meta_from_document(document_dict)
@@ -169,25 +171,32 @@ def get_article_dict_for_opensearch_document_dict(
         if article_stats
         else None
     )
+    attributes: ArticleAttributesDict = {
+        'doi': document_dict['doi'],
+        'title': article_meta.article_title,
+        'publication_date': get_date_as_isoformat(article_meta.published_date),
+        'evaluation_count': evaluation_count,
+        'is_evaluated': (
+            bool(evaluation_count)
+            if evaluation_count is not None
+            else None
+        ),
+        'latest_evaluation_activity_timestamp': (
+            sciety_dict.get('last_event_timestamp')
+            if sciety_dict
+            else None
+        )
+    }
+    if article_fields_set:
+        attributes = cast(ArticleAttributesDict, {
+            key: value
+            for key, value in attributes.items()
+            if key in article_fields_set
+        })
     article_dict: ArticleDict = {
         'type': 'article',
         'id': document_dict['doi'],
-        'attributes': {
-            'doi': document_dict['doi'],
-            'title': article_meta.article_title,
-            'publication_date': get_date_as_isoformat(article_meta.published_date),
-            'evaluation_count': evaluation_count,
-            'is_evaluated': (
-                bool(evaluation_count)
-                if evaluation_count is not None
-                else None
-            ),
-            'latest_evaluation_activity_timestamp': (
-                sciety_dict.get('last_event_timestamp')
-                if sciety_dict
-                else None
-            )
-        }
+        'attributes': attributes
     }
     return get_recursively_filtered_dict_without_null_values(article_dict)
 
@@ -201,7 +210,8 @@ def get_article_response_dict_for_opensearch_document_dict(
 
 
 def get_article_search_response_dict_for_opensearch_search_response_dict(
-    opensearch_search_result_dict: OpenSearchSearchResultDict
+    opensearch_search_result_dict: OpenSearchSearchResultDict,
+    article_fields_set: Optional[Set[str]] = None
 ) -> ArticleSearchResponseDict:
     return {
         'meta': {
@@ -209,7 +219,8 @@ def get_article_search_response_dict_for_opensearch_search_response_dict(
         },
         'data': [
             get_article_dict_for_opensearch_document_dict(
-                document_dict=hit['_source']
+                document_dict=hit['_source'],
+                article_fields_set=article_fields_set
             )
             for hit in opensearch_search_result_dict['hits']['hits']
         ]
@@ -286,6 +297,7 @@ class AsyncOpenSearchClassificationProvider:
         sort_parameters: OpenSearchSortParameters,
         pagination_parameters: OpenSearchPaginationParameters,
         article_fields_set: Optional[Set[str]] = None,
+        api_article_fields_set: Optional[Set[str]] = None,
         headers: Optional[Mapping[str, str]] = None
     ) -> ArticleSearchResponseDict:
         LOGGER.info('filter_parameters: %r', filter_parameters)
@@ -308,5 +320,6 @@ class AsyncOpenSearchClassificationProvider:
             headers=headers
         )
         return get_article_search_response_dict_for_opensearch_search_response_dict(
-            opensearch_search_result_dict
+            opensearch_search_result_dict,
+            article_fields_set=api_article_fields_set
         )

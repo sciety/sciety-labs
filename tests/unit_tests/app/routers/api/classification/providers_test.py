@@ -270,7 +270,6 @@ class TestGetArticleDictForOpenSearchDocumentDict:
             'doi': DOI_1,
             'sciety': {
                 'evaluation_count': 123,
-                'is_evaluated': True,
                 'last_event_timestamp': '2001-02-03T04:05:06+00:00'
             }
         })
@@ -282,6 +281,26 @@ class TestGetArticleDictForOpenSearchDocumentDict:
                 'evaluation_count': 123,
                 'is_evaluated': True,
                 'latest_evaluation_activity_timestamp': '2001-02-03T04:05:06+00:00'
+            }
+        }
+
+    def test_should_filter_attributes(self):
+        article_dict = get_article_dict_for_opensearch_document_dict(
+            {
+                'doi': DOI_1,
+                'sciety': {
+                    'evaluation_count': 123,
+                    'last_event_timestamp': '2001-02-03T04:05:06+00:00'
+                }
+            },
+            article_fields_set={'doi', 'is_evaluated'}
+        )
+        assert article_dict == {
+            'type': 'article',
+            'id': DOI_1,
+            'attributes': {
+                'doi': DOI_1,
+                'is_evaluated': True
             }
         }
 

@@ -139,6 +139,7 @@ INTERNAL_ARTICLE_FIELDS_BY_API_FIELD_NAME: Mapping[str, Sequence[str]] = {
     'title': [InternalArticleFieldNames.ARTICLE_TITLE],
     'publication_date': [InternalArticleFieldNames.PUBLISHED_DATE],
     'evaluation_count': [InternalArticleFieldNames.EVALUATION_COUNT],
+    'is_evaluated': [InternalArticleFieldNames.EVALUATION_COUNT],
     'latest_evaluation_activity_timestamp': [
         InternalArticleFieldNames.LATEST_EVALUATION_ACTIVITY_TIMESTAMP
     ]
@@ -150,6 +151,7 @@ ALL_ARTICLE_FIELDS = [
     'title',
     'publication_date',
     'evaluation_count',
+    'is_evaluated',
     'latest_evaluation_activity_timestamp'
 ]
 
@@ -318,6 +320,7 @@ def create_api_classification_router(
                     page_number=page_number
                 ),
                 article_fields_set=internal_article_fields_set,
+                api_article_fields_set=api_article_fields_set,
                 headers=get_cache_control_headers_for_request(request)
             )
         )
