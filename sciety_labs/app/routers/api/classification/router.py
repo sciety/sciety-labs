@@ -278,7 +278,7 @@ def create_api_classification_router(
     ):
         return await (
             async_opensearch_categories_provider
-            .get_categorisation_response_dict_by_doi(
+            .get_classificiation_response_dict_by_doi(
                 article_doi=article_doi,
                 headers=get_cache_control_headers_for_request(request)
             )

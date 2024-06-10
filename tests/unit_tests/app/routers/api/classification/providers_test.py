@@ -345,7 +345,7 @@ class TestAsyncOpenSearchCategoriesProvider:
     ):
         async_opensearch_client_mock.get_source.side_effect = opensearchpy.NotFoundError()
         with pytest.raises(ArticleDoiNotFoundError):
-            await async_opensearch_categories_provider.get_categorisation_response_dict_by_doi(
+            await async_opensearch_categories_provider.get_classificiation_response_dict_by_doi(
                 article_doi=DOI_1
             )
 

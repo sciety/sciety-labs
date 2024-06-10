@@ -249,7 +249,7 @@ class AsyncOpenSearchCategoriesProvider:
             opensearch_aggregations_response_dict
         )
 
-    async def get_categorisation_response_dict_by_doi(
+    async def get_classificiation_response_dict_by_doi(
         self,
         article_doi: str,
         headers: Optional[Mapping[str, str]] = None
