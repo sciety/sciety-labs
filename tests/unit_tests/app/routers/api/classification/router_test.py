@@ -23,6 +23,7 @@ from sciety_labs.app.routers.api.classification.typing import (
 )
 from sciety_labs.app.routers.api.utils.validation import InvalidApiFieldsError
 from sciety_labs.models.article import InternalArticleFieldNames
+from sciety_labs.providers.opensearch.utils import OpenSearchFilterParameters
 
 
 LOGGER = logging.getLogger(__name__)
@@ -182,6 +183,22 @@ class TestCategorisationApiRouterArticlesByCategory:
         )
         response.raise_for_status()
         assert response.json() == ARTICLE_SEARCH_RESPONSE_DICT_1
+
+    def test_should_pass_evaluated_only_filter_to_provider(
+        self,
+        get_article_search_response_dict_by_category_mock: AsyncMock,
+        test_client: TestClient
+    ):
+        get_article_search_response_dict_by_category_mock.return_value = (
+            ARTICLE_SEARCH_RESPONSE_DICT_1
+        )
+        test_client.get(
+            '/classification/v1/articles/by/category',
+            params={'category': 'Category 1', 'evaluated_only': 'true'}
+        )
+        _, kwargs = get_article_search_response_dict_by_category_mock.call_args
+        filter_parameters: OpenSearchFilterParameters = kwargs['filter_parameters']
+        assert filter_parameters.evaluated_only
 
     def test_should_pass_mapped_api_fields_to_provider(
         self,
