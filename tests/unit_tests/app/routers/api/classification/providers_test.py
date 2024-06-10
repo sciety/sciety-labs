@@ -73,7 +73,7 @@ class TestGetClassificationListOpenSearchQueryDict:
             IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT
         ]
 
-    def test_should_include_is_evaluated_filter(self):
+    def test_should_include_has_evaluations_filter(self):
         query_dict = get_classification_list_opensearch_query_dict(
             filter_parameters=OpenSearchFilterParameters(evaluated_only=True)
         )
@@ -100,7 +100,7 @@ class TestGetArticleSearchByCategoryOpenSearchQueryDict:
             }
         }
 
-    def test_should_include_category_and_is_evaluated_filter(self):
+    def test_should_include_category_and_has_evaluations_filter(self):
         query_dict = get_article_search_by_category_opensearch_query_dict(
             category='Category 1',
             filter_parameters=OpenSearchFilterParameters(evaluated_only=True),
@@ -279,7 +279,28 @@ class TestGetArticleDictForOpenSearchDocumentDict:
             'attributes': {
                 'doi': DOI_1,
                 'evaluation_count': 123,
+                'has_evaluations': True,
                 'latest_evaluation_activity_timestamp': '2001-02-03T04:05:06+00:00'
+            }
+        }
+
+    def test_should_filter_attributes(self):
+        article_dict = get_article_dict_for_opensearch_document_dict(
+            {
+                'doi': DOI_1,
+                'sciety': {
+                    'evaluation_count': 123,
+                    'last_event_timestamp': '2001-02-03T04:05:06+00:00'
+                }
+            },
+            article_fields_set={'doi', 'has_evaluations'}
+        )
+        assert article_dict == {
+            'type': 'article',
+            'id': DOI_1,
+            'attributes': {
+                'doi': DOI_1,
+                'has_evaluations': True
             }
         }
 

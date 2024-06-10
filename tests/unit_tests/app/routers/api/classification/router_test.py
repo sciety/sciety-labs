@@ -22,7 +22,7 @@ from sciety_labs.app.routers.api.classification.typing import (
     CategorisationResponseDict
 )
 from sciety_labs.app.routers.api.utils.validation import InvalidApiFieldsError
-from sciety_labs.models.article import InternalArticleFieldNames
+from sciety_labs.providers.opensearch.utils import OpenSearchFilterParameters
 
 
 LOGGER = logging.getLogger(__name__)
@@ -123,7 +123,7 @@ class TestGetNotFoundErrorJsonResponseDict:
         }
 
 
-class TestCategorisationApiRouter:
+class TestClassificationApiRouterClassificationList:
     def test_should_provide_classification_list_response(
         self,
         get_classification_list_response_dict_mock: AsyncMock,
@@ -131,12 +131,29 @@ class TestCategorisationApiRouter:
     ):
         get_classification_list_response_dict_mock.return_value = CATEGORISATION_RESPONSE_DICT_1
         response = test_client.get(
-            '/classification/v1/classifications',
-            params={'article_doi': DOI_1}
+            '/classification/v1/classifications'
         )
         response.raise_for_status()
         assert response.json() == CATEGORISATION_RESPONSE_DICT_1
 
+    def test_should_pass_has_evaluations_filter_to_provider(
+        self,
+        get_classification_list_response_dict_mock: AsyncMock,
+        test_client: TestClient
+    ):
+        get_classification_list_response_dict_mock.return_value = (
+            ARTICLE_SEARCH_RESPONSE_DICT_1
+        )
+        test_client.get(
+            '/classification/v1/classifications',
+            params={'filter[has_evaluations]': 'true'}
+        )
+        _, kwargs = get_classification_list_response_dict_mock.call_args
+        filter_parameters: OpenSearchFilterParameters = kwargs['filter_parameters']
+        assert filter_parameters.evaluated_only
+
+
+class TestClassificationApiRouterClassificationListByDoi:
     def test_should_provide_classification_response(
         self,
         get_classification_response_dict_by_doi_mock: AsyncMock,
@@ -167,7 +184,7 @@ class TestCategorisationApiRouter:
         assert response.json() == get_not_found_error_json_response_dict(exception)
 
 
-class TestCategorisationApiRouterArticlesByCategory:
+class TestClassificationApiRouterArticlesByCategory:
     def test_should_return_response_from_provider(
         self,
         get_article_search_response_dict_by_category_mock: AsyncMock,
@@ -183,7 +200,24 @@ class TestCategorisationApiRouterArticlesByCategory:
         response.raise_for_status()
         assert response.json() == ARTICLE_SEARCH_RESPONSE_DICT_1
 
-    def test_should_pass_mapped_api_fields_to_provider(
+    def test_should_pass_has_evaluations_and_category_filter_to_provider(
+        self,
+        get_article_search_response_dict_by_category_mock: AsyncMock,
+        test_client: TestClient
+    ):
+        get_article_search_response_dict_by_category_mock.return_value = (
+            ARTICLE_SEARCH_RESPONSE_DICT_1
+        )
+        test_client.get(
+            '/classification/v1/articles/by/category',
+            params={'category': 'Category 1', 'filter[has_evaluations]': 'true'}
+        )
+        _, kwargs = get_article_search_response_dict_by_category_mock.call_args
+        filter_parameters: OpenSearchFilterParameters = kwargs['filter_parameters']
+        assert filter_parameters.evaluated_only
+        assert kwargs['category'] == 'Category 1'
+
+    def test_should_pass_api_fields_to_provider(
         self,
         get_article_search_response_dict_by_category_mock: AsyncMock,
         test_client: TestClient
@@ -197,10 +231,7 @@ class TestCategorisationApiRouterArticlesByCategory:
         )
         get_article_search_response_dict_by_category_mock.assert_called()
         _, kwargs = get_article_search_response_dict_by_category_mock.call_args
-        assert kwargs['article_fields_set'] == {
-            InternalArticleFieldNames.ARTICLE_DOI,
-            InternalArticleFieldNames.ARTICLE_TITLE
-        }
+        assert kwargs['article_fields_set'] == {'doi', 'title'}
 
     def test_should_raise_error_for_invalid_field_name(
         self,

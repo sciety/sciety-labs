@@ -1,5 +1,4 @@
 import logging
-from typing import Mapping, Sequence
 
 import fastapi
 
@@ -11,6 +10,7 @@ from sciety_labs.app.routers.api.utils.jsonapi import (
 from sciety_labs.app.routers.api.utils.jsonapi_typing import JsonApiErrorsResponseDict
 from sciety_labs.app.routers.api.utils.validation import InvalidApiFieldsError, validate_api_fields
 from sciety_labs.app.routers.api.classification.providers import (
+    INTERNAL_ARTICLE_FIELDS_BY_API_FIELD_NAME,
     ArticleDoiNotFoundError,
     AsyncOpenSearchClassificationProvider,
     get_default_article_search_sort_parameters
@@ -19,13 +19,11 @@ from sciety_labs.app.routers.api.classification.typing import (
     ArticleSearchResponseDict,
     CategorisationResponseDict
 )
-from sciety_labs.models.article import InternalArticleFieldNames
 from sciety_labs.providers.opensearch.utils import (
     OpenSearchFilterParameters,
     OpenSearchPaginationParameters
 )
 from sciety_labs.utils.fastapi import get_cache_control_headers_for_request
-from sciety_labs.utils.mapping import get_flat_mapped_values_or_all_values_for_mapping
 
 
 LOGGER = logging.getLogger(__name__)
@@ -134,24 +132,7 @@ ARTICLES_BY_CATEGORY_API_EXAMPLE_RESPONSES: dict = {
 DEFAULT_ARTICLE_FIELDS = {'doi'}
 
 
-INTERNAL_ARTICLE_FIELDS_BY_API_FIELD_NAME: Mapping[str, Sequence[str]] = {
-    'doi': [InternalArticleFieldNames.ARTICLE_DOI],
-    'title': [InternalArticleFieldNames.ARTICLE_TITLE],
-    'publication_date': [InternalArticleFieldNames.PUBLISHED_DATE],
-    'evaluation_count': [InternalArticleFieldNames.EVALUATION_COUNT],
-    'latest_evaluation_activity_timestamp': [
-        InternalArticleFieldNames.LATEST_EVALUATION_ACTIVITY_TIMESTAMP
-    ]
-}
-
-
-ALL_ARTICLE_FIELDS = [
-    'doi',
-    'title',
-    'publication_date',
-    'evaluation_count',
-    'latest_evaluation_activity_timestamp'
-]
+ALL_ARTICLE_FIELDS = list(INTERNAL_ARTICLE_FIELDS_BY_API_FIELD_NAME.keys())
 
 ALL_ARTICLE_FIELDS_CSV = ','.join(ALL_ARTICLE_FIELDS)
 
@@ -255,7 +236,7 @@ def create_api_classification_router(
     )
     async def classifications_list(
         request: fastapi.Request,
-        evaluated_only: bool = False
+        evaluated_only: bool = fastapi.Query(alias='filter[has_evaluations]', default=False)
     ):
         return await (
             async_opensearch_classification_provider
@@ -292,17 +273,13 @@ def create_api_classification_router(
     async def articles_by_category(  # pylint: disable=too-many-arguments
         request: fastapi.Request,
         category: str,
-        evaluated_only: bool = False,
+        evaluated_only: bool = fastapi.Query(alias='filter[has_evaluations]', default=False),
         page_size: int = fastapi.Query(alias='page[size]', default=10),
         page_number: int = fastapi.Query(alias='page[number]', ge=1, default=1),
         api_article_fields_csv: str = ARTICLE_FIELDS_FASTAPI_QUERY
     ):
         api_article_fields_set = set(api_article_fields_csv.split(','))
         validate_api_fields(api_article_fields_set, valid_values=ALL_ARTICLE_FIELDS)
-        internal_article_fields_set = set(get_flat_mapped_values_or_all_values_for_mapping(
-            INTERNAL_ARTICLE_FIELDS_BY_API_FIELD_NAME,
-            api_article_fields_set
-        ))
         return await (
             async_opensearch_classification_provider
             .get_article_search_response_dict_by_category(
@@ -317,7 +294,7 @@ def create_api_classification_router(
                     page_size=page_size,
                     page_number=page_number
                 ),
-                article_fields_set=internal_article_fields_set,
+                article_fields_set=api_article_fields_set,
                 headers=get_cache_control_headers_for_request(request)
             )
         )

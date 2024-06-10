@@ -1,17 +1,18 @@
 import logging
-from typing import List, Mapping, Optional, Set
+from typing import List, Mapping, Optional, Sequence, Set, cast
 
 import opensearchpy
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.routers.api.classification.typing import (
+    ArticleAttributesDict,
     ArticleDict,
     ArticleResponseDict,
     ArticleSearchResponseDict,
     CategorisationDict,
     CategorisationResponseDict
 )
-from sciety_labs.models.article import KnownDoiPrefix
+from sciety_labs.models.article import InternalArticleFieldNames, KnownDoiPrefix
 from sciety_labs.providers.opensearch.typing import (
     DocumentDict,
     OpenSearchSearchResultDict
@@ -29,6 +30,7 @@ from sciety_labs.providers.opensearch.utils import (
 )
 from sciety_labs.utils.datetime import get_date_as_isoformat
 from sciety_labs.utils.json import get_recursively_filtered_dict_without_null_values
+from sciety_labs.utils.mapping import get_flat_mapped_values_or_all_values_for_mapping
 
 
 LOGGER = logging.getLogger(__name__)
@@ -38,6 +40,18 @@ IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT = {
     'prefix': {
         'doi': KnownDoiPrefix.BIORXIV_MEDRXIV
     }
+}
+
+
+INTERNAL_ARTICLE_FIELDS_BY_API_FIELD_NAME: Mapping[str, Sequence[str]] = {
+    'doi': [InternalArticleFieldNames.ARTICLE_DOI],
+    'title': [InternalArticleFieldNames.ARTICLE_TITLE],
+    'publication_date': [InternalArticleFieldNames.PUBLISHED_DATE],
+    'evaluation_count': [InternalArticleFieldNames.EVALUATION_COUNT],
+    'has_evaluations': [InternalArticleFieldNames.EVALUATION_COUNT],
+    'latest_evaluation_activity_timestamp': [
+        InternalArticleFieldNames.LATEST_EVALUATION_ACTIVITY_TIMESTAMP
+    ]
 }
 
 
@@ -158,30 +172,44 @@ def get_classification_response_dict_for_opensearch_document_dict(
 
 
 def get_article_dict_for_opensearch_document_dict(
-    document_dict: DocumentDict
+    document_dict: DocumentDict,
+    article_fields_set: Optional[Set[str]] = None
 ) -> ArticleDict:
     assert document_dict.get('doi')
     article_meta = get_article_meta_from_document(document_dict)
     article_stats = get_article_stats_from_document(document_dict)
     sciety_dict = document_dict.get('sciety')
+    evaluation_count = (
+        article_stats.evaluation_count
+        if article_stats
+        else None
+    )
+    attributes: ArticleAttributesDict = {
+        'doi': document_dict['doi'],
+        'title': article_meta.article_title,
+        'publication_date': get_date_as_isoformat(article_meta.published_date),
+        'evaluation_count': evaluation_count,
+        'has_evaluations': (
+            bool(evaluation_count)
+            if evaluation_count is not None
+            else None
+        ),
+        'latest_evaluation_activity_timestamp': (
+            sciety_dict.get('last_event_timestamp')
+            if sciety_dict
+            else None
+        )
+    }
+    if article_fields_set:
+        attributes = cast(ArticleAttributesDict, {
+            key: value
+            for key, value in attributes.items()
+            if key in article_fields_set
+        })
     article_dict: ArticleDict = {
         'type': 'article',
         'id': document_dict['doi'],
-        'attributes': {
-            'doi': document_dict['doi'],
-            'title': article_meta.article_title,
-            'publication_date': get_date_as_isoformat(article_meta.published_date),
-            'evaluation_count': (
-                article_stats.evaluation_count
-                if article_stats
-                else None
-            ),
-            'latest_evaluation_activity_timestamp': (
-                sciety_dict.get('last_event_timestamp')
-                if sciety_dict
-                else None
-            )
-        }
+        'attributes': attributes
     }
     return get_recursively_filtered_dict_without_null_values(article_dict)
 
@@ -195,7 +223,8 @@ def get_article_response_dict_for_opensearch_document_dict(
 
 
 def get_article_search_response_dict_for_opensearch_search_response_dict(
-    opensearch_search_result_dict: OpenSearchSearchResultDict
+    opensearch_search_result_dict: OpenSearchSearchResultDict,
+    article_fields_set: Optional[Set[str]] = None
 ) -> ArticleSearchResponseDict:
     return {
         'meta': {
@@ -203,7 +232,8 @@ def get_article_search_response_dict_for_opensearch_search_response_dict(
         },
         'data': [
             get_article_dict_for_opensearch_document_dict(
-                document_dict=hit['_source']
+                document_dict=hit['_source'],
+                article_fields_set=article_fields_set
             )
             for hit in opensearch_search_result_dict['hits']['hits']
         ]
@@ -285,9 +315,13 @@ class AsyncOpenSearchClassificationProvider:
         LOGGER.info('filter_parameters: %r', filter_parameters)
         LOGGER.info('pagination_parameters: %r', pagination_parameters)
         LOGGER.info('article_fields_set: %r', article_fields_set)
+        internal_article_fields_set = set(get_flat_mapped_values_or_all_values_for_mapping(
+            INTERNAL_ARTICLE_FIELDS_BY_API_FIELD_NAME,
+            article_fields_set
+        ))
         opensearch_fields = get_source_includes_for_mapping(
             OPENSEARCH_FIELDS_BY_REQUESTED_FIELD,
-            fields=article_fields_set
+            fields=internal_article_fields_set
         )
         LOGGER.info('opensearch_fields: %r', opensearch_fields)
         opensearch_search_result_dict = await self.async_opensearch_client.search(
@@ -302,5 +336,6 @@ class AsyncOpenSearchClassificationProvider:
             headers=headers
         )
         return get_article_search_response_dict_for_opensearch_search_response_dict(
-            opensearch_search_result_dict
+            opensearch_search_result_dict,
+            article_fields_set=article_fields_set
         )
