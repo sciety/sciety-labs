@@ -28,19 +28,15 @@ from sciety_labs.providers.opensearch.utils import (
     get_opensearch_filter_dicts_for_filter_parameters,
     get_source_includes_for_mapping
 )
+from sciety_labs.providers.opensearch.utils import (
+    IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT
+)
 from sciety_labs.utils.datetime import get_date_as_isoformat
 from sciety_labs.utils.json import get_recursively_filtered_dict_without_null_values
 from sciety_labs.utils.mapping import get_flat_mapped_values_or_all_values_for_mapping
 
 
 LOGGER = logging.getLogger(__name__)
-
-
-IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT = {
-    'prefix': {
-        'doi': KnownDoiPrefix.BIORXIV_MEDRXIV
-    }
-}
 
 
 INTERNAL_ARTICLE_FIELDS_BY_API_FIELD_NAME: Mapping[str, Sequence[str]] = {
@@ -88,26 +84,12 @@ def get_classification_list_opensearch_query_dict(
     }
 
 
-def get_category_as_crossref_group_title_opensearch_filter_dict(
-    category: str
-) -> dict:
-    return {
-        'term': {
-            'crossref.group_title.keyword': category
-        }
-    }
-
-
 def get_article_search_by_category_opensearch_query_dict(
-    category: str,
     filter_parameters: OpenSearchFilterParameters,
     sort_parameters: OpenSearchSortParameters,
     pagination_parameters: OpenSearchPaginationParameters
 ) -> dict:
-    filter_dicts: List[dict] = [
-        IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
-        get_category_as_crossref_group_title_opensearch_filter_dict(category)
-    ]
+    filter_dicts: List[dict] = []
     filter_dicts.extend(get_opensearch_filter_dicts_for_filter_parameters(
         filter_parameters=filter_parameters
     ))
@@ -307,7 +289,6 @@ class AsyncOpenSearchClassificationProvider:
 
     async def get_article_search_response_dict_by_category(  # pylint: disable=too-many-arguments
         self,
-        category: str,
         filter_parameters: OpenSearchFilterParameters,
         sort_parameters: OpenSearchSortParameters,
         pagination_parameters: OpenSearchPaginationParameters,
@@ -328,7 +309,6 @@ class AsyncOpenSearchClassificationProvider:
         LOGGER.info('opensearch_fields: %r', opensearch_fields)
         opensearch_search_result_dict = await self.async_opensearch_client.search(
             get_article_search_by_category_opensearch_query_dict(
-                category=category,
                 filter_parameters=filter_parameters,
                 sort_parameters=sort_parameters,
                 pagination_parameters=pagination_parameters

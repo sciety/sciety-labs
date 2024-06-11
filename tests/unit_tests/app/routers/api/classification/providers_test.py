@@ -4,7 +4,6 @@ import opensearchpy
 import pytest
 
 from sciety_labs.app.routers.api.classification.providers import (
-    IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
     LATEST_EVALUATION_TIMESTAMP_DESC_OPENSEARCH_SORT_FIELD,
     ArticleDoiNotFoundError,
     AsyncOpenSearchClassificationProvider,
@@ -15,16 +14,17 @@ from sciety_labs.app.routers.api.classification.providers import (
     get_classification_list_opensearch_query_dict,
     get_classification_response_dict_for_opensearch_aggregations_response_dict,
     get_classification_response_dict_for_opensearch_document_dict,
-    get_category_as_crossref_group_title_opensearch_filter_dict,
     get_default_article_search_sort_parameters
 )
 from sciety_labs.providers.opensearch.typing import OpenSearchSearchResultDict
 from sciety_labs.providers.opensearch.utils import (
+    IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
     IS_EVALUATED_OPENSEARCH_FILTER_DICT,
     OpenSearchFilterParameters,
     OpenSearchPaginationParameters,
     OpenSearchSortField,
-    OpenSearchSortParameters
+    OpenSearchSortParameters,
+    get_category_as_crossref_group_title_opensearch_filter_dict
 )
 
 
@@ -86,8 +86,10 @@ class TestGetClassificationListOpenSearchQueryDict:
 class TestGetArticleSearchByCategoryOpenSearchQueryDict:
     def test_should_include_category_filter(self):
         query_dict = get_article_search_by_category_opensearch_query_dict(
-            category='Category 1',
-            filter_parameters=OpenSearchFilterParameters(evaluated_only=False),
+            filter_parameters=OpenSearchFilterParameters(
+                category='Category 1',
+                evaluated_only=False
+            ),
             sort_parameters=OpenSearchSortParameters(),
             pagination_parameters=OpenSearchPaginationParameters()
         )
@@ -102,8 +104,10 @@ class TestGetArticleSearchByCategoryOpenSearchQueryDict:
 
     def test_should_include_category_and_has_evaluations_filter(self):
         query_dict = get_article_search_by_category_opensearch_query_dict(
-            category='Category 1',
-            filter_parameters=OpenSearchFilterParameters(evaluated_only=True),
+            filter_parameters=OpenSearchFilterParameters(
+                category='Category 1',
+                evaluated_only=True
+            ),
             sort_parameters=OpenSearchSortParameters(),
             pagination_parameters=OpenSearchPaginationParameters()
         )
@@ -115,8 +119,10 @@ class TestGetArticleSearchByCategoryOpenSearchQueryDict:
 
     def test_should_be_able_to_sort_by_latest_evaluation_activity(self):
         query_dict = get_article_search_by_category_opensearch_query_dict(
-            category='Category 1',
-            filter_parameters=OpenSearchFilterParameters(evaluated_only=True),
+            filter_parameters=OpenSearchFilterParameters(
+                category='Category 1',
+                evaluated_only=True
+            ),
             sort_parameters=OpenSearchSortParameters(sort_fields=[OpenSearchSortField(
                 field_name='sciety.last_event_timestamp',
                 sort_order='desc'
@@ -133,8 +139,10 @@ class TestGetArticleSearchByCategoryOpenSearchQueryDict:
 
     def test_should_use_page_size_and_page_number(self):
         query_dict = get_article_search_by_category_opensearch_query_dict(
-            category='Category 1',
-            filter_parameters=OpenSearchFilterParameters(evaluated_only=True),
+            filter_parameters=OpenSearchFilterParameters(
+                category='Category 1',
+                evaluated_only=True
+            ),
             sort_parameters=OpenSearchSortParameters(sort_fields=[]),
             pagination_parameters=OpenSearchPaginationParameters(
                 page_size=100,
@@ -384,8 +392,7 @@ class TestAsyncOpenSearchClassificationProvider:
         article_response = await (
             async_opensearch_classification_provider
             .get_article_search_response_dict_by_category(
-                category='Category 1',
-                filter_parameters=OpenSearchFilterParameters(),
+                filter_parameters=OpenSearchFilterParameters(category='Category 1'),
                 sort_parameters=OpenSearchSortParameters(),
                 pagination_parameters=OpenSearchPaginationParameters()
             )

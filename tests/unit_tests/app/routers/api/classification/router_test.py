@@ -214,8 +214,8 @@ class TestClassificationApiRouterArticlesByCategory:
         )
         _, kwargs = get_article_search_response_dict_by_category_mock.call_args
         filter_parameters: OpenSearchFilterParameters = kwargs['filter_parameters']
+        assert filter_parameters.category == 'Category 1'
         assert filter_parameters.evaluated_only
-        assert kwargs['category'] == 'Category 1'
 
     def test_should_pass_api_fields_to_provider(
         self,

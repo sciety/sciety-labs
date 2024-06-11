@@ -283,8 +283,8 @@ def create_api_classification_router(
         return await (
             async_opensearch_classification_provider
             .get_article_search_response_dict_by_category(
-                category=category,
                 filter_parameters=OpenSearchFilterParameters(
+                    category=category,
                     evaluated_only=evaluated_only
                 ),
                 sort_parameters=get_default_article_search_sort_parameters(
