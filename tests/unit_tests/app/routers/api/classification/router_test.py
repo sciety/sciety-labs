@@ -195,7 +195,7 @@ class TestClassificationApiRouterArticlesByCategory:
         )
         response = test_client.get(
             '/classification/v1/articles/by/category',
-            params={'category': 'Category 1'}
+            params={'filter[category]': 'Category 1'}
         )
         response.raise_for_status()
         assert response.json() == ARTICLE_SEARCH_RESPONSE_DICT_1
@@ -210,7 +210,7 @@ class TestClassificationApiRouterArticlesByCategory:
         )
         test_client.get(
             '/classification/v1/articles/by/category',
-            params={'category': 'Category 1', 'filter[evaluated_only]': 'true'}
+            params={'filter[category]': 'Category 1', 'filter[evaluated_only]': 'true'}
         )
         _, kwargs = get_article_search_response_dict_by_category_mock.call_args
         filter_parameters: OpenSearchFilterParameters = kwargs['filter_parameters']
@@ -227,7 +227,7 @@ class TestClassificationApiRouterArticlesByCategory:
         )
         test_client.get(
             '/classification/v1/articles/by/category',
-            params={'category': 'Category 1', 'fields[article]': 'doi,title'}
+            params={'filter[category]': 'Category 1', 'fields[article]': 'doi,title'}
         )
         get_article_search_response_dict_by_category_mock.assert_called()
         _, kwargs = get_article_search_response_dict_by_category_mock.call_args
@@ -243,7 +243,7 @@ class TestClassificationApiRouterArticlesByCategory:
         )
         response = test_client.get(
             '/classification/v1/articles/by/category',
-            params={'category': 'Category 1', 'fields[article]': 'doi,invalid_1'}
+            params={'filter[category]': 'Category 1', 'fields[article]': 'doi,invalid_1'}
         )
         assert response.status_code == 400
         response_json = response.json()
