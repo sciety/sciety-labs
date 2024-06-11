@@ -67,7 +67,7 @@ def get_classification_list_opensearch_query_dict(
     filter_dicts: List[dict] = [
         IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT
     ]
-    if filter_parameters.evaluated_only:
+    if filter_parameters.has_evaluations:
         filter_dicts.append(IS_EVALUATED_OPENSEARCH_FILTER_DICT)
     return {
         'query': {
@@ -107,8 +107,11 @@ def get_article_search_by_category_opensearch_query_dict(
         IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
         get_category_as_crossref_group_title_opensearch_filter_dict(category)
     ]
-    if filter_parameters.evaluated_only:
-        filter_dicts.append(IS_EVALUATED_OPENSEARCH_FILTER_DICT)
+    if filter_parameters.has_evaluations is not None:
+        if filter_parameters.has_evaluations:
+            filter_dicts.append(IS_EVALUATED_OPENSEARCH_FILTER_DICT)
+        else:
+            filter_dicts.append({'bool': {'must_not': [IS_EVALUATED_OPENSEARCH_FILTER_DICT]}})
     query_dict: dict = {
         'query': {
             'bool': {
@@ -247,9 +250,9 @@ LATEST_EVALUATION_TIMESTAMP_DESC_OPENSEARCH_SORT_FIELD = OpenSearchSortField(
 
 
 def get_default_article_search_sort_parameters(
-    evaluated_only: bool
+    has_evaluations: Optional[bool]
 ) -> OpenSearchSortParameters:
-    if evaluated_only:
+    if has_evaluations:
         return OpenSearchSortParameters(
             sort_fields=[LATEST_EVALUATION_TIMESTAMP_DESC_OPENSEARCH_SORT_FIELD]
         )

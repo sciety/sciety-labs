@@ -48,7 +48,7 @@ DEFAULT_PAGE_SIZE = 10
 
 @dataclasses.dataclass(frozen=True)
 class OpenSearchFilterParameters:
-    evaluated_only: bool = False
+    has_evaluations: Optional[bool] = None
 
 
 @dataclasses.dataclass(frozen=True)
