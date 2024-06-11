@@ -1,7 +1,7 @@
 import dataclasses
 import logging
 from datetime import date, timedelta
-from typing import Any, Iterable, Literal, Mapping, Optional, Sequence, cast
+from typing import Any, Iterable, List, Literal, Mapping, Optional, Sequence, cast
 
 
 import numpy.typing as npt
@@ -85,6 +85,15 @@ class OpenSearchPaginationParameters:
 
     def get_offset(self) -> int:
         return self.page_size * (self.page_number - 1)
+
+
+def get_opensearch_filter_dicts_for_filter_parameters(
+    filter_parameters: OpenSearchFilterParameters
+) -> Sequence[dict]:
+    filter_dicts: List[dict] = []
+    if filter_parameters.evaluated_only:
+        filter_dicts.append(IS_EVALUATED_OPENSEARCH_FILTER_DICT)
+    return filter_dicts
 
 
 def get_author_names_for_document_s2_authors(

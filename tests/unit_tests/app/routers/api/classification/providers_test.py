@@ -73,7 +73,7 @@ class TestGetClassificationListOpenSearchQueryDict:
             IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT
         ]
 
-    def test_should_include_has_evaluations_filter(self):
+    def test_should_include_evaluated_only_filter(self):
         query_dict = get_classification_list_opensearch_query_dict(
             filter_parameters=OpenSearchFilterParameters(evaluated_only=True)
         )

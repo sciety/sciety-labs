@@ -18,7 +18,6 @@ from sciety_labs.providers.opensearch.typing import (
     OpenSearchSearchResultDict
 )
 from sciety_labs.providers.opensearch.utils import (
-    IS_EVALUATED_OPENSEARCH_FILTER_DICT,
     OPENSEARCH_FIELDS_BY_REQUESTED_FIELD,
     OpenSearchFilterParameters,
     OpenSearchPaginationParameters,
@@ -26,6 +25,7 @@ from sciety_labs.providers.opensearch.utils import (
     OpenSearchSortParameters,
     get_article_meta_from_document,
     get_article_stats_from_document,
+    get_opensearch_filter_dicts_for_filter_parameters,
     get_source_includes_for_mapping
 )
 from sciety_labs.utils.datetime import get_date_as_isoformat
@@ -67,8 +67,9 @@ def get_classification_list_opensearch_query_dict(
     filter_dicts: List[dict] = [
         IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT
     ]
-    if filter_parameters.evaluated_only:
-        filter_dicts.append(IS_EVALUATED_OPENSEARCH_FILTER_DICT)
+    filter_dicts.extend(get_opensearch_filter_dicts_for_filter_parameters(
+        filter_parameters=filter_parameters
+    ))
     return {
         'query': {
             'bool': {
@@ -107,8 +108,9 @@ def get_article_search_by_category_opensearch_query_dict(
         IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
         get_category_as_crossref_group_title_opensearch_filter_dict(category)
     ]
-    if filter_parameters.evaluated_only:
-        filter_dicts.append(IS_EVALUATED_OPENSEARCH_FILTER_DICT)
+    filter_dicts.extend(get_opensearch_filter_dicts_for_filter_parameters(
+        filter_parameters=filter_parameters
+    ))
     query_dict: dict = {
         'query': {
             'bool': {
