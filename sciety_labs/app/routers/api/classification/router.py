@@ -237,13 +237,15 @@ def create_api_classification_router(
     )
     async def classifications_list(
         request: fastapi.Request,
-        evaluated_only: bool = fastapi.Query(alias='filter[has_evaluations]', default=False)
+        has_evaluations: Optional[bool] = (
+            fastapi.Query(alias='filter[has_evaluations]', default=None)
+        ),
     ):
         return await (
             async_opensearch_classification_provider
             .get_classification_list_response_dict(
                 filter_parameters=OpenSearchFilterParameters(
-                    has_evaluations=evaluated_only
+                    has_evaluations=has_evaluations
                 ),
                 headers=get_cache_control_headers_for_request(request)
             )
@@ -274,7 +276,7 @@ def create_api_classification_router(
     async def articles_by_category(  # pylint: disable=too-many-arguments
         request: fastapi.Request,
         category: str,
-        evaluated_only: Optional[bool] = (
+        has_evaluations: Optional[bool] = (
             fastapi.Query(alias='filter[has_evaluations]', default=None)
         ),
         page_size: int = fastapi.Query(alias='page[size]', default=10),
@@ -288,10 +290,10 @@ def create_api_classification_router(
             .get_article_search_response_dict_by_category(
                 category=category,
                 filter_parameters=OpenSearchFilterParameters(
-                    has_evaluations=evaluated_only
+                    has_evaluations=has_evaluations
                 ),
                 sort_parameters=get_default_article_search_sort_parameters(
-                    has_evaluations=evaluated_only
+                    has_evaluations=has_evaluations
                 ),
                 pagination_parameters=OpenSearchPaginationParameters(
                     page_size=page_size,

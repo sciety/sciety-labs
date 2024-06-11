@@ -67,8 +67,11 @@ def get_classification_list_opensearch_query_dict(
     filter_dicts: List[dict] = [
         IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT
     ]
-    if filter_parameters.has_evaluations:
-        filter_dicts.append(IS_EVALUATED_OPENSEARCH_FILTER_DICT)
+    if filter_parameters.has_evaluations is not None:
+        if filter_parameters.has_evaluations:
+            filter_dicts.append(IS_EVALUATED_OPENSEARCH_FILTER_DICT)
+        else:
+            filter_dicts.append({'bool': {'must_not': [IS_EVALUATED_OPENSEARCH_FILTER_DICT]}})
     return {
         'query': {
             'bool': {

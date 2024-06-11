@@ -67,7 +67,7 @@ class TestArticleDoiNotFoundError:
 class TestGetClassificationListOpenSearchQueryDict:
     def test_should_include_biorxiv_medrxiv_filter(self):
         query_dict = get_classification_list_opensearch_query_dict(
-            filter_parameters=OpenSearchFilterParameters(has_evaluations=False)
+            filter_parameters=OpenSearchFilterParameters(has_evaluations=None)
         )
         assert query_dict['query']['bool']['filter'] == [
             IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT
@@ -80,6 +80,15 @@ class TestGetClassificationListOpenSearchQueryDict:
         assert query_dict['query']['bool']['filter'] == [
             IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
             IS_EVALUATED_OPENSEARCH_FILTER_DICT
+        ]
+
+    def test_should_include_negative_has_evaluations_filter(self):
+        query_dict = get_classification_list_opensearch_query_dict(
+            filter_parameters=OpenSearchFilterParameters(has_evaluations=False)
+        )
+        assert query_dict['query']['bool']['filter'] == [
+            IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
+            {'bool': {'must_not': [IS_EVALUATED_OPENSEARCH_FILTER_DICT]}}
         ]
 
 
