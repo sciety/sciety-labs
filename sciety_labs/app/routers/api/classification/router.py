@@ -1,5 +1,4 @@
 import logging
-from typing import Optional
 
 import fastapi
 
@@ -237,15 +236,13 @@ def create_api_classification_router(
     )
     async def classifications_list(
         request: fastapi.Request,
-        has_evaluations: Optional[bool] = (
-            fastapi.Query(alias='filter[has_evaluations]', default=None)
-        ),
+        evaluated_only: bool = fastapi.Query(alias='filter[evaluated_only]', default=False)
     ):
         return await (
             async_opensearch_classification_provider
             .get_classification_list_response_dict(
                 filter_parameters=OpenSearchFilterParameters(
-                    has_evaluations=has_evaluations
+                    evaluated_only=evaluated_only
                 ),
                 headers=get_cache_control_headers_for_request(request)
             )
@@ -276,9 +273,7 @@ def create_api_classification_router(
     async def articles_by_category(  # pylint: disable=too-many-arguments
         request: fastapi.Request,
         category: str,
-        has_evaluations: Optional[bool] = (
-            fastapi.Query(alias='filter[has_evaluations]', default=None)
-        ),
+        evaluated_only: bool = fastapi.Query(alias='filter[evaluated_only]', default=False),
         page_size: int = fastapi.Query(alias='page[size]', default=10),
         page_number: int = fastapi.Query(alias='page[number]', ge=1, default=1),
         api_article_fields_csv: str = ARTICLE_FIELDS_FASTAPI_QUERY
@@ -290,10 +285,10 @@ def create_api_classification_router(
             .get_article_search_response_dict_by_category(
                 category=category,
                 filter_parameters=OpenSearchFilterParameters(
-                    has_evaluations=has_evaluations
+                    evaluated_only=evaluated_only
                 ),
                 sort_parameters=get_default_article_search_sort_parameters(
-                    has_evaluations=has_evaluations
+                    evaluated_only=evaluated_only
                 ),
                 pagination_parameters=OpenSearchPaginationParameters(
                     page_size=page_size,

@@ -48,7 +48,7 @@ DEFAULT_PAGE_SIZE = 10
 
 @dataclasses.dataclass(frozen=True)
 class OpenSearchFilterParameters:
-    has_evaluations: Optional[bool] = None
+    evaluated_only: bool = False
 
 
 @dataclasses.dataclass(frozen=True)
@@ -91,11 +91,8 @@ def get_opensearch_filter_dicts_for_filter_parameters(
     filter_parameters: OpenSearchFilterParameters
 ) -> Sequence[dict]:
     filter_dicts: List[dict] = []
-    if filter_parameters.has_evaluations is not None:
-        if filter_parameters.has_evaluations:
-            filter_dicts.append(IS_EVALUATED_OPENSEARCH_FILTER_DICT)
-        else:
-            filter_dicts.append({'bool': {'must_not': [IS_EVALUATED_OPENSEARCH_FILTER_DICT]}})
+    if filter_parameters.evaluated_only:
+        filter_dicts.append(IS_EVALUATED_OPENSEARCH_FILTER_DICT)
     return filter_dicts
 
 

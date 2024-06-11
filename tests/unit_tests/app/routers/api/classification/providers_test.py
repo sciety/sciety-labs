@@ -67,28 +67,19 @@ class TestArticleDoiNotFoundError:
 class TestGetClassificationListOpenSearchQueryDict:
     def test_should_include_biorxiv_medrxiv_filter(self):
         query_dict = get_classification_list_opensearch_query_dict(
-            filter_parameters=OpenSearchFilterParameters(has_evaluations=None)
+            filter_parameters=OpenSearchFilterParameters(evaluated_only=False)
         )
         assert query_dict['query']['bool']['filter'] == [
             IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT
         ]
 
-    def test_should_include_has_evaluations_filter(self):
+    def test_should_include_evaluated_only_filter(self):
         query_dict = get_classification_list_opensearch_query_dict(
-            filter_parameters=OpenSearchFilterParameters(has_evaluations=True)
+            filter_parameters=OpenSearchFilterParameters(evaluated_only=True)
         )
         assert query_dict['query']['bool']['filter'] == [
             IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
             IS_EVALUATED_OPENSEARCH_FILTER_DICT
-        ]
-
-    def test_should_include_negative_has_evaluations_filter(self):
-        query_dict = get_classification_list_opensearch_query_dict(
-            filter_parameters=OpenSearchFilterParameters(has_evaluations=False)
-        )
-        assert query_dict['query']['bool']['filter'] == [
-            IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
-            {'bool': {'must_not': [IS_EVALUATED_OPENSEARCH_FILTER_DICT]}}
         ]
 
 
@@ -96,7 +87,7 @@ class TestGetArticleSearchByCategoryOpenSearchQueryDict:
     def test_should_include_category_filter(self):
         query_dict = get_article_search_by_category_opensearch_query_dict(
             category='Category 1',
-            filter_parameters=OpenSearchFilterParameters(has_evaluations=None),
+            filter_parameters=OpenSearchFilterParameters(evaluated_only=False),
             sort_parameters=OpenSearchSortParameters(),
             pagination_parameters=OpenSearchPaginationParameters()
         )
@@ -112,7 +103,7 @@ class TestGetArticleSearchByCategoryOpenSearchQueryDict:
     def test_should_include_category_and_has_evaluations_filter(self):
         query_dict = get_article_search_by_category_opensearch_query_dict(
             category='Category 1',
-            filter_parameters=OpenSearchFilterParameters(has_evaluations=True),
+            filter_parameters=OpenSearchFilterParameters(evaluated_only=True),
             sort_parameters=OpenSearchSortParameters(),
             pagination_parameters=OpenSearchPaginationParameters()
         )
@@ -122,23 +113,10 @@ class TestGetArticleSearchByCategoryOpenSearchQueryDict:
             IS_EVALUATED_OPENSEARCH_FILTER_DICT
         ]
 
-    def test_should_include_category_and_negative_has_evaluations_filter(self):
-        query_dict = get_article_search_by_category_opensearch_query_dict(
-            category='Category 1',
-            filter_parameters=OpenSearchFilterParameters(has_evaluations=False),
-            sort_parameters=OpenSearchSortParameters(),
-            pagination_parameters=OpenSearchPaginationParameters()
-        )
-        assert query_dict['query']['bool']['filter'] == [
-            IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
-            get_category_as_crossref_group_title_opensearch_filter_dict('Category 1'),
-            {'bool': {'must_not': [IS_EVALUATED_OPENSEARCH_FILTER_DICT]}}
-        ]
-
     def test_should_be_able_to_sort_by_latest_evaluation_activity(self):
         query_dict = get_article_search_by_category_opensearch_query_dict(
             category='Category 1',
-            filter_parameters=OpenSearchFilterParameters(has_evaluations=True),
+            filter_parameters=OpenSearchFilterParameters(evaluated_only=True),
             sort_parameters=OpenSearchSortParameters(sort_fields=[OpenSearchSortField(
                 field_name='sciety.last_event_timestamp',
                 sort_order='desc'
@@ -156,7 +134,7 @@ class TestGetArticleSearchByCategoryOpenSearchQueryDict:
     def test_should_use_page_size_and_page_number(self):
         query_dict = get_article_search_by_category_opensearch_query_dict(
             category='Category 1',
-            filter_parameters=OpenSearchFilterParameters(has_evaluations=True),
+            filter_parameters=OpenSearchFilterParameters(evaluated_only=True),
             sort_parameters=OpenSearchSortParameters(sort_fields=[]),
             pagination_parameters=OpenSearchPaginationParameters(
                 page_size=100,
@@ -369,14 +347,14 @@ class TestGetArticleSearchResponseDictForOpenSearchSearchResponseDict:
 class TestGetDefaultArticleSearchSortParameters:
     def test_should_not_sort_by_if_not_evaluation_only(self):
         sort_parameters = get_default_article_search_sort_parameters(
-            has_evaluations=False
+            evaluated_only=False
         )
         assert not sort_parameters.sort_fields
         assert not sort_parameters
 
     def test_should_sort_by_evaluation_activity_descending_if_evaluation_only(self):
         sort_parameters = get_default_article_search_sort_parameters(
-            has_evaluations=True
+            evaluated_only=True
         )
         assert sort_parameters == OpenSearchSortParameters(sort_fields=[
             LATEST_EVALUATION_TIMESTAMP_DESC_OPENSEARCH_SORT_FIELD

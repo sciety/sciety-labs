@@ -136,7 +136,7 @@ class TestClassificationApiRouterClassificationList:
         response.raise_for_status()
         assert response.json() == CATEGORISATION_RESPONSE_DICT_1
 
-    def test_should_pass_has_evaluations_filter_to_provider(
+    def test_should_pass_evaluated_only_filter_to_provider(
         self,
         get_classification_list_response_dict_mock: AsyncMock,
         test_client: TestClient
@@ -146,11 +146,11 @@ class TestClassificationApiRouterClassificationList:
         )
         test_client.get(
             '/classification/v1/classifications',
-            params={'filter[has_evaluations]': 'true'}
+            params={'filter[evaluated_only]': 'true'}
         )
         _, kwargs = get_classification_list_response_dict_mock.call_args
         filter_parameters: OpenSearchFilterParameters = kwargs['filter_parameters']
-        assert filter_parameters.has_evaluations
+        assert filter_parameters.evaluated_only
 
 
 class TestClassificationApiRouterClassificationListByDoi:
@@ -200,7 +200,7 @@ class TestClassificationApiRouterArticlesByCategory:
         response.raise_for_status()
         assert response.json() == ARTICLE_SEARCH_RESPONSE_DICT_1
 
-    def test_should_pass_has_evaluations_and_category_filter_to_provider(
+    def test_should_pass_evaluated_only_and_category_filter_to_provider(
         self,
         get_article_search_response_dict_by_category_mock: AsyncMock,
         test_client: TestClient
@@ -210,11 +210,11 @@ class TestClassificationApiRouterArticlesByCategory:
         )
         test_client.get(
             '/classification/v1/articles/by/category',
-            params={'category': 'Category 1', 'filter[has_evaluations]': 'true'}
+            params={'category': 'Category 1', 'filter[evaluated_only]': 'true'}
         )
         _, kwargs = get_article_search_response_dict_by_category_mock.call_args
         filter_parameters: OpenSearchFilterParameters = kwargs['filter_parameters']
-        assert filter_parameters.has_evaluations
+        assert filter_parameters.evaluated_only
         assert kwargs['category'] == 'Category 1'
 
     def test_should_pass_api_fields_to_provider(

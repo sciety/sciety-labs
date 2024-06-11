@@ -249,9 +249,9 @@ LATEST_EVALUATION_TIMESTAMP_DESC_OPENSEARCH_SORT_FIELD = OpenSearchSortField(
 
 
 def get_default_article_search_sort_parameters(
-    has_evaluations: Optional[bool]
+    evaluated_only: bool
 ) -> OpenSearchSortParameters:
-    if has_evaluations:
+    if evaluated_only:
         return OpenSearchSortParameters(
             sort_fields=[LATEST_EVALUATION_TIMESTAMP_DESC_OPENSEARCH_SORT_FIELD]
         )
