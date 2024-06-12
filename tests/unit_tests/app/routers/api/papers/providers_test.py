@@ -6,7 +6,7 @@ import pytest
 from sciety_labs.app.routers.api.papers.providers import (
     LATEST_EVALUATION_TIMESTAMP_DESC_OPENSEARCH_SORT_FIELD,
     DoiNotFoundError,
-    AsyncOpenSearchClassificationProvider,
+    AsyncOpenSearchPapersProvider,
     get_paper_dict_for_opensearch_document_dict,
     get_paper_response_dict_for_opensearch_document_dict,
     get_paper_search_by_category_opensearch_query_dict,
@@ -48,11 +48,11 @@ OPENSEARCH_SEARCH_RESULT_1: OpenSearchSearchResultDict = {
 }
 
 
-@pytest.fixture(name='async_opensearch_classification_provider')
-def _async_opensearch_classification_provider(
+@pytest.fixture(name='async_opensearch_papers_provider')
+def _async_opensearch_papers_provider(
     app_providers_and_models_mock: MagicMock
-) -> AsyncOpenSearchClassificationProvider:
-    return AsyncOpenSearchClassificationProvider(
+) -> AsyncOpenSearchPapersProvider:
+    return AsyncOpenSearchPapersProvider(
         app_providers_and_models=app_providers_and_models_mock
     )
 
@@ -369,28 +369,28 @@ class TestGetDefaultPaperSearchSortParameters:
         ])
 
 
-class TestAsyncOpenSearchClassificationProvider:
+class TestAsyncOpenSearchPapersProvider:
     @pytest.mark.asyncio
     async def test_should_raise_paper_doi_not_found_error(
         self,
-        async_opensearch_classification_provider: AsyncOpenSearchClassificationProvider,
+        async_opensearch_papers_provider: AsyncOpenSearchPapersProvider,
         async_opensearch_client_mock: AsyncMock
     ):
         async_opensearch_client_mock.get_source.side_effect = opensearchpy.NotFoundError()
         with pytest.raises(DoiNotFoundError):
-            await async_opensearch_classification_provider.get_classificiation_response_dict_by_doi(
+            await async_opensearch_papers_provider.get_classificiation_response_dict_by_doi(
                 doi=DOI_1
             )
 
     @pytest.mark.asyncio
     async def test_should_return_paper_response(
         self,
-        async_opensearch_classification_provider: AsyncOpenSearchClassificationProvider,
+        async_opensearch_papers_provider: AsyncOpenSearchPapersProvider,
         async_opensearch_client_mock: AsyncMock
     ):
         async_opensearch_client_mock.search.return_value = OPENSEARCH_SEARCH_RESULT_1
         paper_response = await (
-            async_opensearch_classification_provider
+            async_opensearch_papers_provider
             .get_paper_search_response_dict(
                 filter_parameters=OpenSearchFilterParameters(category='Category 1'),
                 sort_parameters=OpenSearchSortParameters(),

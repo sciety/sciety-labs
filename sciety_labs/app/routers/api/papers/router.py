@@ -13,7 +13,7 @@ from sciety_labs.app.routers.api.utils.validation import InvalidApiFieldsError, 
 from sciety_labs.app.routers.api.papers.providers import (
     INTERNAL_ARTICLE_FIELDS_BY_API_FIELD_NAME,
     DoiNotFoundError,
-    AsyncOpenSearchClassificationProvider,
+    AsyncOpenSearchPapersProvider,
     get_default_paper_search_sort_parameters
 )
 from sciety_labs.app.routers.api.papers.typing import (
@@ -226,7 +226,7 @@ def create_api_papers_router(
         route_class=PapersJsonApiRoute
     )
 
-    async_opensearch_classification_provider = AsyncOpenSearchClassificationProvider(
+    async_opensearch_papers_provider = AsyncOpenSearchPapersProvider(
         app_providers_and_models=app_providers_and_models
     )
 
@@ -240,7 +240,7 @@ def create_api_papers_router(
         evaluated_only: bool = fastapi.Query(alias='filter[evaluated_only]', default=False)
     ):
         return await (
-            async_opensearch_classification_provider
+            async_opensearch_papers_provider
             .get_classification_list_response_dict(
                 filter_parameters=OpenSearchFilterParameters(
                     evaluated_only=evaluated_only
@@ -259,7 +259,7 @@ def create_api_papers_router(
         doi: str
     ):
         return await (
-            async_opensearch_classification_provider
+            async_opensearch_papers_provider
             .get_classificiation_response_dict_by_doi(
                 doi=doi,
                 headers=get_cache_control_headers_for_request(request)
@@ -282,7 +282,7 @@ def create_api_papers_router(
         api_paper_fields_set = set(api_paper_fields_csv.split(','))
         validate_api_fields(api_paper_fields_set, valid_values=ALL_PAPER_FIELDS)
         return await (
-            async_opensearch_classification_provider
+            async_opensearch_papers_provider
             .get_paper_search_response_dict(
                 filter_parameters=OpenSearchFilterParameters(
                     category=category,

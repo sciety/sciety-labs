@@ -240,7 +240,7 @@ def get_default_paper_search_sort_parameters(
     return OpenSearchSortParameters(sort_fields=[])
 
 
-class AsyncOpenSearchClassificationProvider:
+class AsyncOpenSearchPapersProvider:
     def __init__(self, app_providers_and_models: AppProvidersAndModels):
         self.async_opensearch_client = app_providers_and_models.async_opensearch_client
         self.index_name = app_providers_and_models.opensearch_config.index_name
