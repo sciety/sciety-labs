@@ -123,7 +123,7 @@ class TestGetNotFoundErrorJsonResponseDict:
         }
 
 
-class TestClassificationApiRouterClassificationList:
+class TestPapersApiRouterClassificationList:
     def test_should_provide_classification_list_response(
         self,
         get_classification_list_response_dict_mock: AsyncMock,
@@ -153,7 +153,7 @@ class TestClassificationApiRouterClassificationList:
         assert filter_parameters.evaluated_only
 
 
-class TestClassificationApiRouterClassificationListByDoi:
+class TestPapersApiRouterClassificationListByDoi:
     def test_should_provide_classification_response(
         self,
         get_classification_response_dict_by_doi_mock: AsyncMock,
@@ -182,7 +182,7 @@ class TestClassificationApiRouterClassificationListByDoi:
         assert response.json() == get_doi_not_found_error_json_response_dict(exception)
 
 
-class TestClassificationApiRouterPapers:
+class TestPapersApiRouterPreprints:
     def test_should_return_response_from_provider(
         self,
         get_paper_search_response_dict_mock: AsyncMock,
