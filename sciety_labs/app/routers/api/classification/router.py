@@ -250,18 +250,18 @@ def create_api_classification_router(
         )
 
     @router.get(
-        '/papers/v1/preprints/classifications/by/doi',
+        '/papers/v1/preprints/classifications/by/doi/{doi:path}',
         response_model=CategorisationResponseDict,
         responses=CATEGORISATION_BY_DOI_API_EXAMPLE_RESPONSES
     )
     async def classifications_by_doi(
         request: fastapi.Request,
-        article_doi: str
+        doi: str
     ):
         return await (
             async_opensearch_classification_provider
             .get_classificiation_response_dict_by_doi(
-                article_doi=article_doi,
+                article_doi=doi,
                 headers=get_cache_control_headers_for_request(request)
             )
         )
