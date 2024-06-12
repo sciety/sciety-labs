@@ -223,7 +223,8 @@ def create_api_papers_router(
     app_providers_and_models: AppProvidersAndModels
 ) -> fastapi.APIRouter:
     router = fastapi.APIRouter(
-        route_class=PapersJsonApiRoute
+        route_class=PapersJsonApiRoute,
+        tags=['papers']
     )
 
     async_opensearch_papers_provider = AsyncOpenSearchPapersProvider(
