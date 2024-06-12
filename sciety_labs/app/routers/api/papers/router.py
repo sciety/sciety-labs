@@ -210,7 +210,7 @@ EXCEPTION_HANDLER_MAPPING: AsyncExceptionHandlerMappingT = {
 }
 
 
-class CatergorisationJsonApiRoute(JsonApiRoute):
+class PapersJsonApiRoute(JsonApiRoute):
     def __init__(self, *args, **kwargs):
         super().__init__(
             *args,
@@ -223,7 +223,7 @@ def create_api_papers_router(
     app_providers_and_models: AppProvidersAndModels
 ) -> fastapi.APIRouter:
     router = fastapi.APIRouter(
-        route_class=CatergorisationJsonApiRoute
+        route_class=PapersJsonApiRoute
     )
 
     async_opensearch_classification_provider = AsyncOpenSearchClassificationProvider(
