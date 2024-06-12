@@ -67,11 +67,11 @@ class TestApiCategorisationList:
         assert NON_BIORXIV_MEDRXIV_GROUP_TITLE_1 not in category_set
 
 
-class TestApiAticlesByCategory:
+class TestApiArticles:
     def test_should_list_articles_for_valid_category(self, regression_test_session: Session):
         response = regression_test_session.get(
-            '/api/classification/v1/articles/by/category',
-            params={'category': Categories.BIOPHYSICS}
+            '/api/classification/v1/articles',
+            params={'filter[category]': Categories.BIOPHYSICS}
         )
         response.raise_for_status()
         response_json: ArticleSearchResponseDict = response.json()
@@ -82,8 +82,8 @@ class TestApiAticlesByCategory:
         regression_test_session: Session
     ):
         response = regression_test_session.get(
-            '/api/classification/v1/articles/by/category',
-            params={'category': NON_BIORXIV_MEDRXIV_GROUP_TITLE_1}
+            '/api/classification/v1/articles',
+            params={'filter[category]': NON_BIORXIV_MEDRXIV_GROUP_TITLE_1}
         )
         response.raise_for_status()
         response_json: ArticleSearchResponseDict = response.json()
