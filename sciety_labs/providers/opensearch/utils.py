@@ -10,7 +10,8 @@ from sciety_labs.models.article import (
     ArticleMetaData,
     ArticleStats,
     InternalArticleFieldName,
-    InternalArticleFieldNames
+    InternalArticleFieldNames,
+    KnownDoiPrefix
 )
 
 from sciety_labs.providers.interfaces.article_recommendation import (
@@ -49,6 +50,7 @@ DEFAULT_PAGE_SIZE = 10
 @dataclasses.dataclass(frozen=True)
 class OpenSearchFilterParameters:
     evaluated_only: bool = False
+    category: Optional[str] = None
 
 
 @dataclasses.dataclass(frozen=True)
@@ -87,10 +89,27 @@ class OpenSearchPaginationParameters:
         return self.page_size * (self.page_number - 1)
 
 
+def get_category_as_crossref_group_title_opensearch_filter_dict(
+    category: str
+) -> dict:
+    return {
+        'term': {
+            'crossref.group_title.keyword': category
+        }
+    }
+
+
 def get_opensearch_filter_dicts_for_filter_parameters(
     filter_parameters: OpenSearchFilterParameters
 ) -> Sequence[dict]:
     filter_dicts: List[dict] = []
+    if filter_parameters.category:
+        filter_dicts.extend([
+            IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
+            get_category_as_crossref_group_title_opensearch_filter_dict(
+                filter_parameters.category
+            )
+        ])
     if filter_parameters.evaluated_only:
         filter_dicts.append(IS_EVALUATED_OPENSEARCH_FILTER_DICT)
     return filter_dicts
@@ -441,3 +460,10 @@ def get_default_filter_parameters(article_doi: str) -> ArticleRecommendationFilt
         exclude_article_dois={article_doi},
         from_publication_date=date.today() - timedelta(days=60)
     )
+
+
+IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT = {
+    'prefix': {
+        'doi': KnownDoiPrefix.BIORXIV_MEDRXIV
+    }
+}

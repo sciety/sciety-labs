@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 import fastapi
 
@@ -266,13 +267,13 @@ def create_api_classification_router(
         )
 
     @router.get(
-        '/classification/v1/articles/by/category',
+        '/classification/v1/articles',
         response_model=ArticleSearchResponseDict,
         responses=ARTICLES_BY_CATEGORY_API_EXAMPLE_RESPONSES
     )
-    async def articles_by_category(  # pylint: disable=too-many-arguments
+    async def articles(  # pylint: disable=too-many-arguments
         request: fastapi.Request,
-        category: str,
+        category: Optional[str] = fastapi.Query(alias='filter[category]', default=None),
         evaluated_only: bool = fastapi.Query(alias='filter[evaluated_only]', default=False),
         page_size: int = fastapi.Query(alias='page[size]', default=10),
         page_number: int = fastapi.Query(alias='page[number]', ge=1, default=1),
@@ -282,9 +283,9 @@ def create_api_classification_router(
         validate_api_fields(api_article_fields_set, valid_values=ALL_ARTICLE_FIELDS)
         return await (
             async_opensearch_classification_provider
-            .get_article_search_response_dict_by_category(
-                category=category,
+            .get_article_search_response_dict(
                 filter_parameters=OpenSearchFilterParameters(
+                    category=category,
                     evaluated_only=evaluated_only
                 ),
                 sort_parameters=get_default_article_search_sort_parameters(
