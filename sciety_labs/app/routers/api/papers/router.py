@@ -219,7 +219,7 @@ class CatergorisationJsonApiRoute(JsonApiRoute):
         )
 
 
-def create_api_classification_router(
+def create_api_papers_router(
     app_providers_and_models: AppProvidersAndModels
 ) -> fastapi.APIRouter:
     router = fastapi.APIRouter(

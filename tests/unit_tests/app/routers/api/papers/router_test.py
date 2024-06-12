@@ -13,7 +13,7 @@ from sciety_labs.app.routers.api.papers.providers import (
 )
 import sciety_labs.app.routers.api.papers.router as router_module
 from sciety_labs.app.routers.api.papers.router import (
-    create_api_classification_router,
+    create_api_papers_router,
     get_invalid_api_fields_json_response_dict,
     get_not_found_error_json_response_dict
 )
@@ -103,7 +103,7 @@ def _get_article_search_response_dict_mock(
 @pytest.fixture(name='test_client')
 def _test_client(app_providers_and_models_mock: MagicMock) -> TestClient:
     app = FastAPI()
-    app.include_router(create_api_classification_router(
+    app.include_router(create_api_papers_router(
         app_providers_and_models=app_providers_and_models_mock
     ))
     return TestClient(app)
