@@ -37,28 +37,28 @@ LOGGER = logging.getLogger(__name__)
 DEFAULT_LIKE_S2_RECOMMENDATION_FIELDS = {'externalIds'}
 
 
-class ExternalIdsDict(TypedDict):
+class S2ExternalIdsDict(TypedDict):
     DOI: str
 
 
-class AuthorDict(TypedDict):
+class S2AuthorDict(TypedDict):
     name: str
 
 
-class PaperDict(TypedDict):
-    externalIds: NotRequired[Optional[ExternalIdsDict]]
+class S2PaperDict(TypedDict):
+    externalIds: NotRequired[Optional[S2ExternalIdsDict]]
     title: NotRequired[Optional[str]]
     publicationDate: NotRequired[Optional[str]]
-    authors: NotRequired[Optional[Sequence[AuthorDict]]]
+    authors: NotRequired[Optional[Sequence[S2AuthorDict]]]
     _evaluationCount: NotRequired[Optional[int]]
     _score: NotRequired[Optional[float]]
 
 
-class RecommendationResponseDict(TypedDict):
-    recommendedPapers: Sequence[PaperDict]
+class S2RecommendationResponseDict(TypedDict):
+    recommendedPapers: Sequence[S2PaperDict]
 
 
-class ErrorMessage(BaseModel):
+class S2ErrorMessage(BaseModel):
     error: str
 
 
@@ -88,7 +88,7 @@ LIKE_S2_RECOMMENDATION_API_DESCRIPTION = textwrap.dedent(
     '''  # noqa pylint: disable=line-too-long
 )
 
-LIKE_S2_RECOMMENDATION_API_EXAMPLE_200_RESPONSE: RecommendationResponseDict = {
+LIKE_S2_RECOMMENDATION_API_EXAMPLE_200_RESPONSE: S2RecommendationResponseDict = {
     'recommendedPapers': [{
         'externalIds': {'DOI': '10.12345/doi1'},
         'title': 'Title 1',
@@ -115,7 +115,7 @@ LIKE_S2_RECOMMENDATION_API_EXAMPLE_RESPONSES: dict = {
         }
     },
     404: {
-        'model': ErrorMessage,
+        'model': S2ErrorMessage,
         'content': {
             'application/json': {
                 'example': LIKE_S2_RECOMMENDATION_API_EXAMPLE_404_RESPONSE
@@ -237,7 +237,7 @@ def get_requested_fields_for_api_field_set(
 
 def get_s2_recommended_author_list_for_author_names(
     author_name_list: Optional[Sequence[str]]
-) -> Optional[Sequence[AuthorDict]]:
+) -> Optional[Sequence[S2AuthorDict]]:
     if not author_name_list:
         return None
     return [{'name': name} for name in author_name_list]
@@ -246,8 +246,8 @@ def get_s2_recommended_author_list_for_author_names(
 def get_s2_recommended_paper_response_for_article_recommendation(
     article_recommendation: ArticleRecommendation,
     fields: Optional[Set[str]] = None
-) -> PaperDict:
-    response: PaperDict = {
+) -> S2PaperDict:
+    response: S2PaperDict = {
         'externalIds': {
             'DOI': article_recommendation.article_doi
         },
@@ -271,7 +271,7 @@ def get_s2_recommended_paper_response_for_article_recommendation(
         }
     if fields:
         response = cast(
-            PaperDict,
+            S2PaperDict,
             {key: value for key, value in response.items() if key in fields}
         )
     return response
@@ -280,7 +280,7 @@ def get_s2_recommended_paper_response_for_article_recommendation(
 def get_s2_recommended_papers_response_for_article_recommendation_list(
     article_recommendation_list: ArticleRecommendationList,
     fields: Optional[Set[str]] = None
-) -> RecommendationResponseDict:
+) -> S2RecommendationResponseDict:
     return {
         'recommendedPapers': [
             get_s2_recommended_paper_response_for_article_recommendation(
@@ -380,7 +380,7 @@ def create_api_article_recommendation_router(
         '/like/s2/recommendations/v1/papers/forpaper/DOI:{DOI:path}',
         summary=LIKE_S2_RECOMMENDATION_API_SUMMARY,
         description=LIKE_S2_RECOMMENDATION_API_DESCRIPTION,
-        response_model=RecommendationResponseDict,
+        response_model=S2RecommendationResponseDict,
         responses=LIKE_S2_RECOMMENDATION_API_EXAMPLE_RESPONSES
     )
     async def async_like_s2_recommendations_for_paper(  # pylint: disable=too-many-arguments
