@@ -231,7 +231,7 @@ def create_api_classification_router(
     )
 
     @router.get(
-        '/preprints/v1/classifications',
+        '/papers/v1/preprints/classifications',
         response_model=CategorisationResponseDict,
         responses=CATEGORISATION_LIST_API_EXAMPLE_RESPONSES
     )
@@ -250,7 +250,7 @@ def create_api_classification_router(
         )
 
     @router.get(
-        '/preprints/v1/classifications/by/doi',
+        '/papers/v1/preprints/classifications/by/doi',
         response_model=CategorisationResponseDict,
         responses=CATEGORISATION_BY_DOI_API_EXAMPLE_RESPONSES
     )
@@ -267,7 +267,7 @@ def create_api_classification_router(
         )
 
     @router.get(
-        '/preprints/v1/articles',
+        '/papers/v1/preprints',
         response_model=ArticleSearchResponseDict,
         responses=ARTICLES_BY_CATEGORY_API_EXAMPLE_RESPONSES
     )
