@@ -131,7 +131,7 @@ class TestClassificationApiRouterClassificationList:
     ):
         get_classification_list_response_dict_mock.return_value = CATEGORISATION_RESPONSE_DICT_1
         response = test_client.get(
-            '/classification/v1/classifications'
+            '/preprints/v1/classifications'
         )
         response.raise_for_status()
         assert response.json() == CATEGORISATION_RESPONSE_DICT_1
@@ -145,7 +145,7 @@ class TestClassificationApiRouterClassificationList:
             ARTICLE_SEARCH_RESPONSE_DICT_1
         )
         test_client.get(
-            '/classification/v1/classifications',
+            '/preprints/v1/classifications',
             params={'filter[evaluated_only]': 'true'}
         )
         _, kwargs = get_classification_list_response_dict_mock.call_args
@@ -161,7 +161,7 @@ class TestClassificationApiRouterClassificationListByDoi:
     ):
         get_classification_response_dict_by_doi_mock.return_value = CATEGORISATION_RESPONSE_DICT_1
         response = test_client.get(
-            '/classification/v1/classifications/by/doi',
+            '/preprints/v1/classifications/by/doi',
             params={'article_doi': DOI_1}
         )
         response.raise_for_status()
@@ -177,7 +177,7 @@ class TestClassificationApiRouterClassificationListByDoi:
         )
         get_classification_response_dict_by_doi_mock.side_effect = exception
         response = test_client.get(
-            '/classification/v1/classifications/by/doi',
+            '/preprints/v1/classifications/by/doi',
             params={'article_doi': DOI_1}
         )
         assert response.status_code == 404
@@ -194,7 +194,7 @@ class TestClassificationApiRouterArticles:
             ARTICLE_SEARCH_RESPONSE_DICT_1
         )
         response = test_client.get(
-            '/classification/v1/articles',
+            '/preprints/v1/articles',
             params={'filter[category]': 'Category 1'}
         )
         response.raise_for_status()
@@ -209,7 +209,7 @@ class TestClassificationApiRouterArticles:
             ARTICLE_SEARCH_RESPONSE_DICT_1
         )
         test_client.get(
-            '/classification/v1/articles',
+            '/preprints/v1/articles',
             params={'filter[category]': 'Category 1', 'filter[evaluated_only]': 'true'}
         )
         _, kwargs = get_article_search_response_dict_mock.call_args
@@ -226,7 +226,7 @@ class TestClassificationApiRouterArticles:
             ARTICLE_SEARCH_RESPONSE_DICT_1
         )
         test_client.get(
-            '/classification/v1/articles',
+            '/preprints/v1/articles',
             params={'filter[category]': 'Category 1', 'fields[article]': 'doi,title'}
         )
         get_article_search_response_dict_mock.assert_called()
@@ -242,7 +242,7 @@ class TestClassificationApiRouterArticles:
             ARTICLE_SEARCH_RESPONSE_DICT_1
         )
         response = test_client.get(
-            '/classification/v1/articles',
+            '/preprints/v1/articles',
             params={'filter[category]': 'Category 1', 'fields[article]': 'doi,invalid_1'}
         )
         assert response.status_code == 400

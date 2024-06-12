@@ -28,7 +28,7 @@ def _classification_list_response_dict(
     regression_test_session: Session
 ) -> CategorisationResponseDict:
     response = regression_test_session.get(
-        '/api/classification/v1/classifications'
+        '/api/preprints/v1/classifications'
     )
     response.raise_for_status()
     response_json: CategorisationResponseDict = response.json()
@@ -70,7 +70,7 @@ class TestApiCategorisationList:
 class TestApiArticles:
     def test_should_list_articles_for_valid_category(self, regression_test_session: Session):
         response = regression_test_session.get(
-            '/api/classification/v1/articles',
+            '/api/preprints/v1/articles',
             params={'filter[category]': Categories.BIOPHYSICS}
         )
         response.raise_for_status()
@@ -82,7 +82,7 @@ class TestApiArticles:
         regression_test_session: Session
     ):
         response = regression_test_session.get(
-            '/api/classification/v1/articles',
+            '/api/preprints/v1/articles',
             params={'filter[category]': NON_BIORXIV_MEDRXIV_GROUP_TITLE_1}
         )
         response.raise_for_status()
@@ -93,7 +93,7 @@ class TestApiArticles:
 class TestApiCategorisationByDoi:
     def test_should_list_classifications_by_doi(self, regression_test_session: Session):
         response = regression_test_session.get(
-            '/api/classification/v1/classifications/by/doi',
+            '/api/preprints/v1/classifications/by/doi',
             params={'article_doi': BIOPHYISICS_DOI_1}
         )
         response.raise_for_status()
@@ -115,7 +115,7 @@ class TestApiCategorisationByDoi:
         regression_test_session: Session
     ):
         response = regression_test_session.get(
-            '/api/classification/v1/classifications/by/doi',
+            '/api/preprints/v1/classifications/by/doi',
             params={'article_doi': NON_BIORXIV_MEDRXIV_DOI_WITH_GROUP_TITLE_1}
         )
         response.raise_for_status()
