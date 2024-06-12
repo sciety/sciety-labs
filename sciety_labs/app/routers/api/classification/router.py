@@ -267,11 +267,11 @@ def create_api_classification_router(
         )
 
     @router.get(
-        '/classification/v1/articles/by/category',
+        '/classification/v1/articles',
         response_model=ArticleSearchResponseDict,
         responses=ARTICLES_BY_CATEGORY_API_EXAMPLE_RESPONSES
     )
-    async def articles_by_category(  # pylint: disable=too-many-arguments
+    async def articles(  # pylint: disable=too-many-arguments
         request: fastapi.Request,
         category: Optional[str] = fastapi.Query(alias='filter[category]', default=None),
         evaluated_only: bool = fastapi.Query(alias='filter[evaluated_only]', default=False),

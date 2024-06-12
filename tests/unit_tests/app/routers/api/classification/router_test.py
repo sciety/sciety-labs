@@ -184,7 +184,7 @@ class TestClassificationApiRouterClassificationListByDoi:
         assert response.json() == get_not_found_error_json_response_dict(exception)
 
 
-class TestClassificationApiRouterArticlesByCategory:
+class TestClassificationApiRouterArticles:
     def test_should_return_response_from_provider(
         self,
         get_article_search_response_dict_by_category_mock: AsyncMock,
@@ -194,7 +194,7 @@ class TestClassificationApiRouterArticlesByCategory:
             ARTICLE_SEARCH_RESPONSE_DICT_1
         )
         response = test_client.get(
-            '/classification/v1/articles/by/category',
+            '/classification/v1/articles',
             params={'filter[category]': 'Category 1'}
         )
         response.raise_for_status()
@@ -209,7 +209,7 @@ class TestClassificationApiRouterArticlesByCategory:
             ARTICLE_SEARCH_RESPONSE_DICT_1
         )
         test_client.get(
-            '/classification/v1/articles/by/category',
+            '/classification/v1/articles',
             params={'filter[category]': 'Category 1', 'filter[evaluated_only]': 'true'}
         )
         _, kwargs = get_article_search_response_dict_by_category_mock.call_args
@@ -226,7 +226,7 @@ class TestClassificationApiRouterArticlesByCategory:
             ARTICLE_SEARCH_RESPONSE_DICT_1
         )
         test_client.get(
-            '/classification/v1/articles/by/category',
+            '/classification/v1/articles',
             params={'filter[category]': 'Category 1', 'fields[article]': 'doi,title'}
         )
         get_article_search_response_dict_by_category_mock.assert_called()
@@ -242,7 +242,7 @@ class TestClassificationApiRouterArticlesByCategory:
             ARTICLE_SEARCH_RESPONSE_DICT_1
         )
         response = test_client.get(
-            '/classification/v1/articles/by/category',
+            '/classification/v1/articles',
             params={'filter[category]': 'Category 1', 'fields[article]': 'doi,invalid_1'}
         )
         assert response.status_code == 400
