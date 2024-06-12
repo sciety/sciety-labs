@@ -13,7 +13,7 @@ class CategorisationDict(TypedDict):
     attributes: CategorisationAttributesDict
 
 
-class ArticleAttributesDict(TypedDict):
+class PaperAttributesDict(TypedDict):
     doi: str
     title: NotRequired[Optional[str]]
     publication_date: NotRequired[Optional[str]]
@@ -23,24 +23,24 @@ class ArticleAttributesDict(TypedDict):
     classifications: NotRequired[Sequence[CategorisationDict]]
 
 
-class ArticleDict(TypedDict):
+class PaperDict(TypedDict):
     type: str
     id: str
-    attributes: ArticleAttributesDict
+    attributes: PaperAttributesDict
 
 
 class CategorisationResponseDict(TypedDict):
     data: NotRequired[Sequence[CategorisationDict]]
 
 
-class ArticleResponseDict(TypedDict):
-    data: ArticleDict
+class PaperResponseDict(TypedDict):
+    data: PaperDict
 
 
-class ArticleSearchMetaDict(TypedDict):
+class PaperSearchMetaDict(TypedDict):
     total: NotRequired[int]
 
 
-class ArticleSearchResponseDict(TypedDict):
-    data: Sequence[ArticleDict]
-    meta: NotRequired[ArticleSearchMetaDict]
+class PaperSearchResponseDict(TypedDict):
+    data: Sequence[PaperDict]
+    meta: NotRequired[PaperSearchMetaDict]

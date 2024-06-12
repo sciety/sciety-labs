@@ -6,8 +6,8 @@ import pytest
 
 from requests import Session
 
-from sciety_labs.app.routers.api.classification.typing import (
-    ArticleSearchResponseDict,
+from sciety_labs.app.routers.api.papers.typing import (
+    PaperSearchResponseDict,
     CategorisationResponseDict
 )
 
@@ -28,7 +28,7 @@ def _classification_list_response_dict(
     regression_test_session: Session
 ) -> CategorisationResponseDict:
     response = regression_test_session.get(
-        '/api/classification/v1/classifications'
+        '/api/papers/v1/preprints/classifications'
     )
     response.raise_for_status()
     response_json: CategorisationResponseDict = response.json()
@@ -67,14 +67,14 @@ class TestApiCategorisationList:
         assert NON_BIORXIV_MEDRXIV_GROUP_TITLE_1 not in category_set
 
 
-class TestApiArticles:
-    def test_should_list_articles_for_valid_category(self, regression_test_session: Session):
+class TestApiPreprints:
+    def test_should_list_preprints_for_valid_category(self, regression_test_session: Session):
         response = regression_test_session.get(
-            '/api/classification/v1/articles',
+            '/api/papers/v1/preprints',
             params={'filter[category]': Categories.BIOPHYSICS}
         )
         response.raise_for_status()
-        response_json: ArticleSearchResponseDict = response.json()
+        response_json: PaperSearchResponseDict = response.json()
         assert len(response_json['data']) > 0
 
     def test_should_return_empty_list_for_non_biorxiv_medrxiv_group_title(
@@ -82,19 +82,18 @@ class TestApiArticles:
         regression_test_session: Session
     ):
         response = regression_test_session.get(
-            '/api/classification/v1/articles',
+            '/api/papers/v1/preprints',
             params={'filter[category]': NON_BIORXIV_MEDRXIV_GROUP_TITLE_1}
         )
         response.raise_for_status()
-        response_json: ArticleSearchResponseDict = response.json()
+        response_json: PaperSearchResponseDict = response.json()
         assert len(response_json['data']) == 0
 
 
-class TestApiCategorisationByDoi:
+class TestApiCategorisationsByDoi:
     def test_should_list_classifications_by_doi(self, regression_test_session: Session):
         response = regression_test_session.get(
-            '/api/classification/v1/classifications/by/doi',
-            params={'article_doi': BIOPHYISICS_DOI_1}
+            f'/api/papers/v1/preprints/classifications/by/doi/{BIOPHYISICS_DOI_1}'
         )
         response.raise_for_status()
         response_json: CategorisationResponseDict = response.json()
@@ -115,8 +114,10 @@ class TestApiCategorisationByDoi:
         regression_test_session: Session
     ):
         response = regression_test_session.get(
-            '/api/classification/v1/classifications/by/doi',
-            params={'article_doi': NON_BIORXIV_MEDRXIV_DOI_WITH_GROUP_TITLE_1}
+            (
+                '/api/papers/v1/preprints/classifications/by/doi/'
+                + NON_BIORXIV_MEDRXIV_DOI_WITH_GROUP_TITLE_1
+            )
         )
         response.raise_for_status()
         response_json: CategorisationResponseDict = response.json()
