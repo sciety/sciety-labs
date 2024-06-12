@@ -332,7 +332,9 @@ def handle_like_s2_recommendation_exception(
 def create_api_article_recommendation_router(
     app_providers_and_models: AppProvidersAndModels
 ):
-    router = APIRouter()
+    router = APIRouter(
+        tags=['paper recommendations']
+    )
 
     @router.get(
         '/sync/like/s2/recommendations/v1/papers/forpaper/DOI:{DOI:path}',
