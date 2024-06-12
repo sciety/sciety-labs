@@ -5,10 +5,10 @@ import opensearchpy
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.routers.api.papers.typing import (
-    ArticleAttributesDict,
-    ArticleDict,
-    ArticleResponseDict,
-    ArticleSearchResponseDict,
+    PaperAttributesDict,
+    PaperDict,
+    PaperResponseDict,
+    PaperSearchResponseDict,
     CategorisationDict,
     CategorisationResponseDict
 )
@@ -53,7 +53,7 @@ INTERNAL_ARTICLE_FIELDS_BY_API_FIELD_NAME: Mapping[str, Sequence[str]] = {
 
 class DoiNotFoundError(RuntimeError):
     def __init__(self, doi: str):
-        self.article_doi = doi
+        self.doi = doi
         super().__init__(f'DOI not found: {doi}')
 
 
@@ -84,7 +84,7 @@ def get_classification_list_opensearch_query_dict(
     }
 
 
-def get_article_search_by_category_opensearch_query_dict(
+def get_paper_search_by_category_opensearch_query_dict(
     filter_parameters: OpenSearchFilterParameters,
     sort_parameters: OpenSearchSortParameters,
     pagination_parameters: OpenSearchPaginationParameters
@@ -137,14 +137,14 @@ def get_classification_response_dict_for_opensearch_aggregations_response_dict(
 
 def get_classification_response_dict_for_opensearch_document_dict(
     document_dict: dict,
-    article_doi: str
+    doi: str
 ) -> CategorisationResponseDict:
     crossref_opensearch_dict = document_dict.get('crossref')
     group_title = (
         crossref_opensearch_dict
         and crossref_opensearch_dict.get('group_title')
     )
-    if not group_title or not article_doi.startswith(f'{KnownDoiPrefix.BIORXIV_MEDRXIV}/'):
+    if not group_title or not doi.startswith(f'{KnownDoiPrefix.BIORXIV_MEDRXIV}/'):
         return {
             'data': []
         }
@@ -155,10 +155,10 @@ def get_classification_response_dict_for_opensearch_document_dict(
     }
 
 
-def get_article_dict_for_opensearch_document_dict(
+def get_paper_dict_for_opensearch_document_dict(
     document_dict: DocumentDict,
-    article_fields_set: Optional[Set[str]] = None
-) -> ArticleDict:
+    paper_fields_set: Optional[Set[str]] = None
+) -> PaperDict:
     assert document_dict.get('doi')
     article_meta = get_article_meta_from_document(document_dict)
     article_stats = get_article_stats_from_document(document_dict)
@@ -168,7 +168,7 @@ def get_article_dict_for_opensearch_document_dict(
         if article_stats
         else None
     )
-    attributes: ArticleAttributesDict = {
+    attributes: PaperAttributesDict = {
         'doi': document_dict['doi'],
         'title': article_meta.article_title,
         'publication_date': get_date_as_isoformat(article_meta.published_date),
@@ -184,40 +184,40 @@ def get_article_dict_for_opensearch_document_dict(
             else None
         )
     }
-    if article_fields_set:
-        attributes = cast(ArticleAttributesDict, {
+    if paper_fields_set:
+        attributes = cast(PaperAttributesDict, {
             key: value
             for key, value in attributes.items()
-            if key in article_fields_set
+            if key in paper_fields_set
         })
-    article_dict: ArticleDict = {
-        'type': 'article',
+    paper_dict: PaperDict = {
+        'type': 'paper',
         'id': document_dict['doi'],
         'attributes': attributes
     }
-    return get_recursively_filtered_dict_without_null_values(article_dict)
+    return get_recursively_filtered_dict_without_null_values(paper_dict)
 
 
-def get_article_response_dict_for_opensearch_document_dict(
+def get_paper_response_dict_for_opensearch_document_dict(
     document_dict: DocumentDict
-) -> ArticleResponseDict:
+) -> PaperResponseDict:
     return {
-        'data': get_article_dict_for_opensearch_document_dict(document_dict)
+        'data': get_paper_dict_for_opensearch_document_dict(document_dict)
     }
 
 
-def get_article_search_response_dict_for_opensearch_search_response_dict(
+def get_paper_search_response_dict_for_opensearch_search_response_dict(
     opensearch_search_result_dict: OpenSearchSearchResultDict,
-    article_fields_set: Optional[Set[str]] = None
-) -> ArticleSearchResponseDict:
+    paper_fields_set: Optional[Set[str]] = None
+) -> PaperSearchResponseDict:
     return {
         'meta': {
             'total': opensearch_search_result_dict['hits']['total']['value']
         },
         'data': [
-            get_article_dict_for_opensearch_document_dict(
+            get_paper_dict_for_opensearch_document_dict(
                 document_dict=hit['_source'],
-                article_fields_set=article_fields_set
+                paper_fields_set=paper_fields_set
             )
             for hit in opensearch_search_result_dict['hits']['hits']
         ]
@@ -230,7 +230,7 @@ LATEST_EVALUATION_TIMESTAMP_DESC_OPENSEARCH_SORT_FIELD = OpenSearchSortField(
 )
 
 
-def get_default_article_search_sort_parameters(
+def get_default_paper_search_sort_parameters(
     evaluated_only: bool
 ) -> OpenSearchSortParameters:
     if evaluated_only:
@@ -265,7 +265,7 @@ class AsyncOpenSearchClassificationProvider:
 
     async def get_classificiation_response_dict_by_doi(
         self,
-        article_doi: str,
+        doi: str,
         headers: Optional[Mapping[str, str]] = None
     ) -> CategorisationResponseDict:
         LOGGER.debug('async_opensearch_client: %r', self.async_opensearch_client)
@@ -276,39 +276,39 @@ class AsyncOpenSearchClassificationProvider:
         try:
             opensearch_document_dict = await self.async_opensearch_client.get_source(
                 index=self.index_name,
-                id=article_doi,
+                id=doi,
                 _source_includes=['crossref.group_title'],
                 headers=headers
             )
         except opensearchpy.NotFoundError as exc:
-            raise DoiNotFoundError(doi=article_doi) from exc
+            raise DoiNotFoundError(doi=doi) from exc
         return get_classification_response_dict_for_opensearch_document_dict(
             opensearch_document_dict,
-            article_doi=article_doi
+            doi=doi
         )
 
-    async def get_article_search_response_dict(  # pylint: disable=too-many-arguments
+    async def get_paper_search_response_dict(  # pylint: disable=too-many-arguments
         self,
         filter_parameters: OpenSearchFilterParameters,
         sort_parameters: OpenSearchSortParameters,
         pagination_parameters: OpenSearchPaginationParameters,
-        article_fields_set: Optional[Set[str]] = None,
+        paper_fields_set: Optional[Set[str]] = None,
         headers: Optional[Mapping[str, str]] = None
-    ) -> ArticleSearchResponseDict:
+    ) -> PaperSearchResponseDict:
         LOGGER.info('filter_parameters: %r', filter_parameters)
         LOGGER.info('pagination_parameters: %r', pagination_parameters)
-        LOGGER.info('article_fields_set: %r', article_fields_set)
-        internal_article_fields_set = set(get_flat_mapped_values_or_all_values_for_mapping(
+        LOGGER.info('paper_fields_set: %r', paper_fields_set)
+        internal_paper_fields_set = set(get_flat_mapped_values_or_all_values_for_mapping(
             INTERNAL_ARTICLE_FIELDS_BY_API_FIELD_NAME,
-            article_fields_set
+            paper_fields_set
         ))
         opensearch_fields = get_source_includes_for_mapping(
             OPENSEARCH_FIELDS_BY_REQUESTED_FIELD,
-            fields=internal_article_fields_set
+            fields=internal_paper_fields_set
         )
         LOGGER.info('opensearch_fields: %r', opensearch_fields)
         opensearch_search_result_dict = await self.async_opensearch_client.search(
-            get_article_search_by_category_opensearch_query_dict(
+            get_paper_search_by_category_opensearch_query_dict(
                 filter_parameters=filter_parameters,
                 sort_parameters=sort_parameters,
                 pagination_parameters=pagination_parameters
@@ -317,7 +317,7 @@ class AsyncOpenSearchClassificationProvider:
             index=self.index_name,
             headers=headers
         )
-        return get_article_search_response_dict_for_opensearch_search_response_dict(
+        return get_paper_search_response_dict_for_opensearch_search_response_dict(
             opensearch_search_result_dict,
-            article_fields_set=article_fields_set
+            paper_fields_set=paper_fields_set
         )

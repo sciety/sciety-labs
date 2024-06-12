@@ -7,7 +7,7 @@ import pytest
 from requests import Session
 
 from sciety_labs.app.routers.api.papers.typing import (
-    ArticleSearchResponseDict,
+    PaperSearchResponseDict,
     CategorisationResponseDict
 )
 
@@ -74,7 +74,7 @@ class TestApiPreprints:
             params={'filter[category]': Categories.BIOPHYSICS}
         )
         response.raise_for_status()
-        response_json: ArticleSearchResponseDict = response.json()
+        response_json: PaperSearchResponseDict = response.json()
         assert len(response_json['data']) > 0
 
     def test_should_return_empty_list_for_non_biorxiv_medrxiv_group_title(
@@ -86,7 +86,7 @@ class TestApiPreprints:
             params={'filter[category]': NON_BIORXIV_MEDRXIV_GROUP_TITLE_1}
         )
         response.raise_for_status()
-        response_json: ArticleSearchResponseDict = response.json()
+        response_json: PaperSearchResponseDict = response.json()
         assert len(response_json['data']) == 0
 
 

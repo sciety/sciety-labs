@@ -15,10 +15,10 @@ import sciety_labs.app.routers.api.papers.router as router_module
 from sciety_labs.app.routers.api.papers.router import (
     create_api_papers_router,
     get_invalid_api_fields_json_response_dict,
-    get_not_found_error_json_response_dict
+    get_doi_not_found_error_json_response_dict
 )
 from sciety_labs.app.routers.api.papers.typing import (
-    ArticleSearchResponseDict,
+    PaperSearchResponseDict,
     CategorisationResponseDict
 )
 from sciety_labs.app.routers.api.utils.validation import InvalidApiFieldsError
@@ -44,9 +44,9 @@ CATEGORISATION_RESPONSE_DICT_1: CategorisationResponseDict = {
 }
 
 
-ARTICLE_SEARCH_RESPONSE_DICT_1: ArticleSearchResponseDict = {
+PAPER_SEARCH_RESPONSE_DICT_1: PaperSearchResponseDict = {
     'data': [{
-        'type': 'article',
+        'type': 'paper',
         'id': DOI_1,
         'attributes': {
             'doi': DOI_1
@@ -90,13 +90,13 @@ def _get_classification_response_dict_by_doi_mock(
     )
 
 
-@pytest.fixture(name='get_article_search_response_dict_mock', autouse=True)
-def _get_article_search_response_dict_mock(
+@pytest.fixture(name='get_paper_search_response_dict_mock', autouse=True)
+def _get_paper_search_response_dict_mock(
     async_opensearch_classification_provider_mock: AsyncMock
 ) -> AsyncMock:
     return (
         async_opensearch_classification_provider_mock
-        .get_article_search_response_dict
+        .get_paper_search_response_dict
     )
 
 
@@ -114,7 +114,7 @@ class TestGetNotFoundErrorJsonResponseDict:
         exception = DoiNotFoundError(
             DOI_1
         )
-        assert get_not_found_error_json_response_dict(exception) == {
+        assert get_doi_not_found_error_json_response_dict(exception) == {
             'errors': [{
                 'title': 'Invalid DOI',
                 'detail': f'DOI not found: {DOI_1}',
@@ -142,7 +142,7 @@ class TestClassificationApiRouterClassificationList:
         test_client: TestClient
     ):
         get_classification_list_response_dict_mock.return_value = (
-            ARTICLE_SEARCH_RESPONSE_DICT_1
+            PAPER_SEARCH_RESPONSE_DICT_1
         )
         test_client.get(
             '/papers/v1/preprints/classifications',
@@ -161,8 +161,7 @@ class TestClassificationApiRouterClassificationListByDoi:
     ):
         get_classification_response_dict_by_doi_mock.return_value = CATEGORISATION_RESPONSE_DICT_1
         response = test_client.get(
-            '/papers/v1/preprints/classifications/by/doi',
-            params={'article_doi': DOI_1}
+            f'/papers/v1/preprints/classifications/by/doi/{DOI_1}'
         )
         response.raise_for_status()
         assert response.json() == CATEGORISATION_RESPONSE_DICT_1
@@ -177,73 +176,72 @@ class TestClassificationApiRouterClassificationListByDoi:
         )
         get_classification_response_dict_by_doi_mock.side_effect = exception
         response = test_client.get(
-            '/papers/v1/preprints/classifications/by/doi',
-            params={'article_doi': DOI_1}
+            f'/papers/v1/preprints/classifications/by/doi/{DOI_1}'
         )
         assert response.status_code == 404
-        assert response.json() == get_not_found_error_json_response_dict(exception)
+        assert response.json() == get_doi_not_found_error_json_response_dict(exception)
 
 
-class TestClassificationApiRouterArticles:
+class TestClassificationApiRouterPapers:
     def test_should_return_response_from_provider(
         self,
-        get_article_search_response_dict_mock: AsyncMock,
+        get_paper_search_response_dict_mock: AsyncMock,
         test_client: TestClient
     ):
-        get_article_search_response_dict_mock.return_value = (
-            ARTICLE_SEARCH_RESPONSE_DICT_1
+        get_paper_search_response_dict_mock.return_value = (
+            PAPER_SEARCH_RESPONSE_DICT_1
         )
         response = test_client.get(
             '/papers/v1/preprints',
             params={'filter[category]': 'Category 1'}
         )
         response.raise_for_status()
-        assert response.json() == ARTICLE_SEARCH_RESPONSE_DICT_1
+        assert response.json() == PAPER_SEARCH_RESPONSE_DICT_1
 
     def test_should_pass_evaluated_only_and_category_filter_to_provider(
         self,
-        get_article_search_response_dict_mock: AsyncMock,
+        get_paper_search_response_dict_mock: AsyncMock,
         test_client: TestClient
     ):
-        get_article_search_response_dict_mock.return_value = (
-            ARTICLE_SEARCH_RESPONSE_DICT_1
+        get_paper_search_response_dict_mock.return_value = (
+            PAPER_SEARCH_RESPONSE_DICT_1
         )
         test_client.get(
             '/papers/v1/preprints',
             params={'filter[category]': 'Category 1', 'filter[evaluated_only]': 'true'}
         )
-        _, kwargs = get_article_search_response_dict_mock.call_args
+        _, kwargs = get_paper_search_response_dict_mock.call_args
         filter_parameters: OpenSearchFilterParameters = kwargs['filter_parameters']
         assert filter_parameters.category == 'Category 1'
         assert filter_parameters.evaluated_only
 
     def test_should_pass_api_fields_to_provider(
         self,
-        get_article_search_response_dict_mock: AsyncMock,
+        get_paper_search_response_dict_mock: AsyncMock,
         test_client: TestClient
     ):
-        get_article_search_response_dict_mock.return_value = (
-            ARTICLE_SEARCH_RESPONSE_DICT_1
+        get_paper_search_response_dict_mock.return_value = (
+            PAPER_SEARCH_RESPONSE_DICT_1
         )
         test_client.get(
             '/papers/v1/preprints',
-            params={'filter[category]': 'Category 1', 'fields[article]': 'doi,title'}
+            params={'filter[category]': 'Category 1', 'fields[paper]': 'doi,title'}
         )
-        get_article_search_response_dict_mock.assert_called()
-        _, kwargs = get_article_search_response_dict_mock.call_args
-        assert kwargs['article_fields_set'] == {'doi', 'title'}
+        get_paper_search_response_dict_mock.assert_called()
+        _, kwargs = get_paper_search_response_dict_mock.call_args
+        assert kwargs['paper_fields_set'] == {'doi', 'title'}
 
     def test_should_raise_error_for_invalid_field_name(
         self,
-        get_article_search_response_dict_mock: AsyncMock,
+        get_paper_search_response_dict_mock: AsyncMock,
         test_client: TestClient
     ):
-        get_article_search_response_dict_mock.return_value = (
-            ARTICLE_SEARCH_RESPONSE_DICT_1
+        get_paper_search_response_dict_mock.return_value = (
+            PAPER_SEARCH_RESPONSE_DICT_1
         )
         response = test_client.get(
             '/papers/v1/preprints',
-            params={'filter[category]': 'Category 1', 'fields[article]': 'doi,invalid_1'}
+            params={'filter[category]': 'Category 1', 'fields[paper]': 'doi,invalid_1'}
         )
         assert response.status_code == 400
         response_json = response.json()

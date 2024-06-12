@@ -7,14 +7,14 @@ from sciety_labs.app.routers.api.papers.providers import (
     LATEST_EVALUATION_TIMESTAMP_DESC_OPENSEARCH_SORT_FIELD,
     DoiNotFoundError,
     AsyncOpenSearchClassificationProvider,
-    get_article_dict_for_opensearch_document_dict,
-    get_article_response_dict_for_opensearch_document_dict,
-    get_article_search_by_category_opensearch_query_dict,
-    get_article_search_response_dict_for_opensearch_search_response_dict,
+    get_paper_dict_for_opensearch_document_dict,
+    get_paper_response_dict_for_opensearch_document_dict,
+    get_paper_search_by_category_opensearch_query_dict,
+    get_paper_search_response_dict_for_opensearch_search_response_dict,
     get_classification_list_opensearch_query_dict,
     get_classification_response_dict_for_opensearch_aggregations_response_dict,
     get_classification_response_dict_for_opensearch_document_dict,
-    get_default_article_search_sort_parameters
+    get_default_paper_search_sort_parameters
 )
 from sciety_labs.providers.opensearch.typing import OpenSearchSearchResultDict
 from sciety_labs.providers.opensearch.utils import (
@@ -57,7 +57,7 @@ def _async_opensearch_classification_provider(
     )
 
 
-class TestArticleDoiNotFoundError:
+class TestDoiNotFoundError:
     def test_should_include_doi_in_str_and_repr(self):
         exception = DoiNotFoundError(doi=DOI_1)
         assert DOI_1 in str(exception)
@@ -83,9 +83,9 @@ class TestGetClassificationListOpenSearchQueryDict:
         ]
 
 
-class TestGetArticleSearchByCategoryOpenSearchQueryDict:
+class TestGetPaperSearchByCategoryOpenSearchQueryDict:
     def test_should_include_category_filter(self):
-        query_dict = get_article_search_by_category_opensearch_query_dict(
+        query_dict = get_paper_search_by_category_opensearch_query_dict(
             filter_parameters=OpenSearchFilterParameters(
                 category='Category 1',
                 evaluated_only=False
@@ -103,7 +103,7 @@ class TestGetArticleSearchByCategoryOpenSearchQueryDict:
         }
 
     def test_should_include_category_and_has_evaluations_filter(self):
-        query_dict = get_article_search_by_category_opensearch_query_dict(
+        query_dict = get_paper_search_by_category_opensearch_query_dict(
             filter_parameters=OpenSearchFilterParameters(
                 category='Category 1',
                 evaluated_only=True
@@ -118,7 +118,7 @@ class TestGetArticleSearchByCategoryOpenSearchQueryDict:
         ]
 
     def test_should_be_able_to_sort_by_latest_evaluation_activity(self):
-        query_dict = get_article_search_by_category_opensearch_query_dict(
+        query_dict = get_paper_search_by_category_opensearch_query_dict(
             filter_parameters=OpenSearchFilterParameters(
                 category='Category 1',
                 evaluated_only=True
@@ -138,7 +138,7 @@ class TestGetArticleSearchByCategoryOpenSearchQueryDict:
         ]
 
     def test_should_use_page_size_and_page_number(self):
-        query_dict = get_article_search_by_category_opensearch_query_dict(
+        query_dict = get_paper_search_by_category_opensearch_query_dict(
             filter_parameters=OpenSearchFilterParameters(
                 category='Category 1',
                 evaluated_only=True
@@ -193,7 +193,7 @@ class TestGetClassificationDictForOpenSearchDocumentDict:
     def test_should_return_empty_dict_if_no_classifications_are_available(self):
         classifications_dict = get_classification_response_dict_for_opensearch_document_dict(
             {},
-            article_doi=DUMMY_BIORXIV_DOI_1
+            doi=DUMMY_BIORXIV_DOI_1
         )
         assert classifications_dict == {
             'data': []
@@ -207,7 +207,7 @@ class TestGetClassificationDictForOpenSearchDocumentDict:
                         'group_title': 'Category 1'
                     }
                 },
-                article_doi=DUMMY_BIORXIV_DOI_1
+                doi=DUMMY_BIORXIV_DOI_1
             )
         )
         assert classifications_response_dict == {
@@ -229,7 +229,7 @@ class TestGetClassificationDictForOpenSearchDocumentDict:
                         'group_title': 'Category 1'
                     }
                 },
-                article_doi=DUMMY_NON_BIORXIV_MEDRXIV_DOI_1
+                doi=DUMMY_NON_BIORXIV_MEDRXIV_DOI_1
             )
         )
         assert classifications_response_dict == {
@@ -237,17 +237,17 @@ class TestGetClassificationDictForOpenSearchDocumentDict:
         }
 
 
-class TestGetArticleDictForOpenSearchDocumentDict:
+class TestGetPaperDictForOpenSearchDocumentDict:
     def test_should_raise_error_if_doi_is_missing(self):
         with pytest.raises(AssertionError):
-            get_article_dict_for_opensearch_document_dict({})
+            get_paper_dict_for_opensearch_document_dict({})
 
     def test_should_return_response_with_doi_only(self):
-        article_dict = get_article_dict_for_opensearch_document_dict({
+        paper_dict = get_paper_dict_for_opensearch_document_dict({
             'doi': DOI_1
         })
-        assert article_dict == {
-            'type': 'article',
+        assert paper_dict == {
+            'type': 'paper',
             'id': DOI_1,
             'attributes': {
                 'doi': DOI_1
@@ -255,7 +255,7 @@ class TestGetArticleDictForOpenSearchDocumentDict:
         }
 
     def test_should_return_response_with_crossref_metadata(self):
-        article_dict = get_article_dict_for_opensearch_document_dict({
+        paper_dict = get_paper_dict_for_opensearch_document_dict({
             'doi': DOI_1,
             'id': DOI_1,
             'crossref': {
@@ -263,8 +263,8 @@ class TestGetArticleDictForOpenSearchDocumentDict:
                 'publication_date': '2001-02-03'
             }
         })
-        assert article_dict == {
-            'type': 'article',
+        assert paper_dict == {
+            'type': 'paper',
             'id': DOI_1,
             'attributes': {
                 'doi': DOI_1,
@@ -274,15 +274,15 @@ class TestGetArticleDictForOpenSearchDocumentDict:
         }
 
     def test_should_return_response_with_evaluation_count_and_timestamp(self):
-        article_dict = get_article_dict_for_opensearch_document_dict({
+        paper_dict = get_paper_dict_for_opensearch_document_dict({
             'doi': DOI_1,
             'sciety': {
                 'evaluation_count': 123,
                 'last_event_timestamp': '2001-02-03T04:05:06+00:00'
             }
         })
-        assert article_dict == {
-            'type': 'article',
+        assert paper_dict == {
+            'type': 'paper',
             'id': DOI_1,
             'attributes': {
                 'doi': DOI_1,
@@ -293,7 +293,7 @@ class TestGetArticleDictForOpenSearchDocumentDict:
         }
 
     def test_should_filter_attributes(self):
-        article_dict = get_article_dict_for_opensearch_document_dict(
+        paper_dict = get_paper_dict_for_opensearch_document_dict(
             {
                 'doi': DOI_1,
                 'sciety': {
@@ -301,10 +301,10 @@ class TestGetArticleDictForOpenSearchDocumentDict:
                     'last_event_timestamp': '2001-02-03T04:05:06+00:00'
                 }
             },
-            article_fields_set={'doi', 'has_evaluations'}
+            paper_fields_set={'doi', 'has_evaluations'}
         )
-        assert article_dict == {
-            'type': 'article',
+        assert paper_dict == {
+            'type': 'paper',
             'id': DOI_1,
             'attributes': {
                 'doi': DOI_1,
@@ -313,22 +313,22 @@ class TestGetArticleDictForOpenSearchDocumentDict:
         }
 
 
-class TestGetArticleResponseDictForOpenSearchDocumentDict:
+class TestGetPaperResponseDictForOpenSearchDocumentDict:
     def test_should_return_response_as_data_object(self):
-        article_dict = get_article_response_dict_for_opensearch_document_dict(
+        paper_dict = get_paper_response_dict_for_opensearch_document_dict(
             OPENSEARCH_SEARCH_RESULT_DOCUMENT_1
         )
-        assert article_dict == {
-            'data': get_article_dict_for_opensearch_document_dict(
+        assert paper_dict == {
+            'data': get_paper_dict_for_opensearch_document_dict(
                 OPENSEARCH_SEARCH_RESULT_DOCUMENT_1
             )
         }
 
 
-class TestGetArticleSearchResponseDictForOpenSearchSearchResponseDict:
-    def test_should_return_singe_article_response_from_hits(self):
-        article_search_response_dict = (
-            get_article_search_response_dict_for_opensearch_search_response_dict({
+class TestGetPaperSearchResponseDictForOpenSearchSearchResponseDict:
+    def test_should_return_singe_paper_response_from_hits(self):
+        paper_search_response_dict = (
+            get_paper_search_response_dict_for_opensearch_search_response_dict({
                 'hits': {
                     'total': {
                         'value': 1,
@@ -340,9 +340,9 @@ class TestGetArticleSearchResponseDictForOpenSearchSearchResponseDict:
                 }
             })
         )
-        assert article_search_response_dict == {
+        assert paper_search_response_dict == {
             'data': [
-                get_article_dict_for_opensearch_document_dict(
+                get_paper_dict_for_opensearch_document_dict(
                     OPENSEARCH_SEARCH_RESULT_DOCUMENT_1
                 )
             ],
@@ -352,16 +352,16 @@ class TestGetArticleSearchResponseDictForOpenSearchSearchResponseDict:
         }
 
 
-class TestGetDefaultArticleSearchSortParameters:
+class TestGetDefaultPaperSearchSortParameters:
     def test_should_not_sort_by_if_not_evaluation_only(self):
-        sort_parameters = get_default_article_search_sort_parameters(
+        sort_parameters = get_default_paper_search_sort_parameters(
             evaluated_only=False
         )
         assert not sort_parameters.sort_fields
         assert not sort_parameters
 
     def test_should_sort_by_evaluation_activity_descending_if_evaluation_only(self):
-        sort_parameters = get_default_article_search_sort_parameters(
+        sort_parameters = get_default_paper_search_sort_parameters(
             evaluated_only=True
         )
         assert sort_parameters == OpenSearchSortParameters(sort_fields=[
@@ -371,7 +371,7 @@ class TestGetDefaultArticleSearchSortParameters:
 
 class TestAsyncOpenSearchClassificationProvider:
     @pytest.mark.asyncio
-    async def test_should_raise_article_doi_not_found_error(
+    async def test_should_raise_paper_doi_not_found_error(
         self,
         async_opensearch_classification_provider: AsyncOpenSearchClassificationProvider,
         async_opensearch_client_mock: AsyncMock
@@ -379,26 +379,26 @@ class TestAsyncOpenSearchClassificationProvider:
         async_opensearch_client_mock.get_source.side_effect = opensearchpy.NotFoundError()
         with pytest.raises(DoiNotFoundError):
             await async_opensearch_classification_provider.get_classificiation_response_dict_by_doi(
-                article_doi=DOI_1
+                doi=DOI_1
             )
 
     @pytest.mark.asyncio
-    async def test_should_return_article_response(
+    async def test_should_return_paper_response(
         self,
         async_opensearch_classification_provider: AsyncOpenSearchClassificationProvider,
         async_opensearch_client_mock: AsyncMock
     ):
         async_opensearch_client_mock.search.return_value = OPENSEARCH_SEARCH_RESULT_1
-        article_response = await (
+        paper_response = await (
             async_opensearch_classification_provider
-            .get_article_search_response_dict(
+            .get_paper_search_response_dict(
                 filter_parameters=OpenSearchFilterParameters(category='Category 1'),
                 sort_parameters=OpenSearchSortParameters(),
                 pagination_parameters=OpenSearchPaginationParameters()
             )
         )
-        assert article_response == (
-            get_article_search_response_dict_for_opensearch_search_response_dict(
+        assert paper_response == (
+            get_paper_search_response_dict_for_opensearch_search_response_dict(
                 OPENSEARCH_SEARCH_RESULT_1
             )
         )
