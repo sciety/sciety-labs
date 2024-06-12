@@ -10,13 +10,13 @@ from sciety_labs.app.routers.api.utils.jsonapi import (
 )
 from sciety_labs.app.routers.api.utils.jsonapi_typing import JsonApiErrorsResponseDict
 from sciety_labs.app.routers.api.utils.validation import InvalidApiFieldsError, validate_api_fields
-from sciety_labs.app.routers.api.classification.providers import (
+from sciety_labs.app.routers.api.papers.providers import (
     INTERNAL_ARTICLE_FIELDS_BY_API_FIELD_NAME,
     ArticleDoiNotFoundError,
     AsyncOpenSearchClassificationProvider,
     get_default_article_search_sort_parameters
 )
-from sciety_labs.app.routers.api.classification.typing import (
+from sciety_labs.app.routers.api.papers.typing import (
     ArticleSearchResponseDict,
     CategorisationResponseDict
 )

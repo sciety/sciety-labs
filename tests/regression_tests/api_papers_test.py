@@ -6,7 +6,7 @@ import pytest
 
 from requests import Session
 
-from sciety_labs.app.routers.api.classification.typing import (
+from sciety_labs.app.routers.api.papers.typing import (
     ArticleSearchResponseDict,
     CategorisationResponseDict
 )

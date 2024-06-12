@@ -7,17 +7,17 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from sciety_labs.app.routers.api.classification.providers import (
+from sciety_labs.app.routers.api.papers.providers import (
     ArticleDoiNotFoundError,
     AsyncOpenSearchClassificationProvider
 )
-import sciety_labs.app.routers.api.classification.router as router_module
-from sciety_labs.app.routers.api.classification.router import (
+import sciety_labs.app.routers.api.papers.router as router_module
+from sciety_labs.app.routers.api.papers.router import (
     create_api_classification_router,
     get_invalid_api_fields_json_response_dict,
     get_not_found_error_json_response_dict
 )
-from sciety_labs.app.routers.api.classification.typing import (
+from sciety_labs.app.routers.api.papers.typing import (
     ArticleSearchResponseDict,
     CategorisationResponseDict
 )
