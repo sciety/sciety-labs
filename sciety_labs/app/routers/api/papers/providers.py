@@ -51,10 +51,10 @@ INTERNAL_ARTICLE_FIELDS_BY_API_FIELD_NAME: Mapping[str, Sequence[str]] = {
 }
 
 
-class ArticleDoiNotFoundError(RuntimeError):
-    def __init__(self, article_doi: str):
-        self.article_doi = article_doi
-        super().__init__(f'Article DOI not found: {article_doi}')
+class DoiNotFoundError(RuntimeError):
+    def __init__(self, doi: str):
+        self.article_doi = doi
+        super().__init__(f'DOI not found: {doi}')
 
 
 def get_classification_list_opensearch_query_dict(
@@ -281,7 +281,7 @@ class AsyncOpenSearchClassificationProvider:
                 headers=headers
             )
         except opensearchpy.NotFoundError as exc:
-            raise ArticleDoiNotFoundError(article_doi=article_doi) from exc
+            raise DoiNotFoundError(doi=article_doi) from exc
         return get_classification_response_dict_for_opensearch_document_dict(
             opensearch_document_dict,
             article_doi=article_doi

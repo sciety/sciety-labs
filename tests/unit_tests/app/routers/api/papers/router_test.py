@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from sciety_labs.app.routers.api.papers.providers import (
-    ArticleDoiNotFoundError,
+    DoiNotFoundError,
     AsyncOpenSearchClassificationProvider
 )
 import sciety_labs.app.routers.api.papers.router as router_module
@@ -111,7 +111,7 @@ def _test_client(app_providers_and_models_mock: MagicMock) -> TestClient:
 
 class TestGetNotFoundErrorJsonResponseDict:
     def test_should_return_json_dict_for_exception(self):
-        exception = ArticleDoiNotFoundError(
+        exception = DoiNotFoundError(
             DOI_1
         )
         assert get_not_found_error_json_response_dict(exception) == {
@@ -172,7 +172,7 @@ class TestClassificationApiRouterClassificationListByDoi:
         get_classification_response_dict_by_doi_mock: AsyncMock,
         test_client: TestClient
     ):
-        exception = ArticleDoiNotFoundError(
+        exception = DoiNotFoundError(
             DOI_1
         )
         get_classification_response_dict_by_doi_mock.side_effect = exception

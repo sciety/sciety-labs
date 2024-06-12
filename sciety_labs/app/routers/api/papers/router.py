@@ -12,7 +12,7 @@ from sciety_labs.app.routers.api.utils.jsonapi_typing import JsonApiErrorsRespon
 from sciety_labs.app.routers.api.utils.validation import InvalidApiFieldsError, validate_api_fields
 from sciety_labs.app.routers.api.papers.providers import (
     INTERNAL_ARTICLE_FIELDS_BY_API_FIELD_NAME,
-    ArticleDoiNotFoundError,
+    DoiNotFoundError,
     AsyncOpenSearchClassificationProvider,
     get_default_article_search_sort_parameters
 )
@@ -161,7 +161,7 @@ ARTICLE_FIELDS_FASTAPI_QUERY = fastapi.Query(
 
 
 def get_not_found_error_json_response_dict(
-    exception: ArticleDoiNotFoundError
+    exception: DoiNotFoundError
 ) -> JsonApiErrorsResponseDict:
     return {
         'errors': [{
@@ -174,7 +174,7 @@ def get_not_found_error_json_response_dict(
 
 async def handle_article_doi_not_found_error(
     request: fastapi.Request,  # pylint: disable=unused-argument
-    exc: ArticleDoiNotFoundError
+    exc: DoiNotFoundError
 ) -> fastapi.responses.JSONResponse:
     return fastapi.responses.JSONResponse(
         get_not_found_error_json_response_dict(exc),
@@ -205,7 +205,7 @@ async def handle_invalid_api_fields_error(
 
 
 EXCEPTION_HANDLER_MAPPING: AsyncExceptionHandlerMappingT = {
-    ArticleDoiNotFoundError: handle_article_doi_not_found_error,
+    DoiNotFoundError: handle_article_doi_not_found_error,
     InvalidApiFieldsError: handle_invalid_api_fields_error
 }
 

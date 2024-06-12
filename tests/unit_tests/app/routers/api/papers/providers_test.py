@@ -5,7 +5,7 @@ import pytest
 
 from sciety_labs.app.routers.api.papers.providers import (
     LATEST_EVALUATION_TIMESTAMP_DESC_OPENSEARCH_SORT_FIELD,
-    ArticleDoiNotFoundError,
+    DoiNotFoundError,
     AsyncOpenSearchClassificationProvider,
     get_article_dict_for_opensearch_document_dict,
     get_article_response_dict_for_opensearch_document_dict,
@@ -59,7 +59,7 @@ def _async_opensearch_classification_provider(
 
 class TestArticleDoiNotFoundError:
     def test_should_include_doi_in_str_and_repr(self):
-        exception = ArticleDoiNotFoundError(article_doi=DOI_1)
+        exception = DoiNotFoundError(doi=DOI_1)
         assert DOI_1 in str(exception)
         assert DOI_1 in repr(exception)
 
@@ -377,7 +377,7 @@ class TestAsyncOpenSearchClassificationProvider:
         async_opensearch_client_mock: AsyncMock
     ):
         async_opensearch_client_mock.get_source.side_effect = opensearchpy.NotFoundError()
-        with pytest.raises(ArticleDoiNotFoundError):
+        with pytest.raises(DoiNotFoundError):
             await async_opensearch_classification_provider.get_classificiation_response_dict_by_doi(
                 article_doi=DOI_1
             )
