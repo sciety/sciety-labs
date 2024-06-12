@@ -283,7 +283,7 @@ def create_api_classification_router(
         validate_api_fields(api_article_fields_set, valid_values=ALL_ARTICLE_FIELDS)
         return await (
             async_opensearch_classification_provider
-            .get_article_search_response_dict_by_category(
+            .get_article_search_response_dict(
                 filter_parameters=OpenSearchFilterParameters(
                     category=category,
                     evaluated_only=evaluated_only

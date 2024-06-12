@@ -287,7 +287,7 @@ class AsyncOpenSearchClassificationProvider:
             article_doi=article_doi
         )
 
-    async def get_article_search_response_dict_by_category(  # pylint: disable=too-many-arguments
+    async def get_article_search_response_dict(  # pylint: disable=too-many-arguments
         self,
         filter_parameters: OpenSearchFilterParameters,
         sort_parameters: OpenSearchSortParameters,

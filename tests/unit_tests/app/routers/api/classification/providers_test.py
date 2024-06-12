@@ -391,7 +391,7 @@ class TestAsyncOpenSearchClassificationProvider:
         async_opensearch_client_mock.search.return_value = OPENSEARCH_SEARCH_RESULT_1
         article_response = await (
             async_opensearch_classification_provider
-            .get_article_search_response_dict_by_category(
+            .get_article_search_response_dict(
                 filter_parameters=OpenSearchFilterParameters(category='Category 1'),
                 sort_parameters=OpenSearchSortParameters(),
                 pagination_parameters=OpenSearchPaginationParameters()

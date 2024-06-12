@@ -90,13 +90,13 @@ def _get_classification_response_dict_by_doi_mock(
     )
 
 
-@pytest.fixture(name='get_article_search_response_dict_by_category_mock', autouse=True)
-def _get_article_search_response_dict_by_category_mock(
+@pytest.fixture(name='get_article_search_response_dict_mock', autouse=True)
+def _get_article_search_response_dict_mock(
     async_opensearch_classification_provider_mock: AsyncMock
 ) -> AsyncMock:
     return (
         async_opensearch_classification_provider_mock
-        .get_article_search_response_dict_by_category
+        .get_article_search_response_dict
     )
 
 
@@ -187,10 +187,10 @@ class TestClassificationApiRouterClassificationListByDoi:
 class TestClassificationApiRouterArticles:
     def test_should_return_response_from_provider(
         self,
-        get_article_search_response_dict_by_category_mock: AsyncMock,
+        get_article_search_response_dict_mock: AsyncMock,
         test_client: TestClient
     ):
-        get_article_search_response_dict_by_category_mock.return_value = (
+        get_article_search_response_dict_mock.return_value = (
             ARTICLE_SEARCH_RESPONSE_DICT_1
         )
         response = test_client.get(
@@ -202,43 +202,43 @@ class TestClassificationApiRouterArticles:
 
     def test_should_pass_evaluated_only_and_category_filter_to_provider(
         self,
-        get_article_search_response_dict_by_category_mock: AsyncMock,
+        get_article_search_response_dict_mock: AsyncMock,
         test_client: TestClient
     ):
-        get_article_search_response_dict_by_category_mock.return_value = (
+        get_article_search_response_dict_mock.return_value = (
             ARTICLE_SEARCH_RESPONSE_DICT_1
         )
         test_client.get(
             '/classification/v1/articles',
             params={'filter[category]': 'Category 1', 'filter[evaluated_only]': 'true'}
         )
-        _, kwargs = get_article_search_response_dict_by_category_mock.call_args
+        _, kwargs = get_article_search_response_dict_mock.call_args
         filter_parameters: OpenSearchFilterParameters = kwargs['filter_parameters']
         assert filter_parameters.category == 'Category 1'
         assert filter_parameters.evaluated_only
 
     def test_should_pass_api_fields_to_provider(
         self,
-        get_article_search_response_dict_by_category_mock: AsyncMock,
+        get_article_search_response_dict_mock: AsyncMock,
         test_client: TestClient
     ):
-        get_article_search_response_dict_by_category_mock.return_value = (
+        get_article_search_response_dict_mock.return_value = (
             ARTICLE_SEARCH_RESPONSE_DICT_1
         )
         test_client.get(
             '/classification/v1/articles',
             params={'filter[category]': 'Category 1', 'fields[article]': 'doi,title'}
         )
-        get_article_search_response_dict_by_category_mock.assert_called()
-        _, kwargs = get_article_search_response_dict_by_category_mock.call_args
+        get_article_search_response_dict_mock.assert_called()
+        _, kwargs = get_article_search_response_dict_mock.call_args
         assert kwargs['article_fields_set'] == {'doi', 'title'}
 
     def test_should_raise_error_for_invalid_field_name(
         self,
-        get_article_search_response_dict_by_category_mock: AsyncMock,
+        get_article_search_response_dict_mock: AsyncMock,
         test_client: TestClient
     ):
-        get_article_search_response_dict_by_category_mock.return_value = (
+        get_article_search_response_dict_mock.return_value = (
             ARTICLE_SEARCH_RESPONSE_DICT_1
         )
         response = test_client.get(
