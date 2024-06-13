@@ -59,7 +59,7 @@ def create_categories_router(
         )
         return templates.TemplateResponse(
             request=request,
-            name='pages/category-articles.html',
+            name='pages/categories-articles.html',
             context={
                 'page_title': get_page_title(
                     category
