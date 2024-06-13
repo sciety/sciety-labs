@@ -1,10 +1,12 @@
 import logging
+from typing import Sequence
 
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from sciety_labs.app.utils.common import get_page_title
+from sciety_labs.models.article import ArticleMention, ArticleMetaData
 
 
 LOGGER = logging.getLogger(__name__)
@@ -36,6 +38,15 @@ def create_categories_router(
         request: Request,
         category: str
     ):
+        article_list_content: Sequence[ArticleMention] = [
+            ArticleMention(
+                article_doi='10.12345/doi_1',
+                article_meta=ArticleMetaData(
+                    article_doi='10.1234/doi_1',
+                    article_title='Title 1'
+                )
+            )
+        ]
         return templates.TemplateResponse(
             request=request,
             name='pages/category-articles.html',
@@ -43,7 +54,8 @@ def create_categories_router(
                 'page_title': get_page_title(
                     category
                 ),
-                'category_display_name': category
+                'category_display_name': category,
+                'article_list_content': article_list_content
             }
         )
 

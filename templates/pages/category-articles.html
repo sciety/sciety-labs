@@ -1,4 +1,5 @@
 {% from 'macros/page.html' import render_page with context %}
+{%- from 'macros/article.html' import render_article_list_content with context %}
 
 {% call render_page() %}
     <main class="page-content" id="mainContent">
@@ -7,6 +8,7 @@
                 <h1>{{ category_display_name }}</h1>
             </header>
             <section>
+                {{ render_article_list_content(article_list_content) }}
             </section>
         </div>
     </main>
