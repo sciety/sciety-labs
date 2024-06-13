@@ -18,7 +18,7 @@ def create_categories_router(
     router = APIRouter()
 
     @router.get('/categories', response_class=HTMLResponse)
-    def categories(
+    async def categories(
         request: Request
     ):
         return templates.TemplateResponse(
@@ -34,7 +34,7 @@ def create_categories_router(
         )
 
     @router.get('/categories/articles', response_class=HTMLResponse)
-    def list_by_sciety_list_id(
+    async def list_by_sciety_list_id(
         request: Request,
         category: str
     ):
