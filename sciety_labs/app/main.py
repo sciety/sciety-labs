@@ -10,6 +10,7 @@ from sciety_labs.app.app_templates import get_app_templates
 from sciety_labs.app.app_update_manager import AppUpdateManager
 from sciety_labs.app.routers.api.app import create_api_app
 from sciety_labs.app.routers.articles import create_articles_router
+from sciety_labs.app.routers.categories import create_categories_router
 from sciety_labs.app.routers.home import create_home_router
 from sciety_labs.app.routers.lists import create_lists_router
 from sciety_labs.app.routers.search import create_search_router
@@ -70,6 +71,9 @@ def _create_app():  # pylint: disable=too-many-locals, too-many-statements
         app_providers_and_models=app_providers_and_models,
         templates=templates,
         search_feeds_config=search_feeds_config
+    ))
+    app.include_router(create_categories_router(
+        templates=templates
     ))
 
     add_app_middlware(app)
