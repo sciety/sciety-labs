@@ -5,7 +5,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
-from sciety_labs.app.utils.common import get_page_title
+from sciety_labs.app.utils.common import AnnotatedPaginationParameters, get_page_title
 
 
 LOGGER = logging.getLogger(__name__)
@@ -15,6 +15,8 @@ def create_categories_router(
     app_providers_and_models: AppProvidersAndModels,
     templates: Jinja2Templates
 ):
+    article_aggregator = app_providers_and_models.article_aggregator
+
     router = APIRouter()
 
     @router.get('/categories', response_class=HTMLResponse)
@@ -36,7 +38,8 @@ def create_categories_router(
     @router.get('/categories/articles', response_class=HTMLResponse)
     async def list_by_sciety_list_id(
         request: Request,
-        category: str
+        category: str,
+        pagination_parameters: AnnotatedPaginationParameters
     ):
         search_results_list = await (
             app_providers_and_models
@@ -45,7 +48,13 @@ def create_categories_router(
                 category=category
             )
         )
-        article_list_content = search_results_list.items
+        article_mention_with_article_meta = (
+            article_aggregator.iter_page_article_mention_with_article_meta_and_stats(
+                search_results_list.items,
+                page=pagination_parameters.page,
+                items_per_page=pagination_parameters.items_per_page
+            )
+        )
         return templates.TemplateResponse(
             request=request,
             name='pages/category-articles.html',
@@ -54,7 +63,7 @@ def create_categories_router(
                     category
                 ),
                 'category_display_name': category,
-                'article_list_content': article_list_content
+                'article_list_content': article_mention_with_article_meta
             }
         )
 
