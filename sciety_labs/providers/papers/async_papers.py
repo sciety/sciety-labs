@@ -65,14 +65,20 @@ class AsyncPapersProvider(AsyncRequestsProvider):
         category: str,
         headers: Optional[Mapping[str, str]] = None
     ) -> PageNumberBasedArticleSearchResultList:
-        url = 'http://localhost:8000/papers/v1/preprints'
+        url = 'http://localhost:8000/api/papers/v1/preprints'
         async with self.client_session.get(
             url,
-            params={'filter[category]': category},
+            params={'filter[category]': category, 'fields[paper]': 'doi,title'},
             headers=self.get_headers(headers=headers),
             timeout=self.timeout
         ) as response:
             LOGGER.debug('response: %r', response)
+            if response.status == 400:
+                LOGGER.warning(
+                    'Bad Request(400), url=%r, response=%r',
+                    response.request_info.url,
+                    await response.read()
+                )
             response.raise_for_status()
             response_json: PaperSearchResponseDict = await response.json()
             LOGGER.debug('Papers search, response_json=%r', response_json)

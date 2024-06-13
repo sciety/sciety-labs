@@ -118,9 +118,11 @@ class TestAsyncPapersProvider:
             )
         )
         assert search_result_list
-        # assert search_result_list.items
         _, kwargs = client_session_get_mock.call_args
-        assert kwargs['params'] == {'filter[category]': 'Category 1'}
+        assert kwargs['params'] == {
+            'filter[category]': 'Category 1',
+            'fields[paper]': 'doi,title'
+        }
 
     @pytest.mark.asyncio
     async def test_should_return_parsed_response_json(

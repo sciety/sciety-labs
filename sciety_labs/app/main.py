@@ -73,6 +73,7 @@ def _create_app():  # pylint: disable=too-many-locals, too-many-statements
         search_feeds_config=search_feeds_config
     ))
     app.include_router(create_categories_router(
+        app_providers_and_models=app_providers_and_models,
         templates=templates
     ))
 
