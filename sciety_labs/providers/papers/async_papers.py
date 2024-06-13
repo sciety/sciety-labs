@@ -14,6 +14,13 @@ from sciety_labs.utils.datetime import parse_date_or_none
 LOGGER = logging.getLogger(__name__)
 
 
+DEFAULT_PROVIDER_PAPER_FIELDS = {
+    'doi',
+    'title',
+    'publication_date'
+}
+
+
 @dataclasses.dataclass(frozen=True)
 class PageNumberBasedArticleSearchResultList:
     items: Sequence[ArticleSearchResultItem]
@@ -72,7 +79,7 @@ class AsyncPapersProvider(AsyncRequestsProvider):
             url,
             params={
                 'filter[category]': category,
-                'fields[paper]': 'doi,title,publication_date'
+                'fields[paper]': ','.join(DEFAULT_PROVIDER_PAPER_FIELDS)
             },
             headers=self.get_headers(headers=headers),
             timeout=self.timeout

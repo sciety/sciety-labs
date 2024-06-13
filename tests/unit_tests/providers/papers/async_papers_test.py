@@ -7,6 +7,7 @@ import pytest
 
 from sciety_labs.app.routers.api.papers.typing import PaperSearchResponseDict
 from sciety_labs.providers.papers.async_papers import (
+    DEFAULT_PROVIDER_PAPER_FIELDS,
     AsyncPapersProvider,
     get_search_result_list_for_paper_search_response_dict,
     get_search_result_list_items_for_paper_search_response_dict
@@ -122,10 +123,8 @@ class TestAsyncPapersProvider:
         )
         assert search_result_list
         _, kwargs = client_session_get_mock.call_args
-        assert kwargs['params'] == {
-            'filter[category]': 'Category 1',
-            'fields[paper]': 'doi,title,publication_date'
-        }
+        assert kwargs['params']['filter[category]'] == 'Category 1'
+        assert set(kwargs['params']['fields[paper]'].split(',')) == DEFAULT_PROVIDER_PAPER_FIELDS
 
     @pytest.mark.asyncio
     async def test_should_return_parsed_response_json(
