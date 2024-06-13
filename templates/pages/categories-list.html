@@ -8,8 +8,9 @@
             </header>
             <section>
                 <ul>
-                    <li><a href="#">Neuroscience</a></li>
-                    <li><a href="#">Plant Science</a></li>
+                    {%- for category_display_name in category_display_names %}
+                    <li><a href="#">{{ category_display_name }}</a></li>
+                    {%- endfor %}
                 </ul>
             </section>
         </div>

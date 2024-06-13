@@ -21,7 +21,11 @@ def create_categories_router(
             request=request,
             name='pages/categories-list.html',
             context={
-                'page_title': 'Browse Categories'
+                'page_title': 'Browse Categories',
+                'category_display_names': [
+                    'Neuroscience',
+                    'Plant Science'
+                ]
             }
         )
 
