@@ -1,0 +1,18 @@
+{% from 'macros/page.html' import render_page with context %}
+
+{% call render_page() %}
+    <main class="page-content" id="mainContent">
+        <div class="sciety-grid-two-columns">
+            <header class="page-header page-header--search-results">
+                <h1>Browse Categories</h1>
+            </header>
+            <section>
+                <ul>
+                    {%- for category_display_name in category_display_names %}
+                    <li><a href="/categories/articles?category={{ category_display_name }}">{{ category_display_name }}</a></li>
+                    {%- endfor %}
+                </ul>
+            </section>
+        </div>
+    </main>
+{% endcall %}

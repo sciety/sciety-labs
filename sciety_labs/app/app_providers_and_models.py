@@ -45,6 +45,7 @@ from sciety_labs.providers.opensearch.config import OpenSearchConnectionConfig
 from sciety_labs.providers.opensearch.sync_providers import (
     OpenSearchArticleRecommendation
 )
+from sciety_labs.providers.papers.async_papers import AsyncPapersProvider
 from sciety_labs.providers.sciety_event import ScietyEventProvider
 from sciety_labs.providers.semantic_scholar import (
     SemanticScholarProvider,
@@ -189,6 +190,10 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
 
         self.lists_model = ScietyEventListsModel([])
         self.evaluation_stats_model = ScietyEventEvaluationStatsModel([])
+
+        self.async_paper_provider = AsyncPapersProvider(
+            client_session=async_client_session
+        )
 
         self.crossref_metadata_provider = CrossrefMetaDataProvider(
             requests_session=cached_requests_session
