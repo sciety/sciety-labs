@@ -249,6 +249,10 @@
     margin-bottom: 1em;
 }
 
+.search-browse-categories-link-container {
+    float: right;
+}
+
 .error-message {
     font-weight: bold;
     font-size: 1.2em;
