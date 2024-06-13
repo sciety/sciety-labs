@@ -8,6 +8,7 @@ from sciety_labs.app.routers.api.papers.typing import (
 )
 from sciety_labs.models.article import ArticleMetaData, ArticleSearchResultItem
 from sciety_labs.providers.async_requests_provider import AsyncRequestsProvider
+from sciety_labs.utils.datetime import parse_date_or_none
 
 
 LOGGER = logging.getLogger(__name__)
@@ -29,7 +30,8 @@ def get_search_result_item_for_paper_dict(
         article_doi=doi,
         article_meta=ArticleMetaData(
             article_doi=doi,
-            article_title=paper_attributes_dict.get('title')
+            article_title=paper_attributes_dict.get('title'),
+            published_date=parse_date_or_none(paper_attributes_dict.get('publication_date'))
         )
     )
 
@@ -68,7 +70,10 @@ class AsyncPapersProvider(AsyncRequestsProvider):
         url = 'http://localhost:8000/api/papers/v1/preprints'
         async with self.client_session.get(
             url,
-            params={'filter[category]': category, 'fields[paper]': 'doi,title'},
+            params={
+                'filter[category]': category,
+                'fields[paper]': 'doi,title,publication_date'
+            },
             headers=self.get_headers(headers=headers),
             timeout=self.timeout
         ) as response:

@@ -1,3 +1,4 @@
+from datetime import date
 import logging
 from unittest.mock import AsyncMock, MagicMock
 
@@ -94,7 +95,8 @@ class TestGetSearchResultListItemsForPaperSearchResponseDict:
                 'type': 'paper',
                 'attributes': {
                     'doi': DOI_1,
-                    'title': 'Title 1'
+                    'title': 'Title 1',
+                    'publication_date': '2001-02-03'
                 }
             }]
         })
@@ -103,6 +105,7 @@ class TestGetSearchResultListItemsForPaperSearchResponseDict:
         assert item.article_doi == DOI_1
         assert item.article_meta.article_doi == DOI_1
         assert item.article_meta.article_title == 'Title 1'
+        assert item.article_meta.published_date == date.fromisoformat('2001-02-03')
 
 
 class TestAsyncPapersProvider:
@@ -121,7 +124,7 @@ class TestAsyncPapersProvider:
         _, kwargs = client_session_get_mock.call_args
         assert kwargs['params'] == {
             'filter[category]': 'Category 1',
-            'fields[paper]': 'doi,title'
+            'fields[paper]': 'doi,title,publication_date'
         }
 
     @pytest.mark.asyncio
