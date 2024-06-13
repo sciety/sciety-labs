@@ -70,6 +70,7 @@ class AsyncPapersProvider(AsyncRequestsProvider):
     async def get_preprints_for_category_search_results_list(
         self,
         category: str,
+        evaluated_only: bool = False,
         headers: Optional[Mapping[str, str]] = None
     ) -> PageNumberBasedArticleSearchResultList:
         url = 'http://localhost:8000/api/papers/v1/preprints'
@@ -77,11 +78,17 @@ class AsyncPapersProvider(AsyncRequestsProvider):
             url,
             params={
                 'filter[category]': category,
+                'filter[evaluated_only]': str(evaluated_only).lower(),
                 'fields[paper]': ','.join(DEFAULT_PROVIDER_PAPER_FIELDS)
             },
             headers=self.get_headers(headers=headers),
             timeout=self.timeout
         ) as response:
+            LOGGER.warning(
+                'Async Response url=%r, status=%r',
+                response.request_info.url,
+                response.status
+            )
             LOGGER.debug('response: %r', response)
             if response.status == 400:
                 LOGGER.warning(

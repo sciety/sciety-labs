@@ -111,20 +111,22 @@ class TestGetSearchResultListItemsForPaperSearchResponseDict:
 
 class TestAsyncPapersProvider:
     @pytest.mark.asyncio
-    async def test_should_pass_cateogry_to_client_session_get_as_params(
+    async def test_should_pass_cateogry_and_evaluated_as_filter_and_set_fields(
         self,
         async_papers_provider: AsyncPapersProvider,
         client_session_get_mock: AsyncMock
     ):
         search_result_list = await (
             async_papers_provider.get_preprints_for_category_search_results_list(
-                category='Category 1'
+                category='Category 1',
+                evaluated_only=True
             )
         )
         assert search_result_list
         _, kwargs = client_session_get_mock.call_args
         assert kwargs['params']['filter[category]'] == 'Category 1'
         assert set(kwargs['params']['fields[paper]'].split(',')) == DEFAULT_PROVIDER_PAPER_FIELDS
+        assert kwargs['params']['filter[evaluated_only]'] == 'true'
 
     @pytest.mark.asyncio
     async def test_should_return_parsed_response_json(

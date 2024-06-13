@@ -39,13 +39,15 @@ def create_categories_router(
     async def list_by_sciety_list_id(
         request: Request,
         category: str,
-        pagination_parameters: AnnotatedPaginationParameters
+        pagination_parameters: AnnotatedPaginationParameters,
+        evaluated_only: bool = True
     ):
         search_results_list = await (
             app_providers_and_models
             .async_paper_provider
             .get_preprints_for_category_search_results_list(
-                category=category
+                category=category,
+                evaluated_only=evaluated_only
             )
         )
         article_mention_with_article_meta = (
