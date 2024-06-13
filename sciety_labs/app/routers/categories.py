@@ -38,15 +38,6 @@ def create_categories_router(
         request: Request,
         category: str
     ):
-        # article_list_content: Sequence[ArticleMention] = [
-        #     ArticleMention(
-        #         article_doi='10.12345/doi_1',
-        #         article_meta=ArticleMetaData(
-        #             article_doi='10.1234/doi_1',
-        #             article_title='Title 1'
-        #         )
-        #     )
-        # ]
         search_results_list = await (
             app_providers_and_models
             .async_paper_provider
