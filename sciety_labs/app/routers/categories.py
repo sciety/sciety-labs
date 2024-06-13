@@ -28,7 +28,7 @@ def create_categories_router(
                 'page_title': 'Browse Categories',
                 'category_display_names': [
                     'Neuroscience',
-                    'Plant Science'
+                    'Microbiology'
                 ]
             }
         )
