@@ -15,9 +15,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 DEFAULT_PROVIDER_PAPER_FIELDS = {
-    'doi',
-    'title',
-    'publication_date'
+    'doi'
 }
 
 
