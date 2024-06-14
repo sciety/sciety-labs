@@ -67,6 +67,9 @@ class GoogleSheetImageProvider:
             load_fn=self.load_mapping
         )
 
+    def preload(self):
+        self.get_mapping()
+
     def refresh(self):
         self.article_image_mapping_cache.reload(
             load_fn=self.load_mapping
