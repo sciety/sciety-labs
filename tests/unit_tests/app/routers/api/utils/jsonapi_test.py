@@ -15,6 +15,7 @@ class TestGetDefaultJsonApiErrorJsonResponse:
         json_response = get_default_jsonapi_error_json_response(
             exception
         )
+        assert json_response.status_code == 500
         assert json.loads(json_response.body) == {
             'errors': [{
                 'title': 'AssertionError',
@@ -31,6 +32,7 @@ class TestGetDefaultJsonApiErrorJsonResponse:
         json_response = get_default_jsonapi_error_json_response(
             exception
         )
+        assert json_response.status_code == 123
         assert json.loads(json_response.body) == {
             'errors': [{
                 'title': 'HTTPException',
@@ -47,6 +49,7 @@ class TestGetDefaultJsonApiErrorJsonResponse:
             exception
         )
         LOGGER.debug('json_response: %r', json_response)
+        assert json_response.status_code == 400
         assert json.loads(json_response.body) == {
             'errors': [{
                 'title': 'RequestValidationError',

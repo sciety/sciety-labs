@@ -29,30 +29,46 @@ AsyncExceptionHandlerMappingT = Mapping[
 EMPTY_EXCEPTION_HANDLER_MAPPING: AsyncExceptionHandlerMappingT = MappingProxyType({})
 
 
-def get_default_jsonapi_error_json_response_dict(
+def get_http_exception_jsonapi_error_json_response(
+    exception: fastapi.exceptions.HTTPException
+) -> fastapi.responses.JSONResponse:
+    response_json: JsonApiErrorsResponseDict = {
+        'errors': [{
+            'title': type(exception).__name__,
+            'detail': exception.detail,
+            'status': str(exception.status_code)
+        }]
+    }
+    return fastapi.responses.JSONResponse(
+        response_json,
+        status_code=exception.status_code
+    )
+
+
+def get_request_validation_jsonapi_error_json_response(
+    exception: fastapi.exceptions.RequestValidationError
+) -> fastapi.responses.JSONResponse:
+    response_json: JsonApiErrorsResponseDict = {
+        'errors': [{
+            'title': type(exception).__name__,
+            'detail': (
+                'Encountered validation errors. Please check the request.'
+            ),
+            'status': '400',
+            'meta': {
+                'errors': exception.errors(),
+            }
+        }]
+    }
+    return fastapi.responses.JSONResponse(
+        response_json,
+        status_code=400
+    )
+
+
+def get_generic_jsonapi_error_json_response(
     exception: Exception
-) -> JsonApiErrorsResponseDict:
-    if isinstance(exception, fastapi.exceptions.HTTPException):
-        return {
-            'errors': [{
-                'title': type(exception).__name__,
-                'detail': exception.detail,
-                'status': str(exception.status_code)
-            }]
-        }
-    if isinstance(exception, fastapi.exceptions.RequestValidationError):
-        return {
-            'errors': [{
-                'title': type(exception).__name__,
-                'detail': (
-                    'Encountered validation errors. Please check the request.'
-                ),
-                'status': '400',
-                'meta': {
-                    'errors': exception.errors(),
-                }
-            }]
-        }
+) -> fastapi.responses.JSONResponse:
     error_message: Optional[str] = None
     try:
         error_message = str(exception)
@@ -63,22 +79,29 @@ def get_default_jsonapi_error_json_response_dict(
             error_message = repr(exception)
         except Exception:  # pylint: disable=broad-exception-caught
             pass
-    return {
+    response_json: JsonApiErrorsResponseDict = {
         'errors': [{
             'title': type(exception).__name__,
             'detail': error_message or 'Oops',
             'status': '500'
         }]
     }
+    return fastapi.responses.JSONResponse(
+        response_json,
+        status_code=500
+    )
 
 
 def get_default_jsonapi_error_json_response(
-    exc: Exception
+    exception: Exception
 ) -> fastapi.responses.JSONResponse:
-    return fastapi.responses.JSONResponse(
-        get_default_jsonapi_error_json_response_dict(exc),
-        status_code=400
-    )
+    if isinstance(exception, fastapi.exceptions.HTTPException):
+        return get_http_exception_jsonapi_error_json_response(exception)
+
+    if isinstance(exception, fastapi.exceptions.RequestValidationError):
+        return get_request_validation_jsonapi_error_json_response(exception)
+
+    return get_generic_jsonapi_error_json_response(exception)
 
 
 async def default_async_jsonapi_exception_handler(
