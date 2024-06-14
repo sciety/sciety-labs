@@ -21,17 +21,22 @@ def create_categories_router(
 
     @router.get('/categories', response_class=HTMLResponse)
     async def categories(
-        request: Request
+        request: Request,
+        evaluated_only: bool = True
     ):
+        category_display_names = await (
+            app_providers_and_models
+            .async_paper_provider
+            .get_category_display_name_list(
+                evaluated_only=evaluated_only
+            )
+        )
         return templates.TemplateResponse(
             request=request,
             name='pages/categories-list.html',
             context={
                 'page_title': 'Browse Categories',
-                'category_display_names': [
-                    'Neuroscience',
-                    'Microbiology'
-                ]
+                'category_display_names': category_display_names
             }
         )
 
