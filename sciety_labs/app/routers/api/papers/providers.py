@@ -9,8 +9,8 @@ from sciety_labs.app.routers.api.papers.typing import (
     PaperDict,
     PaperResponseDict,
     PaperSearchResponseDict,
-    CategorisationDict,
-    CategorisationResponseDict
+    ClassificationDict,
+    ClassificationResponseDict
 )
 from sciety_labs.models.article import InternalArticleFieldNames, KnownDoiPrefix
 from sciety_labs.providers.opensearch.typing import (
@@ -109,7 +109,7 @@ def get_paper_search_by_category_opensearch_query_dict(
 
 def get_classification_dict_for_crossref_group_title(
     group_title: str
-) -> CategorisationDict:
+) -> ClassificationDict:
     return {
         'type': 'category',
         'id': group_title,
@@ -122,7 +122,7 @@ def get_classification_dict_for_crossref_group_title(
 
 def get_classification_response_dict_for_opensearch_aggregations_response_dict(
     response_dict: dict
-) -> CategorisationResponseDict:
+) -> ClassificationResponseDict:
     group_titles = [
         bucket['key']
         for bucket in response_dict['aggregations']['group_title']['buckets']
@@ -138,7 +138,7 @@ def get_classification_response_dict_for_opensearch_aggregations_response_dict(
 def get_classification_response_dict_for_opensearch_document_dict(
     document_dict: dict,
     doi: str
-) -> CategorisationResponseDict:
+) -> ClassificationResponseDict:
     crossref_opensearch_dict = document_dict.get('crossref')
     group_title = (
         crossref_opensearch_dict
@@ -249,7 +249,7 @@ class AsyncOpenSearchPapersProvider:
         self,
         filter_parameters: OpenSearchFilterParameters,
         headers: Optional[Mapping[str, str]] = None
-    ) -> CategorisationResponseDict:
+    ) -> ClassificationResponseDict:
         LOGGER.info('filter_parameters: %r', filter_parameters)
         LOGGER.debug('async_opensearch_client: %r', self.async_opensearch_client)
         opensearch_aggregations_response_dict = await self.async_opensearch_client.search(
@@ -267,7 +267,7 @@ class AsyncOpenSearchPapersProvider:
         self,
         doi: str,
         headers: Optional[Mapping[str, str]] = None
-    ) -> CategorisationResponseDict:
+    ) -> ClassificationResponseDict:
         LOGGER.debug('async_opensearch_client: %r', self.async_opensearch_client)
         LOGGER.debug(
             'async_opensearch_client.get_source: %r',

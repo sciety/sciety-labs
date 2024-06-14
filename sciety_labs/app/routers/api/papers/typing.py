@@ -2,15 +2,15 @@ from typing import Optional, Sequence
 from typing_extensions import NotRequired, TypedDict
 
 
-class CategorisationAttributesDict(TypedDict):
+class ClassificationAttributesDict(TypedDict):
     display_name: str
     source_id: str
 
 
-class CategorisationDict(TypedDict):
+class ClassificationDict(TypedDict):
     type: str
     id: str
-    attributes: CategorisationAttributesDict
+    attributes: ClassificationAttributesDict
 
 
 class PaperAttributesDict(TypedDict):
@@ -20,7 +20,7 @@ class PaperAttributesDict(TypedDict):
     evaluation_count: NotRequired[Optional[int]]
     has_evaluations: NotRequired[Optional[bool]]
     latest_evaluation_activity_timestamp: NotRequired[Optional[str]]
-    classifications: NotRequired[Sequence[CategorisationDict]]
+    classifications: NotRequired[Sequence[ClassificationDict]]
 
 
 class PaperDict(TypedDict):
@@ -29,8 +29,8 @@ class PaperDict(TypedDict):
     attributes: PaperAttributesDict
 
 
-class CategorisationResponseDict(TypedDict):
-    data: NotRequired[Sequence[CategorisationDict]]
+class ClassificationResponseDict(TypedDict):
+    data: NotRequired[Sequence[ClassificationDict]]
 
 
 class PaperResponseDict(TypedDict):
