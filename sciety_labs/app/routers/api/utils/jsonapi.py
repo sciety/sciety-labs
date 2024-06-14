@@ -72,14 +72,20 @@ def get_default_jsonapi_error_json_response_dict(
     }
 
 
-async def default_async_jsonapi_exception_handler(
-    request: fastapi.Request,  # pylint: disable=unused-argument
+def get_default_jsonapi_error_json_response(
     exc: Exception
 ) -> fastapi.responses.JSONResponse:
     return fastapi.responses.JSONResponse(
         get_default_jsonapi_error_json_response_dict(exc),
         status_code=400
     )
+
+
+async def default_async_jsonapi_exception_handler(
+    request: fastapi.Request,  # pylint: disable=unused-argument
+    exc: Exception
+) -> fastapi.responses.JSONResponse:
+    return get_default_jsonapi_error_json_response(exc)
 
 
 def get_async_exception_handler(
