@@ -6,7 +6,7 @@ import aiohttp
 import pytest
 
 from sciety_labs.app.routers.api.papers.typing import (
-    CategorisationResponseDict,
+    ClassificationResponseDict,
     PaperSearchResponseDict
 )
 from sciety_labs.providers.papers.async_papers import (
@@ -24,7 +24,7 @@ LOGGER = logging.getLogger(__name__)
 DOI_1 = '10.12345/doi_1'
 
 
-CLASSIFICATIONS_RESPONSE_DICT_1: CategorisationResponseDict = {
+CLASSIFICATIONS_RESPONSE_DICT_1: ClassificationResponseDict = {
     'data': [{
         'id': 'some id',
         'type': 'category',

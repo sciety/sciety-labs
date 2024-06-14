@@ -3,7 +3,7 @@ import logging
 from typing import Mapping, Optional, Sequence
 
 from sciety_labs.app.routers.api.papers.typing import (
-    CategorisationResponseDict,
+    ClassificationResponseDict,
     PaperDict,
     PaperSearchResponseDict
 )
@@ -27,7 +27,7 @@ class PageNumberBasedArticleSearchResultList:
 
 
 def get_category_display_names_for_classification_response_dict(
-    classification_response_dict: CategorisationResponseDict
+    classification_response_dict: ClassificationResponseDict
 ) -> Sequence[str]:
     return [
         classification_dict['attributes']['display_name']
@@ -104,7 +104,7 @@ class AsyncPapersProvider(AsyncRequestsProvider):
                     await response.read()
                 )
             response.raise_for_status()
-            response_json: CategorisationResponseDict = await response.json()
+            response_json: ClassificationResponseDict = await response.json()
             LOGGER.debug('Categories, response_json=%r', response_json)
             return get_category_display_names_for_classification_response_dict(
                 response_json

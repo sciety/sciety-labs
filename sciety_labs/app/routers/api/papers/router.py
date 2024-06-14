@@ -18,7 +18,7 @@ from sciety_labs.app.routers.api.papers.providers import (
 )
 from sciety_labs.app.routers.api.papers.typing import (
     PaperSearchResponseDict,
-    CategorisationResponseDict
+    ClassificationResponseDict
 )
 from sciety_labs.providers.opensearch.utils import (
     OpenSearchFilterParameters,
@@ -30,7 +30,7 @@ from sciety_labs.utils.fastapi import get_cache_control_headers_for_request
 LOGGER = logging.getLogger(__name__)
 
 
-CATEGORISATION_BY_DOI_API_EXAMPLE_200_RESPONSE: CategorisationResponseDict = {
+CATEGORISATION_BY_DOI_API_EXAMPLE_200_RESPONSE: ClassificationResponseDict = {
     'data': [{
         'type': 'category',
         'id': 'Pain Medicine',
@@ -69,7 +69,7 @@ CATEGORISATION_BY_DOI_API_EXAMPLE_RESPONSES: dict = {
 }
 
 
-CATEGORISATION_LIST_API_EXAMPLE_200_RESPONSE: CategorisationResponseDict = {
+CATEGORISATION_LIST_API_EXAMPLE_200_RESPONSE: ClassificationResponseDict = {
     'data': [{
         'type': 'category',
         'id': 'Neuroscience',
@@ -233,7 +233,7 @@ def create_api_papers_router(
 
     @router.get(
         '/papers/v1/preprints/classifications',
-        response_model=CategorisationResponseDict,
+        response_model=ClassificationResponseDict,
         responses=CATEGORISATION_LIST_API_EXAMPLE_RESPONSES
     )
     async def classifications_list(
@@ -252,7 +252,7 @@ def create_api_papers_router(
 
     @router.get(
         '/papers/v1/preprints/classifications/by/doi/{doi:path}',
-        response_model=CategorisationResponseDict,
+        response_model=ClassificationResponseDict,
         responses=CATEGORISATION_BY_DOI_API_EXAMPLE_RESPONSES
     )
     async def classifications_by_doi(

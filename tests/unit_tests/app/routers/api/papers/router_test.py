@@ -19,7 +19,7 @@ from sciety_labs.app.routers.api.papers.router import (
 )
 from sciety_labs.app.routers.api.papers.typing import (
     PaperSearchResponseDict,
-    CategorisationResponseDict
+    ClassificationResponseDict
 )
 from sciety_labs.app.routers.api.utils.validation import InvalidApiFieldsError
 from sciety_labs.providers.opensearch.utils import OpenSearchFilterParameters
@@ -32,7 +32,7 @@ DOI_1 = '10.12345/test-doi-1'
 
 INVALID_DOI_1 = 'invalid-doi-1'
 
-CATEGORISATION_RESPONSE_DICT_1: CategorisationResponseDict = {
+CATEGORISATION_RESPONSE_DICT_1: ClassificationResponseDict = {
     'data': [{
         'type': 'category',
         'id': 'Category 1',
