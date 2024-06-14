@@ -45,7 +45,7 @@ def get_category_set(
     }
 
 
-class TestApiCategorisationList:
+class TestApiClassifcationList:
     def test_should_return_non_empty_list(
         self,
         classification_list_response_dict: ClassificationResponseDict
@@ -90,7 +90,7 @@ class TestApiPreprints:
         assert len(response_json['data']) == 0
 
 
-class TestApiCategorisationsByDoi:
+class TestApiClassificationsByDoi:
     def test_should_list_classifications_by_doi(self, regression_test_session: Session):
         response = regression_test_session.get(
             f'/api/papers/v1/preprints/classifications/by/doi/{BIOPHYISICS_DOI_1}'
