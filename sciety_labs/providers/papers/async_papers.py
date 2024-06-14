@@ -3,6 +3,7 @@ import logging
 from typing import Mapping, Optional, Sequence
 
 from sciety_labs.app.routers.api.papers.typing import (
+    CategorisationResponseDict,
     PaperDict,
     PaperSearchResponseDict
 )
@@ -23,6 +24,15 @@ DEFAULT_PROVIDER_PAPER_FIELDS = {
 class PageNumberBasedArticleSearchResultList:
     items: Sequence[ArticleSearchResultItem]
     page: int
+
+
+def get_category_display_names_for_classification_response_dict(
+    classification_response_dict: CategorisationResponseDict
+) -> Sequence[str]:
+    return [
+        classification_dict['attributes']['display_name']
+        for classification_dict in classification_response_dict['data']
+    ]
 
 
 def get_search_result_item_for_paper_dict(
@@ -67,6 +77,39 @@ class AsyncPapersProvider(AsyncRequestsProvider):
         super().__init__(**kwargs)
         self.headers['accept'] = 'application/json'
 
+    async def get_category_display_name_list(
+        self,
+        evaluated_only: bool = False,
+        headers: Optional[Mapping[str, str]] = None
+    ) -> Sequence[str]:
+        url = 'http://localhost:8000/api/papers/v1/preprints/classifications'
+        async with self.client_session.get(
+            url,
+            params={
+                'filter[evaluated_only]': str(evaluated_only).lower()
+            },
+            headers=self.get_headers(headers=headers),
+            timeout=self.timeout
+        ) as response:
+            LOGGER.info(
+                'Async Response url=%r, status=%r',
+                response.request_info.url,
+                response.status
+            )
+            LOGGER.debug('response: %r', response)
+            if response.status == 400:
+                LOGGER.warning(
+                    'Bad Request(400), url=%r, response=%r',
+                    response.request_info.url,
+                    await response.read()
+                )
+            response.raise_for_status()
+            response_json: CategorisationResponseDict = await response.json()
+            LOGGER.debug('Categories, response_json=%r', response_json)
+            return get_category_display_names_for_classification_response_dict(
+                response_json
+            )
+
     async def get_preprints_for_category_search_results_list(
         self,
         category: str,
@@ -84,7 +127,7 @@ class AsyncPapersProvider(AsyncRequestsProvider):
             headers=self.get_headers(headers=headers),
             timeout=self.timeout
         ) as response:
-            LOGGER.warning(
+            LOGGER.info(
                 'Async Response url=%r, status=%r',
                 response.request_info.url,
                 response.status
