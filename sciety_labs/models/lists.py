@@ -11,7 +11,10 @@ from sciety_labs.models.article import (
     get_doi_from_article_id_or_none
 )
 from sciety_labs.models.image import ObjectImages
-from sciety_labs.models.sciety_event import ScietyEventNames
+from sciety_labs.models.sciety_event import (
+    ALTERNATIVE_ARTICLE_IN_LIST_ANNOTATED_EVENT_NAMES,
+    ScietyEventNames
+)
 
 
 class ListMetaData(NamedTuple):
@@ -184,7 +187,7 @@ class ScietyEventListsModel(ListsModel):
                     self._article_list_by_list_id[list_id].add(
                         ArticleListItem(article_id=article_id, added_datetime=event_timestamp)
                     )
-                if event_name == ScietyEventNames.ANNOTATION_CREATED:
+                if event_name in ALTERNATIVE_ARTICLE_IN_LIST_ANNOTATED_EVENT_NAMES:
                     self._article_list_by_list_id[list_id].add_comment(
                         ArticleCommentItem(
                             article_id=article_id,
