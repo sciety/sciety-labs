@@ -1,14 +1,19 @@
 {% from 'macros/page.html' import render_page with context %}
 {%- from 'macros/article.html' import render_article_list_content with context %}
+{%- from 'macros/pagination.html' import render_pagination_header, render_pagination %}
 
 {% call render_page() %}
     <main class="page-content" id="mainContent">
         <div class="sciety-grid-two-columns">
             <header class="page-header page-header--search-results">
                 <h1>{{ category_display_name }}</h1>
+                <div>
+                    {{ render_pagination_header(pagination) }}
+                </div>
             </header>
             <section>
                 {{ render_article_list_content(article_list_content) }}
+                {{ render_pagination(pagination) }}
             </section>
         </div>
     </main>

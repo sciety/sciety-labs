@@ -12,6 +12,7 @@ from sciety_labs.app.routers.api.papers.typing import (
 from sciety_labs.providers.papers.async_papers import (
     DEFAULT_PROVIDER_PAPER_FIELDS,
     AsyncPapersProvider,
+    PageNumberBasedPaginationParameters,
     get_category_display_names_for_classification_response_dict,
     get_search_result_list_for_paper_search_response_dict,
     get_search_result_list_items_for_paper_search_response_dict
@@ -22,6 +23,12 @@ LOGGER = logging.getLogger(__name__)
 
 
 DOI_1 = '10.12345/doi_1'
+
+
+PAGINATION_PARAMETERS_1 = PageNumberBasedPaginationParameters(
+    page=10,
+    items_per_page=123
+)
 
 
 CLASSIFICATIONS_RESPONSE_DICT_1: ClassificationResponseDict = {
@@ -43,7 +50,10 @@ PAPER_SEARCH_RESPONSE_DICT_1: PaperSearchResponseDict = {
         'attributes': {
             'doi': DOI_1
         }
-    }]
+    }],
+    'meta': {
+        'total': 123
+    }
 }
 
 
@@ -145,6 +155,17 @@ class TestGetSearchResultListItemsForPaperSearchResponseDict:
         assert item.article_meta.published_date == date.fromisoformat('2001-02-03')
 
 
+class TestGetSearchResultListForPaperSearchResponseDict:
+    def test_should_return_total(self):
+        search_result = get_search_result_list_for_paper_search_response_dict({
+            'data': [],
+            'meta': {
+                'total': 123
+            }
+        })
+        assert search_result.total == 123
+
+
 class TestAsyncPapersProviderCategoryDisplayNameList:
     @pytest.mark.asyncio
     async def test_should_pass_evaluated_only_as_filter_and_set_fields(
@@ -152,10 +173,8 @@ class TestAsyncPapersProviderCategoryDisplayNameList:
         async_papers_provider: AsyncPapersProvider,
         client_session_get_mock: AsyncMock
     ):
-        await (
-            async_papers_provider.get_category_display_name_list(
-                evaluated_only=True
-            )
+        await async_papers_provider.get_category_display_name_list(
+            evaluated_only=True
         )
         _, kwargs = client_session_get_mock.call_args
         assert kwargs['params']['filter[evaluated_only]'] == 'true'
@@ -180,19 +199,39 @@ class TestAsyncPapersProviderPreprints:
     async def test_should_pass_cateogry_and_evaluated_only_as_filter_and_set_fields(
         self,
         async_papers_provider: AsyncPapersProvider,
+        response_mock: AsyncMock,
         client_session_get_mock: AsyncMock
     ):
-        search_result_list = await (
-            async_papers_provider.get_preprints_for_category_search_results_list(
-                category='Category 1',
-                evaluated_only=True
-            )
+        response_mock.json.return_value = PAPER_SEARCH_RESPONSE_DICT_1
+        await async_papers_provider.get_preprints_for_category_search_results_list(
+            category='Category 1',
+            evaluated_only=True,
+            pagination_parameters=PAGINATION_PARAMETERS_1
         )
-        assert search_result_list
         _, kwargs = client_session_get_mock.call_args
         assert kwargs['params']['filter[category]'] == 'Category 1'
         assert set(kwargs['params']['fields[paper]'].split(',')) == DEFAULT_PROVIDER_PAPER_FIELDS
         assert kwargs['params']['filter[evaluated_only]'] == 'true'
+
+    @pytest.mark.asyncio
+    async def test_should_pass_pagination_parameters_to_request(
+        self,
+        async_papers_provider: AsyncPapersProvider,
+        response_mock: AsyncMock,
+        client_session_get_mock: AsyncMock
+    ):
+        response_mock.json.return_value = PAPER_SEARCH_RESPONSE_DICT_1
+        await async_papers_provider.get_preprints_for_category_search_results_list(
+            category='Category 1',
+            evaluated_only=True,
+            pagination_parameters=PageNumberBasedPaginationParameters(
+                page=11,
+                items_per_page=12
+            )
+        )
+        _, kwargs = client_session_get_mock.call_args
+        assert kwargs['params']['page[number]'] == 11
+        assert kwargs['params']['page[size]'] == 12
 
     @pytest.mark.asyncio
     async def test_should_return_parsed_response_json(
@@ -203,7 +242,8 @@ class TestAsyncPapersProviderPreprints:
         response_mock.json.return_value = PAPER_SEARCH_RESPONSE_DICT_1
         search_result_list = await (
             async_papers_provider.get_preprints_for_category_search_results_list(
-                category='Category 1'
+                category='Category 1',
+                pagination_parameters=PAGINATION_PARAMETERS_1
             )
         )
         assert search_result_list == get_search_result_list_for_paper_search_response_dict(

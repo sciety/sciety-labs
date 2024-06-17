@@ -6,6 +6,8 @@ from fastapi.templating import Jinja2Templates
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.utils.common import AnnotatedPaginationParameters, get_page_title
+from sciety_labs.providers.papers.async_papers import PageNumberBasedPaginationParameters
+from sciety_labs.utils.pagination import get_url_pagination_state_for_pagination_parameters
 
 
 LOGGER = logging.getLogger(__name__)
@@ -52,15 +54,24 @@ def create_categories_router(
             .async_paper_provider
             .get_preprints_for_category_search_results_list(
                 category=category,
-                evaluated_only=evaluated_only
+                evaluated_only=evaluated_only,
+                pagination_parameters=PageNumberBasedPaginationParameters(
+                    page=pagination_parameters.page,
+                    items_per_page=pagination_parameters.items_per_page
+                )
             )
         )
         article_mention_with_article_meta = (
             article_aggregator.iter_page_article_mention_with_article_meta_and_stats(
                 search_results_list.items,
-                page=pagination_parameters.page,
+                page=1,  # pagination is handled by service
                 items_per_page=pagination_parameters.items_per_page
             )
+        )
+        url_pagination_state = get_url_pagination_state_for_pagination_parameters(
+            url=request.url,
+            pagination_parameters=pagination_parameters,
+            item_count=search_results_list.total
         )
         return templates.TemplateResponse(
             request=request,
@@ -70,7 +81,8 @@ def create_categories_router(
                     category
                 ),
                 'category_display_name': category,
-                'article_list_content': article_mention_with_article_meta
+                'article_list_content': article_mention_with_article_meta,
+                'pagination': url_pagination_state
             }
         )
 
