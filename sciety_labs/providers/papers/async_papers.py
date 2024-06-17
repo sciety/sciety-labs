@@ -21,9 +21,16 @@ DEFAULT_PROVIDER_PAPER_FIELDS = {
 
 
 @dataclasses.dataclass(frozen=True)
+class PageNumberBasedPaginationParameters:
+    page: int
+    items_per_page: int
+
+
+@dataclasses.dataclass(frozen=True)
 class PageNumberBasedArticleSearchResultList:
     items: Sequence[ArticleSearchResultItem]
     page: int
+    total: int
 
 
 def get_category_display_names_for_classification_response_dict(
@@ -64,11 +71,14 @@ def get_search_result_list_items_for_paper_search_response_dict(
 def get_search_result_list_for_paper_search_response_dict(
     paper_search_response_dict: PaperSearchResponseDict
 ) -> PageNumberBasedArticleSearchResultList:
+    meta = paper_search_response_dict.get('meta')
+    assert meta
     return PageNumberBasedArticleSearchResultList(
         items=get_search_result_list_items_for_paper_search_response_dict(
             paper_search_response_dict
         ),
-        page=1
+        page=1,
+        total=meta['total']
     )
 
 
@@ -113,6 +123,7 @@ class AsyncPapersProvider(AsyncRequestsProvider):
     async def get_preprints_for_category_search_results_list(
         self,
         category: str,
+        pagination_parameters: PageNumberBasedPaginationParameters,
         evaluated_only: bool = False,
         headers: Optional[Mapping[str, str]] = None
     ) -> PageNumberBasedArticleSearchResultList:
@@ -120,6 +131,8 @@ class AsyncPapersProvider(AsyncRequestsProvider):
         async with self.client_session.get(
             url,
             params={
+                'page[number]': pagination_parameters.page,
+                'page[size]': pagination_parameters.items_per_page,
                 'filter[category]': category,
                 'filter[evaluated_only]': str(evaluated_only).lower(),
                 'fields[paper]': ','.join(DEFAULT_PROVIDER_PAPER_FIELDS)
