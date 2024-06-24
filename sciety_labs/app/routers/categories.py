@@ -1,6 +1,7 @@
 import logging
 
 from fastapi import APIRouter, Request
+import fastapi
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
@@ -47,6 +48,8 @@ def create_categories_router(
         request: Request,
         category: str,
         pagination_parameters: AnnotatedPaginationParameters,
+        from_sciety: bool = False,
+        from_sciety_alias: bool = fastapi.Query(False, alias='from-sciety'),
         evaluated_only: bool = True
     ):
         search_results_list = await (
@@ -81,6 +84,7 @@ def create_categories_router(
                     category
                 ),
                 'category_display_name': category,
+                'from_sciety': from_sciety or from_sciety_alias,
                 'article_list_content': article_mention_with_article_meta,
                 'pagination': url_pagination_state
             }
