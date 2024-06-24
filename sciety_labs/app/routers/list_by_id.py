@@ -1,7 +1,7 @@
 import logging
 from typing import Optional
 
-from fastapi import APIRouter, Query, Request
+from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
@@ -9,6 +9,7 @@ from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.utils.common import (
     DEFAULT_ARTICLE_RECOMMENDATION_RSS_ITEM_COUNT,
     DEFAULT_ITEMS_PER_PAGE,
+    AnnotatedFromScietyParameter,
     AnnotatedPaginationParameters,
     get_owner_url,
     get_page_title,
@@ -114,8 +115,7 @@ def create_list_by_id_router(
         request: Request,
         list_id: str,
         pagination_parameters: AnnotatedPaginationParameters,
-        from_sciety: bool = False,
-        from_sciety_alias: bool = Query(False, alias='from-sciety'),
+        from_sciety: AnnotatedFromScietyParameter,
         max_recommendations: int = DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS,
         fragment: bool = False
     ):
@@ -136,7 +136,7 @@ def create_list_by_id_router(
                     'rss_url': get_rss_url(request),
                     'owner_url': get_owner_url(list_summary_data.owner),
                     'list_summary_data': list_summary_data,
-                    'from_sciety': from_sciety or from_sciety_alias,
+                    'from_sciety': from_sciety,
                     'article_recommendation_fragment_url': article_recommendation_fragment_url
                 }
             )
@@ -167,7 +167,7 @@ def create_list_by_id_router(
                 'page_title': get_page_title(
                     f'Article recommendations for {list_summary_data.list_meta.list_name}'
                 ),
-                'from_sciety': from_sciety or from_sciety_alias,
+                'from_sciety': from_sciety,
                 'article_list_content': article_recommendation_with_article_meta,
                 'pagination': url_pagination_state
             }

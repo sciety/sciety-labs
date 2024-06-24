@@ -1,12 +1,15 @@
 import logging
 
 from fastapi import APIRouter, Request
-import fastapi
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
-from sciety_labs.app.utils.common import AnnotatedPaginationParameters, get_page_title
+from sciety_labs.app.utils.common import (
+    AnnotatedFromScietyParameter,
+    AnnotatedPaginationParameters,
+    get_page_title
+)
 from sciety_labs.providers.papers.async_papers import PageNumberBasedPaginationParameters
 from sciety_labs.utils.pagination import get_url_pagination_state_for_pagination_parameters
 
@@ -48,8 +51,7 @@ def create_categories_router(
         request: Request,
         category: str,
         pagination_parameters: AnnotatedPaginationParameters,
-        from_sciety: bool = False,
-        from_sciety_alias: bool = fastapi.Query(False, alias='from-sciety'),
+        from_sciety: AnnotatedFromScietyParameter,
         evaluated_only: bool = True
     ):
         search_results_list = await (
@@ -84,7 +86,7 @@ def create_categories_router(
                     category
                 ),
                 'category_display_name': category,
-                'from_sciety': from_sciety or from_sciety_alias,
+                'from_sciety': from_sciety,
                 'article_list_content': article_mention_with_article_meta,
                 'pagination': url_pagination_state
             }

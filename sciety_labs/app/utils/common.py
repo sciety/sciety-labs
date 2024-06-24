@@ -1,6 +1,7 @@
 from typing import Annotated, Optional
 
 from fastapi import Depends, Request
+import fastapi
 
 from sciety_labs.models.lists import OwnerMetaData, OwnerTypes
 from sciety_labs.providers.semantic_scholar import DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
@@ -57,4 +58,17 @@ async def get_pagination_parameters(
 
 AnnotatedPaginationParameters = Annotated[
     UrlPaginationParameters, Depends(get_pagination_parameters)
+]
+
+
+async def get_from_sciety_parameter(
+    from_sciety: bool = False,
+    from_sciety_alias: bool = fastapi.Query(False, alias='from-sciety'),
+) -> bool:
+    return from_sciety or from_sciety_alias
+
+
+AnnotatedFromScietyParameter = Annotated[
+    bool,
+    Depends(get_from_sciety_parameter)
 ]
