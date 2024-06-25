@@ -308,12 +308,14 @@ def create_api_papers_router(
     )
     async def preprints_search(  # pylint: disable=too-many-arguments
         request: fastapi.Request,
+        query: str = fastapi.Query(min_length=3),
         category: Optional[str] = fastapi.Query(alias='filter[category]', default=None),
         evaluated_only: bool = fastapi.Query(alias='filter[evaluated_only]', default=False),
         page_size: int = fastapi.Query(alias='page[size]', default=10),
         page_number: int = fastapi.Query(alias='page[number]', ge=1, default=1),
         api_paper_fields_csv: str = PAPER_FIELDS_FASTAPI_QUERY
     ):
+        LOGGER.info('query: %r', query)
         api_paper_fields_set = set(api_paper_fields_csv.split(','))
         validate_api_fields(api_paper_fields_set, valid_values=ALL_PAPER_FIELDS)
         return await (
