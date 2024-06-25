@@ -301,4 +301,38 @@ def create_api_papers_router(
             )
         )
 
+    @router.get(
+        '/papers/v1/preprints/search',
+        response_model=PaperSearchResponseDict,
+        responses=PREPRINTS_BY_CATEGORY_API_EXAMPLE_RESPONSES
+    )
+    async def preprints_search(  # pylint: disable=too-many-arguments
+        request: fastapi.Request,
+        category: Optional[str] = fastapi.Query(alias='filter[category]', default=None),
+        evaluated_only: bool = fastapi.Query(alias='filter[evaluated_only]', default=False),
+        page_size: int = fastapi.Query(alias='page[size]', default=10),
+        page_number: int = fastapi.Query(alias='page[number]', ge=1, default=1),
+        api_paper_fields_csv: str = PAPER_FIELDS_FASTAPI_QUERY
+    ):
+        api_paper_fields_set = set(api_paper_fields_csv.split(','))
+        validate_api_fields(api_paper_fields_set, valid_values=ALL_PAPER_FIELDS)
+        return await (
+            async_opensearch_papers_provider
+            .get_paper_search_response_dict(
+                filter_parameters=OpenSearchFilterParameters(
+                    category=category,
+                    evaluated_only=evaluated_only
+                ),
+                sort_parameters=get_default_paper_search_sort_parameters(
+                    evaluated_only=evaluated_only
+                ),
+                pagination_parameters=OpenSearchPaginationParameters(
+                    page_size=page_size,
+                    page_number=page_number
+                ),
+                paper_fields_set=api_paper_fields_set,
+                headers=get_cache_control_headers_for_request(request)
+            )
+        )
+
     return router
