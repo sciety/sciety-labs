@@ -4,12 +4,14 @@ import opensearchpy
 import pytest
 
 from sciety_labs.app.routers.api.papers.providers import (
+    DEFAULT_OPENSEARCH_SEARCH_FIELDS,
     LATEST_EVALUATION_TIMESTAMP_DESC_OPENSEARCH_SORT_FIELD,
     DoiNotFoundError,
     AsyncOpenSearchPapersProvider,
     get_paper_dict_for_opensearch_document_dict,
     get_paper_response_dict_for_opensearch_document_dict,
     get_paper_search_by_category_opensearch_query_dict,
+    get_paper_search_query_opensearch_multi_match_query_dict,
     get_paper_search_response_dict_for_opensearch_search_response_dict,
     get_classification_list_opensearch_query_dict,
     get_classification_response_dict_for_opensearch_aggregations_response_dict,
@@ -47,6 +49,8 @@ OPENSEARCH_SEARCH_RESULT_1: OpenSearchSearchResultDict = {
     }
 }
 
+QUERY_1 = 'Query 1'
+
 
 @pytest.fixture(name='async_opensearch_papers_provider')
 def _async_opensearch_papers_provider(
@@ -81,6 +85,20 @@ class TestGetClassificationListOpenSearchQueryDict:
             IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
             IS_EVALUATED_OPENSEARCH_FILTER_DICT
         ]
+
+
+class TestGetPaperSearchQueryOpenSearchMultiMatchQueryDict:
+    def test_should_return_query(self):
+        multi_match_query_dict = get_paper_search_query_opensearch_multi_match_query_dict(
+            query=QUERY_1
+        )
+        assert multi_match_query_dict['query'] == QUERY_1
+
+    def test_should_return_fields(self):
+        multi_match_query_dict = get_paper_search_query_opensearch_multi_match_query_dict(
+            query=QUERY_1
+        )
+        assert multi_match_query_dict['fields'] == DEFAULT_OPENSEARCH_SEARCH_FIELDS
 
 
 class TestGetPaperSearchByCategoryOpenSearchQueryDict:
@@ -151,6 +169,19 @@ class TestGetPaperSearchByCategoryOpenSearchQueryDict:
         )
         assert query_dict['size'] == 100
         assert query_dict['from'] == 200
+
+    def test_should_include_query_as_multi_match(self):
+        query_dict = get_paper_search_by_category_opensearch_query_dict(
+            filter_parameters=OpenSearchFilterParameters(),
+            sort_parameters=OpenSearchSortParameters(),
+            pagination_parameters=OpenSearchPaginationParameters(),
+            query=QUERY_1
+        )
+        assert query_dict['query']['bool']['must'] == [{
+            'multi_match': get_paper_search_query_opensearch_multi_match_query_dict(
+                query=QUERY_1
+            )
+        }]
 
 
 class TestGetClassificationResponseDictForOpenSearchAggregationsResponseDict:
