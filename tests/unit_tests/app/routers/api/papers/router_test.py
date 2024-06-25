@@ -54,6 +54,8 @@ PAPER_SEARCH_RESPONSE_DICT_1: PaperSearchResponseDict = {
     }]
 }
 
+QUERY_1 = 'query 1'
+
 
 @pytest.fixture(name='async_opensearch_papers_provider_class_mock', autouse=True)
 def _async_opensearch_papers_provider_class_mock(
@@ -249,3 +251,106 @@ class TestPapersApiRouterPreprints:
         assert response_json == get_invalid_api_fields_json_response_dict(
             InvalidApiFieldsError({'invalid_1'})
         )
+
+class TestPapersSearchApiRouterPreprints:
+    def test_should_return_response_from_provider(
+        self,
+        get_paper_search_response_dict_mock: AsyncMock,
+        test_client: TestClient
+    ):
+        get_paper_search_response_dict_mock.return_value = (
+            PAPER_SEARCH_RESPONSE_DICT_1
+        )
+        response = test_client.get(
+            '/papers/v1/preprints/search',
+            params={
+                'query': QUERY_1,
+                'filter[category]': 'Category 1'
+            }
+        )
+        response.raise_for_status()
+        assert response.json() == PAPER_SEARCH_RESPONSE_DICT_1
+
+    def test_should_pass_evaluated_only_and_category_filter_to_provider(
+        self,
+        get_paper_search_response_dict_mock: AsyncMock,
+        test_client: TestClient
+    ):
+        get_paper_search_response_dict_mock.return_value = (
+            PAPER_SEARCH_RESPONSE_DICT_1
+        )
+        test_client.get(
+            '/papers/v1/preprints/search',
+            params={
+                'query': QUERY_1,
+                'filter[category]': 'Category 1',
+                'filter[evaluated_only]': 'true'
+            }
+        )
+        _, kwargs = get_paper_search_response_dict_mock.call_args
+        filter_parameters: OpenSearchFilterParameters = kwargs['filter_parameters']
+        assert filter_parameters.category == 'Category 1'
+        assert filter_parameters.evaluated_only
+
+    def test_should_pass_api_fields_to_provider(
+        self,
+        get_paper_search_response_dict_mock: AsyncMock,
+        test_client: TestClient
+    ):
+        get_paper_search_response_dict_mock.return_value = (
+            PAPER_SEARCH_RESPONSE_DICT_1
+        )
+        test_client.get(
+            '/papers/v1/preprints/search',
+            params={
+                'query': QUERY_1,
+                'filter[category]': 'Category 1',
+                'fields[paper]': 'doi,title'
+            }
+        )
+        get_paper_search_response_dict_mock.assert_called()
+        _, kwargs = get_paper_search_response_dict_mock.call_args
+        assert kwargs['paper_fields_set'] == {'doi', 'title'}
+
+    def test_should_raise_error_for_invalid_field_name(
+        self,
+        get_paper_search_response_dict_mock: AsyncMock,
+        test_client: TestClient
+    ):
+        get_paper_search_response_dict_mock.return_value = (
+            PAPER_SEARCH_RESPONSE_DICT_1
+        )
+        response = test_client.get(
+            '/papers/v1/preprints/search',
+            params={
+                'query': QUERY_1,
+                'filter[category]': 'Category 1',
+                'fields[paper]': 'doi,invalid_1'
+            }
+        )
+        assert response.status_code == 400
+        response_json = response.json()
+        LOGGER.debug('response_json: %r', response_json)
+        assert response_json == get_invalid_api_fields_json_response_dict(
+            InvalidApiFieldsError({'invalid_1'})
+        )
+
+    def test_should_pass_query_to_provider(
+        self,
+        get_paper_search_response_dict_mock: AsyncMock,
+        test_client: TestClient
+    ):
+        get_paper_search_response_dict_mock.return_value = (
+            PAPER_SEARCH_RESPONSE_DICT_1
+        )
+        test_client.get(
+            '/papers/v1/preprints/search',
+            params={
+                'query': QUERY_1,
+                'filter[category]': 'Category 1',
+                'fields[paper]': 'doi,title'
+            }
+        )
+        get_paper_search_response_dict_mock.assert_called()
+        _, kwargs = get_paper_search_response_dict_mock.call_args
+        assert kwargs['query'] == QUERY_1

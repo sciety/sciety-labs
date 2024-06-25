@@ -292,9 +292,11 @@ class AsyncOpenSearchPapersProvider:
         filter_parameters: OpenSearchFilterParameters,
         sort_parameters: OpenSearchSortParameters,
         pagination_parameters: OpenSearchPaginationParameters,
+        query: Optional[str] = None,
         paper_fields_set: Optional[Set[str]] = None,
         headers: Optional[Mapping[str, str]] = None
     ) -> PaperSearchResponseDict:
+        LOGGER.info('query: %r', query)
         LOGGER.info('filter_parameters: %r', filter_parameters)
         LOGGER.info('pagination_parameters: %r', pagination_parameters)
         LOGGER.info('paper_fields_set: %r', paper_fields_set)

@@ -315,7 +315,6 @@ def create_api_papers_router(
         page_number: int = fastapi.Query(alias='page[number]', ge=1, default=1),
         api_paper_fields_csv: str = PAPER_FIELDS_FASTAPI_QUERY
     ):
-        LOGGER.info('query: %r', query)
         api_paper_fields_set = set(api_paper_fields_csv.split(','))
         validate_api_fields(api_paper_fields_set, valid_values=ALL_PAPER_FIELDS)
         return await (
@@ -333,6 +332,7 @@ def create_api_papers_router(
                     page_number=page_number
                 ),
                 paper_fields_set=api_paper_fields_set,
+                query=query,
                 headers=get_cache_control_headers_for_request(request)
             )
         )
