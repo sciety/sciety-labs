@@ -162,6 +162,33 @@ PAPER_FIELDS_FASTAPI_QUERY = fastapi.Query(
     ]
 )
 
+SUPPORTED_PAPER_SORT_FIELDS = [
+    'publication_date'
+]
+
+SUPPORTED_PAPER_SORT_FIELDS_AS_MARKDOWN_LIST = '\n'.join([
+    f'- `{field_name}`'
+    for field_name in SUPPORTED_PAPER_SORT_FIELDS
+])
+
+PAPER_SEARCH_SORT_FIELDS_FASTAPI_QUERY = fastapi.Query(
+    alias='sort',
+    default='',
+    description='\n'.join([
+        'By default, sorting will be by score (descending).',
+        '',
+        'Comma separated list of fields to sort by.',
+        'The sort order for each sort field is ascending unless it is prefixed with a minus.',
+        '',
+        'The following fields can be specified to sort by:',
+        '',
+        SUPPORTED_PAPER_SORT_FIELDS_AS_MARKDOWN_LIST
+    ]),
+    examples=[  # Note: These only seem to appear in /redoc
+        '-publication_date'
+    ]
+)
+
 
 PREPRINTS_SEARCH_API_DESCRIPTION = textwrap.dedent(
     '''
@@ -328,8 +355,10 @@ def create_api_papers_router(
         evaluated_only: bool = fastapi.Query(alias='filter[evaluated_only]', default=False),
         page_size: int = fastapi.Query(alias='page[size]', default=10),
         page_number: int = fastapi.Query(alias='page[number]', ge=1, default=1),
-        api_paper_fields_csv: str = PAPER_FIELDS_FASTAPI_QUERY
+        api_paper_fields_csv: str = PAPER_FIELDS_FASTAPI_QUERY,
+        api_paper_sort_fields_csv: str = PAPER_SEARCH_SORT_FIELDS_FASTAPI_QUERY
     ):
+        LOGGER.info('api_paper_sort_fields_csv: %r', api_paper_sort_fields_csv)
         api_paper_fields_set = set(api_paper_fields_csv.split(','))
         validate_api_fields(api_paper_fields_set, valid_values=ALL_PAPER_FIELDS)
         return await (
