@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 import logging
 from typing import Iterator
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -53,6 +54,8 @@ PAPER_SEARCH_RESPONSE_DICT_1: PaperSearchResponseDict = {
         }
     }]
 }
+
+QUERY_1 = 'query 1'
 
 
 @pytest.fixture(name='async_opensearch_papers_provider_class_mock', autouse=True)
@@ -182,7 +185,15 @@ class TestPapersApiRouterClassificationListByDoi:
         assert response.json() == get_doi_not_found_error_json_response_dict(exception)
 
 
-class TestPapersApiRouterPreprints:
+class _BaseTestPapersApiRouterPreprints(ABC):
+    @abstractmethod
+    def get_url(self) -> str:
+        pass
+
+    @abstractmethod
+    def get_default_params(self) -> dict:
+        pass
+
     def test_should_return_response_from_provider(
         self,
         get_paper_search_response_dict_mock: AsyncMock,
@@ -192,8 +203,11 @@ class TestPapersApiRouterPreprints:
             PAPER_SEARCH_RESPONSE_DICT_1
         )
         response = test_client.get(
-            '/papers/v1/preprints',
-            params={'filter[category]': 'Category 1'}
+            self.get_url(),
+            params={
+                **self.get_default_params(),
+                'filter[category]': 'Category 1'
+            }
         )
         response.raise_for_status()
         assert response.json() == PAPER_SEARCH_RESPONSE_DICT_1
@@ -207,8 +221,12 @@ class TestPapersApiRouterPreprints:
             PAPER_SEARCH_RESPONSE_DICT_1
         )
         test_client.get(
-            '/papers/v1/preprints',
-            params={'filter[category]': 'Category 1', 'filter[evaluated_only]': 'true'}
+            self.get_url(),
+            params={
+                **self.get_default_params(),
+                'filter[category]': 'Category 1',
+                'filter[evaluated_only]': 'true'
+            }
         )
         _, kwargs = get_paper_search_response_dict_mock.call_args
         filter_parameters: OpenSearchFilterParameters = kwargs['filter_parameters']
@@ -224,8 +242,12 @@ class TestPapersApiRouterPreprints:
             PAPER_SEARCH_RESPONSE_DICT_1
         )
         test_client.get(
-            '/papers/v1/preprints',
-            params={'filter[category]': 'Category 1', 'fields[paper]': 'doi,title'}
+            self.get_url(),
+            params={
+                **self.get_default_params(),
+                'filter[category]': 'Category 1',
+                'fields[paper]': 'doi,title'
+            }
         )
         get_paper_search_response_dict_mock.assert_called()
         _, kwargs = get_paper_search_response_dict_mock.call_args
@@ -240,8 +262,12 @@ class TestPapersApiRouterPreprints:
             PAPER_SEARCH_RESPONSE_DICT_1
         )
         response = test_client.get(
-            '/papers/v1/preprints',
-            params={'filter[category]': 'Category 1', 'fields[paper]': 'doi,invalid_1'}
+            self.get_url(),
+            params={
+                **self.get_default_params(),
+                'filter[category]': 'Category 1',
+                'fields[paper]': 'doi,invalid_1'
+            }
         )
         assert response.status_code == 400
         response_json = response.json()
@@ -249,3 +275,41 @@ class TestPapersApiRouterPreprints:
         assert response_json == get_invalid_api_fields_json_response_dict(
             InvalidApiFieldsError({'invalid_1'})
         )
+
+
+class TestPapersApiRouterPreprints(_BaseTestPapersApiRouterPreprints):
+    def get_url(self) -> str:
+        return '/papers/v1/preprints'
+
+    def get_default_params(self) -> dict:
+        return {}
+
+
+class TestPapersSearchApiRouterPreprints(_BaseTestPapersApiRouterPreprints):
+    def get_url(self) -> str:
+        return '/papers/v1/preprints/search'
+
+    def get_default_params(self) -> dict:
+        return {
+            'query': QUERY_1
+        }
+
+    def test_should_pass_query_to_provider(
+        self,
+        get_paper_search_response_dict_mock: AsyncMock,
+        test_client: TestClient
+    ):
+        get_paper_search_response_dict_mock.return_value = (
+            PAPER_SEARCH_RESPONSE_DICT_1
+        )
+        test_client.get(
+            '/papers/v1/preprints/search',
+            params={
+                'query': QUERY_1,
+                'filter[category]': 'Category 1',
+                'fields[paper]': 'doi,title'
+            }
+        )
+        get_paper_search_response_dict_mock.assert_called()
+        _, kwargs = get_paper_search_response_dict_mock.call_args
+        assert kwargs['query'] == QUERY_1

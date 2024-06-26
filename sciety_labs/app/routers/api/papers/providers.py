@@ -51,6 +51,13 @@ INTERNAL_ARTICLE_FIELDS_BY_API_FIELD_NAME: Mapping[str, Sequence[str]] = {
 }
 
 
+DEFAULT_OPENSEARCH_SEARCH_FIELDS = [
+    'doi',
+    'europepmc.title_with_markup',
+    'europepmc.abstract_with_markup'
+]
+
+
 class DoiNotFoundError(RuntimeError):
     def __init__(self, doi: str):
         self.doi = doi
@@ -84,10 +91,32 @@ def get_classification_list_opensearch_query_dict(
     }
 
 
+def get_paper_search_query_opensearch_multi_match_query_dict(
+    query: str
+) -> dict:
+    LOGGER.debug('query: %r', query)
+    return {
+        'query': query,
+        'fields': DEFAULT_OPENSEARCH_SEARCH_FIELDS,
+        'prefix_length': 3
+    }
+
+
+def get_paper_search_query_opensearch_must_query_dict(
+    query: str
+) -> dict:
+    return {
+        'multi_match': get_paper_search_query_opensearch_multi_match_query_dict(
+            query=query
+        )
+    }
+
+
 def get_paper_search_by_category_opensearch_query_dict(
     filter_parameters: OpenSearchFilterParameters,
     sort_parameters: OpenSearchSortParameters,
-    pagination_parameters: OpenSearchPaginationParameters
+    pagination_parameters: OpenSearchPaginationParameters,
+    query: Optional[str] = None
 ) -> dict:
     filter_dicts: List[dict] = []
     filter_dicts.extend(get_opensearch_filter_dicts_for_filter_parameters(
@@ -104,6 +133,10 @@ def get_paper_search_by_category_opensearch_query_dict(
     }
     if sort_parameters:
         query_dict['sort'] = sort_parameters.to_opensearch_sort_dict_list()
+    if query:
+        query_dict['query']['bool']['must'] = [
+            get_paper_search_query_opensearch_must_query_dict(query=query)
+        ]
     return query_dict
 
 
@@ -292,9 +325,11 @@ class AsyncOpenSearchPapersProvider:
         filter_parameters: OpenSearchFilterParameters,
         sort_parameters: OpenSearchSortParameters,
         pagination_parameters: OpenSearchPaginationParameters,
+        query: Optional[str] = None,
         paper_fields_set: Optional[Set[str]] = None,
         headers: Optional[Mapping[str, str]] = None
     ) -> PaperSearchResponseDict:
+        LOGGER.info('query: %r', query)
         LOGGER.info('filter_parameters: %r', filter_parameters)
         LOGGER.info('pagination_parameters: %r', pagination_parameters)
         LOGGER.info('paper_fields_set: %r', paper_fields_set)
@@ -311,7 +346,8 @@ class AsyncOpenSearchPapersProvider:
             get_paper_search_by_category_opensearch_query_dict(
                 filter_parameters=filter_parameters,
                 sort_parameters=sort_parameters,
-                pagination_parameters=pagination_parameters
+                pagination_parameters=pagination_parameters,
+                query=query
             ),
             _source_includes=opensearch_fields,
             index=self.index_name,

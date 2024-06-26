@@ -1,4 +1,5 @@
 import logging
+import textwrap
 from typing import Optional
 
 import fastapi
@@ -22,7 +23,9 @@ from sciety_labs.app.routers.api.papers.typing import (
 )
 from sciety_labs.providers.opensearch.utils import (
     OpenSearchFilterParameters,
-    OpenSearchPaginationParameters
+    OpenSearchPaginationParameters,
+    OpenSearchSortField,
+    OpenSearchSortParameters
 )
 from sciety_labs.utils.fastapi import get_cache_control_headers_for_request
 
@@ -157,6 +160,17 @@ PAPER_FIELDS_FASTAPI_QUERY = fastapi.Query(
         'doi',
         ALL_PAPER_FIELDS_CSV
     ]
+)
+
+
+PREPRINTS_SEARCH_API_DESCRIPTION = textwrap.dedent(
+    '''
+    Searches for preprints matching the provided `query`.
+    Results are sorted by relevance.
+
+    Known limitations:
+    - Only searches preprints with EuropePMC metadata in OpenSearch
+    '''
 )
 
 
@@ -297,6 +311,46 @@ def create_api_papers_router(
                     page_number=page_number
                 ),
                 paper_fields_set=api_paper_fields_set,
+                headers=get_cache_control_headers_for_request(request)
+            )
+        )
+
+    @router.get(
+        '/papers/v1/preprints/search',
+        description=PREPRINTS_SEARCH_API_DESCRIPTION,
+        response_model=PaperSearchResponseDict,
+        responses=PREPRINTS_BY_CATEGORY_API_EXAMPLE_RESPONSES
+    )
+    async def preprints_search(  # pylint: disable=too-many-arguments
+        request: fastapi.Request,
+        query: str = fastapi.Query(min_length=3),
+        category: Optional[str] = fastapi.Query(alias='filter[category]', default=None),
+        evaluated_only: bool = fastapi.Query(alias='filter[evaluated_only]', default=False),
+        page_size: int = fastapi.Query(alias='page[size]', default=10),
+        page_number: int = fastapi.Query(alias='page[number]', ge=1, default=1),
+        api_paper_fields_csv: str = PAPER_FIELDS_FASTAPI_QUERY
+    ):
+        api_paper_fields_set = set(api_paper_fields_csv.split(','))
+        validate_api_fields(api_paper_fields_set, valid_values=ALL_PAPER_FIELDS)
+        return await (
+            async_opensearch_papers_provider
+            .get_paper_search_response_dict(
+                filter_parameters=OpenSearchFilterParameters(
+                    category=category,
+                    evaluated_only=evaluated_only
+                ),
+                sort_parameters=OpenSearchSortParameters(sort_fields=[
+                    OpenSearchSortField(
+                        field_name='_score',
+                        sort_order='desc'
+                    )
+                ]),
+                pagination_parameters=OpenSearchPaginationParameters(
+                    page_size=page_size,
+                    page_number=page_number
+                ),
+                paper_fields_set=api_paper_fields_set,
+                query=query,
                 headers=get_cache_control_headers_for_request(request)
             )
         )
