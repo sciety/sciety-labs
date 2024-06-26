@@ -24,6 +24,7 @@ from sciety_labs.app.routers.api.papers.typing import (
 from sciety_labs.providers.opensearch.utils import (
     OpenSearchFilterParameters,
     OpenSearchPaginationParameters,
+    OpenSearchSortField,
     OpenSearchSortParameters
 )
 from sciety_labs.utils.fastapi import get_cache_control_headers_for_request
@@ -168,7 +169,7 @@ PREPRINTS_SEARCH_API_DESCRIPTION = textwrap.dedent(
     Results are sorted by relevance.
 
     Known limitations:
-    - Only searches preprints with Crossref metadata in OpenSearch
+    - Only searches preprints with EuropePMC metadata in OpenSearch
     '''
 )
 
@@ -338,7 +339,12 @@ def create_api_papers_router(
                     category=category,
                     evaluated_only=evaluated_only
                 ),
-                sort_parameters=OpenSearchSortParameters(sort_fields=[]),
+                sort_parameters=OpenSearchSortParameters(sort_fields=[
+                    OpenSearchSortField(
+                        field_name='_score',
+                        sort_order='desc'
+                    )
+                ]),
                 pagination_parameters=OpenSearchPaginationParameters(
                     page_size=page_size,
                     page_number=page_number
