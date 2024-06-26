@@ -1,4 +1,5 @@
 import logging
+import textwrap
 from typing import Optional
 
 import fastapi
@@ -160,6 +161,16 @@ PAPER_FIELDS_FASTAPI_QUERY = fastapi.Query(
 )
 
 
+PREPRINTS_SEARCH_API_DESCRIPTION = textwrap.dedent(
+    '''
+    Searches for preprints matching the provided `query`.
+
+    Known limitations:
+    - Only searches preprints with Crossref metadata in OpenSearch
+    '''
+)
+
+
 def get_doi_not_found_error_json_response_dict(
     exception: DoiNotFoundError
 ) -> JsonApiErrorsResponseDict:
@@ -303,6 +314,7 @@ def create_api_papers_router(
 
     @router.get(
         '/papers/v1/preprints/search',
+        description=PREPRINTS_SEARCH_API_DESCRIPTION,
         response_model=PaperSearchResponseDict,
         responses=PREPRINTS_BY_CATEGORY_API_EXAMPLE_RESPONSES
     )
