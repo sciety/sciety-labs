@@ -23,7 +23,8 @@ from sciety_labs.app.routers.api.papers.typing import (
 )
 from sciety_labs.providers.opensearch.utils import (
     OpenSearchFilterParameters,
-    OpenSearchPaginationParameters
+    OpenSearchPaginationParameters,
+    OpenSearchSortParameters
 )
 from sciety_labs.utils.fastapi import get_cache_control_headers_for_request
 
@@ -164,6 +165,7 @@ PAPER_FIELDS_FASTAPI_QUERY = fastapi.Query(
 PREPRINTS_SEARCH_API_DESCRIPTION = textwrap.dedent(
     '''
     Searches for preprints matching the provided `query`.
+    Results are sorted by relevance.
 
     Known limitations:
     - Only searches preprints with Crossref metadata in OpenSearch
@@ -336,9 +338,7 @@ def create_api_papers_router(
                     category=category,
                     evaluated_only=evaluated_only
                 ),
-                sort_parameters=get_default_paper_search_sort_parameters(
-                    evaluated_only=evaluated_only
-                ),
+                sort_parameters=OpenSearchSortParameters(sort_fields=[]),
                 pagination_parameters=OpenSearchPaginationParameters(
                     page_size=page_size,
                     page_number=page_number
