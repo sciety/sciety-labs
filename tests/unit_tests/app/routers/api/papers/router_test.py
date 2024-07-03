@@ -313,3 +313,25 @@ class TestPapersSearchApiRouterPreprints(_BaseTestPapersApiRouterPreprints):
         get_paper_search_response_dict_mock.assert_called()
         _, kwargs = get_paper_search_response_dict_mock.call_args
         assert kwargs['query'] == QUERY_1
+
+    def test_should_raise_error_for_invalid_sort_field_name(
+        self,
+        get_paper_search_response_dict_mock: AsyncMock,
+        test_client: TestClient
+    ):
+        get_paper_search_response_dict_mock.return_value = (
+            PAPER_SEARCH_RESPONSE_DICT_1
+        )
+        response = test_client.get(
+            self.get_url(),
+            params={
+                **self.get_default_params(),
+                'sort': 'invalid_1'
+            }
+        )
+        assert response.status_code == 400
+        response_json = response.json()
+        LOGGER.debug('response_json: %r', response_json)
+        assert response_json == get_invalid_api_fields_json_response_dict(
+            InvalidApiFieldsError({'invalid_1'})
+        )

@@ -28,6 +28,7 @@ from sciety_labs.providers.opensearch.utils import (
     OpenSearchSortParameters
 )
 from sciety_labs.utils.fastapi import get_cache_control_headers_for_request
+from sciety_labs.utils.text import parse_csv
 
 
 LOGGER = logging.getLogger(__name__)
@@ -361,6 +362,8 @@ def create_api_papers_router(
         LOGGER.info('api_paper_sort_fields_csv: %r', api_paper_sort_fields_csv)
         api_paper_fields_set = set(api_paper_fields_csv.split(','))
         validate_api_fields(api_paper_fields_set, valid_values=ALL_PAPER_FIELDS)
+        api_paper_sort_fields = parse_csv(api_paper_sort_fields_csv)
+        validate_api_fields(set(api_paper_sort_fields), valid_values=SUPPORTED_PAPER_SORT_FIELDS)
         return await (
             async_opensearch_papers_provider
             .get_paper_search_response_dict(
