@@ -414,6 +414,7 @@ def create_api_papers_router(
         evaluated_only: bool = fastapi.Query(alias='filter[evaluated_only]', default=False),
         from_publication_date_str: Optional[str] = fastapi.Query(
             alias='filter[publication_date][gte]',
+            description='From publication date in ISO format: YYYY-MM-DD',
             pattern=r'^\d{4}-\d{2}-\d{2}$',
             default=None
         ),
