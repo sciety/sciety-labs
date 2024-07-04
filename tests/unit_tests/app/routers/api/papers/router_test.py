@@ -14,16 +14,22 @@ from sciety_labs.app.routers.api.papers.providers import (
 )
 import sciety_labs.app.routers.api.papers.router as router_module
 from sciety_labs.app.routers.api.papers.router import (
+    SUPPORTED_API_PAPER_SORT_FIELDS,
     create_api_papers_router,
     get_invalid_api_fields_json_response_dict,
-    get_doi_not_found_error_json_response_dict
+    get_doi_not_found_error_json_response_dict,
+    get_opensearch_sort_parameters_for_api_paper_sort_field_list
 )
 from sciety_labs.app.routers.api.papers.typing import (
     PaperSearchResponseDict,
     ClassificationResponseDict
 )
 from sciety_labs.app.routers.api.utils.validation import InvalidApiFieldsError
-from sciety_labs.providers.opensearch.utils import OpenSearchFilterParameters
+from sciety_labs.providers.opensearch.utils import (
+    OpenSearchFilterParameters,
+    OpenSearchSortField,
+    OpenSearchSortParameters
+)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -56,6 +62,8 @@ PAPER_SEARCH_RESPONSE_DICT_1: PaperSearchResponseDict = {
 }
 
 QUERY_1 = 'query 1'
+
+SUPPORTED_PAPER_SORT_FIELD_1 = SUPPORTED_API_PAPER_SORT_FIELDS[0]
 
 
 @pytest.fixture(name='async_opensearch_papers_provider_class_mock', autouse=True)
@@ -124,6 +132,39 @@ class TestGetNotFoundErrorJsonResponseDict:
                 'status': '404'
             }]
         }
+
+
+class TestGetOpenSearchSortParametersForApiPaperSortFieldList:
+    def test_should_be_empty_by_default(self):
+        assert get_opensearch_sort_parameters_for_api_paper_sort_field_list(
+            []
+        ) == OpenSearchSortParameters(
+            sort_fields=[]
+        )
+
+    def test_should_sort_by_mapped_publication_date_asc(self):
+        assert get_opensearch_sort_parameters_for_api_paper_sort_field_list(
+            ['publication_date']
+        ) == OpenSearchSortParameters(
+            sort_fields=[
+                OpenSearchSortField(
+                    field_name='europepmc.first_publication_date',
+                    sort_order='asc'
+                )
+            ]
+        )
+
+    def test_should_sort_by_mapped_publication_date_desc(self):
+        assert get_opensearch_sort_parameters_for_api_paper_sort_field_list(
+            ['-publication_date']
+        ) == OpenSearchSortParameters(
+            sort_fields=[
+                OpenSearchSortField(
+                    field_name='europepmc.first_publication_date',
+                    sort_order='desc'
+                )
+            ]
+        )
 
 
 class TestPapersApiRouterClassificationList:
@@ -273,7 +314,10 @@ class _BaseTestPapersApiRouterPreprints(ABC):
         response_json = response.json()
         LOGGER.debug('response_json: %r', response_json)
         assert response_json == get_invalid_api_fields_json_response_dict(
-            InvalidApiFieldsError({'invalid_1'})
+            InvalidApiFieldsError(
+                invalid_field_names={'invalid_1'},
+                query_parameter_name='fields[paper]'
+            )
         )
 
 
@@ -313,3 +357,52 @@ class TestPapersSearchApiRouterPreprints(_BaseTestPapersApiRouterPreprints):
         get_paper_search_response_dict_mock.assert_called()
         _, kwargs = get_paper_search_response_dict_mock.call_args
         assert kwargs['query'] == QUERY_1
+
+    def test_should_pass_desc_sort_fields_to_provider(
+        self,
+        get_paper_search_response_dict_mock: AsyncMock,
+        test_client: TestClient
+    ):
+        get_paper_search_response_dict_mock.return_value = (
+            PAPER_SEARCH_RESPONSE_DICT_1
+        )
+        response = test_client.get(
+            self.get_url(),
+            params={
+                **self.get_default_params(),
+                'sort': f'-{SUPPORTED_PAPER_SORT_FIELD_1}'
+            }
+        )
+        response.raise_for_status()
+        get_paper_search_response_dict_mock.assert_called()
+        _, kwargs = get_paper_search_response_dict_mock.call_args
+        assert kwargs['sort_parameters'] == (
+            get_opensearch_sort_parameters_for_api_paper_sort_field_list(
+                [f'-{SUPPORTED_PAPER_SORT_FIELD_1}']
+            )
+        )
+
+    def test_should_raise_error_for_invalid_sort_field_name(
+        self,
+        get_paper_search_response_dict_mock: AsyncMock,
+        test_client: TestClient
+    ):
+        get_paper_search_response_dict_mock.return_value = (
+            PAPER_SEARCH_RESPONSE_DICT_1
+        )
+        response = test_client.get(
+            self.get_url(),
+            params={
+                **self.get_default_params(),
+                'sort': 'invalid_1'
+            }
+        )
+        assert response.status_code == 400
+        response_json = response.json()
+        LOGGER.debug('response_json: %r', response_json)
+        assert response_json == get_invalid_api_fields_json_response_dict(
+            InvalidApiFieldsError(
+                invalid_field_names={'invalid_1'},
+                query_parameter_name='sort'
+            )
+        )
