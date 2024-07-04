@@ -142,25 +142,25 @@ class TestGetOpenSearchSortParametersForApiPaperSortFieldList:
             sort_fields=[]
         )
 
-    def test_should_sort_by_publication_date_asc(self):
+    def test_should_sort_by_mapped_publication_date_asc(self):
         assert get_opensearch_sort_parameters_for_api_paper_sort_field_list(
             ['publication_date']
         ) == OpenSearchSortParameters(
             sort_fields=[
                 OpenSearchSortField(
-                    field_name='publication_date',
+                    field_name='europepmc.first_publication_date',
                     sort_order='asc'
                 )
             ]
         )
 
-    def test_should_sort_by_publication_date_desc(self):
+    def test_should_sort_by_mapped_publication_date_desc(self):
         assert get_opensearch_sort_parameters_for_api_paper_sort_field_list(
             ['-publication_date']
         ) == OpenSearchSortParameters(
             sort_fields=[
                 OpenSearchSortField(
-                    field_name='publication_date',
+                    field_name='europepmc.first_publication_date',
                     sort_order='desc'
                 )
             ]

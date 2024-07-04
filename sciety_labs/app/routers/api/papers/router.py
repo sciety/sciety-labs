@@ -1,6 +1,6 @@
 import logging
 import textwrap
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Tuple
 
 import fastapi
 
@@ -167,6 +167,10 @@ SUPPORTED_PAPER_SORT_FIELDS = [
     'publication_date'
 ]
 
+OPENSEARCH_FIELDS_BY_API_SORT_FIELD = {
+    'publication_date': 'europepmc.first_publication_date'
+}
+
 SUPPORTED_PAPER_SORT_FIELDS_WITH_PREFIX = [
     f'{sord_order_prefix}{field_name}'
     for sord_order_prefix in ['', '-']
@@ -267,17 +271,29 @@ class PapersJsonApiRoute(JsonApiRoute):
         )
 
 
+def get_prefix_and_api_sort_field_for_prefixed_api_sort_field(
+    api_paper_sort_field: str
+) -> Tuple[str, str]:
+    if api_paper_sort_field.startswith('-'):
+        return '-', api_paper_sort_field[1:]
+    return '', api_paper_sort_field
+
+
 def get_opensearch_sort_field_for_api_paper_sort_field(
     api_paper_sort_field: str
 ) -> OpenSearchSortField:
-    if api_paper_sort_field.startswith('-'):
-        return OpenSearchSortField(
-            field_name=api_paper_sort_field[1:],
-            sort_order='desc'
+    prefix, api_paper_sort_field = (
+        get_prefix_and_api_sort_field_for_prefixed_api_sort_field(
+            api_paper_sort_field
         )
+    )
     return OpenSearchSortField(
-        field_name=api_paper_sort_field,
-        sort_order='asc'
+        field_name=OPENSEARCH_FIELDS_BY_API_SORT_FIELD[
+            api_paper_sort_field
+        ],
+        sort_order=(
+            'desc' if prefix == '-' else 'asc'
+        )
     )
 
 
