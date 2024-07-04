@@ -14,7 +14,7 @@ from sciety_labs.app.routers.api.papers.providers import (
 )
 import sciety_labs.app.routers.api.papers.router as router_module
 from sciety_labs.app.routers.api.papers.router import (
-    SUPPORTED_PAPER_SORT_FIELDS,
+    SUPPORTED_API_PAPER_SORT_FIELDS,
     create_api_papers_router,
     get_invalid_api_fields_json_response_dict,
     get_doi_not_found_error_json_response_dict,
@@ -63,7 +63,7 @@ PAPER_SEARCH_RESPONSE_DICT_1: PaperSearchResponseDict = {
 
 QUERY_1 = 'query 1'
 
-SUPPORTED_PAPER_SORT_FIELD_1 = SUPPORTED_PAPER_SORT_FIELDS[0]
+SUPPORTED_PAPER_SORT_FIELD_1 = SUPPORTED_API_PAPER_SORT_FIELDS[0]
 
 
 @pytest.fixture(name='async_opensearch_papers_provider_class_mock', autouse=True)

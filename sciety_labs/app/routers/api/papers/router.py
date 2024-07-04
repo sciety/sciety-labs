@@ -163,7 +163,7 @@ PAPER_FIELDS_FASTAPI_QUERY = fastapi.Query(
     ]
 )
 
-SUPPORTED_PAPER_SORT_FIELDS = [
+SUPPORTED_API_PAPER_SORT_FIELDS = [
     'publication_date'
 ]
 
@@ -171,15 +171,15 @@ OPENSEARCH_FIELDS_BY_API_SORT_FIELD = {
     'publication_date': 'europepmc.first_publication_date'
 }
 
-SUPPORTED_PAPER_SORT_FIELDS_WITH_PREFIX = [
+SUPPORTED_PREFIXED_API_PAPER_SORT_FIELDS = [
     f'{sord_order_prefix}{field_name}'
     for sord_order_prefix in ['', '-']
-    for field_name in SUPPORTED_PAPER_SORT_FIELDS
+    for field_name in SUPPORTED_API_PAPER_SORT_FIELDS
 ]
 
-SUPPORTED_PAPER_SORT_FIELDS_AS_MARKDOWN_LIST = '\n'.join([
+SUPPORTED_API_PAPER_SORT_FIELDS_AS_MARKDOWN_LIST = '\n'.join([
     f'- `{field_name}`'
-    for field_name in SUPPORTED_PAPER_SORT_FIELDS
+    for field_name in SUPPORTED_API_PAPER_SORT_FIELDS
 ])
 
 PAPER_SEARCH_SORT_FIELDS_FASTAPI_QUERY = fastapi.Query(
@@ -193,7 +193,7 @@ PAPER_SEARCH_SORT_FIELDS_FASTAPI_QUERY = fastapi.Query(
         '',
         'The following fields can be specified to sort by:',
         '',
-        SUPPORTED_PAPER_SORT_FIELDS_AS_MARKDOWN_LIST
+        SUPPORTED_API_PAPER_SORT_FIELDS_AS_MARKDOWN_LIST
     ]),
     examples=[  # Note: These only seem to appear in /redoc
         '-publication_date'
@@ -272,19 +272,19 @@ class PapersJsonApiRoute(JsonApiRoute):
 
 
 def get_prefix_and_api_sort_field_for_prefixed_api_sort_field(
-    api_paper_sort_field: str
+    prefixed_api_paper_sort_field: str
 ) -> Tuple[str, str]:
-    if api_paper_sort_field.startswith('-'):
-        return '-', api_paper_sort_field[1:]
-    return '', api_paper_sort_field
+    if prefixed_api_paper_sort_field.startswith('-'):
+        return '-', prefixed_api_paper_sort_field[1:]
+    return '', prefixed_api_paper_sort_field
 
 
 def get_opensearch_sort_field_for_api_paper_sort_field(
-    api_paper_sort_field: str
+    prefixed_api_paper_sort_field: str
 ) -> OpenSearchSortField:
     prefix, api_paper_sort_field = (
         get_prefix_and_api_sort_field_for_prefixed_api_sort_field(
-            api_paper_sort_field
+            prefixed_api_paper_sort_field
         )
     )
     return OpenSearchSortField(
@@ -298,13 +298,13 @@ def get_opensearch_sort_field_for_api_paper_sort_field(
 
 
 def get_opensearch_sort_parameters_for_api_paper_sort_field_list(
-    api_paper_sort_fields: Sequence[str]
+    prefixed_api_paper_sort_fields: Sequence[str]
 ) -> OpenSearchSortParameters:
     return OpenSearchSortParameters(sort_fields=[
         get_opensearch_sort_field_for_api_paper_sort_field(
             api_paper_sort_field
         )
-        for api_paper_sort_field in api_paper_sort_fields
+        for api_paper_sort_field in prefixed_api_paper_sort_fields
     ])
 
 
@@ -404,16 +404,16 @@ def create_api_papers_router(
         page_size: int = fastapi.Query(alias='page[size]', default=10),
         page_number: int = fastapi.Query(alias='page[number]', ge=1, default=1),
         api_paper_fields_csv: str = PAPER_FIELDS_FASTAPI_QUERY,
-        api_paper_sort_fields_csv: str = PAPER_SEARCH_SORT_FIELDS_FASTAPI_QUERY
+        prefixed_api_paper_sort_fields_csv: str = PAPER_SEARCH_SORT_FIELDS_FASTAPI_QUERY
     ):
-        LOGGER.info('api_paper_sort_fields_csv: %r', api_paper_sort_fields_csv)
+        LOGGER.info('prefixed_api_paper_sort_fields_csv: %r', prefixed_api_paper_sort_fields_csv)
         api_paper_fields_set = set(api_paper_fields_csv.split(','))
         validate_api_fields(api_paper_fields_set, valid_values=ALL_PAPER_FIELDS)
-        api_paper_sort_fields = parse_csv(api_paper_sort_fields_csv)
+        api_paper_sort_fields = parse_csv(prefixed_api_paper_sort_fields_csv)
         LOGGER.debug('api_paper_sort_fields: %r', api_paper_sort_fields)
         validate_api_fields(
             set(api_paper_sort_fields),
-            valid_values=SUPPORTED_PAPER_SORT_FIELDS_WITH_PREFIX
+            valid_values=SUPPORTED_PREFIXED_API_PAPER_SORT_FIELDS
         )
         return await (
             async_opensearch_papers_provider
