@@ -51,6 +51,7 @@ DEFAULT_PAGE_SIZE = 10
 class OpenSearchFilterParameters:
     evaluated_only: bool = False
     category: Optional[str] = None
+    from_publication_date: Optional[date] = None
 
 
 @dataclasses.dataclass(frozen=True)

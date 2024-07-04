@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from datetime import date
 import logging
 from typing import Iterator
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -406,3 +407,22 @@ class TestPapersSearchApiRouterPreprints(_BaseTestPapersApiRouterPreprints):
                 query_parameter_name='sort'
             )
         )
+
+    def test_should_pass_from_publication_date_filter_to_provider(
+        self,
+        get_paper_search_response_dict_mock: AsyncMock,
+        test_client: TestClient
+    ):
+        get_paper_search_response_dict_mock.return_value = (
+            PAPER_SEARCH_RESPONSE_DICT_1
+        )
+        test_client.get(
+            self.get_url(),
+            params={
+                **self.get_default_params(),
+                'filter[publication_date][gte]': '2001-02-03'
+            }
+        )
+        _, kwargs = get_paper_search_response_dict_mock.call_args
+        filter_parameters: OpenSearchFilterParameters = kwargs['filter_parameters']
+        assert filter_parameters.from_publication_date == date.fromisoformat('2001-02-03')
