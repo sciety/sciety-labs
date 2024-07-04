@@ -1,6 +1,6 @@
 import logging
 import textwrap
-from typing import Optional
+from typing import Optional, Sequence
 
 import fastapi
 
@@ -167,6 +167,12 @@ SUPPORTED_PAPER_SORT_FIELDS = [
     'publication_date'
 ]
 
+SUPPORTED_PAPER_SORT_FIELDS_WITH_PREFIX = [
+    f'{sord_order_prefix}{field_name}'
+    for sord_order_prefix in ['', '-']
+    for field_name in SUPPORTED_PAPER_SORT_FIELDS
+]
+
 SUPPORTED_PAPER_SORT_FIELDS_AS_MARKDOWN_LIST = '\n'.join([
     f'- `{field_name}`'
     for field_name in SUPPORTED_PAPER_SORT_FIELDS
@@ -259,6 +265,31 @@ class PapersJsonApiRoute(JsonApiRoute):
             **kwargs,
             exception_handler_mapping=EXCEPTION_HANDLER_MAPPING
         )
+
+
+def get_opensearch_sort_field_for_api_paper_sort_field(
+    api_paper_sort_field: str
+) -> OpenSearchSortField:
+    if api_paper_sort_field.startswith('-'):
+        return OpenSearchSortField(
+            field_name=api_paper_sort_field[1:],
+            sort_order='desc'
+        )
+    return OpenSearchSortField(
+        field_name=api_paper_sort_field,
+        sort_order='asc'
+    )
+
+
+def get_opensearch_sort_parameters_for_api_paper_sort_field_list(
+    api_paper_sort_fields: Sequence[str]
+) -> OpenSearchSortParameters:
+    return OpenSearchSortParameters(sort_fields=[
+        get_opensearch_sort_field_for_api_paper_sort_field(
+            api_paper_sort_field
+        )
+        for api_paper_sort_field in api_paper_sort_fields
+    ])
 
 
 def create_api_papers_router(
@@ -363,7 +394,11 @@ def create_api_papers_router(
         api_paper_fields_set = set(api_paper_fields_csv.split(','))
         validate_api_fields(api_paper_fields_set, valid_values=ALL_PAPER_FIELDS)
         api_paper_sort_fields = parse_csv(api_paper_sort_fields_csv)
-        validate_api_fields(set(api_paper_sort_fields), valid_values=SUPPORTED_PAPER_SORT_FIELDS)
+        LOGGER.debug('api_paper_sort_fields: %r', api_paper_sort_fields)
+        validate_api_fields(
+            set(api_paper_sort_fields),
+            valid_values=SUPPORTED_PAPER_SORT_FIELDS_WITH_PREFIX
+        )
         return await (
             async_opensearch_papers_provider
             .get_paper_search_response_dict(
@@ -371,12 +406,11 @@ def create_api_papers_router(
                     category=category,
                     evaluated_only=evaluated_only
                 ),
-                sort_parameters=OpenSearchSortParameters(sort_fields=[
-                    OpenSearchSortField(
-                        field_name='_score',
-                        sort_order='desc'
+                sort_parameters=(
+                    get_opensearch_sort_parameters_for_api_paper_sort_field_list(
+                        api_paper_sort_fields
                     )
-                ]),
+                ),
                 pagination_parameters=OpenSearchPaginationParameters(
                     page_size=page_size,
                     page_number=page_number
