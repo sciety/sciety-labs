@@ -411,6 +411,10 @@ def create_api_papers_router(
         query: str = fastapi.Query(min_length=3),
         category: Optional[str] = fastapi.Query(alias='filter[category]', default=None),
         evaluated_only: bool = fastapi.Query(alias='filter[evaluated_only]', default=False),
+        _min_publication_date: Optional[str] = fastapi.Query(
+            alias='filter[publication_date][gte]',
+            default=None
+        ),
         page_size: int = fastapi.Query(alias='page[size]', default=10),
         page_number: int = fastapi.Query(alias='page[number]', ge=1, default=1),
         api_paper_fields_csv: str = PAPER_FIELDS_FASTAPI_QUERY,
