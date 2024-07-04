@@ -240,7 +240,10 @@ def get_invalid_api_fields_json_response_dict(
     return {
         'errors': [{
             'title': 'Invalid fields',
-            'detail': f'Invalid API fields: {",".join(exception.invalid_field_names)}',
+            'detail': (
+                f'Invalid fields for {exception.query_parameter_name} parameter specified: '
+                + ','.join(exception.invalid_field_names)
+            ),
             'status': '400'
         }]
     }
@@ -370,7 +373,11 @@ def create_api_papers_router(
         api_paper_fields_csv: str = PAPER_FIELDS_FASTAPI_QUERY
     ):
         api_paper_fields_set = set(api_paper_fields_csv.split(','))
-        validate_api_fields(api_paper_fields_set, valid_values=ALL_PAPER_FIELDS)
+        validate_api_fields(
+            api_paper_fields_set,
+            valid_values=ALL_PAPER_FIELDS,
+            query_parameter_name=PAPER_FIELDS_FASTAPI_QUERY.alias
+        )
         return await (
             async_opensearch_papers_provider
             .get_paper_search_response_dict(
@@ -408,12 +415,17 @@ def create_api_papers_router(
     ):
         LOGGER.info('prefixed_api_paper_sort_fields_csv: %r', prefixed_api_paper_sort_fields_csv)
         api_paper_fields_set = set(api_paper_fields_csv.split(','))
-        validate_api_fields(api_paper_fields_set, valid_values=ALL_PAPER_FIELDS)
+        validate_api_fields(
+            api_paper_fields_set,
+            valid_values=ALL_PAPER_FIELDS,
+            query_parameter_name=PAPER_FIELDS_FASTAPI_QUERY.alias
+        )
         api_paper_sort_fields = parse_csv(prefixed_api_paper_sort_fields_csv)
         LOGGER.debug('api_paper_sort_fields: %r', api_paper_sort_fields)
         validate_api_fields(
             set(api_paper_sort_fields),
-            valid_values=SUPPORTED_PREFIXED_API_PAPER_SORT_FIELDS
+            valid_values=SUPPORTED_PREFIXED_API_PAPER_SORT_FIELDS,
+            query_parameter_name=PAPER_SEARCH_SORT_FIELDS_FASTAPI_QUERY.alias
         )
         return await (
             async_opensearch_papers_provider

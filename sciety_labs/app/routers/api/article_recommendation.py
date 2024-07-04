@@ -218,7 +218,7 @@ ARTICLE_RECOMMENDATION_FIELDS_BY_API_FIELD_NAME: Mapping[str, Sequence[str]] = {
 def validate_api_fields(fields_set: Set[str]):
     invalid_field_names = fields_set - set(ARTICLE_RECOMMENDATION_FIELDS_BY_API_FIELD_NAME.keys())
     if invalid_field_names:
-        raise InvalidApiFieldsError(invalid_field_names)
+        raise InvalidApiFieldsError(invalid_field_names, query_parameter_name='fields')
 
 
 def get_requested_fields_for_api_field_set(

@@ -314,7 +314,10 @@ class _BaseTestPapersApiRouterPreprints(ABC):
         response_json = response.json()
         LOGGER.debug('response_json: %r', response_json)
         assert response_json == get_invalid_api_fields_json_response_dict(
-            InvalidApiFieldsError({'invalid_1'})
+            InvalidApiFieldsError(
+                invalid_field_names={'invalid_1'},
+                query_parameter_name='fields[paper]'
+            )
         )
 
 
@@ -398,5 +401,8 @@ class TestPapersSearchApiRouterPreprints(_BaseTestPapersApiRouterPreprints):
         response_json = response.json()
         LOGGER.debug('response_json: %r', response_json)
         assert response_json == get_invalid_api_fields_json_response_dict(
-            InvalidApiFieldsError({'invalid_1'})
+            InvalidApiFieldsError(
+                invalid_field_names={'invalid_1'},
+                query_parameter_name='sort'
+            )
         )
