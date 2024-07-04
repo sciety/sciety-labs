@@ -193,7 +193,9 @@ PAPER_SEARCH_SORT_FIELDS_FASTAPI_QUERY = fastapi.Query(
         '',
         'The following fields can be specified to sort by:',
         '',
-        SUPPORTED_API_PAPER_SORT_FIELDS_AS_MARKDOWN_LIST
+        SUPPORTED_API_PAPER_SORT_FIELDS_AS_MARKDOWN_LIST,
+        '',
+        'For example to sort by publication date descending, specify: `-publication_date`'
     ]),
     examples=[  # Note: These only seem to appear in /redoc
         '-publication_date'
