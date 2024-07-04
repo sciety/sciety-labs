@@ -241,10 +241,11 @@ def get_invalid_api_fields_json_response_dict(
         'errors': [{
             'title': 'Invalid fields',
             'detail': (
-                f'Invalid fields for {exception.query_parameter_name} parameter specified: '
+                'Invalid fields specified: '
                 + ','.join(exception.invalid_field_names)
             ),
-            'status': '400'
+            'status': '400',
+            'source': {'parameter': exception.query_parameter_name}
         }]
     }
 
