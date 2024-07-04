@@ -1,3 +1,4 @@
+from datetime import date
 from unittest.mock import AsyncMock, MagicMock
 
 import opensearchpy
@@ -26,7 +27,8 @@ from sciety_labs.providers.opensearch.utils import (
     OpenSearchPaginationParameters,
     OpenSearchSortField,
     OpenSearchSortParameters,
-    get_category_as_crossref_group_title_opensearch_filter_dict
+    get_category_as_crossref_group_title_opensearch_filter_dict,
+    get_from_publication_date_query_filter
 )
 
 
@@ -133,6 +135,19 @@ class TestGetPaperSearchByCategoryOpenSearchQueryDict:
             IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
             get_category_as_crossref_group_title_opensearch_filter_dict('Category 1'),
             IS_EVALUATED_OPENSEARCH_FILTER_DICT
+        ]
+
+    def test_should_include_from_publication_date_filter(self):
+        from_publication_date = date.fromisoformat('2001-02-03')
+        query_dict = get_paper_search_by_category_opensearch_query_dict(
+            filter_parameters=OpenSearchFilterParameters(
+                from_publication_date=from_publication_date
+            ),
+            sort_parameters=OpenSearchSortParameters(),
+            pagination_parameters=OpenSearchPaginationParameters()
+        )
+        assert query_dict['query']['bool']['filter'] == [
+            get_from_publication_date_query_filter(from_publication_date)
         ]
 
     def test_should_be_able_to_sort_by_latest_evaluation_activity(self):

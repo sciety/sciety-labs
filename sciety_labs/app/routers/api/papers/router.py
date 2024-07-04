@@ -27,6 +27,7 @@ from sciety_labs.providers.opensearch.utils import (
     OpenSearchSortField,
     OpenSearchSortParameters
 )
+from sciety_labs.utils.datetime import parse_date_or_none
 from sciety_labs.utils.fastapi import get_cache_control_headers_for_request
 from sciety_labs.utils.text import parse_csv
 
@@ -411,6 +412,12 @@ def create_api_papers_router(
         query: str = fastapi.Query(min_length=3),
         category: Optional[str] = fastapi.Query(alias='filter[category]', default=None),
         evaluated_only: bool = fastapi.Query(alias='filter[evaluated_only]', default=False),
+        from_publication_date_str: Optional[str] = fastapi.Query(
+            alias='filter[publication_date][gte]',
+            description='From publication date in ISO format: YYYY-MM-DD',
+            pattern=r'^\d{4}-\d{2}-\d{2}$',
+            default=None
+        ),
         page_size: int = fastapi.Query(alias='page[size]', default=10),
         page_number: int = fastapi.Query(alias='page[number]', ge=1, default=1),
         api_paper_fields_csv: str = PAPER_FIELDS_FASTAPI_QUERY,
@@ -435,7 +442,10 @@ def create_api_papers_router(
             .get_paper_search_response_dict(
                 filter_parameters=OpenSearchFilterParameters(
                     category=category,
-                    evaluated_only=evaluated_only
+                    evaluated_only=evaluated_only,
+                    from_publication_date=parse_date_or_none(
+                        from_publication_date_str
+                    )
                 ),
                 sort_parameters=(
                     get_opensearch_sort_parameters_for_api_paper_sort_field_list(
