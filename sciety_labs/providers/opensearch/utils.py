@@ -113,6 +113,10 @@ def get_opensearch_filter_dicts_for_filter_parameters(
         ])
     if filter_parameters.evaluated_only:
         filter_dicts.append(IS_EVALUATED_OPENSEARCH_FILTER_DICT)
+    if filter_parameters.from_publication_date:
+        filter_dicts.append(get_from_publication_date_query_filter(
+            filter_parameters.from_publication_date
+        ))
     return filter_dicts
 
 
