@@ -292,12 +292,13 @@ def create_search_router(
             status_code=search_result_page.status_code
         )
 
-    def _render_search_feed_atom_xml(
+    async def _render_search_feed_atom_xml(
         request: Request,
         search_feed_parameters: SearchFeedParameters,
         pagination_parameters: UrlPaginationParameters
     ):
-        search_result_page = get_search_result_page(
+        search_result_page = await asyncio.to_thread(
+            get_search_result_page,
             app_providers_and_models=app_providers_and_models,
             request=request,
             search_parameters=search_feed_parameters.search_parameters,
@@ -362,12 +363,12 @@ def create_search_router(
         )
 
     @router.get('/feeds/search/atom.xml', response_class=AtomResponse)
-    def search_feed_atom_feed(
+    async def search_feed_atom_feed(
         request: Request,
         search_parameters: AnnotatedSearchParameters,
         pagination_parameters: AnnotatedPaginationParameters
     ):
-        return _render_search_feed_atom_xml(
+        return await _render_search_feed_atom_xml(
             request=request,
             search_feed_parameters=get_default_search_feed_parameters(search_parameters),
             pagination_parameters=pagination_parameters
@@ -391,7 +392,7 @@ def create_search_router(
         )
 
     @router.get('/feeds/by-name/{slug}/atom.xml', response_class=AtomResponse)
-    def search_feed_by_name_atom_feed(
+    async def search_feed_by_name_atom_feed(
         request: Request,
         pagination_parameters: AnnotatedPaginationParameters,
         slug: str
@@ -401,7 +402,7 @@ def create_search_router(
         except KeyError as exc:
             raise HTTPException(status_code=404, detail="Feed not found") from exc
         search_parameters = get_search_feed_parameters_for_search_feed_config(search_feed_config)
-        return _render_search_feed_atom_xml(
+        return await _render_search_feed_atom_xml(
             request=request,
             search_feed_parameters=search_parameters,
             pagination_parameters=pagination_parameters
