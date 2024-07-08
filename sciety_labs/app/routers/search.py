@@ -38,6 +38,7 @@ GENERIC_SEARCH_FEED_PAGE_DESCRIPTION = 'Keep up to date with the latest preprint
 
 
 class SearchProviders:
+    SCIETY_LABS = 'sciety_labs'
     SEMANTIC_SCHOLAR = 'semantic_scholar'
     EUROPE_PMC = 'europe_pmc'
 
