@@ -128,7 +128,7 @@ class SearchResultPage:
     status_code: int = 200
 
 
-def get_search_result_page(
+def sync_get_search_result_page(
     app_providers_and_models: AppProvidersAndModels,
     request: Request,
     search_parameters: AnnotatedSearchParameters,
@@ -195,6 +195,21 @@ def get_search_result_page(
     )
 
 
+async def get_search_result_page(
+    app_providers_and_models: AppProvidersAndModels,
+    request: Request,
+    search_parameters: AnnotatedSearchParameters,
+    pagination_parameters: AnnotatedPaginationParameters
+) -> SearchResultPage:
+    return await asyncio.to_thread(
+        sync_get_search_result_page,
+        app_providers_and_models=app_providers_and_models,
+        request=request,
+        search_parameters=search_parameters,
+        pagination_parameters=pagination_parameters
+    )
+
+
 def get_rss_updated_timestamp(
     search_result_list_with_article_meta: Sequence[ArticleSearchResultItem]
 ) -> Union[date, datetime]:
@@ -239,12 +254,12 @@ def create_search_router(
     router = APIRouter()
 
     @router.get('/search', response_class=HTMLResponse)
-    def search(
+    async def search(
         request: Request,
         search_parameters: AnnotatedSearchParameters,
         pagination_parameters: AnnotatedPaginationParameters
     ):
-        search_result_page = get_search_result_page(
+        search_result_page = await get_search_result_page(
             app_providers_and_models=app_providers_and_models,
             request=request,
             search_parameters=search_parameters,
@@ -269,8 +284,7 @@ def create_search_router(
         search_feed_parameters: SearchFeedParameters,
         pagination_parameters: UrlPaginationParameters
     ):
-        search_result_page = await asyncio.to_thread(
-            get_search_result_page,
+        search_result_page = await get_search_result_page(
             app_providers_and_models=app_providers_and_models,
             request=request,
             search_parameters=search_feed_parameters.search_parameters,
@@ -297,8 +311,7 @@ def create_search_router(
         search_feed_parameters: SearchFeedParameters,
         pagination_parameters: UrlPaginationParameters
     ):
-        search_result_page = await asyncio.to_thread(
-            get_search_result_page,
+        search_result_page = await get_search_result_page(
             app_providers_and_models=app_providers_and_models,
             request=request,
             search_parameters=search_feed_parameters.search_parameters,
