@@ -15,14 +15,16 @@ from sciety_labs.providers.search import (
     SearchParameters,
     SearchSortBy
 )
-from sciety_labs.providers.semantic_scholar import (
+from sciety_labs.providers.semantic_scholar.utils import (
+    get_semantic_scholar_api_key_file_path
+)
+from sciety_labs.providers.semantic_scholar.utils import (
     DEFAULT_SEMANTIC_SCHOLAR_SEARCH_RESULT_LIMIT,
     MAX_SEMANTIC_SCHOLAR_SEARCH_OFFSET,
     MAX_SEMANTIC_SCHOLAR_SEARCH_OFFSET_PLUS_LIMIT,
     SEMANTIC_SCHOLAR_REQUESTED_FIELDS,
     SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITH_VENUES,
     ArticleSearchResultList,
-    get_semantic_scholar_api_key_file_path,
     get_year_request_parameter_for_date_range,
     iter_article_search_result_item_from_search_response_json
 )

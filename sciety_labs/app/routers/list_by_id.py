@@ -19,7 +19,9 @@ from sciety_labs.app.utils.recommendation import (
     get_article_recommendation_page_and_item_count_for_article_dois
 )
 from sciety_labs.app.utils.response import AtomResponse
-from sciety_labs.providers.semantic_scholar import DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
+from sciety_labs.providers.semantic_scholar.utils import (
+    DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
+)
 from sciety_labs.utils.pagination import get_url_pagination_state_for_pagination_parameters
 from sciety_labs.utils.text import remove_markup_or_none
 

@@ -26,7 +26,7 @@ from sciety_labs.providers.async_crossref import (
 from sciety_labs.providers.opensearch.async_providers import (
     AsyncOpenSearchArticleRecommendation
 )
-from sciety_labs.providers.async_semantic_scholar import (
+from sciety_labs.providers.semantic_scholar.async_providers import (
     AsyncSemanticScholarSearchProvider,
     AsyncSemanticScholarTitleAbstractEmbeddingVectorProvider,
     get_async_semantic_scholar_provider
@@ -49,7 +49,7 @@ from sciety_labs.providers.opensearch.sync_providers import (
 )
 from sciety_labs.providers.papers.async_papers import AsyncPapersProvider
 from sciety_labs.providers.sciety_event import ScietyEventProvider
-from sciety_labs.providers.semantic_scholar import (
+from sciety_labs.providers.semantic_scholar.providers import (
     SemanticScholarProvider,
     SemanticScholarTitleAbstractEmbeddingVectorProvider,
     get_semantic_scholar_provider
