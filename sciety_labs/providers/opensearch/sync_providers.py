@@ -7,7 +7,7 @@ import numpy.typing as npt
 
 import opensearchpy
 
-from sciety_labs.providers.crossref import CrossrefMetaDataProvider
+from sciety_labs.providers.crossref.crossref import CrossrefMetaDataProvider
 from sciety_labs.providers.interfaces.article_recommendation import (
     ArticleRecommendationFilterParameters,
     ArticleRecommendationList,
