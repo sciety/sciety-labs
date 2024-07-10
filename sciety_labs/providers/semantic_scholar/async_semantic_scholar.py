@@ -15,7 +15,7 @@ from sciety_labs.providers.search import (
     SearchParameters,
     SearchSortBy
 )
-from sciety_labs.providers.semantic_scholar import (
+from sciety_labs.providers.semantic_scholar.semantic_scholar import (
     DEFAULT_SEMANTIC_SCHOLAR_SEARCH_RESULT_LIMIT,
     MAX_SEMANTIC_SCHOLAR_SEARCH_OFFSET,
     MAX_SEMANTIC_SCHOLAR_SEARCH_OFFSET_PLUS_LIMIT,
