@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Optional
 import aiohttp
 
+import aiohttp_client_cache
 import requests_cache
 
 import opensearchpy
@@ -168,6 +169,20 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
             allowable_methods=('GET', 'HEAD', 'POST'),  # include POST for Semantic Scholar
             match_headers=False
         )
+
+        async_connector = aiohttp.TCPConnector(limit=1000)
+
+        self.async_cached_client_session = aiohttp_client_cache.CachedSession(
+            connector=async_connector,
+            cache=aiohttp_client_cache.SQLiteBackend(
+                '.cache/aiohttp-requests.sqlite',
+                expire_after=timedelta(days=1),
+                allowed_methods=('GET', 'HEAD', 'POST'),  # include POST for Semantic Scholar
+                include_headers=False
+            )
+        )
+        async_cached_client_session = self.async_cached_client_session
+
         async_client_session = aiohttp.ClientSession(
             connector=aiohttp.TCPConnector(limit=200)
         )
@@ -193,21 +208,21 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         self.evaluation_stats_model = ScietyEventEvaluationStatsModel([])
 
         self.async_paper_provider = AsyncPapersProvider(
-            client_session=async_client_session
+            client_session=async_cached_client_session
         )
 
         self.crossref_metadata_provider = CrossrefMetaDataProvider(
             requests_session=cached_requests_session
         )
         self.async_crossref_metadata_provider = AsyncCrossrefMetaDataProvider(
-            client_session=async_client_session
+            client_session=async_cached_client_session
         )
 
         self.semantic_scholar_provider = get_semantic_scholar_provider(
             requests_session=cached_requests_session
         )
         self.async_semantic_scholar_provider = get_async_semantic_scholar_provider(
-            client_session=async_client_session
+            client_session=async_cached_client_session
         )
         self.semantic_scholar_search_provider = AsyncSemanticScholarSearchProvider(
             async_semantic_scholar_provider=self.async_semantic_scholar_provider,
@@ -220,7 +235,7 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         )
         self.async_title_abstract_embedding_vector_provider = (
             AsyncSemanticScholarTitleAbstractEmbeddingVectorProvider(
-                client_session=async_client_session
+                client_session=async_cached_client_session
             )
         )
         self.article_recommendation_provider = get_article_recommendation_provider(
@@ -252,7 +267,7 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         )
 
         self.europe_pmc_provider = AsyncEuropePmcProvider(
-            client_session=async_client_session
+            client_session=async_cached_client_session
         )
 
         article_image_mapping_cache = ChainedObjectCache([
