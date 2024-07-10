@@ -19,14 +19,15 @@ from sciety_labs.providers.interfaces.article_recommendation import (
     ArticleRecommendationProvider
 )
 from sciety_labs.providers.requests_provider import RequestsProvider
-from sciety_labs.providers.semantic_scholar.utils import SEMANTIC_SCHOLAR_API_KEY_FILE_PATH_ENV_VAR
+from sciety_labs.providers.semantic_scholar.utils import (
+    MAX_SEMANTIC_SCHOLAR_RECOMMENDATION_REQUEST_PAPER_IDS,
+    SEMANTIC_SCHOLAR_API_KEY_FILE_PATH_ENV_VAR
+)
 from sciety_labs.utils.datetime import get_utc_timestamp_with_tzinfo, get_utcnow, parse_date_or_none
 
 
 LOGGER = logging.getLogger(__name__)
 
-
-MAX_SEMANTIC_SCHOLAR_RECOMMENDATION_REQUEST_PAPER_IDS = 100
 
 MAX_SEMANTIC_SCHOLAR_SEARCH_ITEMS = 100
 MAX_SEMANTIC_SCHOLAR_SEARCH_OFFSET_PLUS_LIMIT = 9999
