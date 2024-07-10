@@ -152,19 +152,6 @@ def get_response_timestamp(response: requests.Response) -> datetime:
     return get_utcnow()
 
 
-def is_data_for_limit_or_offset_not_available_error(response: requests.Response) -> bool:
-    try:
-        return (
-            response.status_code == 400
-            and (
-                response.json().get('error')
-                == 'Requested data for this limit and/or offset is not available'
-            )
-        )
-    except requests.exceptions.JSONDecodeError:
-        return False
-
-
 class SemanticScholarProvider(RequestsProvider, ArticleRecommendationProvider):
     def __init__(
         self,
@@ -221,73 +208,6 @@ class SemanticScholarProvider(RequestsProvider, ArticleRecommendationProvider):
             )),
             recommendation_timestamp=recommendation_timestamp
         )
-
-    def get_search_result_list(
-        self,
-        query: str,
-        additional_search_parameters: Optional[Mapping[str, str]] = None,
-        offset: int = 0,
-        limit: int = DEFAULT_SEMANTIC_SCHOLAR_SEARCH_RESULT_LIMIT
-    ) -> ArticleSearchResultList:
-        request_params = {
-            **(additional_search_parameters or {}),
-            'query': query,
-            'fields': ','.join(SEMANTIC_SCHOLAR_REQUESTED_FIELDS),
-            'offset': str(offset),
-            'limit': str(limit)
-        }
-        LOGGER.info('Semantic Scholar search, request_params=%r', request_params)
-        response = self.requests_session.get(
-            'https://api.semanticscholar.org/graph/v1/paper/search',
-            params=request_params,
-            headers=self.headers,
-            timeout=self.timeout
-        )
-        LOGGER.info('Semantic Scholar search, url=%r', response.request.url)
-
-        if is_data_for_limit_or_offset_not_available_error(response):
-            LOGGER.info('Semantic Scholar search, offset/limit error for offset=%r', offset)
-            return ArticleSearchResultList(items=[], offset=offset, total=offset)
-
-        response.raise_for_status()
-        response_json = response.json()
-        LOGGER.debug('Semantic Scholar search, response_json=%r', response_json)
-        return ArticleSearchResultList(
-            items=list(iter_article_search_result_item_from_search_response_json(
-                response_json
-            )),
-            offset=response_json['offset'],
-            total=response_json['total'],
-            next_offset=response_json.get('next')
-        )
-
-    def iter_unfiltered_search_result_item(
-        self,
-        query: str,
-        additional_search_parameters: Optional[Mapping[str, str]] = None,
-        items_per_page: int = DEFAULT_SEMANTIC_SCHOLAR_SEARCH_RESULT_LIMIT
-    ) -> Iterable[ArticleSearchResultItem]:
-        offset = 0
-        while True:
-            search_result_list = self.get_search_result_list(
-                query=query,
-                additional_search_parameters=additional_search_parameters,
-                offset=offset,
-                limit=items_per_page
-            )
-            LOGGER.info('Semantic Scholar search, total=%r', search_result_list.total)
-            yield from search_result_list.items
-            if not search_result_list.next_offset:
-                LOGGER.info('no more search results (no next offset)')
-                break
-            offset = search_result_list.next_offset
-            if offset > MAX_SEMANTIC_SCHOLAR_SEARCH_OFFSET:
-                LOGGER.info('reached max offset')
-                break
-            items_per_page = min(
-                items_per_page,
-                MAX_SEMANTIC_SCHOLAR_SEARCH_OFFSET_PLUS_LIMIT - offset
-            )
 
 
 def get_year_request_parameter_for_date_range(
