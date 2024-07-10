@@ -20,13 +20,11 @@ from sciety_labs.providers.interfaces.article_recommendation import (
     ArticleRecommendationProvider
 )
 from sciety_labs.providers.requests_provider import RequestsProvider
+from sciety_labs.providers.semantic_scholar.utils import SEMANTIC_SCHOLAR_API_KEY_FILE_PATH_ENV_VAR
 from sciety_labs.utils.datetime import get_utc_timestamp_with_tzinfo, get_utcnow, parse_date_or_none
 
 
 LOGGER = logging.getLogger(__name__)
-
-
-SEMANTIC_SCHOLAR_API_KEY_FILE_PATH_ENV_VAR = 'SEMANTIC_SCHOLAR_API_KEY_FILE_PATH'
 
 
 MAX_SEMANTIC_SCHOLAR_RECOMMENDATION_REQUEST_PAPER_IDS = 100
