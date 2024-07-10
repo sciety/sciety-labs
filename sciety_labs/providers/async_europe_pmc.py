@@ -1,14 +1,14 @@
 import dataclasses
 from datetime import date
 import logging
-from typing import Iterable, Optional, Sequence
+from typing import AsyncIterable, Iterable, Optional, Sequence
 
 from sciety_labs.models.article import ArticleMetaData, ArticleSearchResultItem
-from sciety_labs.providers.requests_provider import RequestsProvider
+from sciety_labs.providers.async_requests_provider import AsyncRequestsProvider
 from sciety_labs.providers.search import (
     SearchDateRange,
     SearchParameters,
-    SearchProvider,
+    AsyncSearchProvider,
     SearchSortBy
 )
 
@@ -73,8 +73,8 @@ def get_query_with_additional_filters(search_parameters: SearchParameters) -> st
     return result
 
 
-class EuropePmcProvider(RequestsProvider, SearchProvider):
-    def get_search_result_list(  # pylint: disable=too-many-arguments
+class AsyncEuropePmcProvider(AsyncRequestsProvider, AsyncSearchProvider):
+    async def get_search_result_list(  # pylint: disable=too-many-arguments
         self,
         search_parameters: SearchParameters,
         cursor: str = START_CURSOR
@@ -89,15 +89,15 @@ class EuropePmcProvider(RequestsProvider, SearchProvider):
             'pageSize': str(search_parameters.items_per_page)
         }
         LOGGER.info('Europe PMC search, request_params=%r', request_params)
-        response = self.requests_session.get(
+        async with self.client_session.get(
             'https://www.ebi.ac.uk/europepmc/webservices/rest/search',
             params=request_params,
             headers=self.headers,
             timeout=self.timeout
-        )
-        LOGGER.info('Europe PMC search, url=%r', response.request.url)
-        response.raise_for_status()
-        response_json = response.json()
+        ) as response:
+            LOGGER.info('Europe PMC search, url=%r', response.request_info.url)
+            response.raise_for_status()
+            response_json = await response.json()
         LOGGER.debug('Europe PMC search, response_json=%r', response_json)
         return CursorBasedArticleSearchResultList(
             items=list(_iter_article_search_result_item_from_search_response_json(
@@ -108,17 +108,18 @@ class EuropePmcProvider(RequestsProvider, SearchProvider):
             next_cursor=response_json.get('nextCursorMark')
         )
 
-    def iter_search_result_item(
+    async def iter_search_result_item(
         self,
         search_parameters: SearchParameters
-    ) -> Iterable[ArticleSearchResultItem]:
+    ) -> AsyncIterable[ArticleSearchResultItem]:
         cursor = START_CURSOR
         while True:
-            search_result_list = self.get_search_result_list(
+            search_result_list = await self.get_search_result_list(
                 search_parameters=search_parameters,
                 cursor=cursor
             )
-            yield from search_result_list.items
+            for item in search_result_list.items:
+                yield item
             if not search_result_list.next_cursor or search_result_list.next_cursor == cursor:
                 LOGGER.info('no more search results (no next cursor)')
                 break

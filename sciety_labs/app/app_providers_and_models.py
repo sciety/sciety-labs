@@ -27,12 +27,14 @@ from sciety_labs.providers.opensearch.async_providers import (
     AsyncOpenSearchArticleRecommendation
 )
 from sciety_labs.providers.async_semantic_scholar import (
-    AsyncSemanticScholarTitleAbstractEmbeddingVectorProvider
+    AsyncSemanticScholarSearchProvider,
+    AsyncSemanticScholarTitleAbstractEmbeddingVectorProvider,
+    get_async_semantic_scholar_provider
 )
 from sciety_labs.providers.crossref import (
     CrossrefMetaDataProvider
 )
-from sciety_labs.providers.europe_pmc import EuropePmcProvider
+from sciety_labs.providers.async_europe_pmc import AsyncEuropePmcProvider
 from sciety_labs.providers.google_sheet_image import (
     GoogleSheetArticleImageProvider,
     GoogleSheetListImageProvider
@@ -49,7 +51,6 @@ from sciety_labs.providers.papers.async_papers import AsyncPapersProvider
 from sciety_labs.providers.sciety_event import ScietyEventProvider
 from sciety_labs.providers.semantic_scholar import (
     SemanticScholarProvider,
-    SemanticScholarSearchProvider,
     SemanticScholarTitleAbstractEmbeddingVectorProvider,
     get_semantic_scholar_provider
 )
@@ -205,8 +206,11 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         self.semantic_scholar_provider = get_semantic_scholar_provider(
             requests_session=cached_requests_session
         )
-        self.semantic_scholar_search_provider = SemanticScholarSearchProvider(
-            semantic_scholar_provider=self.semantic_scholar_provider,
+        self.async_semantic_scholar_provider = get_async_semantic_scholar_provider(
+            client_session=async_client_session
+        )
+        self.semantic_scholar_search_provider = AsyncSemanticScholarSearchProvider(
+            async_semantic_scholar_provider=self.async_semantic_scholar_provider,
             evaluation_stats_model=self.evaluation_stats_model
         )
         title_abstract_embedding_vector_provider = (
@@ -247,8 +251,8 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
             self.async_single_article_recommendation_provider
         )
 
-        self.europe_pmc_provider = EuropePmcProvider(
-            requests_session=cached_requests_session
+        self.europe_pmc_provider = AsyncEuropePmcProvider(
+            client_session=async_client_session
         )
 
         article_image_mapping_cache = ChainedObjectCache([
@@ -284,5 +288,6 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         self.article_aggregator = ArticleAggregator(
             evaluation_stats_model=self.evaluation_stats_model,
             crossref_metadata_provider=self.crossref_metadata_provider,
+            async_crossref_metadata_provider=self.async_crossref_metadata_provider,
             google_sheet_article_image_provider=self.google_sheet_article_image_provider
         )

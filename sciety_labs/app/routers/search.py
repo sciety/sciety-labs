@@ -1,13 +1,13 @@
 import hashlib
 import logging
 from datetime import date, datetime
-from typing import Annotated, Iterable, Optional, Sequence, Union
+from typing import Annotated, AsyncIterator, Optional, Sequence, Union
+import aiohttp
 from attr import dataclass
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
-import requests
 import starlette
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
@@ -18,16 +18,18 @@ from sciety_labs.app.utils.common import (
 )
 from sciety_labs.app.utils.response import AtomResponse
 from sciety_labs.config.search_feed_config import SearchFeedConfig, SearchFeedsConfig
-from sciety_labs.models.article import ArticleSearchResultItem, iter_preprint_article_mention
+from sciety_labs.models.article import ArticleSearchResultItem, async_iter_preprint_article_mention
 from sciety_labs.models.image import ObjectImages
-from sciety_labs.providers.europe_pmc import EUROPE_PMC_PREPRINT_SERVERS
+from sciety_labs.providers.async_europe_pmc import EUROPE_PMC_PREPRINT_SERVERS
 from sciety_labs.providers.search import SearchDateRange, SearchParameters, SearchSortBy
 from sciety_labs.providers.semantic_scholar import SEMANTIC_SCHOLAR_SEARCH_VENUES
+from sciety_labs.utils.aio import get_exception_status_code
+from sciety_labs.utils.async_utils import async_iter_sync_iterable, get_list_for_async_iterable
 from sciety_labs.utils.datetime import get_date_as_utc_timestamp, get_utcnow
 from sciety_labs.utils.pagination import (
     UrlPaginationParameters,
     UrlPaginationState,
-    get_url_pagination_state_for_pagination_parameters
+    async_get_url_pagination_state_for_pagination_parameters
 )
 
 
@@ -126,22 +128,22 @@ class SearchResultPage:
     status_code: int = 200
 
 
-def get_search_result_page(
+async def get_search_result_page(
     app_providers_and_models: AppProvidersAndModels,
     request: Request,
     search_parameters: AnnotatedSearchParameters,
     pagination_parameters: AnnotatedPaginationParameters
 ) -> SearchResultPage:
-    search_result_iterable: Iterable[ArticleSearchResultItem]
+    search_result_iterator: AsyncIterator[ArticleSearchResultItem]
     error_message: Optional[str] = None
     status_code: int = 200
     try:
         preprint_servers: Optional[Sequence[str]] = None
         LOGGER.info('search_parameters: %r', search_parameters)
         if not search_parameters.query:
-            search_result_iterable = []
+            search_result_iterator = async_iter_sync_iterable([])
         elif search_parameters.search_provider == SearchProviders.SEMANTIC_SCHOLAR:
-            search_result_iterable = (
+            search_result_iterator = (
                 app_providers_and_models
                 .semantic_scholar_search_provider.iter_search_result_item(
                     search_parameters=search_parameters
@@ -149,7 +151,7 @@ def get_search_result_page(
             )
             preprint_servers = SEMANTIC_SCHOLAR_SEARCH_VENUES
         elif search_parameters.search_provider == SearchProviders.EUROPE_PMC:
-            search_result_iterable = (
+            search_result_iterator = (
                 app_providers_and_models
                 .europe_pmc_provider.iter_search_result_item(
                     search_parameters=search_parameters
@@ -157,12 +159,12 @@ def get_search_result_page(
             )
             preprint_servers = EUROPE_PMC_PREPRINT_SERVERS
         else:
-            search_result_iterable = []
-        search_result_iterator = iter(search_result_iterable)
-        search_result_list_with_article_meta = list(
+            search_result_iterator = async_iter_sync_iterable([])
+        search_result_list_with_article_meta = await get_list_for_async_iterable(
             app_providers_and_models
-            .article_aggregator.iter_page_article_mention_with_article_meta_and_stats(
-                iter_preprint_article_mention(
+            .article_aggregator
+            .async_iter_page_article_mention_with_article_meta_and_stats(
+                async_iter_preprint_article_mention(
                     search_result_iterator
                 ),
                 page=pagination_parameters.page,
@@ -173,12 +175,12 @@ def get_search_result_page(
             'search_result_list_with_article_meta[:1]=%r',
             search_result_list_with_article_meta[:1]
         )
-    except requests.exceptions.RequestException as exc:
+    except aiohttp.ClientError as exc:
         error_message = f'Error retrieving search results from provider: {exc}'
-        status_code = exc.response.status_code if exc.response else 500
+        status_code = get_exception_status_code(exc) or 500
         search_result_list_with_article_meta = []
-        search_result_iterator = iter([])
-    url_pagination_state = get_url_pagination_state_for_pagination_parameters(
+        search_result_iterator = async_iter_sync_iterable([])
+    url_pagination_state = await async_get_url_pagination_state_for_pagination_parameters(
         url=request.url,
         pagination_parameters=pagination_parameters,
         is_this_page_empty=not search_result_list_with_article_meta,
@@ -237,12 +239,12 @@ def create_search_router(
     router = APIRouter()
 
     @router.get('/search', response_class=HTMLResponse)
-    def search(
+    async def search(
         request: Request,
         search_parameters: AnnotatedSearchParameters,
         pagination_parameters: AnnotatedPaginationParameters
     ):
-        search_result_page = get_search_result_page(
+        search_result_page = await get_search_result_page(
             app_providers_and_models=app_providers_and_models,
             request=request,
             search_parameters=search_parameters,
@@ -262,12 +264,12 @@ def create_search_router(
             status_code=search_result_page.status_code
         )
 
-    def _render_search_feed(
+    async def _render_search_feed(
         request: Request,
         search_feed_parameters: SearchFeedParameters,
         pagination_parameters: UrlPaginationParameters
     ):
-        search_result_page = get_search_result_page(
+        search_result_page = await get_search_result_page(
             app_providers_and_models=app_providers_and_models,
             request=request,
             search_parameters=search_feed_parameters.search_parameters,
@@ -289,12 +291,12 @@ def create_search_router(
             status_code=search_result_page.status_code
         )
 
-    def _render_search_feed_atom_xml(
+    async def _render_search_feed_atom_xml(
         request: Request,
         search_feed_parameters: SearchFeedParameters,
         pagination_parameters: UrlPaginationParameters
     ):
-        search_result_page = get_search_result_page(
+        search_result_page = await get_search_result_page(
             app_providers_and_models=app_providers_and_models,
             request=request,
             search_parameters=search_feed_parameters.search_parameters,
@@ -321,7 +323,7 @@ def create_search_router(
         )
 
     @router.get('/feeds', response_class=HTMLResponse)
-    def search_feeds(
+    async def search_feeds(
         request: Request
     ):
         return templates.TemplateResponse(
@@ -334,19 +336,19 @@ def create_search_router(
         )
 
     @router.get('/feeds/search', response_class=HTMLResponse)
-    def search_feed(
+    async def search_feed(
         request: Request,
         search_parameters: AnnotatedSearchParameters,
         pagination_parameters: AnnotatedPaginationParameters
     ):
-        return _render_search_feed(
+        return await _render_search_feed(
             request=request,
             search_feed_parameters=get_default_search_feed_parameters(search_parameters),
             pagination_parameters=pagination_parameters
         )
 
     @router.get('/feeds/search/create', response_class=RedirectResponse)
-    def create_search_feed(request: Request):
+    async def create_search_feed(request: Request):
         return RedirectResponse(
             (
                 request
@@ -359,19 +361,19 @@ def create_search_router(
         )
 
     @router.get('/feeds/search/atom.xml', response_class=AtomResponse)
-    def search_feed_atom_feed(
+    async def search_feed_atom_feed(
         request: Request,
         search_parameters: AnnotatedSearchParameters,
         pagination_parameters: AnnotatedPaginationParameters
     ):
-        return _render_search_feed_atom_xml(
+        return await _render_search_feed_atom_xml(
             request=request,
             search_feed_parameters=get_default_search_feed_parameters(search_parameters),
             pagination_parameters=pagination_parameters
         )
 
     @router.get('/feeds/by-name/{slug}', response_class=HTMLResponse)
-    def search_feed_by_name(
+    async def search_feed_by_name(
         request: Request,
         pagination_parameters: AnnotatedPaginationParameters,
         slug: str
@@ -381,14 +383,14 @@ def create_search_router(
         except KeyError as exc:
             raise HTTPException(status_code=404, detail="Feed not found") from exc
         search_parameters = get_search_feed_parameters_for_search_feed_config(search_feed_config)
-        return _render_search_feed(
+        return await _render_search_feed(
             request=request,
             search_feed_parameters=search_parameters,
             pagination_parameters=pagination_parameters
         )
 
     @router.get('/feeds/by-name/{slug}/atom.xml', response_class=AtomResponse)
-    def search_feed_by_name_atom_feed(
+    async def search_feed_by_name_atom_feed(
         request: Request,
         pagination_parameters: AnnotatedPaginationParameters,
         slug: str
@@ -398,7 +400,7 @@ def create_search_router(
         except KeyError as exc:
             raise HTTPException(status_code=404, detail="Feed not found") from exc
         search_parameters = get_search_feed_parameters_for_search_feed_config(search_feed_config)
-        return _render_search_feed_atom_xml(
+        return await _render_search_feed_atom_xml(
             request=request,
             search_feed_parameters=search_parameters,
             pagination_parameters=pagination_parameters
