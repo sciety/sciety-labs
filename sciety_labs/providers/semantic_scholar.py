@@ -10,24 +10,16 @@ import requests
 from requests_cache import CachedResponse
 
 from sciety_labs.models.article import (
-    ArticleMention,
     ArticleMetaData,
     ArticleSearchResultItem,
     iter_preprint_article_mention
 )
-from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
 from sciety_labs.providers.interfaces.article_recommendation import (
     ArticleRecommendation,
     ArticleRecommendationList,
     ArticleRecommendationProvider
 )
 from sciety_labs.providers.requests_provider import RequestsProvider
-from sciety_labs.providers.search import (
-    SearchDateRange,
-    SearchParameters,
-    SearchProvider,
-    SearchSortBy
-)
 from sciety_labs.utils.datetime import get_utc_timestamp_with_tzinfo, get_utcnow, parse_date_or_none
 
 
@@ -138,7 +130,7 @@ def _iter_article_recommendation_from_recommendation_response_json(
         )
 
 
-def _iter_article_search_result_item_from_search_response_json(
+def iter_article_search_result_item_from_search_response_json(
     search_response_json: dict
 ) -> Iterable[ArticleSearchResultItem]:
     for item_json in search_response_json.get('data', []):
@@ -261,7 +253,7 @@ class SemanticScholarProvider(RequestsProvider, ArticleRecommendationProvider):
         response_json = response.json()
         LOGGER.debug('Semantic Scholar search, response_json=%r', response_json)
         return ArticleSearchResultList(
-            items=list(_iter_article_search_result_item_from_search_response_json(
+            items=list(iter_article_search_result_item_from_search_response_json(
                 response_json
             )),
             offset=response_json['offset'],
@@ -322,52 +314,6 @@ def iter_search_results_published_within_date_range(
             continue
         if from_date <= published_date <= to_date:
             yield search_result
-
-
-class SemanticScholarSearchProvider(SearchProvider):
-    def __init__(
-        self,
-        semantic_scholar_provider: SemanticScholarProvider,
-        evaluation_stats_model: ScietyEventEvaluationStatsModel
-    ) -> None:
-        self.semantic_scholar_provider = semantic_scholar_provider
-        self.evaluation_stats_model = evaluation_stats_model
-
-    def iter_search_result_item(
-        self,
-        search_parameters: SearchParameters
-    ) -> Iterable[ArticleSearchResultItem]:
-        from_date = SearchDateRange.get_from_date(search_parameters.date_range)
-        to_date = SearchDateRange.get_to_date(search_parameters.date_range)
-        search_result_iterable: Iterable[ArticleSearchResultItem]
-        search_result_iterable = self.semantic_scholar_provider.iter_unfiltered_search_result_item(
-            query=search_parameters.query,
-            additional_search_parameters={
-                **SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITH_VENUES,
-                'year': get_year_request_parameter_for_date_range(
-                    from_date=from_date,
-                    to_date=to_date
-                )
-            }
-        )
-        if search_parameters.is_evaluated_only:
-            search_result_iterable = (
-                self.evaluation_stats_model.iter_evaluated_only_article_mention(
-                    search_result_iterable
-                )
-            )
-        search_result_iterable = iter_search_results_published_within_date_range(
-            search_result_iterable,
-            from_date=from_date,
-            to_date=to_date
-        )
-        if search_parameters.sort_by == SearchSortBy.PUBLICATION_DATE:
-            search_result_iterable = sorted(
-                search_result_iterable,
-                key=ArticleMention.get_published_date_sort_key,
-                reverse=True
-            )
-        return search_result_iterable
 
 
 class SemanticScholarTitleAbstractEmbeddingVectorProvider(RequestsProvider):
