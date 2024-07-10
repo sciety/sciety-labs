@@ -1,6 +1,6 @@
 import itertools
 import logging
-from datetime import date, datetime
+from datetime import datetime
 import os
 from pathlib import Path
 from typing import Iterable, Mapping, Optional, Sequence
@@ -9,12 +9,9 @@ import requests
 from requests_cache import CachedResponse
 
 from sciety_labs.models.article import (
-    ArticleMetaData,
-    ArticleSearchResultItem,
     iter_preprint_article_mention
 )
 from sciety_labs.providers.interfaces.article_recommendation import (
-    ArticleRecommendation,
     ArticleRecommendationList,
     ArticleRecommendationProvider
 )
@@ -22,88 +19,15 @@ from sciety_labs.providers.requests_provider import RequestsProvider
 from sciety_labs.providers.semantic_scholar.utils import (
     DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS,
     MAX_SEMANTIC_SCHOLAR_RECOMMENDATION_REQUEST_PAPER_IDS,
-    SEMANTIC_SCHOLAR_API_KEY_FILE_PATH_ENV_VAR,
-    SEMANTIC_SCHOLAR_PAPER_ID_EXT_REF_ID,
-    SEMANTIC_SCHOLAR_REQUESTED_FIELDS
+    SEMANTIC_SCHOLAR_REQUESTED_FIELDS,
+    _get_recommendation_request_payload_for_paper_ids_or_external_ids,
+    _iter_article_recommendation_from_recommendation_response_json,
+    get_semantic_scholar_api_key_file_path
 )
-from sciety_labs.utils.datetime import get_utc_timestamp_with_tzinfo, get_utcnow, parse_date_or_none
+from sciety_labs.utils.datetime import get_utc_timestamp_with_tzinfo, get_utcnow
 
 
 LOGGER = logging.getLogger(__name__)
-
-
-def _get_recommendation_request_payload_for_paper_ids_or_external_ids(
-    paper_ids_or_external_ids: Iterable[str]
-) -> dict:
-    return {
-        'positivePaperIds': list(itertools.islice(
-            paper_ids_or_external_ids,
-            MAX_SEMANTIC_SCHOLAR_RECOMMENDATION_REQUEST_PAPER_IDS
-        )),
-        'negativePaperIds': []
-    }
-
-
-def _get_author_names_from_author_list_json(
-    author_list_json: Sequence[dict]
-) -> Sequence[str]:
-    return [author['name'] for author in author_list_json]
-
-
-def _get_author_names_from_recommended_paper_json(
-    recommended_paper_json: dict
-) -> Optional[Sequence[str]]:
-    author_list_json = recommended_paper_json.get('authors')
-    if not author_list_json:
-        return None
-    return _get_author_names_from_author_list_json(author_list_json)
-
-
-def _get_article_meta_from_paper_json(
-    paper_json: dict
-) -> ArticleMetaData:
-    article_doi = paper_json.get('externalIds', {}).get('DOI')
-    assert article_doi
-    return ArticleMetaData(
-        article_doi=article_doi,
-        article_title=paper_json['title'],
-        published_date=parse_date_or_none(paper_json.get('publicationDate')),
-        author_name_list=_get_author_names_from_recommended_paper_json(
-            paper_json
-        )
-    )
-
-
-def _iter_article_recommendation_from_recommendation_response_json(
-    recommendation_response_json: dict
-) -> Iterable[ArticleRecommendation]:
-    for recommended_paper_json in recommendation_response_json['recommendedPapers']:
-        article_doi = recommended_paper_json.get('externalIds', {}).get('DOI')
-        if not article_doi:
-            continue
-        yield ArticleRecommendation(
-            article_doi=article_doi,
-            article_meta=_get_article_meta_from_paper_json(recommended_paper_json),
-            external_reference_by_name={
-                SEMANTIC_SCHOLAR_PAPER_ID_EXT_REF_ID: recommended_paper_json.get('paperId')
-            }
-        )
-
-
-def iter_article_search_result_item_from_search_response_json(
-    search_response_json: dict
-) -> Iterable[ArticleSearchResultItem]:
-    for item_json in search_response_json.get('data', []):
-        article_doi = item_json.get('externalIds', {}).get('DOI')
-        if not article_doi:
-            continue
-        yield ArticleSearchResultItem(
-            article_doi=article_doi,
-            article_meta=_get_article_meta_from_paper_json(item_json),
-            external_reference_by_name={
-                SEMANTIC_SCHOLAR_PAPER_ID_EXT_REF_ID: item_json.get('paperId')
-            }
-        )
 
 
 def get_response_timestamp(response: requests.Response) -> datetime:
@@ -170,17 +94,6 @@ class SemanticScholarProvider(RequestsProvider, ArticleRecommendationProvider):
         )
 
 
-def get_year_request_parameter_for_date_range(
-    from_date: date,
-    to_date: date
-) -> str:
-    from_year = from_date.year
-    to_year = to_date.year
-    if to_year == from_year:
-        return str(from_year)
-    return f'{from_year}-{to_year}'
-
-
 class SemanticScholarTitleAbstractEmbeddingVectorProvider(RequestsProvider):
     def get_embedding_vector(
         self,
@@ -206,10 +119,6 @@ class SemanticScholarTitleAbstractEmbeddingVectorProvider(RequestsProvider):
             for pred in response.json().get('preds')
         }
         return embeddings_by_paper_id[paper_id]
-
-
-def get_semantic_scholar_api_key_file_path() -> Optional[str]:
-    return os.getenv(SEMANTIC_SCHOLAR_API_KEY_FILE_PATH_ENV_VAR)
 
 
 def get_semantic_scholar_provider(
