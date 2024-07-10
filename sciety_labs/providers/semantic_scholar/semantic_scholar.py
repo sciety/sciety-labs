@@ -1,4 +1,3 @@
-import dataclasses
 import itertools
 import logging
 from datetime import date, datetime
@@ -60,14 +59,6 @@ SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITH_VENUES: dict = {
     **SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITHOUT_VENUES,
     'venue': ','.join(SEMANTIC_SCHOLAR_SEARCH_VENUES)
 }
-
-
-@dataclasses.dataclass(frozen=True)
-class ArticleSearchResultList:
-    items: Sequence[ArticleSearchResultItem]
-    offset: int
-    total: int
-    next_offset: Optional[int] = None
 
 
 def _get_recommendation_request_payload_for_paper_ids_or_external_ids(

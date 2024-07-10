@@ -21,11 +21,11 @@ from sciety_labs.providers.semantic_scholar.semantic_scholar import (
     MAX_SEMANTIC_SCHOLAR_SEARCH_OFFSET_PLUS_LIMIT,
     SEMANTIC_SCHOLAR_REQUESTED_FIELDS,
     SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITH_VENUES,
-    ArticleSearchResultList,
     get_semantic_scholar_api_key_file_path,
     get_year_request_parameter_for_date_range,
     iter_article_search_result_item_from_search_response_json
 )
+from sciety_labs.providers.semantic_scholar.utils import ArticleSearchResultList
 from sciety_labs.utils.async_utils import async_iter_sync_iterable, get_list_for_async_iterable
 
 
