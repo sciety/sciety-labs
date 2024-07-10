@@ -301,21 +301,6 @@ def get_year_request_parameter_for_date_range(
     return f'{from_year}-{to_year}'
 
 
-def iter_search_results_published_within_date_range(
-    search_result_iterable: Iterable[ArticleSearchResultItem],
-    from_date: date,
-    to_date: date
-) -> Iterable[ArticleSearchResultItem]:
-    for search_result in search_result_iterable:
-        if not search_result.article_meta:
-            continue
-        published_date = search_result.article_meta.published_date
-        if not published_date:
-            continue
-        if from_date <= published_date <= to_date:
-            yield search_result
-
-
 class SemanticScholarTitleAbstractEmbeddingVectorProvider(RequestsProvider):
     def get_embedding_vector(
         self,
