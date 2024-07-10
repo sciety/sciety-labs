@@ -4,7 +4,7 @@ from fastapi import Depends, Request
 import fastapi
 
 from sciety_labs.models.lists import OwnerMetaData, OwnerTypes
-from sciety_labs.providers.semantic_scholar.semantic_scholar import (
+from sciety_labs.providers.semantic_scholar.utils import (
     DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS
 )
 from sciety_labs.utils.pagination import UrlPaginationParameters
