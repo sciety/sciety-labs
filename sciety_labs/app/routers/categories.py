@@ -47,7 +47,7 @@ def create_categories_router(
         )
 
     @router.get('/categories/articles', response_class=HTMLResponse)
-    async def list_by_sciety_list_id(
+    async def categories_articles(
         request: Request,
         category: str,
         pagination_parameters: AnnotatedPaginationParameters,
