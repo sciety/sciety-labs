@@ -6,11 +6,15 @@ from fastapi.templating import Jinja2Templates
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.utils.common import (
+    DEFAULT_ITEMS_PER_PAGE,
     AnnotatedFromScietyParameter,
     AnnotatedPaginationParameters,
-    get_page_title
+    get_page_title,
+    get_rss_url
 )
+from sciety_labs.app.utils.response import AtomResponse
 from sciety_labs.providers.papers.async_papers import PageNumberBasedPaginationParameters
+from sciety_labs.utils.datetime import get_utcnow
 from sciety_labs.utils.pagination import get_url_pagination_state_for_pagination_parameters
 
 
@@ -85,11 +89,53 @@ def create_categories_router(
                 'page_title': get_page_title(
                     category
                 ),
+                'rss_url': get_rss_url(request),
                 'category_display_name': category,
                 'from_sciety': from_sciety,
                 'article_list_content': article_mention_with_article_meta,
                 'pagination': url_pagination_state
             }
+        )
+
+    @router.get('/categories/articles/atom.xml', response_class=AtomResponse)
+    async def categories_articles_atom_xml(
+        request: Request,
+        category: str,
+        items_per_page: int = DEFAULT_ITEMS_PER_PAGE,
+        page: int = 1,
+        evaluated_only: bool = True
+    ):
+        search_results_list = await (
+            app_providers_and_models
+            .async_paper_provider
+            .get_preprints_for_category_search_results_list(
+                category=category,
+                evaluated_only=evaluated_only,
+                pagination_parameters=PageNumberBasedPaginationParameters(
+                    page=page,
+                    items_per_page=items_per_page
+                )
+            )
+        )
+        article_mention_with_article_meta = (
+            article_aggregator.iter_page_article_mention_with_article_meta_and_stats(
+                search_results_list.items,
+                page=1,  # pagination is handled by service
+                items_per_page=items_per_page
+            )
+        )
+        return templates.TemplateResponse(
+            request=request,
+            name='pages/categories-articles.atom.xml',
+            context={
+                'page_title': get_page_title(
+                    category
+                ),
+                'updated_timestamp': get_utcnow(),
+                'category_display_name': category,
+                'article_list_content': article_mention_with_article_meta
+            },
+            media_type=AtomResponse.media_type
         )
 
     return router
