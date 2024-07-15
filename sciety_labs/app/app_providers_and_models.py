@@ -35,7 +35,7 @@ from sciety_labs.providers.semantic_scholar.async_providers import (
 from sciety_labs.providers.crossref.crossref import (
     CrossrefMetaDataProvider
 )
-from sciety_labs.providers.async_europe_pmc import AsyncEuropePmcProvider
+from sciety_labs.providers.europepmc.async_providers import AsyncEuropePmcProvider
 from sciety_labs.providers.google_sheet_image import (
     GoogleSheetArticleImageProvider,
     GoogleSheetListImageProvider
