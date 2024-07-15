@@ -12,7 +12,7 @@ from sciety_labs.providers.crossref.utils import (
     get_response_dict_by_doi_map,
     iter_article_mention_with_replaced_article_meta
 )
-from sciety_labs.providers.requests_provider import RequestsProvider
+from sciety_labs.providers.utils.requests_provider import RequestsProvider
 
 
 LOGGER = logging.getLogger(__name__)
