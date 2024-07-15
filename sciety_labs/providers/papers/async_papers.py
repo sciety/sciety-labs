@@ -8,7 +8,7 @@ from sciety_labs.app.routers.api.papers.typing import (
     PaperSearchResponseDict
 )
 from sciety_labs.models.article import ArticleMetaData, ArticleSearchResultItem
-from sciety_labs.providers.async_requests_provider import AsyncRequestsProvider
+from sciety_labs.providers.utils.async_requests_provider import AsyncRequestsProvider
 from sciety_labs.utils.datetime import parse_date_or_none
 
 
