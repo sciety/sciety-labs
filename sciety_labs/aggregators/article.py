@@ -3,8 +3,8 @@ from typing import AsyncIterable, AsyncIterator, Iterable, Optional
 
 from sciety_labs.models.article import ArticleMention
 from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
-from sciety_labs.providers.crossref.async_crossref import AsyncCrossrefMetaDataProvider
-from sciety_labs.providers.crossref.crossref import CrossrefMetaDataProvider
+from sciety_labs.providers.crossref.async_providers import AsyncCrossrefMetaDataProvider
+from sciety_labs.providers.crossref.providers import CrossrefMetaDataProvider
 from sciety_labs.providers.google_sheet_image import GoogleSheetArticleImageProvider
 from sciety_labs.utils.async_utils import async_get_iterable_and_look_ahead_one
 from sciety_labs.utils.pagination import async_get_page_iterable, get_page_iterable
