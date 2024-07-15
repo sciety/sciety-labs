@@ -15,7 +15,7 @@ from sciety_labs.providers.interfaces.article_recommendation import (
     ArticleRecommendationList,
     ArticleRecommendationProvider
 )
-from sciety_labs.providers.requests_provider import RequestsProvider
+from sciety_labs.providers.utils.requests_provider import RequestsProvider
 from sciety_labs.providers.semantic_scholar.utils import (
     DEFAULT_SEMANTIC_SCHOLAR_MAX_RECOMMENDATIONS,
     MAX_SEMANTIC_SCHOLAR_RECOMMENDATION_REQUEST_PAPER_IDS,

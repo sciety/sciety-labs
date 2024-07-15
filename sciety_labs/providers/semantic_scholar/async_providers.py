@@ -8,7 +8,7 @@ import aiohttp
 
 from sciety_labs.models.article import ArticleMention, ArticleSearchResultItem
 from sciety_labs.models.evaluation import ScietyEventEvaluationStatsModel
-from sciety_labs.providers.async_requests_provider import AsyncRequestsProvider
+from sciety_labs.providers.utils.async_requests_provider import AsyncRequestsProvider
 from sciety_labs.providers.search import (
     AsyncSearchProvider,
     SearchDateRange,

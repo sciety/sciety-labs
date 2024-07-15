@@ -2,7 +2,7 @@ import logging
 from typing import AsyncIterable
 
 from sciety_labs.models.article import ArticleSearchResultItem
-from sciety_labs.providers.async_requests_provider import AsyncRequestsProvider
+from sciety_labs.providers.utils.async_requests_provider import AsyncRequestsProvider
 from sciety_labs.providers.europepmc.utils import (
     START_CURSOR,
     CursorBasedArticleSearchResultList,
