@@ -196,7 +196,7 @@ class TestAsyncPapersProviderCategoryDisplayNameList:
 
 class TestAsyncPapersProviderPreprints:
     @pytest.mark.asyncio
-    async def test_should_pass_cateogry_and_evaluated_only_as_filter_and_set_fields(
+    async def test_should_pass_category_and_evaluated_only_as_filter_and_set_fields(
         self,
         async_papers_provider: AsyncPapersProvider,
         response_mock: AsyncMock,
