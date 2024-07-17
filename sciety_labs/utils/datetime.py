@@ -8,6 +8,12 @@ def parse_timestamp(timestamp_str: str) -> datetime:
     return datetime.fromisoformat(timestamp_str)
 
 
+def parse_timestamp_or_none(timestamp_str: Optional[str]) -> Optional[datetime]:
+    if not timestamp_str:
+        return None
+    return parse_timestamp(timestamp_str)
+
+
 def parse_date_or_none(date_str: Optional[str]) -> Optional[date]:
     if not date_str:
         return None

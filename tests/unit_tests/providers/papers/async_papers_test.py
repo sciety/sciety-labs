@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 import logging
 from unittest.mock import AsyncMock, MagicMock
 
@@ -23,6 +23,9 @@ LOGGER = logging.getLogger(__name__)
 
 
 DOI_1 = '10.12345/doi_1'
+
+
+TIMESTAMP_1 = datetime.fromisoformat('2001-02-03T00:00:01+00:00')
 
 
 PAGINATION_PARAMETERS_1 = PageNumberBasedPaginationParameters(
@@ -153,6 +156,25 @@ class TestGetSearchResultListItemsForPaperSearchResponseDict:
         assert item.article_meta.article_doi == DOI_1
         assert item.article_meta.article_title == 'Title 1'
         assert item.article_meta.published_date == date.fromisoformat('2001-02-03')
+
+    def test_should_parse_search_response_with_article_stats(self):
+        items = get_search_result_list_items_for_paper_search_response_dict({
+            'data': [{
+                'id': 'some_id',
+                'type': 'paper',
+                'attributes': {
+                    'doi': DOI_1,
+                    'title': 'Title 1',
+                    'evaluation_count': 3,
+                    'latest_evaluation_activity_timestamp': TIMESTAMP_1.isoformat()
+                }
+            }]
+        })
+        assert len(items) == 1
+        item = items[0]
+        assert item.article_doi == DOI_1
+        assert item.article_stats.evaluation_count == 3
+        assert item.article_stats.latest_evaluation_publication_timestamp == TIMESTAMP_1
 
 
 class TestGetSearchResultListForPaperSearchResponseDict:

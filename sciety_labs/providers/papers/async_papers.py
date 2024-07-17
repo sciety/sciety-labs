@@ -7,9 +7,9 @@ from sciety_labs.app.routers.api.papers.typing import (
     PaperDict,
     PaperSearchResponseDict
 )
-from sciety_labs.models.article import ArticleMetaData, ArticleSearchResultItem
+from sciety_labs.models.article import ArticleMetaData, ArticleSearchResultItem, ArticleStats
 from sciety_labs.providers.utils.async_requests_provider import AsyncRequestsProvider
-from sciety_labs.utils.datetime import parse_date_or_none
+from sciety_labs.utils.datetime import parse_date_or_none, parse_timestamp_or_none
 
 
 LOGGER = logging.getLogger(__name__)
@@ -48,13 +48,28 @@ def get_search_result_item_for_paper_dict(
     LOGGER.debug('paper_dict: %r', paper_dict)
     paper_attributes_dict = paper_dict['attributes']
     doi = paper_attributes_dict['doi']
+    evaluation_count = paper_attributes_dict.get('evaluation_count')
+    latest_evaluation_activity_timestamp_str = (
+        paper_attributes_dict.get('latest_evaluation_activity_timestamp')
+    )
+    article_stats = (
+        ArticleStats(
+            evaluation_count=evaluation_count,
+            latest_evaluation_publication_timestamp=parse_timestamp_or_none(
+                latest_evaluation_activity_timestamp_str
+            )
+        )
+        if evaluation_count
+        else None
+    )
     return ArticleSearchResultItem(
         article_doi=doi,
         article_meta=ArticleMetaData(
             article_doi=doi,
             article_title=paper_attributes_dict.get('title'),
             published_date=parse_date_or_none(paper_attributes_dict.get('publication_date'))
-        )
+        ),
+        article_stats=article_stats
     )
 
 
