@@ -1,4 +1,6 @@
+from datetime import date, datetime
 import logging
+from typing import Sequence, Union
 
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
@@ -13,12 +15,26 @@ from sciety_labs.app.utils.common import (
     get_rss_url
 )
 from sciety_labs.app.utils.response import AtomResponse
+from sciety_labs.models.article import ArticleSearchResultItem
 from sciety_labs.providers.papers.async_papers import PageNumberBasedPaginationParameters
-from sciety_labs.utils.datetime import get_utcnow
+from sciety_labs.utils.datetime import get_date_as_utc_timestamp, get_utcnow
 from sciety_labs.utils.pagination import get_url_pagination_state_for_pagination_parameters
 
 
 LOGGER = logging.getLogger(__name__)
+
+
+def get_rss_updated_timestamp(
+    search_result_list_with_article_meta: Sequence[ArticleSearchResultItem]
+) -> Union[date, datetime]:
+    publication_dates = [
+        article_mention.article_meta.published_date
+        for article_mention in search_result_list_with_article_meta
+        if article_mention.article_meta and article_mention.article_meta.published_date
+    ]
+    if not publication_dates:
+        return get_utcnow()
+    return get_date_as_utc_timestamp(max(publication_dates))
 
 
 def create_categories_router(
@@ -131,7 +147,9 @@ def create_categories_router(
                 'page_title': get_page_title(
                     category
                 ),
-                'updated_timestamp': get_utcnow(),
+                'updated_timestamp': get_rss_updated_timestamp(
+                    article_mention_with_article_meta
+                ),
                 'category_display_name': category,
                 'article_list_content': article_mention_with_article_meta
             },
