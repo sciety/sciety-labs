@@ -17,7 +17,7 @@ from sciety_labs.app.utils.common import (
 from sciety_labs.app.utils.response import AtomResponse
 from sciety_labs.models.article import ArticleSearchResultItem
 from sciety_labs.providers.papers.async_papers import PageNumberBasedPaginationParameters
-from sciety_labs.utils.datetime import get_date_as_utc_timestamp, get_utcnow
+from sciety_labs.utils.datetime import get_utcnow
 from sciety_labs.utils.pagination import get_url_pagination_state_for_pagination_parameters
 
 
@@ -27,14 +27,17 @@ LOGGER = logging.getLogger(__name__)
 def get_rss_updated_timestamp(
     search_result_list_with_article_meta: Sequence[ArticleSearchResultItem]
 ) -> Union[date, datetime]:
-    publication_dates = [
-        article_mention.article_meta.published_date
+    latest_evaluation_publication_timestamps = [
+        article_mention.article_stats.latest_evaluation_publication_timestamp
         for article_mention in search_result_list_with_article_meta
-        if article_mention.article_meta and article_mention.article_meta.published_date
+        if (
+            article_mention.article_stats
+            and article_mention.article_stats.latest_evaluation_publication_timestamp
+        )
     ]
-    if not publication_dates:
+    if not latest_evaluation_publication_timestamps:
         return get_utcnow()
-    return get_date_as_utc_timestamp(max(publication_dates))
+    return max(latest_evaluation_publication_timestamps)
 
 
 def create_categories_router(

@@ -107,6 +107,7 @@ class ArticleMetaData(NamedTuple):
 
 class ArticleStats(NamedTuple):
     evaluation_count: int = 0
+    latest_evaluation_publication_timestamp: Optional[datetime] = None
 
 
 class ArticleAuthor(NamedTuple):
