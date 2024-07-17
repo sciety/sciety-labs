@@ -8,6 +8,16 @@
             <header class="page-header page-header--search-results">
                 <h1>{{ category_display_name }}</h1>
                 <div>
+                    {%- if rss_url %}
+                    <div class="page-header__links">
+                        <ul>
+                            <li><span><a class="primary-action-button"
+                        href="{{ rss_url }}" type="application/atom+xml" rel="nofollow">Subscribe to feed (RSS)</a><span></li>
+                        </ul>
+                    </div>
+                    {%- endif %}
+                </div>
+                <div>
                     {{ render_pagination_header(pagination) }}
                 </div>
             </header>
