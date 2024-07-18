@@ -4,7 +4,7 @@ from typing import Sequence
 
 import objsize
 
-from sciety_labs.providers.bigquery_provider import BigQueryArrowTableProvider
+from sciety_labs.providers.utils.bigquery_provider import BigQueryArrowTableProvider
 
 
 LOGGER = logging.getLogger(__name__)

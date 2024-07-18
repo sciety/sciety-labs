@@ -7,7 +7,7 @@ import numpy.typing as npt
 
 import opensearchpy
 
-from sciety_labs.providers.crossref import CrossrefMetaDataProvider
+from sciety_labs.providers.crossref.providers import CrossrefMetaDataProvider
 from sciety_labs.providers.interfaces.article_recommendation import (
     ArticleRecommendationFilterParameters,
     ArticleRecommendationList,
@@ -21,7 +21,7 @@ from sciety_labs.providers.opensearch.utils import (
     get_source_includes,
     get_vector_search_query
 )
-from sciety_labs.providers.semantic_scholar import (
+from sciety_labs.providers.semantic_scholar.providers import (
     SemanticScholarTitleAbstractEmbeddingVectorProvider
 )
 from sciety_labs.utils.datetime import get_utcnow

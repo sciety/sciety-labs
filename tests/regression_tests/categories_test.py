@@ -19,3 +19,11 @@ class TestCategoriesArticlesPage:
         )
         response.raise_for_status()
         assert ResponseWrapper(response).get_article_card_count() > 0
+
+    def test_should_load_categories_articles_rss_feed(self, regression_test_session: Session):
+        response = regression_test_session.get(
+            '/categories/articles/atom.xml',
+            params={'category': 'Neuroscience'}
+        )
+        response.raise_for_status()
+        assert ResponseWrapper(response).get_rss_entry_count() > 0

@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Optional
 import aiohttp
 
+import aiohttp_client_cache
 import requests_cache
 
 import opensearchpy
@@ -20,19 +21,21 @@ from sciety_labs.providers.interfaces.article_recommendation import (
 from sciety_labs.providers.interfaces.async_article_recommendation import (
     AsyncSingleArticleRecommendationProvider
 )
-from sciety_labs.providers.async_crossref import (
+from sciety_labs.providers.crossref.async_providers import (
     AsyncCrossrefMetaDataProvider
 )
 from sciety_labs.providers.opensearch.async_providers import (
     AsyncOpenSearchArticleRecommendation
 )
-from sciety_labs.providers.async_semantic_scholar import (
-    AsyncSemanticScholarTitleAbstractEmbeddingVectorProvider
+from sciety_labs.providers.semantic_scholar.async_providers import (
+    AsyncSemanticScholarSearchProvider,
+    AsyncSemanticScholarTitleAbstractEmbeddingVectorProvider,
+    get_async_semantic_scholar_provider
 )
-from sciety_labs.providers.crossref import (
+from sciety_labs.providers.crossref.providers import (
     CrossrefMetaDataProvider
 )
-from sciety_labs.providers.europe_pmc import EuropePmcProvider
+from sciety_labs.providers.europepmc.async_providers import AsyncEuropePmcProvider
 from sciety_labs.providers.google_sheet_image import (
     GoogleSheetArticleImageProvider,
     GoogleSheetListImageProvider
@@ -47,9 +50,8 @@ from sciety_labs.providers.opensearch.sync_providers import (
 )
 from sciety_labs.providers.papers.async_papers import AsyncPapersProvider
 from sciety_labs.providers.sciety_event import ScietyEventProvider
-from sciety_labs.providers.semantic_scholar import (
+from sciety_labs.providers.semantic_scholar.providers import (
     SemanticScholarProvider,
-    SemanticScholarSearchProvider,
     SemanticScholarTitleAbstractEmbeddingVectorProvider,
     get_semantic_scholar_provider
 )
@@ -167,6 +169,20 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
             allowable_methods=('GET', 'HEAD', 'POST'),  # include POST for Semantic Scholar
             match_headers=False
         )
+
+        async_connector = aiohttp.TCPConnector(limit=1000)
+
+        self.async_cached_client_session = aiohttp_client_cache.CachedSession(
+            connector=async_connector,
+            cache=aiohttp_client_cache.SQLiteBackend(
+                '.cache/aiohttp-requests.sqlite',
+                expire_after=timedelta(days=1),
+                allowed_methods=('GET', 'HEAD', 'POST'),  # include POST for Semantic Scholar
+                include_headers=False
+            )
+        )
+        async_cached_client_session = self.async_cached_client_session
+
         async_client_session = aiohttp.ClientSession(
             connector=aiohttp.TCPConnector(limit=200)
         )
@@ -192,21 +208,24 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         self.evaluation_stats_model = ScietyEventEvaluationStatsModel([])
 
         self.async_paper_provider = AsyncPapersProvider(
-            client_session=async_client_session
+            client_session=async_cached_client_session
         )
 
         self.crossref_metadata_provider = CrossrefMetaDataProvider(
             requests_session=cached_requests_session
         )
         self.async_crossref_metadata_provider = AsyncCrossrefMetaDataProvider(
-            client_session=async_client_session
+            client_session=async_cached_client_session
         )
 
         self.semantic_scholar_provider = get_semantic_scholar_provider(
             requests_session=cached_requests_session
         )
-        self.semantic_scholar_search_provider = SemanticScholarSearchProvider(
-            semantic_scholar_provider=self.semantic_scholar_provider,
+        self.async_semantic_scholar_provider = get_async_semantic_scholar_provider(
+            client_session=async_cached_client_session
+        )
+        self.semantic_scholar_search_provider = AsyncSemanticScholarSearchProvider(
+            async_semantic_scholar_provider=self.async_semantic_scholar_provider,
             evaluation_stats_model=self.evaluation_stats_model
         )
         title_abstract_embedding_vector_provider = (
@@ -216,7 +235,7 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         )
         self.async_title_abstract_embedding_vector_provider = (
             AsyncSemanticScholarTitleAbstractEmbeddingVectorProvider(
-                client_session=async_client_session
+                client_session=async_cached_client_session
             )
         )
         self.article_recommendation_provider = get_article_recommendation_provider(
@@ -247,8 +266,8 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
             self.async_single_article_recommendation_provider
         )
 
-        self.europe_pmc_provider = EuropePmcProvider(
-            requests_session=cached_requests_session
+        self.europe_pmc_provider = AsyncEuropePmcProvider(
+            client_session=async_cached_client_session
         )
 
         article_image_mapping_cache = ChainedObjectCache([
@@ -284,5 +303,6 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         self.article_aggregator = ArticleAggregator(
             evaluation_stats_model=self.evaluation_stats_model,
             crossref_metadata_provider=self.crossref_metadata_provider,
+            async_crossref_metadata_provider=self.async_crossref_metadata_provider,
             google_sheet_article_image_provider=self.google_sheet_article_image_provider
         )

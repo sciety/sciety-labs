@@ -8,6 +8,12 @@ def parse_timestamp(timestamp_str: str) -> datetime:
     return datetime.fromisoformat(timestamp_str)
 
 
+def parse_timestamp_or_none(timestamp_str: Optional[str]) -> Optional[datetime]:
+    if not timestamp_str:
+        return None
+    return parse_timestamp(timestamp_str)
+
+
 def parse_date_or_none(date_str: Optional[str]) -> Optional[date]:
     if not date_str:
         return None
@@ -20,13 +26,13 @@ def get_date_as_isoformat(date_value: Optional[Union[date, datetime]]) -> Option
     return date_value.strftime(r'%Y-%m-%d')
 
 
-def get_date_as_display_format(date_value: Union[date, datetime]) -> Optional[str]:
+def get_date_as_display_format(date_value: Optional[Union[date, datetime]]) -> Optional[str]:
     if not date_value:
         return None
     return date_value.strftime(r'%b %-d, %Y')
 
 
-def get_timestamp_as_isoformat(timestamp_value: Union[date, datetime]) -> Optional[str]:
+def get_timestamp_as_isoformat(timestamp_value: Optional[Union[date, datetime]]) -> Optional[str]:
     if not timestamp_value:
         return None
     return timestamp_value.isoformat()

@@ -1,0 +1,21 @@
+{% from 'macros/atom.xml' import render_atom_content_for_article_mention, render_atom_authors_for_article_meta -%}
+
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title type="html">{{ category_display_name }}</title>
+    <link href="{{ request.url }}" rel="self" />
+    <updated>{{ updated_timestamp | timestamp_isoformat }}</updated>
+    <id>tag:sciety-labs,2024-07-15:category-id={{ category_display_name }}</id>
+
+    {%- for item in article_list_content %}
+    <entry>
+        <title type="html">{{ item.article_meta.article_title_or_placeholder }}</title>
+        <link href="https://sciety.org/articles/activity/{{ item.article_doi }}?utm_source=sciety_labs_atom_feed" />
+        <published>{{ item.article_meta.published_date | date_isoformat }}T00:00:00+00:00</published>
+        <updated>{{ item.article_stats.latest_evaluation_publication_timestamp | timestamp_isoformat }}</updated>
+        <id>tag:sciety-labs,2023-04-20:doi={{ item.article_doi }}</id>
+        {{- render_atom_content_for_article_mention(item) }}
+        {{- render_atom_authors_for_article_meta(item.article_meta) }}
+    </entry>
+    {% endfor %}
+</feed>
