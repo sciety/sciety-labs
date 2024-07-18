@@ -38,6 +38,7 @@
                     <div class="article-card__meta">
                     {% if item.article_stats %}
                     <span class="visually-hidden">This article has </span><span>{{ item.article_stats.evaluation_count }} evaluations</span>
+                    {{ render_optional_date_value_with_label('Latest evaluation on', item.article_stats.latest_evaluation_publication_timestamp) }}
                     {% endif %}
                     {{ render_optional_date_value_with_label('Published on', item.article_meta.published_date) }}
                     {{ render_optional_date_value_with_label('Added on', item.created_at_timestamp) }}
