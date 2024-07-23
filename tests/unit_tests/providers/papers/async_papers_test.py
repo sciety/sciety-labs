@@ -227,7 +227,7 @@ class TestAsyncPapersProviderPreprintsList:
         client_session_get_mock: AsyncMock
     ):
         response_mock.json.return_value = PAPER_SEARCH_RESPONSE_DICT_1
-        await async_papers_provider.get_preprints_for_category_search_results_list(
+        await async_papers_provider.get_preprints_for_category_results_list(
             category='Category 1',
             evaluated_only=True,
             pagination_parameters=PAGINATION_PARAMETERS_1
@@ -245,7 +245,7 @@ class TestAsyncPapersProviderPreprintsList:
         client_session_get_mock: AsyncMock
     ):
         response_mock.json.return_value = PAPER_SEARCH_RESPONSE_DICT_1
-        await async_papers_provider.get_preprints_for_category_search_results_list(
+        await async_papers_provider.get_preprints_for_category_results_list(
             category='Category 1',
             evaluated_only=True,
             pagination_parameters=PageNumberBasedPaginationParameters(
@@ -265,7 +265,7 @@ class TestAsyncPapersProviderPreprintsList:
     ):
         response_mock.json.return_value = PAPER_SEARCH_RESPONSE_DICT_1
         search_result_list = await (
-            async_papers_provider.get_preprints_for_category_search_results_list(
+            async_papers_provider.get_preprints_for_category_results_list(
                 category='Category 1',
                 pagination_parameters=PAGINATION_PARAMETERS_1
             )

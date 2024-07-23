@@ -136,7 +136,7 @@ class AsyncPapersProvider(AsyncRequestsProvider):
                 response_json
             )
 
-    async def get_preprints_for_category_search_results_list(
+    async def get_preprints_for_category_results_list(
         self,
         category: str,
         pagination_parameters: PageNumberBasedPaginationParameters,

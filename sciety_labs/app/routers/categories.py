@@ -80,7 +80,7 @@ def create_categories_router(
         search_results_list = await (
             app_providers_and_models
             .async_paper_provider
-            .get_preprints_for_category_search_results_list(
+            .get_preprints_for_category_results_list(
                 category=category,
                 evaluated_only=evaluated_only,
                 pagination_parameters=PageNumberBasedPaginationParameters(
@@ -127,7 +127,7 @@ def create_categories_router(
         search_results_list = await (
             app_providers_and_models
             .async_paper_provider
-            .get_preprints_for_category_search_results_list(
+            .get_preprints_for_category_results_list(
                 category=category,
                 evaluated_only=evaluated_only,
                 pagination_parameters=PageNumberBasedPaginationParameters(
