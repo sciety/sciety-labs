@@ -21,6 +21,7 @@ from sciety_labs.config.search_feed_config import SearchFeedConfig, SearchFeedsC
 from sciety_labs.models.article import ArticleSearchResultItem, async_iter_preprint_article_mention
 from sciety_labs.models.image import ObjectImages
 from sciety_labs.providers.europepmc.utils import EUROPE_PMC_PREPRINT_SERVERS
+from sciety_labs.providers.papers.async_papers import PageNumberBasedPaginationParameters
 from sciety_labs.providers.search import SearchDateRange, SearchParameters, SearchSortBy
 from sciety_labs.providers.semantic_scholar.utils import SEMANTIC_SCHOLAR_SEARCH_VENUES
 from sciety_labs.utils.aio import get_exception_status_code
@@ -29,7 +30,8 @@ from sciety_labs.utils.datetime import get_date_as_utc_timestamp, get_utcnow
 from sciety_labs.utils.pagination import (
     UrlPaginationParameters,
     UrlPaginationState,
-    async_get_url_pagination_state_for_pagination_parameters
+    async_get_url_pagination_state_for_pagination_parameters,
+    get_url_pagination_state_for_pagination_parameters
 )
 
 
@@ -129,7 +131,7 @@ class SearchResultPage:
     status_code: int = 200
 
 
-async def get_search_result_page(
+async def get_search_result_page_using_iterator(
     app_providers_and_models: AppProvidersAndModels,
     request: Request,
     search_parameters: AnnotatedSearchParameters,
@@ -196,6 +198,77 @@ async def get_search_result_page(
     )
 
 
+async def get_search_result_page_using_pagination(
+    app_providers_and_models: AppProvidersAndModels,
+    request: Request,
+    search_parameters: AnnotatedSearchParameters,
+    pagination_parameters: AnnotatedPaginationParameters
+) -> SearchResultPage:
+    error_message: Optional[str] = None
+    status_code: int = 200
+    assert search_parameters.search_provider == SearchProviders.SCIETY_LABS
+    preprint_servers: Optional[Sequence[str]] = None
+    search_results_list = await (
+        app_providers_and_models
+        .async_paper_provider
+        .get_preprints_for_search_results_list(
+            query=search_parameters.query,
+            evaluated_only=search_parameters.is_evaluated_only,
+            pagination_parameters=PageNumberBasedPaginationParameters(
+                page=pagination_parameters.page,
+                items_per_page=pagination_parameters.items_per_page
+            )
+        )
+    )
+    LOGGER.info('search_results_list: %r', search_results_list)
+    search_result_list_with_article_meta = list(
+        app_providers_and_models
+        .article_aggregator
+        .iter_page_article_mention_with_article_meta_and_stats(
+            search_results_list.items,
+            page=1,  # pagination is handled by service
+            items_per_page=pagination_parameters.items_per_page
+        )
+    )
+    LOGGER.info(
+        'search_result_list_with_article_meta[:1]=%r',
+        search_result_list_with_article_meta[:1]
+    )
+    url_pagination_state = get_url_pagination_state_for_pagination_parameters(
+        url=request.url,
+        pagination_parameters=pagination_parameters,
+        item_count=search_results_list.total
+    )
+    return SearchResultPage(
+        search_result_list_with_article_meta=search_result_list_with_article_meta,
+        preprint_servers=preprint_servers,
+        url_pagination_state=url_pagination_state,
+        error_message=error_message,
+        status_code=status_code
+    )
+
+
+async def get_search_result_page(
+    app_providers_and_models: AppProvidersAndModels,
+    request: Request,
+    search_parameters: AnnotatedSearchParameters,
+    pagination_parameters: AnnotatedPaginationParameters
+) -> SearchResultPage:
+    if search_parameters.search_provider == SearchProviders.SCIETY_LABS:
+        return await get_search_result_page_using_pagination(
+            app_providers_and_models=app_providers_and_models,
+            request=request,
+            search_parameters=search_parameters,
+            pagination_parameters=pagination_parameters
+        )
+    return await get_search_result_page_using_iterator(
+        app_providers_and_models=app_providers_and_models,
+        request=request,
+        search_parameters=search_parameters,
+        pagination_parameters=pagination_parameters
+    )
+
+
 def get_rss_updated_timestamp(
     search_result_list_with_article_meta: Sequence[ArticleSearchResultItem]
 ) -> Union[date, datetime]:
@@ -251,6 +324,7 @@ def create_search_router(
             search_parameters=search_parameters,
             pagination_parameters=pagination_parameters
         )
+        LOGGER.info('search_result_page: %r', search_result_page)
         return templates.TemplateResponse(
             request=request,
             name='pages/search.html',

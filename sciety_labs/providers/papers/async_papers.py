@@ -173,3 +173,42 @@ class AsyncPapersProvider(AsyncRequestsProvider):
             return get_search_result_list_for_paper_search_response_dict(
                 response_json
             )
+
+    async def get_preprints_for_search_results_list(
+        self,
+        query: str,
+        pagination_parameters: PageNumberBasedPaginationParameters,
+        evaluated_only: bool = False,
+        headers: Optional[Mapping[str, str]] = None
+    ) -> PageNumberBasedArticleSearchResultList:
+        url = 'http://localhost:8000/api/papers/v1/preprints/search'
+        async with self.client_session.get(
+            url,
+            params={
+                'query': query,
+                'page[number]': pagination_parameters.page,
+                'page[size]': pagination_parameters.items_per_page,
+                'filter[evaluated_only]': str(evaluated_only).lower(),
+                'fields[paper]': ','.join(DEFAULT_PROVIDER_PAPER_FIELDS)
+            },
+            headers=self.get_headers(headers=headers),
+            timeout=self.timeout
+        ) as response:
+            LOGGER.info(
+                'Async Response url=%r, status=%r',
+                response.request_info.url,
+                response.status
+            )
+            LOGGER.debug('response: %r', response)
+            if response.status == 400:
+                LOGGER.warning(
+                    'Bad Request(400), url=%r, response=%r',
+                    response.request_info.url,
+                    await response.read()
+                )
+            response.raise_for_status()
+            response_json: PaperSearchResponseDict = await response.json()
+            LOGGER.debug('Papers search, response_json=%r', response_json)
+            return get_search_result_list_for_paper_search_response_dict(
+                response_json
+            )

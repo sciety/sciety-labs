@@ -65,6 +65,7 @@
                 </div>
                 {%- if not pagination.is_empty %}
                 <div class="search-results__header_details">
+                    {%- if preprint_servers %}
                     <div class="search-results__header_details_item">Results from
                         {% for preprint_server in preprint_servers %}
                             {% if not loop.first %}
@@ -73,6 +74,7 @@
                             <b>{{ preprint_server }}</b>
                         {% endfor -%}
                     </div>
+                    {% endif %}
                     <div class="search-results__header_details_item">Sorted by <b>{{ sort_by }}</b></div>
                 </div>
                 {%- endif %}
