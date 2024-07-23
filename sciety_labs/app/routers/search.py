@@ -138,8 +138,6 @@ async def get_search_result_page_using_iterator(
     pagination_parameters: AnnotatedPaginationParameters
 ) -> SearchResultPage:
     search_result_iterator: AsyncIterator[ArticleSearchResultItem]
-    error_message: Optional[str] = None
-    status_code: int = 200
     preprint_servers: Optional[Sequence[str]] = None
     LOGGER.info('search_parameters: %r', search_parameters)
     if not search_parameters.query:
@@ -186,9 +184,7 @@ async def get_search_result_page_using_iterator(
     return SearchResultPage(
         search_result_list_with_article_meta=search_result_list_with_article_meta,
         preprint_servers=preprint_servers,
-        url_pagination_state=url_pagination_state,
-        error_message=error_message,
-        status_code=status_code
+        url_pagination_state=url_pagination_state
     )
 
 
@@ -198,8 +194,6 @@ async def get_search_result_page_using_pagination(
     search_parameters: AnnotatedSearchParameters,
     pagination_parameters: AnnotatedPaginationParameters
 ) -> SearchResultPage:
-    error_message: Optional[str] = None
-    status_code: int = 200
     assert search_parameters.search_provider == SearchProviders.SCIETY_LABS
     preprint_servers: Optional[Sequence[str]] = None
     search_results_list = await (
@@ -237,9 +231,7 @@ async def get_search_result_page_using_pagination(
     return SearchResultPage(
         search_result_list_with_article_meta=search_result_list_with_article_meta,
         preprint_servers=preprint_servers,
-        url_pagination_state=url_pagination_state,
-        error_message=error_message,
-        status_code=status_code
+        url_pagination_state=url_pagination_state
     )
 
 
