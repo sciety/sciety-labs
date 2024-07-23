@@ -175,7 +175,7 @@ class AsyncPapersProvider(AsyncRequestsProvider):
                 response_json
             )
 
-    async def get_preprints_for_search_results_list(
+    async def get_preprints_for_search_results_list(  # pylint: disable=too-many-arguments
         self,
         query: str,
         pagination_parameters: PageNumberBasedPaginationParameters,
