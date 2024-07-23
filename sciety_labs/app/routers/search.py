@@ -140,49 +140,43 @@ async def get_search_result_page_using_iterator(
     search_result_iterator: AsyncIterator[ArticleSearchResultItem]
     error_message: Optional[str] = None
     status_code: int = 200
-    try:
-        preprint_servers: Optional[Sequence[str]] = None
-        LOGGER.info('search_parameters: %r', search_parameters)
-        if not search_parameters.query:
-            search_result_iterator = async_iter_sync_iterable([])
-        elif search_parameters.search_provider == SearchProviders.SEMANTIC_SCHOLAR:
-            search_result_iterator = (
-                app_providers_and_models
-                .semantic_scholar_search_provider.iter_search_result_item(
-                    search_parameters=search_parameters
-                )
-            )
-            preprint_servers = SEMANTIC_SCHOLAR_SEARCH_VENUES
-        elif search_parameters.search_provider == SearchProviders.EUROPE_PMC:
-            search_result_iterator = (
-                app_providers_and_models
-                .europe_pmc_provider.iter_search_result_item(
-                    search_parameters=search_parameters
-                )
-            )
-            preprint_servers = EUROPE_PMC_PREPRINT_SERVERS
-        else:
-            search_result_iterator = async_iter_sync_iterable([])
-        search_result_list_with_article_meta = await get_list_for_async_iterable(
-            app_providers_and_models
-            .article_aggregator
-            .async_iter_page_article_mention_with_article_meta_and_stats(
-                async_iter_preprint_article_mention(
-                    search_result_iterator
-                ),
-                page=pagination_parameters.page,
-                items_per_page=pagination_parameters.items_per_page
-            )
-        )
-        LOGGER.info(
-            'search_result_list_with_article_meta[:1]=%r',
-            search_result_list_with_article_meta[:1]
-        )
-    except aiohttp.ClientError as exc:
-        error_message = f'Error retrieving search results from provider: {exc}'
-        status_code = get_exception_status_code(exc) or 500
-        search_result_list_with_article_meta = []
+    preprint_servers: Optional[Sequence[str]] = None
+    LOGGER.info('search_parameters: %r', search_parameters)
+    if not search_parameters.query:
         search_result_iterator = async_iter_sync_iterable([])
+    elif search_parameters.search_provider == SearchProviders.SEMANTIC_SCHOLAR:
+        search_result_iterator = (
+            app_providers_and_models
+            .semantic_scholar_search_provider.iter_search_result_item(
+                search_parameters=search_parameters
+            )
+        )
+        preprint_servers = SEMANTIC_SCHOLAR_SEARCH_VENUES
+    elif search_parameters.search_provider == SearchProviders.EUROPE_PMC:
+        search_result_iterator = (
+            app_providers_and_models
+            .europe_pmc_provider.iter_search_result_item(
+                search_parameters=search_parameters
+            )
+        )
+        preprint_servers = EUROPE_PMC_PREPRINT_SERVERS
+    else:
+        search_result_iterator = async_iter_sync_iterable([])
+    search_result_list_with_article_meta = await get_list_for_async_iterable(
+        app_providers_and_models
+        .article_aggregator
+        .async_iter_page_article_mention_with_article_meta_and_stats(
+            async_iter_preprint_article_mention(
+                search_result_iterator
+            ),
+            page=pagination_parameters.page,
+            items_per_page=pagination_parameters.items_per_page
+        )
+    )
+    LOGGER.info(
+        'search_result_list_with_article_meta[:1]=%r',
+        search_result_list_with_article_meta[:1]
+    )
     url_pagination_state = await async_get_url_pagination_state_for_pagination_parameters(
         url=request.url,
         pagination_parameters=pagination_parameters,
@@ -249,25 +243,53 @@ async def get_search_result_page_using_pagination(
     )
 
 
+def get_search_result_error_page(
+    exception: Exception,
+    request: Request,
+    pagination_parameters: AnnotatedPaginationParameters
+) -> SearchResultPage:
+    error_message = f'Error retrieving search results from provider: {exception}'
+    status_code = get_exception_status_code(exception) or 500
+    url_pagination_state = get_url_pagination_state_for_pagination_parameters(
+        url=request.url,
+        pagination_parameters=pagination_parameters,
+        item_count=0
+    )
+    return SearchResultPage(
+        search_result_list_with_article_meta=[],
+        preprint_servers=None,
+        url_pagination_state=url_pagination_state,
+        error_message=error_message,
+        status_code=status_code
+    )
+
+
 async def get_search_result_page(
     app_providers_and_models: AppProvidersAndModels,
     request: Request,
     search_parameters: AnnotatedSearchParameters,
     pagination_parameters: AnnotatedPaginationParameters
 ) -> SearchResultPage:
-    if search_parameters.search_provider == SearchProviders.SCIETY_LABS:
-        return await get_search_result_page_using_pagination(
+    try:
+        if search_parameters.search_provider == SearchProviders.SCIETY_LABS:
+            return await get_search_result_page_using_pagination(
+                app_providers_and_models=app_providers_and_models,
+                request=request,
+                search_parameters=search_parameters,
+                pagination_parameters=pagination_parameters
+            )
+        return await get_search_result_page_using_iterator(
             app_providers_and_models=app_providers_and_models,
             request=request,
             search_parameters=search_parameters,
             pagination_parameters=pagination_parameters
         )
-    return await get_search_result_page_using_iterator(
-        app_providers_and_models=app_providers_and_models,
-        request=request,
-        search_parameters=search_parameters,
-        pagination_parameters=pagination_parameters
-    )
+    except aiohttp.ClientError as exc:
+        return get_search_result_error_page(
+            exception=exc,
+            request=request,
+            pagination_parameters=pagination_parameters
+        )
 
 
 def get_rss_updated_timestamp(
