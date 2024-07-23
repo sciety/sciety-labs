@@ -214,6 +214,7 @@ async def get_search_result_page_using_pagination(
         .get_preprints_for_search_results_list(
             query=search_parameters.query,
             evaluated_only=search_parameters.is_evaluated_only,
+            from_publication_date=SearchDateRange.get_from_date(search_parameters.date_range),
             pagination_parameters=PageNumberBasedPaginationParameters(
                 page=pagination_parameters.page,
                 items_per_page=pagination_parameters.items_per_page

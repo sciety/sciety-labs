@@ -27,6 +27,8 @@ DOI_1 = '10.12345/doi_1'
 
 TIMESTAMP_1 = datetime.fromisoformat('2001-02-03T00:00:01+00:00')
 
+DATE_1 = date.fromisoformat('2001-01-02')
+
 
 PAGINATION_PARAMETERS_1 = PageNumberBasedPaginationParameters(
     page=10,
@@ -275,7 +277,7 @@ class TestAsyncPapersProviderPreprintsList:
 
 class TestAsyncPapersProviderPreprintsSearch:
     @pytest.mark.asyncio
-    async def test_should_pass_query_and_evaluated_only_as_filter_and_set_fields(
+    async def test_should_pass_query_and_evaluated_only_and_publication_date(
         self,
         async_papers_provider: AsyncPapersProvider,
         response_mock: AsyncMock,
@@ -285,11 +287,13 @@ class TestAsyncPapersProviderPreprintsSearch:
         await async_papers_provider.get_preprints_for_search_results_list(
             query='Query 1',
             evaluated_only=True,
+            from_publication_date=DATE_1,
             pagination_parameters=PAGINATION_PARAMETERS_1
         )
         _, kwargs = client_session_get_mock.call_args
         assert kwargs['params']['query'] == 'Query 1'
         assert set(kwargs['params']['fields[paper]'].split(',')) == DEFAULT_PROVIDER_PAPER_FIELDS
+        assert kwargs['params']['filter[publication_date][gte]'] == DATE_1.isoformat()
         assert kwargs['params']['filter[evaluated_only]'] == 'true'
 
     @pytest.mark.asyncio

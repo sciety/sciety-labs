@@ -1,4 +1,5 @@
 import dataclasses
+from datetime import date
 import logging
 from typing import Mapping, Optional, Sequence
 
@@ -179,18 +180,22 @@ class AsyncPapersProvider(AsyncRequestsProvider):
         query: str,
         pagination_parameters: PageNumberBasedPaginationParameters,
         evaluated_only: bool = False,
+        from_publication_date: Optional[date] = None,
         headers: Optional[Mapping[str, str]] = None
     ) -> PageNumberBasedArticleSearchResultList:
         url = 'http://localhost:8000/api/papers/v1/preprints/search'
+        params: dict = {
+            'query': query,
+            'page[number]': pagination_parameters.page,
+            'page[size]': pagination_parameters.items_per_page,
+            'filter[evaluated_only]': str(evaluated_only).lower(),
+            'fields[paper]': ','.join(DEFAULT_PROVIDER_PAPER_FIELDS)
+        }
+        if from_publication_date:
+            params['filter[publication_date][gte]'] = from_publication_date.isoformat()
         async with self.client_session.get(
             url,
-            params={
-                'query': query,
-                'page[number]': pagination_parameters.page,
-                'page[size]': pagination_parameters.items_per_page,
-                'filter[evaluated_only]': str(evaluated_only).lower(),
-                'fields[paper]': ','.join(DEFAULT_PROVIDER_PAPER_FIELDS)
-            },
+            params=params,
             headers=self.get_headers(headers=headers),
             timeout=self.timeout
         ) as response:
