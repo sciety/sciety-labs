@@ -19,7 +19,7 @@
                     Search articles by DOI, author or keyword
                 </div>
                 <div class="search-form__positioning_context">
-                    <input value="{{ query }}" id="searchText" name="query" class="search-form__text">
+                    <input value="{{ query }}" id="searchText" name="query" minlength="{{ min_query_length }}" class="search-form__text">
                     <section class="search-form__section">
                         {{ render_checkbox_with_label(name='evaluated_only', label='Search only evaluated articles', label_class='search-form__checkbox_label', is_checked=is_search_evaluated_only) }}
                     </section>

@@ -357,6 +357,7 @@ def create_search_router(
             context={
                 **get_search_parameters_template_parameters(search_parameters),
                 **get_search_result_template_parameters(search_result_page),
+                'min_query_length': MIN_QUERY_LENGTH,
                 'page_title': (
                     f'Search results for {search_parameters.query}'
                     if search_parameters.query else 'Search'
@@ -384,6 +385,7 @@ def create_search_router(
                     search_feed_parameters.search_parameters
                 ),
                 **get_search_result_template_parameters(search_result_page),
+                'min_query_length': MIN_QUERY_LENGTH,
                 'page_title': search_feed_parameters.page_title,
                 'page_description': search_feed_parameters.page_description,
                 'page_images': search_feed_parameters.feed_images,
