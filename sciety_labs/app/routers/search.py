@@ -227,6 +227,7 @@ async def get_search_result_page_using_pagination(
     url_pagination_state = get_url_pagination_state_for_pagination_parameters(
         url=request.url,
         pagination_parameters=pagination_parameters,
+        is_this_page_empty=not search_result_list_with_article_meta,
         item_count=search_results_list.total
     )
     return SearchResultPage(
