@@ -29,6 +29,13 @@ class UrlPaginationState(NamedTuple):
     next_page_url: Optional[str] = None
 
 
+EMPTY_URL_PAGINATION_STATE = UrlPaginationState(
+    page=1,
+    enable_pagination=False,
+    is_empty=True
+)
+
+
 def get_page_count_for_item_count_and_items_per_page(
     item_count: int,
     items_per_page: int
@@ -76,7 +83,7 @@ def get_url_pagination_state_for_url(  # pylint: disable=too-many-arguments
     enable_pagination: bool = True
 ) -> UrlPaginationState:
     if not items_per_page or not enable_pagination:
-        return UrlPaginationState(page=page, enable_pagination=False, is_empty=True)
+        return UrlPaginationState(page=page, enable_pagination=False)
     page_count: Optional[int] = None
     previous_page_url: Optional[str] = None
     next_page_url: Optional[str] = None

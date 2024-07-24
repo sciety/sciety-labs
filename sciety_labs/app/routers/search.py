@@ -28,6 +28,7 @@ from sciety_labs.utils.aio import get_exception_status_code
 from sciety_labs.utils.async_utils import async_iter_sync_iterable, get_list_for_async_iterable
 from sciety_labs.utils.datetime import get_date_as_utc_timestamp, get_utcnow
 from sciety_labs.utils.pagination import (
+    EMPTY_URL_PAGINATION_STATE,
     UrlPaginationParameters,
     UrlPaginationState,
     async_get_url_pagination_state_for_pagination_parameters,
@@ -235,6 +236,14 @@ async def get_search_result_page_using_pagination(
     )
 
 
+def get_empty_search_result_page() -> SearchResultPage:
+    return SearchResultPage(
+        search_result_list_with_article_meta=[],
+        preprint_servers=None,
+        url_pagination_state=EMPTY_URL_PAGINATION_STATE
+    )
+
+
 def get_search_result_error_page(
     exception: Exception,
     request: Request,
@@ -262,6 +271,8 @@ async def get_search_result_page(
     search_parameters: AnnotatedSearchParameters,
     pagination_parameters: AnnotatedPaginationParameters
 ) -> SearchResultPage:
+    if not search_parameters.query:
+        return get_empty_search_result_page()
     try:
         if search_parameters.search_provider == SearchProviders.SCIETY_LABS:
             return await get_search_result_page_using_pagination(
