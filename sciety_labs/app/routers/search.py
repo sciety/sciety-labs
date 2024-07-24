@@ -104,7 +104,7 @@ def get_search_feed_parameters_for_search_feed_config(
 async def get_search_parameters(
     query: str = '',
     evaluated_only: bool = False,
-    search_provider: str = SearchProviders.EUROPE_PMC,
+    search_provider: str = SearchProviders.SCIETY_LABS,
     sort_by: str = SearchSortBy.RELEVANCE,
     date_range: str = SearchDateRange.LAST_90_DAYS
 ) -> UrlSearchParameters:
