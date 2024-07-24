@@ -36,10 +36,14 @@
             </header>
 
             <header class="search-results__header">
-                <div>
-                    {{ render_pagination_header(pagination, list_type_name='search results') }}
-                </div>
                 {%- if not pagination.is_empty %}
+                <div class="search-results__header_details">
+                    <div class="search-results__header_details_item">
+                        {{ render_pagination_header(pagination, list_type_name='search results') }}
+                    </div>
+                    <div class="search-results__header_details_item">Sorted by <b>{{ sort_by }}</b></div>
+                </div>
+                {%- if preprint_servers %}
                 <div class="search-results__header_details">
                     <div class="search-results__header_details_item">Results from
                         {% for preprint_server in preprint_servers %}
@@ -49,8 +53,8 @@
                             <b>{{ preprint_server }}</b>
                         {% endfor -%}
                     </div>
-                    <div class="search-results__header_details_item">Sorted by <b>{{ sort_by }}</b></div>
                 </div>
+                {%- endif %}
                 {%- endif %}
             </header>
 
