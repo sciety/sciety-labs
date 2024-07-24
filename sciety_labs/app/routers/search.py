@@ -244,22 +244,13 @@ def get_empty_search_result_page() -> SearchResultPage:
     )
 
 
-def get_search_result_error_page(
-    exception: Exception,
-    request: Request,
-    pagination_parameters: AnnotatedPaginationParameters
-) -> SearchResultPage:
+def get_search_result_error_page(exception: Exception) -> SearchResultPage:
     error_message = f'Error retrieving search results from provider: {exception}'
     status_code = get_exception_status_code(exception) or 500
-    url_pagination_state = get_url_pagination_state_for_pagination_parameters(
-        url=request.url,
-        pagination_parameters=pagination_parameters,
-        item_count=0
-    )
     return SearchResultPage(
         search_result_list_with_article_meta=[],
         preprint_servers=None,
-        url_pagination_state=url_pagination_state,
+        url_pagination_state=EMPTY_URL_PAGINATION_STATE,
         error_message=error_message,
         status_code=status_code
     )
@@ -288,11 +279,7 @@ async def get_search_result_page(
             pagination_parameters=pagination_parameters
         )
     except aiohttp.ClientError as exc:
-        return get_search_result_error_page(
-            exception=exc,
-            request=request,
-            pagination_parameters=pagination_parameters
-        )
+        return get_search_result_error_page(exception=exc)
 
 
 def get_rss_updated_timestamp(
