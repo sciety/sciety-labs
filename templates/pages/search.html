@@ -19,7 +19,7 @@
                     Search articles by DOI, author or keyword
                 </div>
                 <div class="search-form__positioning_context">
-                    <input value="{{ query }}" id="searchText" name="query" class="search-form__text">
+                    <input value="{{ query }}" id="searchText" name="query" minlength="{{ min_query_length }}" class="search-form__text">
                     <section class="search-form__section">
                         {{ render_checkbox_with_label(name='evaluated_only', label='Search only evaluated articles', label_class='search-form__checkbox_label', is_checked=is_search_evaluated_only) }}
                     </section>
@@ -41,6 +41,7 @@
                         </label>,
                         <label>using search provider:
                             <select name="search_provider">
+                                {{ render_select_option(value='sciety_labs', label='Sciety Labs', selected_value=search_provider) }}
                                 {{ render_select_option(value='europe_pmc', label='Europe PMC', selected_value=search_provider) }}
                                 {{ render_select_option(value='semantic_scholar', label='Semantic Scholar', selected_value=search_provider) }}
                             </select>
@@ -59,10 +60,14 @@
             </form>
 
             <header class="search-results__header">
-                <div>
-                    {{ render_pagination_header(pagination, list_type_name='search results') }}
-                </div>
                 {%- if not pagination.is_empty %}
+                <div class="search-results__header_details">
+                    <div class="search-results__header_details_item">
+                        {{ render_pagination_header(pagination, list_type_name='search results') }}
+                    </div>
+                    <div class="search-results__header_details_item">Sorted by <b>{{ sort_by }}</b></div>
+                </div>
+                {%- if preprint_servers %}
                 <div class="search-results__header_details">
                     <div class="search-results__header_details_item">Results from
                         {% for preprint_server in preprint_servers %}
@@ -72,8 +77,8 @@
                             <b>{{ preprint_server }}</b>
                         {% endfor -%}
                     </div>
-                    <div class="search-results__header_details_item">Sorted by <b>{{ sort_by }}</b></div>
                 </div>
+                {%- endif %}
                 {%- endif %}
             </header>
 

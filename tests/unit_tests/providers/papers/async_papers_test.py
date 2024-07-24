@@ -27,6 +27,8 @@ DOI_1 = '10.12345/doi_1'
 
 TIMESTAMP_1 = datetime.fromisoformat('2001-02-03T00:00:01+00:00')
 
+DATE_1 = date.fromisoformat('2001-01-02')
+
 
 PAGINATION_PARAMETERS_1 = PageNumberBasedPaginationParameters(
     page=10,
@@ -216,7 +218,7 @@ class TestAsyncPapersProviderCategoryDisplayNameList:
         )
 
 
-class TestAsyncPapersProviderPreprints:
+class TestAsyncPapersProviderPreprintsList:
     @pytest.mark.asyncio
     async def test_should_pass_category_and_evaluated_only_as_filter_and_set_fields(
         self,
@@ -225,7 +227,7 @@ class TestAsyncPapersProviderPreprints:
         client_session_get_mock: AsyncMock
     ):
         response_mock.json.return_value = PAPER_SEARCH_RESPONSE_DICT_1
-        await async_papers_provider.get_preprints_for_category_search_results_list(
+        await async_papers_provider.get_preprints_for_category_results_list(
             category='Category 1',
             evaluated_only=True,
             pagination_parameters=PAGINATION_PARAMETERS_1
@@ -243,7 +245,7 @@ class TestAsyncPapersProviderPreprints:
         client_session_get_mock: AsyncMock
     ):
         response_mock.json.return_value = PAPER_SEARCH_RESPONSE_DICT_1
-        await async_papers_provider.get_preprints_for_category_search_results_list(
+        await async_papers_provider.get_preprints_for_category_results_list(
             category='Category 1',
             evaluated_only=True,
             pagination_parameters=PageNumberBasedPaginationParameters(
@@ -263,8 +265,67 @@ class TestAsyncPapersProviderPreprints:
     ):
         response_mock.json.return_value = PAPER_SEARCH_RESPONSE_DICT_1
         search_result_list = await (
-            async_papers_provider.get_preprints_for_category_search_results_list(
+            async_papers_provider.get_preprints_for_category_results_list(
                 category='Category 1',
+                pagination_parameters=PAGINATION_PARAMETERS_1
+            )
+        )
+        assert search_result_list == get_search_result_list_for_paper_search_response_dict(
+            PAPER_SEARCH_RESPONSE_DICT_1
+        )
+
+
+class TestAsyncPapersProviderPreprintsSearch:
+    @pytest.mark.asyncio
+    async def test_should_pass_query_and_evaluated_only_and_publication_date(
+        self,
+        async_papers_provider: AsyncPapersProvider,
+        response_mock: AsyncMock,
+        client_session_get_mock: AsyncMock
+    ):
+        response_mock.json.return_value = PAPER_SEARCH_RESPONSE_DICT_1
+        await async_papers_provider.get_preprints_for_search_results_list(
+            query='Query 1',
+            evaluated_only=True,
+            from_publication_date=DATE_1,
+            pagination_parameters=PAGINATION_PARAMETERS_1
+        )
+        _, kwargs = client_session_get_mock.call_args
+        assert kwargs['params']['query'] == 'Query 1'
+        assert set(kwargs['params']['fields[paper]'].split(',')) == DEFAULT_PROVIDER_PAPER_FIELDS
+        assert kwargs['params']['filter[publication_date][gte]'] == DATE_1.isoformat()
+        assert kwargs['params']['filter[evaluated_only]'] == 'true'
+
+    @pytest.mark.asyncio
+    async def test_should_pass_pagination_parameters_to_request(
+        self,
+        async_papers_provider: AsyncPapersProvider,
+        response_mock: AsyncMock,
+        client_session_get_mock: AsyncMock
+    ):
+        response_mock.json.return_value = PAPER_SEARCH_RESPONSE_DICT_1
+        await async_papers_provider.get_preprints_for_search_results_list(
+            query='Query 1',
+            evaluated_only=True,
+            pagination_parameters=PageNumberBasedPaginationParameters(
+                page=11,
+                items_per_page=12
+            )
+        )
+        _, kwargs = client_session_get_mock.call_args
+        assert kwargs['params']['page[number]'] == 11
+        assert kwargs['params']['page[size]'] == 12
+
+    @pytest.mark.asyncio
+    async def test_should_return_parsed_response_json(
+        self,
+        async_papers_provider: AsyncPapersProvider,
+        response_mock: AsyncMock
+    ):
+        response_mock.json.return_value = PAPER_SEARCH_RESPONSE_DICT_1
+        search_result_list = await (
+            async_papers_provider.get_preprints_for_search_results_list(
+                query='Query 1',
                 pagination_parameters=PAGINATION_PARAMETERS_1
             )
         )

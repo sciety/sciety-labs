@@ -29,6 +29,13 @@ class UrlPaginationState(NamedTuple):
     next_page_url: Optional[str] = None
 
 
+EMPTY_URL_PAGINATION_STATE = UrlPaginationState(
+    page=1,
+    enable_pagination=False,
+    is_empty=True
+)
+
+
 def get_page_count_for_item_count_and_items_per_page(
     item_count: int,
     items_per_page: int
