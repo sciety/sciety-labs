@@ -199,10 +199,6 @@ async def get_search_result_page_using_pagination(
     pagination_parameters: AnnotatedPaginationParameters
 ) -> SearchResultPage:
     assert search_parameters.search_provider == SearchProviders.SCIETY_LABS
-    if len(search_parameters.query) < MIN_QUERY_LENGTH:
-        raise AssertionError(
-            f'Search query should be at least {MIN_QUERY_LENGTH} characters long'
-        )
     preprint_servers: Optional[Sequence[str]] = None
     search_results_list = await (
         app_providers_and_models
@@ -276,6 +272,10 @@ async def get_search_result_page(
     if not search_parameters.query:
         return get_empty_search_result_page()
     try:
+        if len(search_parameters.query) < MIN_QUERY_LENGTH:
+            raise AssertionError(
+                f'Search query should be at least {MIN_QUERY_LENGTH} characters long'
+            )
         if search_parameters.search_provider == SearchProviders.SCIETY_LABS:
             # Note: We don't need to use the less efficient iterator,
             #   if the search provider filters and sorts results at source
