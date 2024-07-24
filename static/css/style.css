@@ -259,6 +259,10 @@
     color: #c44;
 }
 
+.technical-error-message {
+    display: none;
+}
+
 section.article-stats {
     margin-top: 0.5em;
 }
