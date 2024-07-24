@@ -254,6 +254,8 @@ def get_search_result_error_page(exception: Exception) -> SearchResultPage:
         error_message = 'Error retrieving search results from provider'
     else:
         error_message = str(exception)
+    if not error_message:
+        error_message = 'Unknown error'
     technical_error_message = repr(exception)
     status_code = get_exception_status_code(exception) or 500
     return SearchResultPage(
