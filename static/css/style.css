@@ -253,6 +253,10 @@
     display: inline-block;
 }
 
+.search-form__text {
+    padding-right: 0.75em;
+}
+
 .search-browse-categories-link-container {
     float: right;
 }
