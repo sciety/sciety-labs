@@ -196,6 +196,8 @@ async def get_search_result_page_using_pagination(
     pagination_parameters: AnnotatedPaginationParameters
 ) -> SearchResultPage:
     assert search_parameters.search_provider == SearchProviders.SCIETY_LABS
+    if len(search_parameters.query) < 3:
+        raise AssertionError('Search query should be at least 3 characters long')
     preprint_servers: Optional[Sequence[str]] = None
     search_results_list = await (
         app_providers_and_models
@@ -246,7 +248,10 @@ def get_empty_search_result_page() -> SearchResultPage:
 
 
 def get_search_result_error_page(exception: Exception) -> SearchResultPage:
-    error_message = f'Error retrieving search results from provider: {exception}'
+    if isinstance(exception, aiohttp.ClientError):
+        error_message = f'Error retrieving search results from provider: {exception}'
+    else:
+        error_message = str(exception)
     status_code = get_exception_status_code(exception) or 500
     return SearchResultPage(
         search_result_list_with_article_meta=[],
@@ -281,7 +286,7 @@ async def get_search_result_page(
             search_parameters=search_parameters,
             pagination_parameters=pagination_parameters
         )
-    except aiohttp.ClientError as exc:
+    except Exception as exc:  # pylint: disable=broad-exception-caught
         return get_search_result_error_page(exception=exc)
 
 
