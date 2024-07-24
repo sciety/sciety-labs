@@ -60,10 +60,13 @@
             </form>
 
             <header class="search-results__header">
-                <div>
-                    {{ render_pagination_header(pagination, list_type_name='search results') }}
-                </div>
                 {%- if not pagination.is_empty %}
+                <div class="search-results__header_details">
+                    <div class="search-results__header_details_item">
+                        {{ render_pagination_header(pagination, list_type_name='search results') }}
+                    </div>
+                    <div class="search-results__header_details_item">Sorted by <b>{{ sort_by }}</b></div>
+                </div>
                 <div class="search-results__header_details">
                     {%- if preprint_servers %}
                     <div class="search-results__header_details_item">Results from
@@ -75,7 +78,6 @@
                         {% endfor -%}
                     </div>
                     {% endif %}
-                    <div class="search-results__header_details_item">Sorted by <b>{{ sort_by }}</b></div>
                 </div>
                 {%- endif %}
             </header>
