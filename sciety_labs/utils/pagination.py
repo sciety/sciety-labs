@@ -76,7 +76,7 @@ def get_url_pagination_state_for_url(  # pylint: disable=too-many-arguments
     enable_pagination: bool = True
 ) -> UrlPaginationState:
     if not items_per_page or not enable_pagination:
-        return UrlPaginationState(page=page, enable_pagination=False)
+        return UrlPaginationState(page=page, enable_pagination=False, is_empty=True)
     page_count: Optional[int] = None
     previous_page_url: Optional[str] = None
     next_page_url: Optional[str] = None
