@@ -187,19 +187,22 @@ class AsyncSemanticScholarSearchProvider(AsyncSearchProvider):
     ) -> AsyncIterator[ArticleSearchResultItem]:
         from_date = SearchDateRange.get_from_date(search_parameters.date_range)
         to_date = SearchDateRange.get_to_date(search_parameters.date_range)
+        additional_search_parameters: dict = SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITH_VENUES
+        if from_date:
+            additional_search_parameters = {
+                **additional_search_parameters,
+                'year': get_year_request_parameter_for_date_range(
+                    from_date=from_date,
+                    to_date=to_date
+                )
+            }
         search_result_iterable: AsyncIterator[ArticleSearchResultItem]
         search_result_iterable = (
             self
             .async_semantic_scholar_provider
             .iter_unfiltered_search_result_item(
                 query=search_parameters.query,
-                additional_search_parameters={
-                    **SEMANTIC_SCHOLAR_SEARCH_PARAMETERS_WITH_VENUES,
-                    'year': get_year_request_parameter_for_date_range(
-                        from_date=from_date,
-                        to_date=to_date
-                    )
-                }
+                additional_search_parameters=additional_search_parameters
             )
         )
         if search_parameters.is_evaluated_only:
@@ -208,11 +211,12 @@ class AsyncSemanticScholarSearchProvider(AsyncSearchProvider):
                     search_result_iterable
                 )
             )
-        search_result_iterable = async_iter_search_results_published_within_date_range(
-            search_result_iterable,
-            from_date=from_date,
-            to_date=to_date
-        )
+        if from_date:
+            search_result_iterable = async_iter_search_results_published_within_date_range(
+                search_result_iterable,
+                from_date=from_date,
+                to_date=to_date
+            )
         if search_parameters.sort_by == SearchSortBy.PUBLICATION_DATE:
             search_result_iterable = async_iter_sync_iterable(sorted(
                 await get_list_for_async_iterable(search_result_iterable),

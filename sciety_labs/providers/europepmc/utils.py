@@ -44,7 +44,14 @@ def get_preprint_servers_query(preprint_servers: Sequence[str]) -> str:
     ])
 
 
-def get_first_published_date_within_dates(from_date: date, to_date: date) -> str:
+def get_first_published_date_within_dates(
+    from_date: Optional[date],
+    to_date: Optional[date]
+) -> str:
+    if not from_date:
+        return ''
+    if not to_date:
+        to_date = date.today()
     return f'(FIRST_PDATE:[{from_date.isoformat()} TO {to_date.isoformat()}])'
 
 
