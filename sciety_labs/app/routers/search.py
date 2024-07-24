@@ -42,6 +42,9 @@ LOGGER = logging.getLogger(__name__)
 GENERIC_SEARCH_FEED_PAGE_DESCRIPTION = 'Keep up to date with the latest preprint activity'
 
 
+MIN_QUERY_LENGTH = 3
+
+
 class SearchProviders:
     SCIETY_LABS = 'sciety_labs'
     SEMANTIC_SCHOLAR = 'semantic_scholar'
@@ -196,8 +199,10 @@ async def get_search_result_page_using_pagination(
     pagination_parameters: AnnotatedPaginationParameters
 ) -> SearchResultPage:
     assert search_parameters.search_provider == SearchProviders.SCIETY_LABS
-    if len(search_parameters.query) < 3:
-        raise AssertionError('Search query should be at least 3 characters long')
+    if len(search_parameters.query) < MIN_QUERY_LENGTH:
+        raise AssertionError(
+            f'Search query should be at least {MIN_QUERY_LENGTH} characters long'
+        )
     preprint_servers: Optional[Sequence[str]] = None
     search_results_list = await (
         app_providers_and_models
