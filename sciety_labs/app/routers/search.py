@@ -266,6 +266,8 @@ async def get_search_result_page(
         return get_empty_search_result_page()
     try:
         if search_parameters.search_provider == SearchProviders.SCIETY_LABS:
+            # Note: We don't need to use the less efficient iterator,
+            #   if the search provider filters and sorts results at source
             return await get_search_result_page_using_pagination(
                 app_providers_and_models=app_providers_and_models,
                 request=request,
