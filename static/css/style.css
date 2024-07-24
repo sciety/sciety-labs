@@ -249,6 +249,14 @@
     margin-bottom: 1em;
 }
 
+.search-form__submit {
+    display: inline-block;
+}
+
+.search-form__text {
+    padding-right: 0.75em;
+}
+
 .search-browse-categories-link-container {
     float: right;
 }
@@ -265,10 +273,6 @@
 
 section.article-stats {
     margin-top: 0.5em;
-}
-
-.search-form__submit {
-    display: inline-block;
 }
 
 /* htmx-request */
