@@ -131,6 +131,7 @@ class SearchResultPage:
     search_result_list_with_article_meta: Sequence[ArticleSearchResultItem]
     url_pagination_state: UrlPaginationState
     error_message: Optional[str] = None
+    technical_error_message: Optional[str] = None
     preprint_servers: Optional[Sequence[str]] = None
     status_code: int = 200
 
@@ -250,15 +251,19 @@ def get_empty_search_result_page() -> SearchResultPage:
 
 def get_search_result_error_page(exception: Exception) -> SearchResultPage:
     if isinstance(exception, aiohttp.ClientError):
-        error_message = f'Error retrieving search results from provider: {exception}'
+        error_message = 'Error retrieving search results from provider'
     else:
         error_message = str(exception)
+    if not error_message:
+        error_message = 'Unknown error'
+    technical_error_message = repr(exception)
     status_code = get_exception_status_code(exception) or 500
     return SearchResultPage(
         search_result_list_with_article_meta=[],
         preprint_servers=None,
         url_pagination_state=EMPTY_URL_PAGINATION_STATE,
         error_message=error_message,
+        technical_error_message=technical_error_message,
         status_code=status_code
     )
 
@@ -326,6 +331,7 @@ def get_search_result_template_parameters(
     return {
         'preprint_servers': search_result_page.preprint_servers,
         'error_message': search_result_page.error_message,
+        'technical_error_message': search_result_page.technical_error_message,
         'search_results': search_result_page.search_result_list_with_article_meta,
         'pagination': search_result_page.url_pagination_state
     }
