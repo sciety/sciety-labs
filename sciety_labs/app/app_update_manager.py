@@ -11,7 +11,11 @@ class AppUpdateManager:
     def __init__(self, app_providers_and_models: AppProvidersAndModels):
         self.app_providers_and_models = app_providers_and_models
 
-    def check_or_reload_data(self, preload_only: bool = False):
+    def check_or_reload_data(
+        self,
+        preload_only: bool = False,
+        delete_exired: bool = True
+    ):
         if not preload_only:
             self.app_providers_and_models.sciety_event_provider.refresh()
         # Note: this may still use a cache
@@ -26,6 +30,9 @@ class AppUpdateManager:
         else:
             self.app_providers_and_models.google_sheet_article_image_provider.refresh()
             self.app_providers_and_models.google_sheet_list_image_provider.refresh()
+        if delete_exired:
+            LOGGER.info('Deleting expired requests-cache responses')
+            self.app_providers_and_models.cached_requests_session.cache.delete(expired=True)
 
     def check_or_reload_data_no_fail(self):
         try:
