@@ -169,6 +169,7 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
             allowable_methods=('GET', 'HEAD', 'POST'),  # include POST for Semantic Scholar
             match_headers=False
         )
+        self.cached_requests_session = cached_requests_session
 
         async_connector = aiohttp.TCPConnector(limit=1000)
 
