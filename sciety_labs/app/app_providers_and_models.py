@@ -165,10 +165,11 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
 
         cached_requests_session = requests_cache.CachedSession(
             '.cache/requests_cache',
-            xpire_after=timedelta(days=1),
+            expire_after=timedelta(days=1),
             allowable_methods=('GET', 'HEAD', 'POST'),  # include POST for Semantic Scholar
             match_headers=False
         )
+        self.cached_requests_session = cached_requests_session
 
         async_connector = aiohttp.TCPConnector(limit=1000)
 
