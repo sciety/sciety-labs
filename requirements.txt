@@ -1,8 +1,8 @@
 aiohttp[speedups]==3.10.0
-aiohttp-client-cache[sqlite]==0.11.0
+aiohttp-client-cache[sqlite]==0.11.1
 asyncstdlib==3.12.4
 bleach==6.1.0
-fastapi==0.111.1
+fastapi==0.112.0
 google-api-python-client==2.139.0
 google-cloud-bigquery==3.25.0
 Jinja2==3.1.4
@@ -14,4 +14,4 @@ pyarrow==17.0.0
 PyYAML==6.0.1
 requests==2.32.3
 requests-cache==1.2.1
-uvicorn[standard]==0.30.4
+uvicorn[standard]==0.30.5
