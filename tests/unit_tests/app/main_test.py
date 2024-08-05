@@ -10,8 +10,11 @@ from sciety_labs.app.main import create_app
 
 
 @pytest.fixture(name='app_providers_and_models_class_mock', autouse=True)
-def _app_providers_and_models_class_mock() -> Iterable[MagicMock]:
+def _app_providers_and_models_class_mock(
+    app_providers_and_models_mock: MagicMock
+) -> Iterable[MagicMock]:
     with patch.object(main_module, 'AppProvidersAndModels') as mock:
+        mock.return_value = app_providers_and_models_mock
         yield mock
 
 
