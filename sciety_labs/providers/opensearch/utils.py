@@ -302,20 +302,10 @@ def get_from_publication_date_for_field_query_filter(
 
 
 def get_from_publication_date_query_filter(from_publication_date: date) -> dict:
-    return {
-        'bool': {
-            'should': [
-                get_from_publication_date_for_field_query_filter(
-                    field_name='crossref.publication_date',
-                    from_publication_date=from_publication_date
-                ),
-                get_from_publication_date_for_field_query_filter(
-                    field_name='europepmc.first_publication_date',
-                    from_publication_date=from_publication_date
-                )
-            ]
-        }
-    }
+    return get_from_publication_date_for_field_query_filter(
+        field_name='calculated.publication_date',
+        from_publication_date=from_publication_date
+    )
 
 
 def get_vector_search_query(  # pylint: disable=too-many-arguments
