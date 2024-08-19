@@ -187,16 +187,8 @@ class TestGetFromPublicationDateQueryFilter:
         assert get_from_publication_date_query_filter(
              date.fromisoformat('2001-02-03')
         ) == {
-            'bool': {
-                'should': [{
-                    'range': {
-                        'crossref.publication_date': {'gte': '2001-02-03'}
-                    }
-                }, {
-                    'range': {
-                        'europepmc.first_publication_date': {'gte': '2001-02-03'}
-                    }
-                }]
+            'range': {
+                'calculated.publication_date': {'gte': '2001-02-03'}
             }
         }
 
