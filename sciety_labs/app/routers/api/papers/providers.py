@@ -53,8 +53,8 @@ INTERNAL_ARTICLE_FIELDS_BY_API_FIELD_NAME: Mapping[str, Sequence[str]] = {
 
 DEFAULT_OPENSEARCH_SEARCH_FIELDS = [
     'doi',
-    'europepmc.title_with_markup',
-    'europepmc.abstract_with_markup'
+    'calculated.title_with_markup',
+    'calculated.abstract_with_markup'
 ]
 
 
