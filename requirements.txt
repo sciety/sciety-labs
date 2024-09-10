@@ -1,6 +1,6 @@
 aiohttp[speedups]==3.10.4
 aiohttp-client-cache[sqlite]==0.11.1
-asyncstdlib==3.12.4
+asyncstdlib==3.12.5
 bleach==6.1.0
 fastapi==0.114.0
 google-api-python-client==2.141.0
