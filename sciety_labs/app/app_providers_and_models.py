@@ -56,7 +56,6 @@ from sciety_labs.providers.semantic_scholar.providers import (
     get_semantic_scholar_provider
 )
 from sciety_labs.utils.arrow_cache import ArrowTableDiskSingleObjectCache
-from sciety_labs.utils.bq_cache import BigQueryTableModifiedInMemorySingleObjectCache
 from sciety_labs.utils.cache import (
     ChainedObjectCache,
     DiskSingleObjectCache,
@@ -144,7 +143,6 @@ def get_async_single_article_recommendation_provider(
 class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
     def __init__(self):
         gcp_project_name = 'elife-data-pipeline'
-        sciety_event_table_id = f'{gcp_project_name}.prod.sciety_event_v1'
         # Note: we allow for a longer max age.
         #   The update manager will request an update at an hourly rate.
         max_age_in_seconds = 24 * 60 * 60  # 1 day
@@ -153,9 +151,8 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         cache_dir.mkdir(parents=True, exist_ok=True)
 
         sciety_event_query_results_cache = ChainedObjectCache([
-            BigQueryTableModifiedInMemorySingleObjectCache(
-                gcp_project_name=gcp_project_name,
-                table_id=sciety_event_table_id
+            InMemorySingleObjectCache(
+                max_age_in_seconds=max_age_in_seconds
             ),
             ArrowTableDiskSingleObjectCache(
                 file_path=cache_dir / 'sciety_event_query_results_cache.parquet',
