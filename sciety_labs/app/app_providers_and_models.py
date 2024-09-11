@@ -144,7 +144,7 @@ def get_async_single_article_recommendation_provider(
 class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
     def __init__(self):
         gcp_project_name = 'elife-data-pipeline'
-        sciety_event_table_id = f'{gcp_project_name}.de_proto.sciety_event_v1'
+        sciety_event_table_id = f'{gcp_project_name}.prod.sciety_event_v1'
         # Note: we allow for a longer max age.
         #   The update manager will request an update at an hourly rate.
         max_age_in_seconds = 24 * 60 * 60  # 1 day
