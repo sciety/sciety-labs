@@ -23,7 +23,8 @@ LIST_ID_2 = 'list_2'
 SCIETY_LIST_1 = {
     'list_id': LIST_ID_1,
     'list_name': 'List Name 1',
-    'list_description': 'List Description 1'
+    'list_description': 'List Description 1',
+    'is_list_deleted': False
 }
 
 USER_ID_1 = 'user_1'
@@ -60,6 +61,15 @@ USER_ARTICLE_ADDED_TO_LIST_EVENT_1: dict = {
 USER_ARTICLE_REMOVED_FROM_LIST_EVENT_1 = {
     **USER_ARTICLE_ADDED_TO_LIST_EVENT_1,
     'event_name': 'ArticleRemovedFromList'
+}
+
+LIST_DELETED_EVENT_1: dict = {
+    'event_timestamp': TIMESTAMP_1,
+    'event_name': 'ListDeleted',
+    'sciety_list': {
+        **SCIETY_LIST_1,
+        'is_list_deleted': True
+    }
 }
 
 GROUP_ARTICLE_ADDED_TO_LIST_EVENT_1: dict = {
@@ -178,6 +188,14 @@ class TestScietyEventListsModel:
             'list_title': SCIETY_LIST_1['list_name'],
             'list_description': SCIETY_LIST_1['list_description']
         }]
+
+    def test_should_delete_list(self):
+        model = ScietyEventListsModel([
+            USER_ARTICLE_ADDED_TO_LIST_EVENT_1,
+            LIST_DELETED_EVENT_1
+        ])
+        result = model.get_most_active_user_lists()
+        assert not result
 
     def test_should_populate_user_display_name_avatar_url_and_twitter_handle(self):
         model = ScietyEventListsModel([
