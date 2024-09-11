@@ -1,6 +1,7 @@
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime
+import logging
 from threading import Lock
 from typing import Dict, Iterable, NamedTuple, Optional, Protocol, Sequence, Set, Sized, Tuple
 
@@ -15,6 +16,9 @@ from sciety_labs.models.sciety_event import (
     ALTERNATIVE_ARTICLE_IN_LIST_ANNOTATED_EVENT_NAMES,
     ScietyEventNames
 )
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 class ListMetaData(NamedTuple):
@@ -155,17 +159,26 @@ class ScietyEventListsModel(ListsModel):
         self._lock = Lock()
         self.apply_events(sciety_events)
 
-    def _do_apply_events(self, sciety_events: Sequence[dict]):
+    def _delete_list_by_id_if_exists(self, list_id: str):
+        LOGGER.debug('Deleting list if it exists: %r', list_id)
+        self._list_meta_by_list_id.pop(list_id, None)
+        self._owner_meta_by_list_id.pop(list_id, None)
+        self._article_list_by_list_id.pop(list_id, None)
+
+    def _do_apply_events(self, sciety_events: Sequence[dict]):  # pylint: disable=too-many-branches
         for event in sciety_events:
             event_timestamp = event['event_timestamp']
             event_name = event['event_name']
             sciety_list = event.get('sciety_list')
             if not sciety_list:
                 continue
+            list_id = sciety_list['list_id']
+            if list_id and sciety_list.get('is_list_deleted'):
+                self._delete_list_by_id_if_exists(list_id=list_id)
+                continue
             sciety_user = event.get('sciety_user')
             sciety_group = event.get('sciety_group')
             article_id = event.get('article_id')
-            list_id = sciety_list['list_id']
             list_meta = ListMetaData.from_sciety_event_list_meta(sciety_list)
             list_id = list_meta.list_id
             if list_id:
