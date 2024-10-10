@@ -15,4 +15,4 @@ pyarrow==17.0.0
 PyYAML==6.0.2
 requests==2.32.3
 requests-cache==1.2.1
-uvicorn[standard]==0.31.0
+uvicorn[standard]==0.31.1
