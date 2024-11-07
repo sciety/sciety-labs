@@ -4,7 +4,7 @@ from itertools import tee
 from typing import Dict, Iterable, Mapping, Optional, Sequence
 
 
-from sciety_labs.models.article import ArticleMention, ArticleMetaData
+from sciety_labs.models.article import ArticleMention, ArticleMetaData, ArticleNotFoundError
 from sciety_labs.providers.crossref.utils import (
     get_article_meta_by_doi_map_for_response_dict_mapping,
     get_article_metadata_from_crossref_metadata,
@@ -41,6 +41,8 @@ class CrossrefMetaDataProvider(RequestsProvider):
                 response.status_code,
                 response.content
             )
+        if response.status_code == 404:
+            raise ArticleNotFoundError(article_doi=doi)
         response.raise_for_status()
         return response.json()['message']
 

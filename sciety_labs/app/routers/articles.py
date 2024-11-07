@@ -5,7 +5,6 @@ from typing import Annotated, Any, Dict, Optional, cast
 from fastapi import APIRouter, Query, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-import requests
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.utils.common import (
@@ -16,7 +15,7 @@ from sciety_labs.app.utils.recommendation import (
     DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY,
     get_article_recommendation_page_and_item_count_for_article_dois
 )
-from sciety_labs.models.article import ArticleStats
+from sciety_labs.models.article import ArticleNotFoundError, ArticleStats
 from sciety_labs.providers.interfaces.article_recommendation import (
     ArticleRecommendationFilterParameters
 )
@@ -31,6 +30,11 @@ AnnotatedArticleDoiQueryParameter = Annotated[
     str,
     Query(pattern=r'^10\.\d{4,}(\.\d+)?/.*$')
 ]
+
+
+def validate_article_doi_to_be_displayed(article_doi: str):
+    if article_doi == '10.31235/osf.io/rzjc9':
+        raise ArticleNotFoundError(article_doi=article_doi)
 
 
 def get_article_recommendation_filter_parameters(
@@ -59,26 +63,11 @@ def create_articles_router(
         request: Request,
         article_doi: AnnotatedArticleDoiQueryParameter
     ):
-        try:
-            article_meta = (
-                app_providers_and_models
-                .crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
-            )
-        except requests.exceptions.RequestException as exception:
-            status_code = exception.response.status_code if exception.response is not None else 500
-            LOGGER.info('Exception retrieving metadata (%r): %r', status_code, exception)
-            if status_code != 404:
-                raise
-            return templates.TemplateResponse(
-                request=request,
-                name='errors/error.html',
-                context={
-                    'page_title': get_page_title(f'Article not found: {article_doi}'),
-                    'error_message': f'Article not found: {article_doi}',
-                    'exception': exception
-                },
-                status_code=404
-            )
+        validate_article_doi_to_be_displayed(article_doi=article_doi)
+        article_meta = (
+            app_providers_and_models
+            .crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
+        )
         LOGGER.info('article_meta=%r', article_meta)
 
         article_stats = (
@@ -125,6 +114,7 @@ def create_articles_router(
         max_recommendations: Optional[int] = None,
         fragment: bool = False
     ):
+        validate_article_doi_to_be_displayed(article_doi=article_doi)
         article_meta = (
             app_providers_and_models
             .crossref_metadata_provider.get_article_metadata_by_doi(article_doi)

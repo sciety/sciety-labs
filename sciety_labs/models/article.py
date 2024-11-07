@@ -91,6 +91,14 @@ def is_preprint_doi(article_doi: str) -> bool:
     return False
 
 
+class ArticleNotFoundError(KeyError):
+    article_doi: str
+
+    def __init__(self, article_doi: str):
+        self.article_doi = article_doi
+        super().__init__(article_doi)
+
+
 class ArticleMetaData(NamedTuple):
     article_doi: str
     article_title: Optional[str]
