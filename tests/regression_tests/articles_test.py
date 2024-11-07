@@ -50,3 +50,13 @@ class TestArticlesPage:
         )
         response.raise_for_status()
         assert ResponseWrapper(response).get_article_card_count() > 0
+
+    def test_should_filter_out_content_not_to_be_displayed_due_to_exceptional_circumstances(
+        self,
+        regression_test_session: Session
+    ):
+        response = regression_test_session.get(
+            '/articles/by',
+            params={'article_doi': '10.31235/osf.io/rzjc9'}
+        )
+        assert response.status_code == 404

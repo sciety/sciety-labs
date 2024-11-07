@@ -5,7 +5,6 @@ from typing import Annotated, Any, Dict, Optional, cast
 from fastapi import APIRouter, Query, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-import requests
 
 from sciety_labs.app.app_providers_and_models import AppProvidersAndModels
 from sciety_labs.app.utils.common import (
@@ -31,6 +30,11 @@ AnnotatedArticleDoiQueryParameter = Annotated[
     str,
     Query(pattern=r'^10\.\d{4,}(\.\d+)?/.*$')
 ]
+
+
+def validate_article_doi_to_be_displayed(article_doi: str):
+    if article_doi == '10.31235/osf.io/rzjc9':
+        raise ArticleNotFoundError(article_doi=article_doi)
 
 
 def get_article_recommendation_filter_parameters(
@@ -60,6 +64,7 @@ def create_articles_router(
         article_doi: AnnotatedArticleDoiQueryParameter
     ):
         try:
+            validate_article_doi_to_be_displayed(article_doi=article_doi)
             article_meta = (
                 app_providers_and_models
                 .crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
