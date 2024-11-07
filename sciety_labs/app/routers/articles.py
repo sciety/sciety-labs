@@ -16,7 +16,7 @@ from sciety_labs.app.utils.recommendation import (
     DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY,
     get_article_recommendation_page_and_item_count_for_article_dois
 )
-from sciety_labs.models.article import ArticleStats
+from sciety_labs.models.article import ArticleNotFoundError, ArticleStats
 from sciety_labs.providers.interfaces.article_recommendation import (
     ArticleRecommendationFilterParameters
 )
@@ -64,11 +64,7 @@ def create_articles_router(
                 app_providers_and_models
                 .crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
             )
-        except requests.exceptions.RequestException as exception:
-            status_code = exception.response.status_code if exception.response is not None else 500
-            LOGGER.info('Exception retrieving metadata (%r): %r', status_code, exception)
-            if status_code != 404:
-                raise
+        except ArticleNotFoundError as exception:
             return templates.TemplateResponse(
                 request=request,
                 name='errors/error.html',
