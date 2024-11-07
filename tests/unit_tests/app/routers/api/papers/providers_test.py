@@ -21,6 +21,7 @@ from sciety_labs.app.routers.api.papers.providers import (
 )
 from sciety_labs.providers.opensearch.typing import OpenSearchSearchResultDict
 from sciety_labs.providers.opensearch.utils import (
+    IS_ARTICLE_DOI_TO_BE_DISPLAYED_OPENSEARCH_FILTER_DICT,
     IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
     IS_EVALUATED_OPENSEARCH_FILTER_DICT,
     OpenSearchFilterParameters,
@@ -76,6 +77,7 @@ class TestGetClassificationListOpenSearchQueryDict:
             filter_parameters=OpenSearchFilterParameters(evaluated_only=False)
         )
         assert query_dict['query']['bool']['filter'] == [
+            IS_ARTICLE_DOI_TO_BE_DISPLAYED_OPENSEARCH_FILTER_DICT,
             IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT
         ]
 
@@ -84,6 +86,7 @@ class TestGetClassificationListOpenSearchQueryDict:
             filter_parameters=OpenSearchFilterParameters(evaluated_only=True)
         )
         assert query_dict['query']['bool']['filter'] == [
+            IS_ARTICLE_DOI_TO_BE_DISPLAYED_OPENSEARCH_FILTER_DICT,
             IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
             IS_EVALUATED_OPENSEARCH_FILTER_DICT
         ]
@@ -116,6 +119,7 @@ class TestGetPaperSearchByCategoryOpenSearchQueryDict:
         assert query_dict['query'] == {
             'bool': {
                 'filter': [
+                    IS_ARTICLE_DOI_TO_BE_DISPLAYED_OPENSEARCH_FILTER_DICT,
                     IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
                     get_category_as_crossref_group_title_opensearch_filter_dict('Category 1')
                 ]
@@ -132,6 +136,7 @@ class TestGetPaperSearchByCategoryOpenSearchQueryDict:
             pagination_parameters=OpenSearchPaginationParameters()
         )
         assert query_dict['query']['bool']['filter'] == [
+            IS_ARTICLE_DOI_TO_BE_DISPLAYED_OPENSEARCH_FILTER_DICT,
             IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT,
             get_category_as_crossref_group_title_opensearch_filter_dict('Category 1'),
             IS_EVALUATED_OPENSEARCH_FILTER_DICT
@@ -146,7 +151,7 @@ class TestGetPaperSearchByCategoryOpenSearchQueryDict:
             sort_parameters=OpenSearchSortParameters(),
             pagination_parameters=OpenSearchPaginationParameters()
         )
-        assert query_dict['query']['bool']['filter'] == [
+        assert query_dict['query']['bool']['filter'][-1:] == [
             get_from_publication_date_query_filter(from_publication_date)
         ]
 

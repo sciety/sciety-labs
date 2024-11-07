@@ -18,6 +18,7 @@ from sciety_labs.providers.opensearch.typing import (
     OpenSearchSearchResultDict
 )
 from sciety_labs.providers.opensearch.utils import (
+    IS_ARTICLE_DOI_TO_BE_DISPLAYED_OPENSEARCH_FILTER_DICT,
     OPENSEARCH_FIELDS_BY_REQUESTED_FIELD,
     OpenSearchFilterParameters,
     OpenSearchPaginationParameters,
@@ -68,6 +69,7 @@ def get_classification_list_opensearch_query_dict(
     filter_parameters: OpenSearchFilterParameters
 ) -> dict:
     filter_dicts: List[dict] = [
+        IS_ARTICLE_DOI_TO_BE_DISPLAYED_OPENSEARCH_FILTER_DICT,
         IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT
     ]
     filter_dicts.extend(get_opensearch_filter_dicts_for_filter_parameters(
@@ -118,10 +120,13 @@ def get_paper_search_by_category_opensearch_query_dict(
     pagination_parameters: OpenSearchPaginationParameters,
     query: Optional[str] = None
 ) -> dict:
-    filter_dicts: List[dict] = []
+    filter_dicts: List[dict] = [
+        IS_ARTICLE_DOI_TO_BE_DISPLAYED_OPENSEARCH_FILTER_DICT
+    ]
     filter_dicts.extend(get_opensearch_filter_dicts_for_filter_parameters(
         filter_parameters=filter_parameters
     ))
+    LOGGER.info('filter_dicts: %r', filter_dicts)
     query_dict: dict = {
         'query': {
             'bool': {
