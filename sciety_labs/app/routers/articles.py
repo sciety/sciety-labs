@@ -63,23 +63,11 @@ def create_articles_router(
         request: Request,
         article_doi: AnnotatedArticleDoiQueryParameter
     ):
-        try:
-            validate_article_doi_to_be_displayed(article_doi=article_doi)
-            article_meta = (
-                app_providers_and_models
-                .crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
-            )
-        except ArticleNotFoundError as exception:
-            return templates.TemplateResponse(
-                request=request,
-                name='errors/error.html',
-                context={
-                    'page_title': get_page_title(f'Article not found: {article_doi}'),
-                    'error_message': f'Article not found: {article_doi}',
-                    'exception': exception
-                },
-                status_code=404
-            )
+        validate_article_doi_to_be_displayed(article_doi=article_doi)
+        article_meta = (
+            app_providers_and_models
+            .crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
+        )
         LOGGER.info('article_meta=%r', article_meta)
 
         article_stats = (

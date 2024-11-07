@@ -7,6 +7,7 @@ from fastapi.templating import Jinja2Templates
 from sciety_labs.app.utils.common import (
     get_page_title
 )
+from sciety_labs.models.article import ArticleNotFoundError
 from sciety_labs.models.lists import ListNotFoundError
 
 
@@ -50,6 +51,23 @@ def add_app_error_handlers(
                 'exception': exception
             },
             status_code=500
+        )
+
+    @app.exception_handler(ArticleNotFoundError)
+    async def article_not_found_error_exception_handler(
+        request: Request,
+        exception: ArticleNotFoundError
+    ):
+        article_doi = exception.article_doi
+        return templates.TemplateResponse(
+            request=request,
+            name='errors/error.html',
+            context={
+                'page_title': get_page_title(f'Article not found: {article_doi}'),
+                'error_message': f'Article not found: {article_doi}',
+                'exception': exception
+            },
+            status_code=404
         )
 
     @app.exception_handler(ListNotFoundError)
