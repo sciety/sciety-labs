@@ -126,6 +126,7 @@ def create_articles_router(
         max_recommendations: Optional[int] = None,
         fragment: bool = False
     ):
+        validate_article_doi_to_be_displayed(article_doi=article_doi)
         article_meta = (
             app_providers_and_models
             .crossref_metadata_provider.get_article_metadata_by_doi(article_doi)
