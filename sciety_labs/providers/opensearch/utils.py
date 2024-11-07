@@ -462,3 +462,16 @@ IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT = {
         'doi': KnownDoiPrefix.BIORXIV_MEDRXIV
     }
 }
+
+
+IS_ARTICLE_DOI_TO_BE_DISPLAYED_OPENSEARCH_FILTER_DICT = {
+    'bool': {
+        'must_not': {
+            "ids": {
+                "values": [
+                    "10.31235/osf.io/rzjc9"
+                ]
+            }
+        }
+    }
+}
