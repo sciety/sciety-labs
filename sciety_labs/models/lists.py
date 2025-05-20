@@ -1,9 +1,10 @@
 from collections import defaultdict
+from collections.abc import Sized
 from dataclasses import dataclass, field
 from datetime import datetime
 import logging
 from threading import Lock
-from typing import Dict, Iterable, NamedTuple, Optional, Protocol, Sequence, Set, Sized, Tuple
+from typing import Dict, Iterable, NamedTuple, Optional, Protocol, Sequence, Set, Tuple
 
 from sciety_labs.models.article import (
     ArticleAuthor,
