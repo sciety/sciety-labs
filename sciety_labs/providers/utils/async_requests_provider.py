@@ -24,7 +24,7 @@ class AsyncRequestsProvider:
         if client_session is None:
             client_session = aiohttp.ClientSession()
         self.client_session = client_session
-        self.timeout: float = 5 * 60
+        self.timeout = aiohttp.ClientTimeout(total=5 * 60)
 
     def get_headers(
         self,
