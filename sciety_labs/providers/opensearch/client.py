@@ -120,7 +120,7 @@ class AsyncOpenSearchConnection(opensearchpy.AIOHttpConnection):
                     method=method,
                     url=full_url,
                     data=body,
-                    timeout=timeout,
+                    timeout=aiohttp.ClientTimeout(total=timeout),
                     headers=req_headers,
                     verify_ssl=self.verify_certificates
                 ) as response:
