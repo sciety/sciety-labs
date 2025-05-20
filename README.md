@@ -21,7 +21,8 @@ When using Docker:
 A user with access to BigQuery in the `elife-data-pipeline` GCP project. Login via:
 
 ```bash
-gcloud auth application-default login
+gcloud auth application-default login \
+    --scopes=https://www.googleapis.com/auth/cloud-platform,https://www.googleapis.com/auth/spreadsheets.readonly
 ```
 
 ### OpenSearch
