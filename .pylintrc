@@ -5,7 +5,8 @@ extension-pkg-whitelist=
 [MESSAGES CONTROL]
 disable=
     missing-docstring,
-    too-few-public-methods
+    too-few-public-methods,
+    too-many-positional-arguments
 
 ignored-classes=
     googleapiclient.discovery.Resource
