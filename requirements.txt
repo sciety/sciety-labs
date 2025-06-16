@@ -1,4 +1,4 @@
-aiohttp[speedups]==3.12.12
+aiohttp[speedups]==3.12.13
 aiohttp-client-cache[sqlite]==0.13.0
 asyncstdlib==3.13.1
 bleach==6.2.0
