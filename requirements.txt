@@ -7,7 +7,7 @@ google-api-python-client==2.174.0
 google-cloud-bigquery==3.34.0
 google-cloud-bigquery-storage==2.32.0
 Jinja2==3.1.6
-lxml==5.4.0
+lxml==6.0.0
 objsize==0.7.1
 opensearch-py==3.0.0
 pandas==2.3.0
