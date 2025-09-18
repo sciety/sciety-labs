@@ -1,5 +1,5 @@
 flake8==7.3.0
-locust==2.40.4
+locust==2.40.5
 pylint==3.3.7
 pytest==8.4.2
 pytest-asyncio==1.2.0
