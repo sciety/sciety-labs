@@ -5,7 +5,7 @@ bleach==6.3.0
 fastapi==0.120.1
 google-api-python-client==2.185.0
 google-cloud-bigquery==3.38.0
-google-cloud-bigquery-storage==2.33.1
+google-cloud-bigquery-storage==2.34.0
 Jinja2==3.1.6
 lxml==6.0.2
 objsize==0.7.1
