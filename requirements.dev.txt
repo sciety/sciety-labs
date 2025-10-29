@@ -6,6 +6,6 @@ pytest-asyncio==1.2.0
 pytest-watch==4.2.0
 mypy==1.18.2
 httpx==0.28.1
-types-bleach==6.2.0.20250809
+types-bleach==6.3.0.20251029
 types-PyYAML==6.0.12.20250915
 types-requests==2.32.4.20250913
