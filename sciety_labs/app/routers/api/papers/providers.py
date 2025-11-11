@@ -291,7 +291,7 @@ class AsyncOpenSearchPapersProvider:
         LOGGER.info('filter_parameters: %r', filter_parameters)
         LOGGER.debug('async_opensearch_client: %r', self.async_opensearch_client)
         opensearch_aggregations_response_dict = await self.async_opensearch_client.search(
-            get_classification_list_opensearch_query_dict(
+            body=get_classification_list_opensearch_query_dict(
                 filter_parameters=filter_parameters
             ),
             index=self.index_name,
