@@ -42,6 +42,8 @@ class ScietyLabsApiSingleArticleRecommendationProvider(
         }
         if max_recommendations is not None:
             params['limit'] = max_recommendations
+        if filter_parameters and filter_parameters.evaluated_only is not None:
+            params['_evaluated_only'] = str(filter_parameters.evaluated_only).lower()
         response = self.requests_session.get(
             url=url,
             params=params,

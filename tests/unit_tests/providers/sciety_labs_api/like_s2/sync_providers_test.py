@@ -4,6 +4,9 @@ import pytest
 import requests
 
 from sciety_labs.models.article import KnownDoiPrefix
+from sciety_labs.providers.interfaces.article_recommendation import (
+    ArticleRecommendationFilterParameters
+)
 from sciety_labs.providers.sciety_labs_api.like_s2.sync_providers import (
     ScietyLabsApiSingleArticleRecommendationProvider
 )
@@ -90,8 +93,35 @@ class TestScietyLabsApiSingleArticleRecommendationProvider:
         requests_session_mock.get.assert_called_once_with(
             url=ANY,
             params={
-                'fields': 'externalIds,title',
+                'fields': ANY,
                 'limit': 5
+            },
+            headers=ANY
+        )
+
+    def test_should_pass_evaluated_only_filter_to_api(
+        self,
+        sciety_labs_api_single_article_recommendation_provider:
+            ScietyLabsApiSingleArticleRecommendationProvider,
+        requests_session_mock: MagicMock
+    ) -> None:
+        (
+            sciety_labs_api_single_article_recommendation_provider
+            .get_article_recommendation_list_for_article_doi(
+                article_doi=ARTICLE_DOI_1,
+                filter_parameters=(
+                    ArticleRecommendationFilterParameters(
+                        evaluated_only=True
+                    )
+                )
+            )
+        )
+
+        requests_session_mock.get.assert_called_once_with(
+            url=ANY,
+            params={
+                'fields': ANY,
+                '_evaluated_only': 'true'
             },
             headers=ANY
         )
