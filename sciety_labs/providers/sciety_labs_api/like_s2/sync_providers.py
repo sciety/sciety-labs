@@ -1,3 +1,4 @@
+from datetime import date
 import logging
 from typing import Mapping, Optional
 
@@ -44,6 +45,10 @@ class ScietyLabsApiSingleArticleRecommendationProvider(
             params['limit'] = max_recommendations
         if filter_parameters and filter_parameters.evaluated_only is not None:
             params['_evaluated_only'] = str(filter_parameters.evaluated_only).lower()
+        if filter_parameters and filter_parameters.from_publication_date is not None:
+            params['_published_within_last_n_days'] = str(
+                (date.today() - filter_parameters.from_publication_date).days
+            )
         response = self.requests_session.get(
             url=url,
             params=params,

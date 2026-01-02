@@ -1,3 +1,4 @@
+from datetime import date, timedelta
 from unittest.mock import ANY, MagicMock
 
 import pytest
@@ -122,6 +123,34 @@ class TestScietyLabsApiSingleArticleRecommendationProvider:
             params={
                 'fields': ANY,
                 '_evaluated_only': 'true'
+            },
+            headers=ANY
+        )
+
+    def test_should_pass_from_publication_date_filter_to_api(
+        self,
+        sciety_labs_api_single_article_recommendation_provider:
+            ScietyLabsApiSingleArticleRecommendationProvider,
+        requests_session_mock: MagicMock
+    ) -> None:
+        (
+            sciety_labs_api_single_article_recommendation_provider
+            .get_article_recommendation_list_for_article_doi(
+                article_doi=ARTICLE_DOI_1,
+                filter_parameters=(
+                    ArticleRecommendationFilterParameters(
+                        from_publication_date=date.today() - timedelta(days=123)
+                    )
+                )
+            )
+        )
+
+        requests_session_mock.get.assert_called_once_with(
+            url=ANY,
+            params={
+                'fields': ANY,
+                '_evaluated_only': ANY,
+                '_published_within_last_n_days': '123'
             },
             headers=ANY
         )
