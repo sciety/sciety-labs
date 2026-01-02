@@ -37,11 +37,14 @@ class ScietyLabsApiSingleArticleRecommendationProvider(
             'http://localhost:8000/api/like/s2/recommendations/v1/papers/forpaper/DOI:'
             + article_doi
         )
+        params: dict = {
+            'fields': 'externalIds,title'
+        }
+        if max_recommendations is not None:
+            params['limit'] = max_recommendations
         response = self.requests_session.get(
             url=url,
-            params={
-                'fields': 'externalIds,title'
-            }
+            params=params
         )
         response.raise_for_status()
         response_json = response.json()

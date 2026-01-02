@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock
+from unittest.mock import ANY, MagicMock
 
 import pytest
 import requests
@@ -67,6 +67,28 @@ class TestScietyLabsApiSingleArticleRecommendationProvider:
             url=expected_url,
             params={
                 'fields': 'externalIds,title'
+            }
+        )
+
+    def test_should_pass_max_recommendations_to_api(
+        self,
+        sciety_labs_api_single_article_recommendation_provider:
+            ScietyLabsApiSingleArticleRecommendationProvider,
+        requests_session_mock: MagicMock
+    ) -> None:
+        (
+            sciety_labs_api_single_article_recommendation_provider
+            .get_article_recommendation_list_for_article_doi(
+                article_doi=ARTICLE_DOI_1,
+                max_recommendations=5
+            )
+        )
+
+        requests_session_mock.get.assert_called_once_with(
+            url=ANY,
+            params={
+                'fields': 'externalIds,title',
+                'limit': 5
             }
         )
 
