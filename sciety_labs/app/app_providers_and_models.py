@@ -27,6 +27,7 @@ from sciety_labs.providers.crossref.async_providers import (
 from sciety_labs.providers.opensearch.async_providers import (
     AsyncOpenSearchArticleRecommendation
 )
+from sciety_labs.providers.sciety_labs_api.like_s2.sync_providers import ScietyLabsApiSingleArticleRecommendationProvider
 from sciety_labs.providers.semantic_scholar.async_providers import (
     AsyncSemanticScholarSearchProvider,
     AsyncSemanticScholarTitleAbstractEmbeddingVectorProvider,
@@ -239,11 +240,10 @@ class AppProvidersAndModels:  # pylint: disable=too-many-instance-attributes
         self.article_recommendation_provider = get_article_recommendation_provider(
             semantic_scholar_provider=self.semantic_scholar_provider
         )
-        self.single_article_recommendation_provider = get_single_article_recommendation_provider(
-            opensearch_client=self.opensearch_client,
-            opensearch_config=self.opensearch_config,
-            crossref_metadata_provider=self.crossref_metadata_provider,
-            title_abstract_embedding_vector_provider=title_abstract_embedding_vector_provider
+        self.single_article_recommendation_provider = (
+            ScietyLabsApiSingleArticleRecommendationProvider(
+                requests_session=cached_requests_session
+            )
         )
         LOGGER.info(
             'single_article_recommendation_provider: %r',
