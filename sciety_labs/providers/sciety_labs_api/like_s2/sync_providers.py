@@ -1,13 +1,18 @@
 import logging
 from typing import Mapping, Optional
 
+from sciety_labs.models.article import iter_preprint_article_mention
 from sciety_labs.providers.interfaces.article_recommendation import (
     ArticleRecommendationFilterParameters,
     ArticleRecommendationList,
     SingleArticleRecommendationProvider
 )
 from sciety_labs.providers.utils.requests_provider import RequestsProvider
-from sciety_labs.utils.datetime import get_utcnow
+from sciety_labs.utils.requests import get_response_timestamp
+
+from sciety_labs.providers.semantic_scholar.utils import (
+    _iter_article_recommendation_from_recommendation_response_json
+)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -32,10 +37,21 @@ class ScietyLabsApiSingleArticleRecommendationProvider(
             'http://localhost:8000/api/like/s2/recommendations/v1/papers/forpaper/DOI:'
             + article_doi
         )
-        self.requests_session.get(
-            url=url
+        response = self.requests_session.get(
+            url=url,
+            params={
+                'fields': 'externalIds,title'
+            }
         )
+        response.raise_for_status()
+        response_json = response.json()
+        LOGGER.debug('Semantic Scholar, response_json=%r', response_json)
+        recommendation_timestamp = get_response_timestamp(response)
         return ArticleRecommendationList(
-            recommendations=[],
-            recommendation_timestamp=get_utcnow()
+            recommendations=list(iter_preprint_article_mention(
+                _iter_article_recommendation_from_recommendation_response_json(
+                    response_json
+                )
+            )),
+            recommendation_timestamp=recommendation_timestamp
         )
