@@ -44,7 +44,8 @@ class ScietyLabsApiSingleArticleRecommendationProvider(
             params['limit'] = max_recommendations
         response = self.requests_session.get(
             url=url,
-            params=params
+            params=params,
+            headers=self.get_headers(headers=headers)
         )
         response.raise_for_status()
         response_json = response.json()

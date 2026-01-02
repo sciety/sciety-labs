@@ -67,7 +67,10 @@ class TestScietyLabsApiSingleArticleRecommendationProvider:
             url=expected_url,
             params={
                 'fields': 'externalIds,title'
-            }
+            },
+            headers=sciety_labs_api_single_article_recommendation_provider.get_headers(
+                headers=None
+            )
         )
 
     def test_should_pass_max_recommendations_to_api(
@@ -89,7 +92,8 @@ class TestScietyLabsApiSingleArticleRecommendationProvider:
             params={
                 'fields': 'externalIds,title',
                 'limit': 5
-            }
+            },
+            headers=ANY
         )
 
     def test_should_parse_recommendation_response(
