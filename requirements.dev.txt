@@ -8,4 +8,4 @@ mypy==1.19.1
 httpx==0.28.1
 types-bleach==6.3.0.20251115
 types-PyYAML==6.0.12.20250915
-types-requests==2.32.4.20250913
+types-requests==2.32.4.20260107
