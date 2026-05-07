@@ -3,7 +3,7 @@ aiohttp-client-cache[sqlite]==0.14.3
 asyncstdlib==3.14.0
 bleach==6.3.0
 fastapi==0.136.1
-google-api-python-client==2.195.0
+google-api-python-client==2.196.0
 google-cloud-bigquery==3.41.0
 google-cloud-bigquery-storage==2.37.0
 Jinja2==3.1.6
