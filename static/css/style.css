@@ -307,3 +307,30 @@ section.article-stats {
   0%, 100% {}
   50% { border-color: transparent; }
 }
+
+.pwa-install-item {
+  flex-basis: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.pwa-install-item[hidden] {
+  display: none;
+}
+
+.pwa-install-link {
+  background: transparent;
+  border: 2px solid rgb(255, 255, 255);
+  border-radius: 6px;
+  padding: 0.5rem 1.5rem;
+  cursor: pointer;
+  color: rgb(255, 255, 255);
+  font-family: inherit;
+  font-size: 1.125rem;
+  font-weight: bold;
+}
+
+.pwa-install-link:hover,
+.pwa-install-link:focus {
+  background: rgba(255, 255, 255, 0.1);
+}
