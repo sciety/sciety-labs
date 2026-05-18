@@ -1,6 +1,7 @@
 import logging
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from sciety_labs.app.app_error_handlers import add_app_error_handlers
 from sciety_labs.app.app_middleware import add_app_middlware
@@ -47,6 +48,14 @@ def _create_app():  # pylint: disable=too-many-locals, too-many-statements
 
     app = FastAPI(docs_url=None, redoc_url=None)
     app.mount('/static', StaticFiles(directory='static', html=False), name='static')
+
+    @app.get('/sw.js', include_in_schema=False)
+    async def service_worker():
+        return FileResponse('static/sw.js', media_type='application/javascript')
+
+    @app.get('/offline', response_class=HTMLResponse, include_in_schema=False)
+    async def offline(request: Request):
+        return templates.TemplateResponse('pages/offline.html', {'request': request})
     app.mount('/api', create_api_app(
         app_providers_and_models=app_providers_and_models,
         app_update_manager=app_update_manager

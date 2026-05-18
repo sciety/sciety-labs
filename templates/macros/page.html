@@ -58,7 +58,7 @@
     <link rel="shortcut icon" href="/static/sciety/images/favicons/generated/favicon.ico">
     <meta name="msapplication-TileColor" content="#cf4500">
     <meta name="msapplication-config" content="/static/sciety/images/favicons/generated/browserconfig.xml">
-    <meta name="theme-color" content="#ffffff">
+    <meta name="theme-color" content="#cf4500">
     {%- if rss_url %}
     <link href="{{ rss_url }}" type="application/atom+xml" rel="alternate" title="RSS" />
     {%- endif %}
@@ -66,6 +66,11 @@
     {{ render_gtag_settings_script_block() }}
     {{ render_cookiebot(site_config.cookiebot_identifier) }}
     {{ render_gtm_script_block(site_config.google_tag_manager_id) }}
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js');
+        }
+    </script>
 </head>
 
 <body class="{{ '' if not from_sciety else 'from-sciety' }}">
