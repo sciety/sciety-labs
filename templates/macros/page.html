@@ -71,6 +71,7 @@
             navigator.serviceWorker.register('/sw.js');
         }
     </script>
+    <script src="/static/js/pwa-install.js" defer></script>
 </head>
 
 <body class="{{ '' if not from_sciety else 'from-sciety' }}">
@@ -143,6 +144,9 @@
                     <li class="main-footer__navigation_item">
                         <a href="https://www.facebook.com/ScietyHQ/"><img src="/static/sciety/images/facebook-white.svg"
                                 alt="Follow us on Facebook" /></a>
+                    </li>
+                    <li id="pwa-install-item" class="main-footer__navigation_item pwa-install-item" hidden>
+                        <button id="pwa-install-btn" class="pwa-install-link">Install app</button>
                     </li>
                 </ul>
                 <small class="main-footer__small_print">
