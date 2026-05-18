@@ -28,10 +28,18 @@ self.addEventListener('fetch', (event) => {
     const { request } = event;
     const url = new URL(request.url);
 
-    // Cache-first for static assets
+    // Stale-while-revalidate for static assets
     if (url.pathname.startsWith('/static/')) {
         event.respondWith(
-            caches.match(request).then((cached) => cached || fetch(request))
+            caches.open(STATIC_CACHE).then((cache) =>
+                cache.match(request).then((cached) => {
+                    const networkFetch = fetch(request).then((response) => {
+                        cache.put(request, response.clone());
+                        return response;
+                    });
+                    return cached || networkFetch;
+                })
+            )
         );
         return;
     }
