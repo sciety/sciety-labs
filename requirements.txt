@@ -2,7 +2,7 @@ aiohttp[speedups]==3.14.1
 aiohttp-client-cache[sqlite]==0.14.3
 asyncstdlib==3.14.0
 bleach==6.4.0
-fastapi==0.136.3
+fastapi==0.137.1
 google-api-python-client==2.197.0
 google-cloud-bigquery==3.41.0
 google-cloud-bigquery-storage==2.39.0
