@@ -2,9 +2,10 @@ DOCKER_COMPOSE_DEV = docker compose
 DOCKER_COMPOSE_CI = docker compose -f docker-compose.yml
 DOCKER_COMPOSE = $(DOCKER_COMPOSE_DEV)
 
-VENV = venv
-PIP = $(VENV)/bin/pip
-PYTHON = $(VENV)/bin/python
+VENV = .venv
+# `python -m` rather than the console scripts: it puts the working directory on
+# sys.path, which is how sciety_labs is imported (uv does not install it).
+PYTHON = uv run python
 
 DOCKER_RUN = $(DOCKER_COMPOSE) run --rm sciety-labs
 DOCKER_PYTHON = $(DOCKER_RUN) python
@@ -30,23 +31,11 @@ venv-clean:
 	fi
 
 
-venv-create:
-	python3 -m venv $(VENV)
-
-
-venv-activate:
-	chmod +x venv/bin/activate
-	bash -c "venv/bin/activate"
-
-
 dev-install:
-	$(PIP) install --disable-pip-version-check \
-		-r requirements.build.txt \
-		-r requirements.txt \
-		-r requirements.dev.txt
+	uv sync
 
 
-dev-venv: venv-create dev-install
+dev-venv: dev-install
 
 
 dev-flake8:
