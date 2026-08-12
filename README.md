@@ -8,7 +8,7 @@
 
 When using a Python virtual environment:
 
-* [Python 3](https://www.python.org/) ([pyenv](https://github.com/pyenv/pyenv) recommended)
+* [uv](https://docs.astral.sh/uv/) (it provisions the Python version itself)
 
 When using Docker:
 
@@ -49,25 +49,27 @@ The following environment variables can be used to configure the site:
 
 ## Development using a Python Virtual Environment (venv)
 
-### Install Python via pyenv
+### Install Python
 
-[pyenv](https://github.com/pyenv/pyenv) as recommended as it makes it easier to install multiple Python versions side by side.
-
-The Python version for this project is configured in [.python-version](.python-version).
+[uv](https://docs.astral.sh/uv/) installs the Python version for you. The version for this project is configured in [.python-version](.python-version), with the supported range in [pyproject.toml](pyproject.toml).
 
 ### First venv setup
 
-This will create the virtual environment and install dependencies.
+This will create `.venv` and install dependencies from the lockfile.
 
 ```bash
 make dev-venv
 ```
 
-### Install or update dependencies (from requirements)
+### Install or update dependencies
+
+Dependencies are declared in [pyproject.toml](pyproject.toml) and pinned in `uv.lock`.
 
 ```bash
 make dev-install
 ```
+
+To change a dependency, edit `pyproject.toml` and run `uv lock` to update the lockfile. Both are committed together.
 
 ### Run linting and unit tests
 

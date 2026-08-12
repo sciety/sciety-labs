@@ -1,4 +1,6 @@
 venv
+.venv
+worktrees
 .mypy_cache
 .pytest_cache
 .secrets
