@@ -8,6 +8,6 @@ SELECT
   event.evaluation_locator,
   event.published_at_timestamp,
   event.content
-FROM `elife-data-pipeline.prod.v_sciety_event` AS event
+FROM `elife-data-pipeline.prod.mv_sciety_event` AS event
 WHERE NOT event.is_duplicate_event
 ORDER BY event_timestamp
