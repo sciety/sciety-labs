@@ -6,9 +6,16 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from sciety_labs.app.app_templates import get_app_templates
 
-from sciety_labs.app.routers.articles import create_articles_router
+from sciety_labs.app.routers.articles import (
+    create_articles_router,
+    validate_article_doi_to_be_displayed
+)
 from sciety_labs.config.site_config import SiteConfig
-from sciety_labs.models.article import ArticleMetaData
+from sciety_labs.models.article import (
+    ARTICLE_DOIS_NOT_TO_BE_DISPLAYED,
+    ArticleMetaData,
+    ArticleNotFoundError
+)
 
 
 DOI_1 = '10.12345/test-doi-1'
@@ -48,3 +55,16 @@ class TestArticlesRouter:
             params={'article_doi': INVALID_DOI_1}
         )
         assert response.status_code == 422
+
+
+class TestValidateArticleDoiToBeDisplayed:
+    def test_should_not_raise_error_for_regular_article_doi(self):
+        validate_article_doi_to_be_displayed(article_doi=DOI_1)
+
+    @pytest.mark.parametrize('article_doi', ARTICLE_DOIS_NOT_TO_BE_DISPLAYED)
+    def test_should_raise_article_not_found_error_for_doi_not_to_be_displayed(
+        self,
+        article_doi: str
+    ):
+        with pytest.raises(ArticleNotFoundError):
+            validate_article_doi_to_be_displayed(article_doi=article_doi)

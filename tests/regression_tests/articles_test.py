@@ -1,6 +1,10 @@
 
 
+import pytest
+
 from requests import Session
+
+from sciety_labs.models.article import ARTICLE_DOIS_NOT_TO_BE_DISPLAYED
 
 from tests.regression_tests.test_data import DOI_1
 from tests.regression_tests.test_utils import ResponseWrapper
@@ -51,12 +55,14 @@ class TestArticlesPage:
         response.raise_for_status()
         assert ResponseWrapper(response).get_article_card_count() > 0
 
+    @pytest.mark.parametrize('article_doi', ARTICLE_DOIS_NOT_TO_BE_DISPLAYED)
     def test_should_filter_out_content_not_to_be_displayed_due_to_exceptional_circumstances(
         self,
-        regression_test_session: Session
+        regression_test_session: Session,
+        article_doi: str
     ):
         response = regression_test_session.get(
             '/articles/by',
-            params={'article_doi': '10.31235/osf.io/rzjc9'}
+            params={'article_doi': article_doi}
         )
         assert response.status_code == 404

@@ -7,6 +7,7 @@ from typing import Any, Iterable, List, Literal, Mapping, Optional, Sequence, ca
 import numpy.typing as npt
 
 from sciety_labs.models.article import (
+    ARTICLE_DOIS_NOT_TO_BE_DISPLAYED,
     ArticleMetaData,
     ArticleStats,
     InternalArticleFieldName,
@@ -467,10 +468,8 @@ IS_BIORXIV_MEDRXIV_DOI_PREFIX_OPENSEARCH_FILTER_DICT = {
 IS_ARTICLE_DOI_TO_BE_DISPLAYED_OPENSEARCH_FILTER_DICT = {
     'bool': {
         'must_not': {
-            "ids": {
-                "values": [
-                    "10.31235/osf.io/rzjc9"
-                ]
+            'ids': {
+                'values': ARTICLE_DOIS_NOT_TO_BE_DISPLAYED
             }
         }
     }
