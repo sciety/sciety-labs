@@ -15,7 +15,11 @@ from sciety_labs.app.utils.recommendation import (
     DEFAULT_PUBLISHED_WITHIN_LAST_N_DAYS_BY_EVALUATED_ONLY,
     get_article_recommendation_page_and_item_count_for_article_dois
 )
-from sciety_labs.models.article import ArticleNotFoundError, ArticleStats
+from sciety_labs.models.article import (
+    ARTICLE_DOIS_NOT_TO_BE_DISPLAYED,
+    ArticleNotFoundError,
+    ArticleStats
+)
 from sciety_labs.providers.interfaces.article_recommendation import (
     ArticleRecommendationFilterParameters
 )
@@ -33,7 +37,7 @@ AnnotatedArticleDoiQueryParameter = Annotated[
 
 
 def validate_article_doi_to_be_displayed(article_doi: str):
-    if article_doi == '10.31235/osf.io/rzjc9':
+    if article_doi in ARTICLE_DOIS_NOT_TO_BE_DISPLAYED:
         raise ArticleNotFoundError(article_doi=article_doi)
 
 

@@ -66,6 +66,13 @@ _KNOWN_PREPRINT_SERVER_REGEXP_SET = {
 }
 
 
+# DOIs not to be displayed due to exceptional circumstances
+ARTICLE_DOIS_NOT_TO_BE_DISPLAYED = [
+    '10.31235/osf.io/rzjc9',
+    '10.21203/rs.3.rs-3537643/v1'
+]
+
+
 def is_doi_article_id(article_id: str) -> bool:
     return article_id.startswith(DOI_ARTICLE_ID_PREFIX)
 
